@@ -41,5 +41,8 @@ void new_knob(Knob * knob, float width, float height, float x, float y) {
     vertexes_attributes[3].s = 1.0f;
     vertexes_attributes[3].t = 1.0f;
     
-    indices[0] = 
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 3;
 }
