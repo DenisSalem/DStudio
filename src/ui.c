@@ -40,19 +40,21 @@ int get_png_pixel(const char * filename, png_bytep * buffer) {
 
 void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
     glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
+    #ifdef DSTUDIO_DEBUG 
+    printf("glShaderSource : %d\n", glGetError()); 
+    #endif
     glCompileShader(shader_id);
-
+    #ifdef DSTUDIO_DEBUG
+        printf("glCompileShader : %d\n", glGetError());
+    #endif
     #ifdef DSTUDIO_DEBUG
         GLsizei info_log_length = 2048;
         char shader_error_message[2048] = {0};
-
         glGetShaderInfoLog(shader_id, info_log_length, NULL, shader_error_message);
-    
         if (strlen(shader_error_message) != 0) { 
             printf("%s\n", shader_error_message);
         }
     #endif
-
 }
 
 void load_shader(GLchar ** shader_buffer, const char * filename) {

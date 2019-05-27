@@ -28,6 +28,7 @@
         printf("gl" #name " couldn't be loaded from libGL.so\n"); \
         return -1;                                                \
     }
+    
 DSTUDIO_DEF_GL_FUN(void,            AttachShader,               GLuint program, GLuint shader)
 DSTUDIO_DEF_GL_FUN(void,            BindBuffer,                 GLenum target, GLuint buffer)
 DSTUDIO_DEF_GL_FUN(void,            BindVertexArray,            GLuint array)
@@ -36,7 +37,6 @@ DSTUDIO_DEF_GL_FUN(void,            CompileShader,              GLuint shader)
 DSTUDIO_DEF_GL_FUN(GLuint,          CreateProgram)
 DSTUDIO_DEF_GL_FUN(GLuint,          CreateShader,               GLenum shaderType)
 DSTUDIO_DEF_GL_FUN(void,            DeleteShader,               GLuint shader)
-DSTUDIO_DEF_GL_FUN(void,            EnableVertexAttribArray,    GLuint index)
 DSTUDIO_DEF_GL_FUN(void,            GenBuffers,                 GLsizei n, GLuint * buffers)
 DSTUDIO_DEF_GL_FUN(void,            GenerateMipmap,             GLenum target)
 DSTUDIO_DEF_GL_FUN(void,            GenVertexArrays,            GLsizei n, GLuint *arrays)

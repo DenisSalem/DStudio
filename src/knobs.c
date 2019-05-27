@@ -28,6 +28,10 @@ void init_knobs(Knobs * knobs, int count, GLuint texture_width, GLuint texture_h
     knobs->texture_height = texture_height;
     knobs->size_image_base = get_png_pixel(image_base, &knobs->image_base);
     knobs->size_image_cursor = get_png_pixel(image_cursor, &knobs->image_cursor);
+    knobs->image_base[0] = 255;
+    knobs->image_base[1] = 128;
+    knobs->image_base[2] = 0;
+    knobs->image_base[3] = 255;
     
     GLuint * vertex_indexes = knobs->vertex_indexes;
     vertex_indexes[0] = 0;
@@ -45,25 +49,30 @@ void free_knobs(Knobs * knobs) {
 void init_knob(Knobs * knobs, int index, float width, float height, float x, float y) {
     VertexAttributes * vertexes_attributes = knobs->items[index].vertexes_attributes;
     GLuint * vertex_buffer_object_p = &knobs->items[index].vertex_buffer_object;
+    
+    vertexes_attributes[0].x =  - (width / 640);
+    vertexes_attributes[0].y =  (height / 480);
 
-    vertexes_attributes[0].x = -1.0f;
-    vertexes_attributes[0].y =  1.0f;
-    vertexes_attributes[1].x = -1.0f;
-    vertexes_attributes[1].y = -1.0f;
-    vertexes_attributes[2].x =  1.0f;
-    vertexes_attributes[2].y =  1.0f;   
-    vertexes_attributes[3].x =  1.0f;
-    vertexes_attributes[3].y = -1.0f;
+    vertexes_attributes[1].x =  -(width  / 640);
+    vertexes_attributes[1].y =  -(height / 480);
+    
+    vertexes_attributes[2].x =  (width / 640);
+    vertexes_attributes[2].y =  (height/ 480);
+    
+    vertexes_attributes[3].x =  (width / 640);
+    vertexes_attributes[3].y = -(height/ 480); 
     
     vertexes_attributes[0].s = 0.0f;
     vertexes_attributes[0].t = 0.0f;
+    
     vertexes_attributes[1].s = 0.0f;
     vertexes_attributes[1].t = 1.0f;
+    
     vertexes_attributes[2].s = 1.0f;
     vertexes_attributes[2].t = 0.0f;
+    
     vertexes_attributes[3].s = 1.0f;
     vertexes_attributes[3].t = 1.0f;
-    
     
     glGenBuffers(1, vertex_buffer_object_p);
     glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);

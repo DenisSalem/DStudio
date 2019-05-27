@@ -19,13 +19,11 @@
 
 #version 330
 
-in vec2 TexCoord;
+uniform sampler2D texture_knob;
 
-//uniform sampler2D currentTexture;
-
+in vec2 fragment_texture_coordinates;
 out vec4 color;
 
 void main (void) {  
-   color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-   //color = texture(currentTexture, TexCoord);
+   color = texture(texture_knob, fragment_texture_coordinates);
 } 
