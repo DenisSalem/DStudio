@@ -36,6 +36,7 @@ int load_extensions() {
     DSTUDIO_BIND_GL_FUN(CreateProgram)
     DSTUDIO_BIND_GL_FUN(CreateShader)
     DSTUDIO_BIND_GL_FUN(DeleteShader)
+    DSTUDIO_BIND_GL_FUN(EnableVertexAttribArray)
     DSTUDIO_BIND_GL_FUN(GenBuffers)
     DSTUDIO_BIND_GL_FUN(GenerateMipmap)
     DSTUDIO_BIND_GL_FUN(GenVertexArrays)
