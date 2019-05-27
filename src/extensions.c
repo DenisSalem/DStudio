@@ -17,8 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "extensions.h"
 #include <stdio.h>
+
+#include "extensions.h"
 
 int load_extensions() {
     void* libGL = dlopen("libGL.so", RTLD_LAZY);
@@ -27,26 +28,38 @@ int load_extensions() {
         return -1;
     }
     
+    DSTUDIO_BIND_GL_FUN(AttachShader)
+    DSTUDIO_BIND_GL_FUN(BindBuffer)
+    DSTUDIO_BIND_GL_FUN(BindVertexArray)
+    DSTUDIO_BIND_GL_FUN(BufferData)
     DSTUDIO_BIND_GL_FUN(CompileShader)
+    DSTUDIO_BIND_GL_FUN(CreateProgram)
     DSTUDIO_BIND_GL_FUN(CreateShader)
-    
-    #ifdef DSTUDIO_DEBUG
-    DSTUDIO_BIND_GL_FUN(GetShaderInfoLog)
-    DSTUDIO_BIND_GL_FUN(GetStringi)
-    #endif
-
+    DSTUDIO_BIND_GL_FUN(DeleteShader)
+    DSTUDIO_BIND_GL_FUN(EnableVertexAttribArray)
+    DSTUDIO_BIND_GL_FUN(GenBuffers)
+    DSTUDIO_BIND_GL_FUN(GenerateMipmap)
+    DSTUDIO_BIND_GL_FUN(GenVertexArrays)
+    DSTUDIO_BIND_GL_FUN(LinkProgram)
+    DSTUDIO_BIND_GL_FUN(VertexAttribPointer)
     DSTUDIO_BIND_GL_FUN(ShaderSource)
     DSTUDIO_BIND_GL_FUN(UseProgram)
 
     #ifdef DSTUDIO_DEBUG
+    DSTUDIO_BIND_GL_FUN(GetProgramInfoLog)
+    DSTUDIO_BIND_GL_FUN(GetProgramiv)
+    DSTUDIO_BIND_GL_FUN(GetShaderInfoLog)
+    DSTUDIO_BIND_GL_FUN(GetStringi)
+    
+    
     GLint extensions_count;
     glGetIntegerv(GL_NUM_EXTENSIONS, &extensions_count);
     for (GLint i=0; i < extensions_count; i++) { 
         const char* extension = (const char*) glGetStringi(GL_EXTENSIONS, i);
         printf("Extention\t%d : %s\n", i, extension);
-    } 
+    }
+    
     #endif
     
     return 0;
 }
-

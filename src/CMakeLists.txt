@@ -25,7 +25,7 @@ add_executable(
 	mockup
 	main.c
     extensions.c
-    knob.c
+    knobs.c
     ui.c
 )
 

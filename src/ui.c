@@ -24,14 +24,13 @@
 #include "extensions.h"
 #include "ui.h"
 
-
 int get_png_pixel(const char * filename, png_bytep * buffer) {
     png_image image;
     memset(&image, 0, sizeof(image));
     image.version = PNG_IMAGE_VERSION;
     if (png_image_begin_read_from_file(&image, filename) != 0) {
         image.format = PNG_FORMAT_RGBA;
-        * buffer = malloc(PNG_IMAGE_SIZE(image));
+        *buffer = malloc(PNG_IMAGE_SIZE(image));
         if (*buffer != NULL && png_image_finish_read(&image, NULL, *buffer, 0, NULL) != 0) {
             return PNG_IMAGE_SIZE(image);
         }
@@ -44,8 +43,8 @@ void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
     glCompileShader(shader_id);
 
     #ifdef DSTUDIO_DEBUG
-        GLsizei info_log_length = 1024;
-        char shader_error_message[1024] = {0};
+        GLsizei info_log_length = 2048;
+        char shader_error_message[2048] = {0};
 
         glGetShaderInfoLog(shader_id, info_log_length, NULL, shader_error_message);
     

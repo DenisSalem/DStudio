@@ -24,9 +24,9 @@
     #include <GLFW/glfw3.h>
 #endif
 
+#include <png.h>
 #include <string.h>
 #include <stdlib.h>
-#include <png.h>
 
 typedef struct VertexAttributes_t {
     GLfloat x;
@@ -35,6 +35,9 @@ typedef struct VertexAttributes_t {
     GLfloat t;
 } VertexAttributes;
 
+/* 
+ * png_bytep is basically unsigned char
+ */
 int get_png_pixel(const char * filename, png_bytep * buffer);
 
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);
