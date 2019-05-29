@@ -7,6 +7,7 @@
 
 #include "knobs.h"
 #include "ui.h"
+#include "dsandgrains/ui.h"
 
 int main() {
     if (!glfwInit()) {
@@ -17,7 +18,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Knob PoC", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(480, 240, "Knob PoC", NULL, NULL);
     
     if (!window) {
             printf("!window\n");
@@ -35,6 +36,9 @@ int main() {
 
     GLchar * shader_buffer = NULL;
 
+    Background background;
+    init_background(&background);
+    
     Knobs test_knobs;
     init_knobs(&test_knobs, 1, 64, 64, "../assets/knob1_base.png", "../assets/knob1.png");
 
@@ -102,11 +106,16 @@ int main() {
         printf("%s\n", program_error_message);
     }
     #endif
-
+    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable( GL_BLEND );
     while (!glfwWindowShouldClose(window)) {
         usleep(40000);
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        render_background(&background, program_id);
+        
         glUseProgram(program_id);
             glBindTexture(GL_TEXTURE_2D, test_knobs.texture_image_base_id);
                 glBindVertexArray(vertex_array_object);
@@ -116,12 +125,12 @@ int main() {
                 glBindVertexArray(0);
             glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
-
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
     
     glfwTerminate();
-    free_knobs(&test_knobs);
+    //free_knobs(&test_knobs);
     return 0;
 }

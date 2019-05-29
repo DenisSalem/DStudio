@@ -28,6 +28,22 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define DSTUDIO_SET_S_T_COORDINATES \
+    vertexes_attributes[0].s = 0.0f; \
+    vertexes_attributes[0].t = 0.0f; \
+    vertexes_attributes[1].s = 0.0f; \
+    vertexes_attributes[1].t = 1.0f; \
+    vertexes_attributes[2].s = 1.0f; \
+    vertexes_attributes[2].t = 0.0f; \
+    vertexes_attributes[3].s = 1.0f; \
+    vertexes_attributes[3].t = 1.0f;
+    
+#define DSTUDIO_SET_VERTEX_INDEXES \
+    vertex_indexes[0] = 0; \
+    vertex_indexes[1] = 1; \
+    vertex_indexes[2] = 2; \
+    vertex_indexes[3] = 3;
+    
 typedef struct VertexAttributes_t {
     GLfloat x;
     GLfloat y;

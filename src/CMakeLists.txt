@@ -27,6 +27,7 @@ add_executable(
     extensions.c
     knobs.c
     ui.c
+    dsandgrains/ui.c
 )
 
 if(DEFINED DSTUDIO_USE_GLFW3)
