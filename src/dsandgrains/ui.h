@@ -17,20 +17,21 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DSANDGRAINS_VIEWPORT_WIDTH  480
-#define DSANDGRAINS_VIEWPORT_HEIGHT 240
+#define DSANDGRAINS_VIEWPORT_WIDTH  800
+#define DSANDGRAINS_VIEWPORT_HEIGHT 480
 
 #include "../ui.h"
 
 typedef struct Background_t {
     VertexAttributes    vertexes_attributes[4];
     GLuint              vertex_indexes[6];
-    unsigned char *            texture;
+    unsigned char *     texture;
     GLuint              vertex_array_object;
     GLuint              index_buffer_object;
     GLuint              vertex_buffer_object;
     GLuint              texture_id;
 } Background;
 
+void free_background(Background * background);
 void init_background(Background * background);
 void render_background(Background * background, GLint program_id);

@@ -19,26 +19,24 @@
 
 #include "ui.h"
 
-typedef struct Knob_t {
-    float rotation;
-    VertexAttributes vertexes_attributes[4];
-    GLuint vertex_buffer_object;
-} Knob;
+typedef struct UiKnobs_t {
+    unsigned char *             image_base;
+    unsigned char *             image_cursor;
+    VertexAttributes            vertexes_attributes[4];
+    InstanceTransformation  *   base_instance_transformations_buffer;
+    InstanceTransformation  *   cursor_instance_transformations_buffer;
+    GLint                       base_instance_transformations;
+    GLint                       cursor_instance_transformations;
+    GLuint                      vertex_buffer_object;
+    GLuint                      vertex_array_object;
+    GLchar                      vertex_indexes[4];
+    GLuint                      texture_image_base_id;
+    GLuint                      texture_image_cursor_id;
+    GLuint                      texture_scale;
+    GLuint                      index_buffer_object;
+} UiKnobs;
 
-typedef struct Knobs_t {
-    unsigned char * image_base;
-    unsigned char * image_cursor;
-    int             size_image_base;
-    int             size_image_cursor;
-    Knob *          items;
-    GLuint          vertex_indexes[6];
-    GLuint          texture_image_base_id;
-    GLuint          texture_image_cursor_id;
-    GLuint          texture_width;
-    GLuint          texture_height;
-    GLuint          program_id;
-} Knobs;
-
-void init_knob(Knobs * knobs, int index, float width, float height, float x, float y);
-void init_knobs(Knobs * knobs, int count, GLuint texture_width, GLuint texture_height, const char * image_base, const char * image_cursor);
-void free_knobs(Knobs * knobs);
+void free_knobs(UiKnobs * knobs);
+void init_knob(UiKnobs * knobs, int index, float scale, float x, float y);
+void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * image_base, const char * image_cursor);
+void render_knobs(UiKnobs * knobs);

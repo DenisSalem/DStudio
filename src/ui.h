@@ -28,6 +28,16 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define DSTUDIO_SET_VERTEX_ATTRIBUTES \
+    vertexes_attributes[0].x = -1.0; \
+    vertexes_attributes[0].y =  1.0; \
+    vertexes_attributes[1].x = -1.0; \
+    vertexes_attributes[1].y =  1.0-height; \
+    vertexes_attributes[2].x = -1.0+width; \
+    vertexes_attributes[2].y =  1.0; \
+    vertexes_attributes[3].x = -1.0+width; \
+    vertexes_attributes[3].y =  1.0-height;
+     
 #define DSTUDIO_SET_S_T_COORDINATES \
     vertexes_attributes[0].s = 0.0f; \
     vertexes_attributes[0].t = 0.0f; \
@@ -51,9 +61,13 @@ typedef struct VertexAttributes_t {
     GLfloat t;
 } VertexAttributes;
 
-/* 
- * png_bytep is basically unsigned char
- */
+typedef struct InstanceTransformation_t {
+    GLfloat offset_x;
+    GLfloat offset_y;
+    GLfloat rotation;
+} InstanceTransformation;
+
+// png_bytep is basically unsigned char
 int get_png_pixel(const char * filename, png_bytep * buffer);
 
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);

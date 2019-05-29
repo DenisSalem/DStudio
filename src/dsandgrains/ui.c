@@ -20,6 +20,14 @@
 #include "../extensions.h"
 #include "ui.h"
 
+void free_background(Background * background) {
+    glDeleteBuffers(1, &background->index_buffer_object);
+    glDeleteBuffers(1, &background->vertex_buffer_object);
+    glDeleteVertexArrays(1, &background->vertex_array_object);
+    glDeleteTextures(1, &background->texture_id);
+    free(background->texture);
+}
+
 void init_background(Background * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
     DSTUDIO_SET_VERTEX_INDEXES
@@ -71,8 +79,6 @@ void init_background(Background * background) {
 }
 
 void render_background(Background * background, GLint program_id) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(program_id);
         glBindTexture(GL_TEXTURE_2D, background->texture_id);
             glBindVertexArray(background->vertex_array_object);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, background->index_buffer_object);
@@ -80,5 +86,5 @@ void render_background(Background * background, GLint program_id) {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
-    glUseProgram(0);
 }
+
