@@ -29,14 +29,14 @@
 #include <stdlib.h>
 
 #define DSTUDIO_SET_VERTEX_ATTRIBUTES \
-    vertexes_attributes[0].x = -1.0; \
-    vertexes_attributes[0].y =  1.0; \
-    vertexes_attributes[1].x = -1.0; \
-    vertexes_attributes[1].y =  1.0-height; \
-    vertexes_attributes[2].x = -1.0+width; \
-    vertexes_attributes[2].y =  1.0; \
-    vertexes_attributes[3].x = -1.0+width; \
-    vertexes_attributes[3].y =  1.0-height;
+    vertexes_attributes[0].x = -width / 2; \
+    vertexes_attributes[0].y = height / 2; \
+    vertexes_attributes[1].x = -width / 2; \
+    vertexes_attributes[1].y = -height / 2; \
+    vertexes_attributes[2].x =  width / 2; \
+    vertexes_attributes[2].y =  height / 2; \
+    vertexes_attributes[3].x =  width / 2; \
+    vertexes_attributes[3].y = -height / 2;
      
 #define DSTUDIO_SET_S_T_COORDINATES \
     vertexes_attributes[0].s = 0.0f; \
@@ -54,18 +54,17 @@
     vertex_indexes[2] = 2; \
     vertex_indexes[3] = 3;
     
-typedef struct VertexAttributes_t {
+typedef struct Vec4_t {
     GLfloat x;
     GLfloat y;
     GLfloat s;
     GLfloat t;
-} VertexAttributes;
+} Vec4;
 
-typedef struct InstanceTransformation_t {
-    GLfloat offset_x;
-    GLfloat offset_y;
-    GLfloat rotation;
-} InstanceTransformation;
+typedef struct vec2_t {
+    GLfloat x;
+    GLfloat y;
+} Vec2;
 
 // png_bytep is basically unsigned char
 int get_png_pixel(const char * filename, png_bytep * buffer);

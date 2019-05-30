@@ -20,23 +20,23 @@
 #include "ui.h"
 
 typedef struct UiKnobs_t {
-    unsigned char *             image_base;
-    unsigned char *             image_cursor;
-    VertexAttributes            vertexes_attributes[4];
-    InstanceTransformation  *   base_instance_transformations_buffer;
-    InstanceTransformation  *   cursor_instance_transformations_buffer;
-    GLint                       base_instance_transformations;
-    GLint                       cursor_instance_transformations;
+    unsigned char *             texture;
+    Vec4                        vertexes_attributes[4];
+    int                         count;
+    Vec2  *                     instance_offsets_buffer;
+    GLint                       instance_offsets;
+    GLfloat  *                  instance_rotations_buffer;
+    GLint                       instance_rotations;
     GLuint                      vertex_buffer_object;
     GLuint                      vertex_array_object;
     GLchar                      vertex_indexes[4];
-    GLuint                      texture_image_base_id;
-    GLuint                      texture_image_cursor_id;
+    GLuint                      texture_id;
     GLuint                      texture_scale;
     GLuint                      index_buffer_object;
 } UiKnobs;
 
 void free_knobs(UiKnobs * knobs);
-void init_knob(UiKnobs * knobs, int index, float scale, float x, float y);
-void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * image_base, const char * image_cursor);
+void finalize_knobs(UiKnobs * knobs);
+void init_knob(UiKnobs * knobs, int index, float x, float y);
+void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
 void render_knobs(UiKnobs * knobs);

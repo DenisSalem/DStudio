@@ -23,7 +23,7 @@
 #include "../ui.h"
 
 typedef struct Background_t {
-    VertexAttributes    vertexes_attributes[4];
+    Vec4    vertexes_attributes[4];
     GLuint              vertex_indexes[6];
     unsigned char *     texture;
     GLuint              vertex_array_object;
@@ -34,4 +34,4 @@ typedef struct Background_t {
 
 void free_background(Background * background);
 void init_background(Background * background);
-void render_background(Background * background, GLint program_id);
+void render_background(Background * background);

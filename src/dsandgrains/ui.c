@@ -32,7 +32,7 @@ void init_background(Background * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
     DSTUDIO_SET_VERTEX_INDEXES
         
-    VertexAttributes * vertexes_attributes = background->vertexes_attributes;
+    Vec4 * vertexes_attributes = background->vertexes_attributes;
     vertexes_attributes[0].x = -1.0f;
     vertexes_attributes[0].y =  1.0f;
     vertexes_attributes[1].x = -1.0f;
@@ -53,7 +53,7 @@ void init_background(Background * background) {
     GLuint * vertex_buffer_object_p = &background->vertex_buffer_object;
     glGenBuffers(1, vertex_buffer_object_p);
     glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(VertexAttributes) * 4, vertexes_attributes, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     get_png_pixel("../assets/dsandgrains_background.png", &background->texture);
@@ -78,7 +78,7 @@ void init_background(Background * background) {
     glBindVertexArray(0);
 }
 
-void render_background(Background * background, GLint program_id) {
+void render_background(Background * background) {
         glBindTexture(GL_TEXTURE_2D, background->texture_id);
             glBindVertexArray(background->vertex_array_object);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, background->index_buffer_object);
