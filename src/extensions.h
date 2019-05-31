@@ -45,11 +45,14 @@ DSTUDIO_DEF_GL_FUN(void,            EnableVertexAttribArray,    GLuint index)
 DSTUDIO_DEF_GL_FUN(void,            GenBuffers,                 GLsizei n, GLuint * buffers)
 DSTUDIO_DEF_GL_FUN(void,            GenerateMipmap,             GLenum target)
 DSTUDIO_DEF_GL_FUN(void,            GenVertexArrays,            GLsizei n, GLuint *arrays)
+DSTUDIO_DEF_GL_FUN(GLint,           GetUniformLocation,         GLuint program, const GLchar *name)
 DSTUDIO_DEF_GL_FUN(void,            LinkProgram,                GLuint program)
 DSTUDIO_DEF_GL_FUN(void,            VertexAttribDivisor,        GLuint index, GLuint divisor)
 DSTUDIO_DEF_GL_FUN(void,            VertexAttribPointer,        GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer)
-DSTUDIO_DEF_GL_FUN(void,            ShaderSource,               GLuint shader, GLsizei count, const GLchar **string, const GLint *length)     
+DSTUDIO_DEF_GL_FUN(void,            UniformMatrix2fv,           GLint location,  GLsizei count,  GLboolean transpose,  const GLfloat *value)
 DSTUDIO_DEF_GL_FUN(void,            UseProgram,                 GLuint program)
+DSTUDIO_DEF_GL_FUN(void,            ShaderSource,               GLuint shader, GLsizei count, const GLchar **string, const GLint *length)     
+
 
 #ifdef DSTUDIO_DEBUG
 DSTUDIO_DEF_GL_FUN(void,            GetProgramInfoLog,          GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)

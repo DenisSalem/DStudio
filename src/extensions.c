@@ -44,10 +44,12 @@ int load_extensions() {
     DSTUDIO_BIND_GL_FUN(GenBuffers)
     DSTUDIO_BIND_GL_FUN(GenerateMipmap)
     DSTUDIO_BIND_GL_FUN(GenVertexArrays)
+    DSTUDIO_BIND_GL_FUN(GetUniformLocation)
     DSTUDIO_BIND_GL_FUN(LinkProgram)
     DSTUDIO_BIND_GL_FUN(VertexAttribDivisor)
     DSTUDIO_BIND_GL_FUN(VertexAttribPointer)
     DSTUDIO_BIND_GL_FUN(ShaderSource)
+    DSTUDIO_BIND_GL_FUN(UniformMatrix2fv)
     DSTUDIO_BIND_GL_FUN(UseProgram)
 
     #ifdef DSTUDIO_DEBUG

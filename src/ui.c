@@ -62,8 +62,8 @@ void create_shader_program(GLuint * interactive_program_id, GLuint * non_interac
     int info_log_length = 2048;
     char program_error_message[2048] = {0};
 
-    glGetProgramiv(interactive_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-    glGetProgramInfoLog(interactive_program_id, info_log_length, NULL, program_error_message);
+    glGetProgramiv(*interactive_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+    glGetProgramInfoLog(*interactive_program_id, info_log_length, NULL, program_error_message);
 
     if (strlen(program_error_message) != 0) {
         printf("%s\n", program_error_message);

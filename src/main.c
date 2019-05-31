@@ -50,7 +50,8 @@ int main() {
     init_knob(&sample_knobs, 5, -0.7075, -0.3291);
     init_knob(&sample_knobs, 6, -0.5475, -0.3291);
     init_knob(&sample_knobs, 7, -0.3875, -0.3291);
-    finalize_knobs(&sample_knobs);
+    
+    finalize_knobs(&sample_knobs, interactive_program_id);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );

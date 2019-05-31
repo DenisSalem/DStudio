@@ -29,24 +29,24 @@
 #include <stdlib.h>
 
 #define DSTUDIO_SET_VERTEX_ATTRIBUTES \
-    vertexes_attributes[0].x = -width / 2; \
-    vertexes_attributes[0].y = height / 2; \
-    vertexes_attributes[1].x = -width / 2; \
-    vertexes_attributes[1].y = -height / 2; \
-    vertexes_attributes[2].x =  width / 2; \
-    vertexes_attributes[2].y =  height / 2; \
-    vertexes_attributes[3].x =  width / 2; \
-    vertexes_attributes[3].y = -height / 2;
+    vertexes_attributes[0].x = -1.0; \
+    vertexes_attributes[0].y = 1.0; \
+    vertexes_attributes[1].x = -1.0; \
+    vertexes_attributes[1].y = -1.0; \
+    vertexes_attributes[2].x =  1.0; \
+    vertexes_attributes[2].y =  1.0; \
+    vertexes_attributes[3].x =  1.0; \
+    vertexes_attributes[3].y = -1.0;
      
 #define DSTUDIO_SET_S_T_COORDINATES \
-    vertexes_attributes[0].s = 0.0f; \
-    vertexes_attributes[0].t = 0.0f; \
-    vertexes_attributes[1].s = 0.0f; \
-    vertexes_attributes[1].t = 1.0f; \
-    vertexes_attributes[2].s = 1.0f; \
-    vertexes_attributes[2].t = 0.0f; \
-    vertexes_attributes[3].s = 1.0f; \
-    vertexes_attributes[3].t = 1.0f;
+    vertexes_attributes[0].z = 0.0f; \
+    vertexes_attributes[0].w = 0.0f; \
+    vertexes_attributes[1].z = 0.0f; \
+    vertexes_attributes[1].w = 1.0f; \
+    vertexes_attributes[2].z = 1.0f; \
+    vertexes_attributes[2].w = 0.0f; \
+    vertexes_attributes[3].z = 1.0f; \
+    vertexes_attributes[3].w = 1.0f;
     
 #define DSTUDIO_SET_VERTEX_INDEXES \
     vertex_indexes[0] = 0; \
@@ -57,8 +57,8 @@
 typedef struct Vec4_t {
     GLfloat x;
     GLfloat y;
-    GLfloat s;
-    GLfloat t;
+    GLfloat z;
+    GLfloat w;
 } Vec4;
 
 typedef struct vec2_t {

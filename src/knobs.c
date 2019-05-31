@@ -32,7 +32,7 @@ void free_knobs(UiKnobs * knobs) {
     free(knobs->texture);
 }
 
-void finalize_knobs(UiKnobs * knobs) {
+void finalize_knobs(UiKnobs * knobs, GLuint program_id) {
     glGenBuffers(1, &knobs->instance_offsets);
     glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_offsets);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * knobs->count, knobs->instance_offsets_buffer, GL_STATIC_DRAW);
@@ -46,7 +46,7 @@ void finalize_knobs(UiKnobs * knobs) {
     knobs->instance_rotations_buffer[4] = 0.4*3;
     knobs->instance_rotations_buffer[5] = 0.5*3;
     knobs->instance_rotations_buffer[6] = 0.6*3;
-    knobs->instance_rotations_buffer[7] = 0.7*3;
+    knobs->instance_rotations_buffer[7] = 3.1415 / 2;
 
     glGenBuffers(1, &knobs->instance_rotations);
     glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_rotations);
@@ -72,6 +72,11 @@ void finalize_knobs(UiKnobs * knobs) {
             glVertexAttribDivisor(3, 1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    
+    GLuint scale_matrix_id = glGetUniformLocation(program_id, "scale_matrix");
+    glUseProgram(program_id);
+    glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, &knobs->scale_matrix[0].x);
+    glUseProgram(0);
 }
 
 void init_knob(UiKnobs * knobs, int index, float offset_x, float offset_y) {    
@@ -92,8 +97,10 @@ void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * t
     GLchar * vertex_indexes = knobs->vertex_indexes;
     DSTUDIO_SET_VERTEX_INDEXES
     
-    GLfloat width  = ((float) texture_scale) / (DSANDGRAINS_VIEWPORT_WIDTH >> 1);
-    GLfloat height = ((float) texture_scale) / (DSANDGRAINS_VIEWPORT_HEIGHT >> 1);
+    knobs->scale_matrix[0].x = ((float) texture_scale) / ((float) DSANDGRAINS_VIEWPORT_WIDTH);
+    knobs->scale_matrix[0].y = 0;
+    knobs->scale_matrix[1].x = 0;
+    knobs->scale_matrix[1].y = ((float) texture_scale) / ((float) DSANDGRAINS_VIEWPORT_HEIGHT);
     
     Vec4 * vertexes_attributes = knobs->vertexes_attributes;
     DSTUDIO_SET_VERTEX_ATTRIBUTES

@@ -22,6 +22,7 @@
 typedef struct UiKnobs_t {
     unsigned char *             texture;
     Vec4                        vertexes_attributes[4];
+    Vec2                        scale_matrix[2];
     int                         count;
     Vec2  *                     instance_offsets_buffer;
     GLint                       instance_offsets;
@@ -36,7 +37,7 @@ typedef struct UiKnobs_t {
 } UiKnobs;
 
 void free_knobs(UiKnobs * knobs);
-void finalize_knobs(UiKnobs * knobs);
+void finalize_knobs(UiKnobs * knobs, GLuint program_id);
 void init_knob(UiKnobs * knobs, int index, float x, float y);
 void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
 void render_knobs(UiKnobs * knobs);
