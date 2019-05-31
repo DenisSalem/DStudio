@@ -19,13 +19,23 @@
 
 #version 330
 
-layout(location = 0) in vec2 vertex_position;
-layout(location = 1) in vec2 texture_coordinates;
-layout(location = 2) in vec2 offset;
+layout(location = 0) in vec2  vertex_position;
+layout(location = 1) in vec2  texture_coordinates;
+layout(location = 2) in vec2  translation;
+layout(location = 3) in float rotation;
 
 out vec2 fragment_texture_coordinates;
 
 void main() {
-    gl_Position = vec4(vertex_position + offset, 0, 1.0);
+    
+    vec2 applied_rotation; 
+    if (rotation != 0) {
+        applied_rotation.x = vertex_position.x * cos(rotation) - vertex_position.y * sin(rotation);
+        applied_rotation.y = vertex_position.x * sin(rotation) + vertex_position.y * cos(rotation);
+    }
+    else {
+        applied_rotation = vertex_position.xy;
+    }
+    gl_Position = vec4(applied_rotation + translation, 0, 1.0);
     fragment_texture_coordinates = texture_coordinates;
 } 

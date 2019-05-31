@@ -17,7 +17,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "Knob PoC", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
     
     if (!window) {
             printf("!window\n");
@@ -33,51 +33,8 @@ int main() {
         return 0;        
     }
 
-    GLchar * shader_buffer = NULL;
-    // NON INTERACTIVE VERTEX SHADER
-    GLuint non_interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    load_shader(&shader_buffer, "../non_interactive_vertex.shader");
-    compile_shader(non_interactive_vertex_shader, &shader_buffer);
-    free(shader_buffer);
- 
-     // INTERACTIVE VERTEX SHADER
-    GLuint interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    load_shader(&shader_buffer, "../interactive_vertex.shader");
-    compile_shader(interactive_vertex_shader, &shader_buffer);
-    free(shader_buffer);
-
-    //FRAGMENT SHADER
-    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    load_shader(&shader_buffer, "../fragment.shader");
-    compile_shader(fragment_shader, &shader_buffer);
-
-    // Linking Shader
-    GLuint non_interactive_program_id = glCreateProgram();
-    glAttachShader(non_interactive_program_id, non_interactive_vertex_shader);
-    glAttachShader(non_interactive_program_id, fragment_shader);
-    glLinkProgram(non_interactive_program_id);
-
-    GLuint interactive_program_id = glCreateProgram();
-    glAttachShader(interactive_program_id, interactive_vertex_shader);
-    glAttachShader(interactive_program_id, fragment_shader);
-    glLinkProgram(interactive_program_id);
-    
-    glDeleteShader(non_interactive_vertex_shader);
-    glDeleteShader(interactive_vertex_shader);
-    glDeleteShader(fragment_shader);
-
-    #ifdef DSTUDIO_DEBUG
-    int info_log_length = 2048;
-    char program_error_message[2048] = {0};
-
-    glGetProgramiv(interactive_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-    glGetProgramInfoLog(interactive_program_id, info_log_length, NULL, program_error_message);
-
-    if (strlen(program_error_message) != 0) {
-        printf("%s\n", program_error_message);
-    }
-    
-    #endif
+    GLuint interactive_program_id, non_interactive_program_id;
+    create_shader_program(&interactive_program_id, &non_interactive_program_id);
 
     Background background;
     init_background(&background);

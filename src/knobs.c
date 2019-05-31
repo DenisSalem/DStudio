@@ -37,6 +37,21 @@ void finalize_knobs(UiKnobs * knobs) {
     glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_offsets);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * knobs->count, knobs->instance_offsets_buffer, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    knobs->instance_rotations_buffer[0] = 0;
+    knobs->instance_rotations_buffer[1] = 0.1*3;
+    knobs->instance_rotations_buffer[2] = 0.2*3;
+    knobs->instance_rotations_buffer[3] = 0.3*3;
+
+    knobs->instance_rotations_buffer[4] = 0.4*3;
+    knobs->instance_rotations_buffer[5] = 0.5*3;
+    knobs->instance_rotations_buffer[6] = 0.6*3;
+    knobs->instance_rotations_buffer[7] = 0.7*3;
+
+    glGenBuffers(1, &knobs->instance_rotations);
+    glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_rotations);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * knobs->count, knobs->instance_rotations_buffer, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     glGenVertexArrays(1, &knobs->vertex_array_object);
     glBindVertexArray(knobs->vertex_array_object);
@@ -48,9 +63,13 @@ void finalize_knobs(UiKnobs * knobs) {
             glEnableVertexAttribArray(1);
             glVertexAttribDivisor(1, 0);
         glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_offsets);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (GLvoid *)(0 * sizeof(GLfloat)));
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (GLvoid *) 0 );
             glEnableVertexAttribArray(2);
             glVertexAttribDivisor(2, 1);
+        glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_rotations);
+            glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
+            glEnableVertexAttribArray(3);
+            glVertexAttribDivisor(3, 1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -59,11 +78,14 @@ void init_knob(UiKnobs * knobs, int index, float offset_x, float offset_y) {
     Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
     instance_offset->x = offset_x;
     instance_offset->y = offset_y;
+    
+    knobs->instance_rotations_buffer[index] = 0;
 }
 
 void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
     knobs->count = count;
     knobs->instance_offsets_buffer = malloc(count * sizeof(Vec2));
+    knobs->instance_rotations_buffer = malloc(count * sizeof(GLfloat));
     knobs->texture_scale = texture_scale;
     get_png_pixel(texture_filename, &knobs->texture);
     

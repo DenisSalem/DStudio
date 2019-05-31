@@ -24,6 +24,54 @@
 #include "extensions.h"
 #include "ui.h"
 
+void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id) {
+    GLchar * shader_buffer = NULL;
+    // NON INTERACTIVE VERTEX SHADER
+    GLuint non_interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    load_shader(&shader_buffer, "../non_interactive_vertex.shader");
+    compile_shader(non_interactive_vertex_shader, &shader_buffer);
+    free(shader_buffer);
+ 
+     // INTERACTIVE VERTEX SHADER
+    GLuint interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    load_shader(&shader_buffer, "../interactive_vertex.shader");
+    compile_shader(interactive_vertex_shader, &shader_buffer);
+    free(shader_buffer);
+
+    //FRAGMENT SHADER
+    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    load_shader(&shader_buffer, "../fragment.shader");
+    compile_shader(fragment_shader, &shader_buffer);
+
+    // Linking Shader
+    *non_interactive_program_id = glCreateProgram();
+    glAttachShader(*non_interactive_program_id, non_interactive_vertex_shader);
+    glAttachShader(*non_interactive_program_id, fragment_shader);
+    glLinkProgram(*non_interactive_program_id);
+
+    *interactive_program_id = glCreateProgram();
+    glAttachShader(*interactive_program_id, interactive_vertex_shader);
+    glAttachShader(*interactive_program_id, fragment_shader);
+    glLinkProgram(*interactive_program_id);
+    
+    glDeleteShader(non_interactive_vertex_shader);
+    glDeleteShader(interactive_vertex_shader);
+    glDeleteShader(fragment_shader);
+
+    #ifdef DSTUDIO_DEBUG
+    int info_log_length = 2048;
+    char program_error_message[2048] = {0};
+
+    glGetProgramiv(interactive_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+    glGetProgramInfoLog(interactive_program_id, info_log_length, NULL, program_error_message);
+
+    if (strlen(program_error_message) != 0) {
+        printf("%s\n", program_error_message);
+    }
+    
+    #endif
+}
+
 int get_png_pixel(const char * filename, png_bytep * buffer) {
     png_image image;
     memset(&image, 0, sizeof(image));

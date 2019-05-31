@@ -66,9 +66,9 @@ typedef struct vec2_t {
     GLfloat y;
 } Vec2;
 
+void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
 // png_bytep is basically unsigned char
 int get_png_pixel(const char * filename, png_bytep * buffer);
-
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);
 void load_shader(GLchar ** shader_buffer, const char * filename);
 

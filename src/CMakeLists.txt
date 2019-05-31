@@ -22,7 +22,7 @@ find_package(OpenGL REQUIRED)
 find_package(PNG REQUIRED)
 
 add_executable(
-	mockup
+	dsandgrains
 	main.c
     extensions.c
     knobs.c
@@ -32,8 +32,14 @@ add_executable(
 
 if(DEFINED DSTUDIO_USE_GLFW3)
     add_definitions(-DDSTUDIO_USE_GLFW3)
-    target_link_libraries(mockup glfw)
+    target_link_libraries(dsandgrains glfw)
 endif()
 
-target_include_directories(mockup PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-target_link_libraries(mockup ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} )
+target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
+target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} )
+
+add_custom_command(
+    TARGET dsandgrains POST_BUILD
+    COMMAND strip --strip-unneeded -s -R .comment -R .gnu.version dsandgrains
+    COMMENT "strip --strip-unneeded -s -R .comment -R .gnu.version dsandgrains"
+)
