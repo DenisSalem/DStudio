@@ -33,6 +33,7 @@ DSTUDIO_DEF_GL_FUN(void,            AttachShader,               GLuint program, 
 DSTUDIO_DEF_GL_FUN(void,            BindBuffer,                 GLenum target, GLuint buffer)
 DSTUDIO_DEF_GL_FUN(void,            BindVertexArray,            GLuint array)
 DSTUDIO_DEF_GL_FUN(void,            BufferData,                 GLenum target, GLsizeiptr size, const GLvoid * data, GLenum usage)
+DSTUDIO_DEF_GL_FUN(void,            BufferSubData,              GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data)
 DSTUDIO_DEF_GL_FUN(void,            CompileShader,              GLuint shader) 
 DSTUDIO_DEF_GL_FUN(GLuint,          CreateProgram)
 DSTUDIO_DEF_GL_FUN(GLuint,          CreateShader,               GLenum shaderType)
@@ -52,7 +53,6 @@ DSTUDIO_DEF_GL_FUN(void,            VertexAttribPointer,        GLuint index, GL
 DSTUDIO_DEF_GL_FUN(void,            UniformMatrix2fv,           GLint location,  GLsizei count,  GLboolean transpose,  const GLfloat *value)
 DSTUDIO_DEF_GL_FUN(void,            UseProgram,                 GLuint program)
 DSTUDIO_DEF_GL_FUN(void,            ShaderSource,               GLuint shader, GLsizei count, const GLchar **string, const GLint *length)     
-
 
 #ifdef DSTUDIO_DEBUG
 DSTUDIO_DEF_GL_FUN(void,            GetProgramInfoLog,          GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)

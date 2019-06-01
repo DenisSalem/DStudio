@@ -17,10 +17,88 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include "../extensions.h"
+
+#ifdef DSTUDIO_USE_GLFW3
+    #include <GLFW/glfw3.h>
+#endif
+
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "../common.h"
+#include "../knobs.h"
 #include "ui.h"
 
-void free_background(Background * background) {
+void * ui_thread(void * arg) {
+    UI * ui = arg;
+    UiBackground * background_p = &ui->background;
+    UiKnobs * sample_knobs_p = &ui->sample_knobs;
+    
+    EXIT_IF_FAILURE( (glfwInit() != GLFW_TRUE) )
+    
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    
+    GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
+    
+    EXIT_IF_FAILURE_GLFW_TERMINATE((window == 0))
+        
+    glfwMakeContextCurrent(window);
+
+    EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
+
+    GLuint interactive_program_id, non_interactive_program_id;
+    create_shader_program(&interactive_program_id, &non_interactive_program_id);
+
+    init_background(background_p);
+    
+    init_knobs(sample_knobs_p, 8, 64, "../assets/knob1.png");
+
+    init_knob(sample_knobs_p, 0, -0.8675, 0.0703);
+    init_knob(sample_knobs_p, 1, -0.7075, 0.0703);
+    init_knob(sample_knobs_p, 2, -0.5475, 0.0703);
+    init_knob(sample_knobs_p, 3, -0.3875, 0.0703);
+    init_knob(sample_knobs_p, 4, -0.8675, -0.3291);
+    init_knob(sample_knobs_p, 5, -0.7075, -0.3291);
+    init_knob(sample_knobs_p, 6, -0.5475, -0.3291);
+    init_knob(sample_knobs_p, 7, -0.3875, -0.3291);
+    
+    finalize_knobs(sample_knobs_p, interactive_program_id);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable( GL_BLEND );
+    while (!glfwWindowShouldClose(window)) {
+        usleep(40000);
+
+        glBindBuffer(GL_ARRAY_BUFFER, sample_knobs_p->instance_rotations);
+        sample_knobs_p->instance_rotations_buffer[0] += 0.05;
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sample_knobs_p->count, sample_knobs_p->instance_rotations_buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUseProgram(non_interactive_program_id);
+            render_background(background_p);
+
+        glUseProgram(interactive_program_id);
+            render_knobs(sample_knobs_p);
+            
+        glUseProgram(0);
+        
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    glDeleteProgram(non_interactive_program_id);
+    glDeleteProgram(interactive_program_id);
+    free_knobs(sample_knobs_p);
+    free_background(background_p);
+    glfwTerminate();
+    return NULL;
+}
+
+static void free_background(UiBackground * background) {
     glDeleteBuffers(1, &background->index_buffer_object);
     glDeleteBuffers(1, &background->vertex_buffer_object);
     glDeleteVertexArrays(1, &background->vertex_array_object);
@@ -28,7 +106,7 @@ void free_background(Background * background) {
     free(background->texture);
 }
 
-void init_background(Background * background) {
+static void init_background(UiBackground * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
     DSTUDIO_SET_VERTEX_INDEXES
         
@@ -78,7 +156,7 @@ void init_background(Background * background) {
     glBindVertexArray(0);
 }
 
-void render_background(Background * background) {
+static void render_background(UiBackground * background) {
         glBindTexture(GL_TEXTURE_2D, background->texture_id);
             glBindVertexArray(background->vertex_array_object);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, background->index_buffer_object);
@@ -87,4 +165,3 @@ void render_background(Background * background) {
             glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
 }
-

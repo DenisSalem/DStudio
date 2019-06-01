@@ -32,6 +32,7 @@ int load_extensions() {
     DSTUDIO_BIND_GL_FUN(BindBuffer)
     DSTUDIO_BIND_GL_FUN(BindVertexArray)
     DSTUDIO_BIND_GL_FUN(BufferData)
+    DSTUDIO_BIND_GL_FUN(BufferSubData)
     DSTUDIO_BIND_GL_FUN(CompileShader)
     DSTUDIO_BIND_GL_FUN(CreateProgram)
     DSTUDIO_BIND_GL_FUN(CreateShader)
@@ -57,7 +58,6 @@ int load_extensions() {
     DSTUDIO_BIND_GL_FUN(GetProgramiv)
     DSTUDIO_BIND_GL_FUN(GetShaderInfoLog)
     DSTUDIO_BIND_GL_FUN(GetStringi)
-    
     
     GLint extensions_count;
     glGetIntegerv(GL_NUM_EXTENSIONS, &extensions_count);

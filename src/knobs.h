@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef DSTUDIO_KNOBS_H_INCLUDED
+#define DSTUDIO_KNOBS_H_INCLUDED
 
 #include "ui.h"
 
@@ -41,3 +43,5 @@ void finalize_knobs(UiKnobs * knobs, GLuint program_id);
 void init_knob(UiKnobs * knobs, int index, float x, float y);
 void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
 void render_knobs(UiKnobs * knobs);
+
+#endif

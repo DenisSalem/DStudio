@@ -20,9 +20,10 @@
 #define DSANDGRAINS_VIEWPORT_WIDTH  800
 #define DSANDGRAINS_VIEWPORT_HEIGHT 480
 
+#include "../knobs.h"
 #include "../ui.h"
 
-typedef struct Background_t {
+typedef struct UiBackground_t {
     Vec4    vertexes_attributes[4];
     GLuint              vertex_indexes[6];
     unsigned char *     texture;
@@ -30,8 +31,14 @@ typedef struct Background_t {
     GLuint              index_buffer_object;
     GLuint              vertex_buffer_object;
     GLuint              texture_id;
-} Background;
+} UiBackground;
 
-void free_background(Background * background);
-void init_background(Background * background);
-void render_background(Background * background);
+typedef struct UI_t {
+    UiBackground  background;
+    UiKnobs       sample_knobs;
+} UI;
+
+static void free_background(UiBackground * background);
+static void init_background(UiBackground * background);
+static void render_background(UiBackground * background);
+void * ui_thread(void * arg);

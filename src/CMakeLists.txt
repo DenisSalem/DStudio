@@ -5,7 +5,7 @@ set(PACKAGE_VERSION "0.0.0")
 if ( (NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE MATCHES Release))
     message(STATUS "Release mode. ${CMAKE_CXX_FLAGS_RELEASE} -Wall")
     set(CMAKE_BUILD_TYPE "Release")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wallma")
 
 endif()
 
@@ -17,13 +17,16 @@ endif()
 
 set(DSTUDIO_USE_GLFW3 "1")
 
-find_package(glfw3 REQUIRED)
+if(DEFINED DSTUDIO_USE_GLFW3)
+    find_package(glfw3 REQUIRED)
+endif()
+
 find_package(OpenGL REQUIRED)
 find_package(PNG REQUIRED)
-
+find_package (Threads REQUIRED)
 add_executable(
 	dsandgrains
-	main.c
+	dsandgrains/main.c
     extensions.c
     knobs.c
     ui.c
@@ -36,7 +39,7 @@ if(DEFINED DSTUDIO_USE_GLFW3)
 endif()
 
 target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} )
+target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_custom_command(
     TARGET dsandgrains POST_BUILD
