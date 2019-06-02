@@ -23,7 +23,7 @@
 #include "dsandgrains/ui.h"
 #include "knobs.h"
 
-void free_knobs(UiKnobs * knobs) {
+void free_knobs(UIKnobs * knobs) {
     glDeleteBuffers(1, &knobs->index_buffer_object);
     glDeleteBuffers(1, &knobs->vertex_buffer_object);
     glDeleteVertexArrays(1, &knobs->vertex_array_object);
@@ -32,21 +32,11 @@ void free_knobs(UiKnobs * knobs) {
     free(knobs->texture);
 }
 
-void finalize_knobs(UiKnobs * knobs, GLuint program_id) {
+void finalize_knobs(UIKnobs * knobs, GLuint program_id) {
     glGenBuffers(1, &knobs->instance_offsets);
     glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_offsets);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * knobs->count, knobs->instance_offsets_buffer, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    knobs->instance_rotations_buffer[0] = 0;
-    knobs->instance_rotations_buffer[1] = 0.1*3;
-    knobs->instance_rotations_buffer[2] = 0.2*3;
-    knobs->instance_rotations_buffer[3] = 0.3*3;
-
-    knobs->instance_rotations_buffer[4] = 0.4*3;
-    knobs->instance_rotations_buffer[5] = 0.5*3;
-    knobs->instance_rotations_buffer[6] = 0.6*3;
-    knobs->instance_rotations_buffer[7] = 3.1415 / 2;
 
     glGenBuffers(1, &knobs->instance_rotations);
     glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_rotations);
@@ -79,7 +69,7 @@ void finalize_knobs(UiKnobs * knobs, GLuint program_id) {
     glUseProgram(0);
 }
 
-void init_knob(UiKnobs * knobs, int index, float offset_x, float offset_y) {    
+void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {    
     Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
     instance_offset->x = offset_x;
     instance_offset->y = offset_y;
@@ -87,7 +77,7 @@ void init_knob(UiKnobs * knobs, int index, float offset_x, float offset_y) {
     knobs->instance_rotations_buffer[index] = 0;
 }
 
-void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
+void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
     knobs->count = count;
     knobs->instance_offsets_buffer = malloc(count * sizeof(Vec2));
     knobs->instance_rotations_buffer = malloc(count * sizeof(GLfloat));
@@ -101,7 +91,9 @@ void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * t
     knobs->scale_matrix[0].y = 0;
     knobs->scale_matrix[1].x = 0;
     knobs->scale_matrix[1].y = ((float) texture_scale) / ((float) DSANDGRAINS_VIEWPORT_HEIGHT);
-    
+}
+
+void init_knobs_gpu_side(UIKnobs * knobs) {
     Vec4 * vertexes_attributes = knobs->vertexes_attributes;
     DSTUDIO_SET_VERTEX_ATTRIBUTES
     DSTUDIO_SET_S_T_COORDINATES
@@ -111,12 +103,12 @@ void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * t
     glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);
         glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
+
     glGenTextures(1, &knobs->texture_id);
     glBindTexture(GL_TEXTURE_2D, knobs->texture_id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_scale, texture_scale, 0, GL_RGBA, GL_UNSIGNED_BYTE, knobs->texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, knobs->texture_scale, knobs->texture_scale, 0, GL_RGBA, GL_UNSIGNED_BYTE, knobs->texture);
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     
@@ -126,7 +118,7 @@ void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * t
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void render_knobs(UiKnobs * knobs) {
+void render_knobs(UIKnobs * knobs) {
     glBindTexture(GL_TEXTURE_2D, knobs->texture_id);
         glBindVertexArray(knobs->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, knobs->index_buffer_object);
@@ -134,4 +126,13 @@ void render_knobs(UiKnobs * knobs) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void update_knob(int index, void * context, void * args) {
+    float * rotation = (float*) args;
+    UIKnobs * sample_knobs_p = (UIKnobs *) context;
+    sample_knobs_p->instance_rotations_buffer[index] = *rotation;
+    glBindBuffer(GL_ARRAY_BUFFER, sample_knobs_p->instance_rotations);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sample_knobs_p->count, sample_knobs_p->instance_rotations_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

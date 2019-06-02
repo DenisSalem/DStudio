@@ -31,52 +31,90 @@
 #include "../knobs.h"
 #include "ui.h"
 
+static UIKnobs * sample_knobs_p;
+static UIBackground * background_p;
+static UIArea * ui_areas;
+static UICallback * ui_callbacks;
+static UICallback active_ui_element = {0};
+static Vec2 active_knob_center;
+
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
+    float rotation;
+    if (active_ui_element.callback == NULL) {
+        return;
+    }
+    
+    if (active_ui_element.type == DSTUDIO_KNOB_TYPE) {
+        rotation = compute_knob_rotation(xpos, ypos, active_knob_center);
+        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
+    }
+    
+}
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        for (int i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
+            if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
+                active_ui_element.callback = ui_callbacks[i].callback;
+                active_ui_element.index = ui_callbacks[i].index;
+                active_ui_element.context_p = ui_callbacks[i].context_p;
+                active_ui_element.type = ui_callbacks[i].type;
+                if (active_ui_element.type == DSTUDIO_KNOB_TYPE) {
+                    active_knob_center.x = ui_areas[i].x;
+                    active_knob_center.y = ui_areas[i].y;
+                }
+                break;
+            }
+        }
+    }
+    if (action == GLFW_RELEASE) {
+        active_ui_element.callback = NULL;
+    }
+}
+
+// Should be splitted
 void * ui_thread(void * arg) {
     UI * ui = arg;
-    UiBackground * background_p = &ui->background;
-    UiKnobs * sample_knobs_p = &ui->sample_knobs;
+    background_p = &ui->background;
+    sample_knobs_p = &ui->sample_knobs;
+    ui_areas = &ui->areas[0];
+    ui_callbacks = &ui->callbacks[0];
     
-    EXIT_IF_FAILURE( (glfwInit() != GLFW_TRUE) )
+    DSTUDIO_EXIT_IF_FAILURE( (glfwInit() != GLFW_TRUE) )
     
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
     
-    EXIT_IF_FAILURE_GLFW_TERMINATE((window == 0))
+    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE((window == 0))
         
     glfwMakeContextCurrent(window);
 
-    EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+
+    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
 
     GLuint interactive_program_id, non_interactive_program_id;
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
 
     init_background(background_p);
     
-    init_knobs(sample_knobs_p, 8, 64, "../assets/knob1.png");
-
-    init_knob(sample_knobs_p, 0, -0.8675, 0.0703);
-    init_knob(sample_knobs_p, 1, -0.7075, 0.0703);
-    init_knob(sample_knobs_p, 2, -0.5475, 0.0703);
-    init_knob(sample_knobs_p, 3, -0.3875, 0.0703);
-    init_knob(sample_knobs_p, 4, -0.8675, -0.3291);
-    init_knob(sample_knobs_p, 5, -0.7075, -0.3291);
-    init_knob(sample_knobs_p, 6, -0.5475, -0.3291);
-    init_knob(sample_knobs_p, 7, -0.3875, -0.3291);
+    init_knobs_gpu_side(sample_knobs_p);
     
     finalize_knobs(sample_knobs_p, interactive_program_id);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );
     while (!glfwWindowShouldClose(window)) {
-        usleep(40000);
-
-        glBindBuffer(GL_ARRAY_BUFFER, sample_knobs_p->instance_rotations);
-        sample_knobs_p->instance_rotations_buffer[0] += 0.05;
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sample_knobs_p->count, sample_knobs_p->instance_rotations_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        usleep(20000);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(non_interactive_program_id);
@@ -98,7 +136,7 @@ void * ui_thread(void * arg) {
     return NULL;
 }
 
-static void free_background(UiBackground * background) {
+static void free_background(UIBackground * background) {
     glDeleteBuffers(1, &background->index_buffer_object);
     glDeleteBuffers(1, &background->vertex_buffer_object);
     glDeleteVertexArrays(1, &background->vertex_array_object);
@@ -106,7 +144,7 @@ static void free_background(UiBackground * background) {
     free(background->texture);
 }
 
-static void init_background(UiBackground * background) {
+static void init_background(UIBackground * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
     DSTUDIO_SET_VERTEX_INDEXES
         
@@ -156,7 +194,7 @@ static void init_background(UiBackground * background) {
     glBindVertexArray(0);
 }
 
-static void render_background(UiBackground * background) {
+static void render_background(UIBackground * background) {
         glBindTexture(GL_TEXTURE_2D, background->texture_id);
             glBindVertexArray(background->vertex_array_object);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, background->index_buffer_object);

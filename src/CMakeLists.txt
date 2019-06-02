@@ -3,16 +3,16 @@ project(DStudio)
 set(PACKAGE_VERSION "0.0.0")
 
 if ( (NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE MATCHES Release))
-    message(STATUS "Release mode. ${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+    message(STATUS "Release mode. ${CMAKE_CXX_FLAGS_RELEASE} -Wall -Winline")
     set(CMAKE_BUILD_TYPE "Release")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wallma")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Winline")
 
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message(STATUS "Debug mode. ${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+    message(STATUS "Debug mode. ${CMAKE_CXX_FLAGS_DEBUG} -Wall -Winline")
     add_definitions(-DDSTUDIO_DEBUG)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Winline")
 endif()
 
 set(DSTUDIO_USE_GLFW3 "1")
@@ -39,7 +39,7 @@ if(DEFINED DSTUDIO_USE_GLFW3)
 endif()
 
 target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} m)
 
 add_custom_command(
     TARGET dsandgrains POST_BUILD

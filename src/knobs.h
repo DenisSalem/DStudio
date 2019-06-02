@@ -21,7 +21,7 @@
 
 #include "ui.h"
 
-typedef struct UiKnobs_t {
+typedef struct UIKnobs_t {
     unsigned char *             texture;
     Vec4                        vertexes_attributes[4];
     Vec2                        scale_matrix[2];
@@ -36,12 +36,14 @@ typedef struct UiKnobs_t {
     GLuint                      texture_id;
     GLuint                      texture_scale;
     GLuint                      index_buffer_object;
-} UiKnobs;
+} UIKnobs;
 
-void free_knobs(UiKnobs * knobs);
-void finalize_knobs(UiKnobs * knobs, GLuint program_id);
-void init_knob(UiKnobs * knobs, int index, float x, float y);
-void init_knobs(UiKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
-void render_knobs(UiKnobs * knobs);
+void free_knobs(UIKnobs * knobs);
+void finalize_knobs(UIKnobs * knobs, GLuint program_id);
+void init_knob(UIKnobs * knobs, int index, float x, float y);
+void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
+void init_knobs_gpu_side(UIKnobs * knobs);
+void render_knobs(UIKnobs * knobs);
+void update_knob(int index, void * context, void * args);
 
 #endif
