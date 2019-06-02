@@ -82,7 +82,7 @@ void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const
     knobs->instance_offsets_buffer = malloc(count * sizeof(Vec2));
     knobs->instance_rotations_buffer = malloc(count * sizeof(GLfloat));
     knobs->texture_scale = texture_scale;
-    get_png_pixel(texture_filename, &knobs->texture);
+    get_png_pixel(texture_filename, &knobs->texture, 1);
     
     GLchar * vertex_indexes = knobs->vertex_indexes;
     DSTUDIO_SET_VERTEX_INDEXES
