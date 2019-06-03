@@ -122,7 +122,7 @@ void render_knobs(UIKnobs * knobs) {
     glBindTexture(GL_TEXTURE_2D, knobs->texture_id);
         glBindVertexArray(knobs->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, knobs->index_buffer_object);
-                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, 8);
+                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, knobs->count);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
