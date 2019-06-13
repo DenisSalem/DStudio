@@ -40,7 +40,7 @@ void finalize_knobs(UIKnobs * knobs, GLuint program_id) {
 
     glGenBuffers(1, &knobs->instance_rotations);
     glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_rotations);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * knobs->count, knobs->instance_rotations_buffer, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * knobs->count, knobs->instance_rotations_buffer, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     glGenVertexArrays(1, &knobs->vertex_array_object);
@@ -79,8 +79,13 @@ void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {
 
 void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
     knobs->count = count;
+    
     knobs->instance_offsets_buffer = malloc(count * sizeof(Vec2));
+    memset(knobs->instance_offsets_buffer, 0, count * sizeof(Vec2));
+    
     knobs->instance_rotations_buffer = malloc(count * sizeof(GLfloat));
+    memset(knobs->instance_rotations_buffer, 0, count * sizeof(GLfloat));
+
     knobs->texture_scale = texture_scale;
     get_png_pixel(texture_filename, &knobs->texture, 1);
     

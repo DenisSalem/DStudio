@@ -130,9 +130,9 @@ void * ui_thread(void * arg) {
     }
     glDeleteProgram(non_interactive_program_id);
     glDeleteProgram(interactive_program_id);
+    glfwTerminate();
     free_knobs(sample_knobs_p);
     free_background(background_p);
-    glfwTerminate();
     return NULL;
 }
 
