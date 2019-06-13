@@ -32,11 +32,13 @@
 #include "ui.h"
 
 static UIKnobs * sample_knobs_p;
+static UIKnobs * sample_small_knobs_p;
 static UIBackground * background_p;
 static UIArea * ui_areas;
 static UICallback * ui_callbacks;
 static UICallback active_ui_element = {0};
 static Vec2 active_knob_center;
+static GLuint scale_matrix_id;
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
     float rotation;
@@ -81,6 +83,7 @@ void * ui_thread(void * arg) {
     UI * ui = arg;
     background_p = &ui->background;
     sample_knobs_p = &ui->sample_knobs;
+    sample_small_knobs_p = &ui->sample_small_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
     
@@ -108,21 +111,29 @@ void * ui_thread(void * arg) {
     init_background(background_p);
     
     init_knobs_gpu_side(sample_knobs_p);
+    init_knobs_gpu_side(sample_small_knobs_p);
     
     finalize_knobs(sample_knobs_p, interactive_program_id);
+    finalize_knobs(sample_small_knobs_p, interactive_program_id);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );
+    
+    scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    const GLfloat * sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
+    const GLfloat * sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
+    
     while (!glfwWindowShouldClose(window)) {
         usleep(20000);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(non_interactive_program_id);
             render_background(background_p);
-
         glUseProgram(interactive_program_id);
+            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
             render_knobs(sample_knobs_p);
-            
+            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
+            render_knobs(sample_small_knobs_p);
         glUseProgram(0);
         
         glfwSwapBuffers(window);
@@ -131,7 +142,6 @@ void * ui_thread(void * arg) {
     glDeleteProgram(non_interactive_program_id);
     glDeleteProgram(interactive_program_id);
     glfwTerminate();
-    free_knobs(sample_knobs_p);
     free_background(background_p);
     return NULL;
 }
@@ -181,7 +191,6 @@ static void init_background(UIBackground * background) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, background->texture);
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
-
 
     glGenVertexArrays(1, &background->vertex_array_object);
     glBindVertexArray(background->vertex_array_object);

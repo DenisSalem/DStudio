@@ -19,7 +19,7 @@
 
 #define DSANDGRAINS_VIEWPORT_WIDTH  800
 #define DSANDGRAINS_VIEWPORT_HEIGHT 480
-#define DSANDGRAINS_UI_ELEMENTS_COUNT 10
+#define DSANDGRAINS_UI_ELEMENTS_COUNT 18
 
 #include "../knobs.h"
 #include "../ui.h"
@@ -44,6 +44,7 @@ typedef struct UICallback_t {
 typedef struct UI_t {
     UIBackground        background;
     UIKnobs             sample_knobs;
+    UIKnobs             sample_small_knobs;
     UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];
 } UI;

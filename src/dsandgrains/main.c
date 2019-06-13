@@ -6,10 +6,12 @@
 int main(int argc, char ** argv) {
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
+    UIKnobs * sample_small_knobs_p = &ui.sample_small_knobs;
     UIArea * ui_areas = &ui.areas[0];
     UICallback * ui_callbacks = &ui.callbacks[0];
         
     init_knobs_cpu_side(sample_knobs_p, 8, 64, "../assets/knob1.png");
+    init_knobs_cpu_side(sample_small_knobs_p, 1, 48, "../assets/knob2.png");
     
     // Knobs SAMPLE : START
     init_knob(sample_knobs_p, 0, -0.8675, 0.25);
@@ -51,6 +53,11 @@ int main(int argc, char ** argv) {
     DSTUDIO_SET_AREA(7, 212.0, 277.0, 243.0, 308.0) 
     DSTUDIO_SET_UI_CALLBACK(7, update_knob, 7, sample_knobs_p, DSTUDIO_KNOB_TYPE);
 
+    // Knobs SAMPLE : LFO MODULATION TUNE
+    init_knob(sample_small_knobs_p, 0, -0.222499, 0.254166);
+    DSTUDIO_SET_AREA(8, 286.0, 335.0, 154.0, 203.0) 
+    DSTUDIO_SET_UI_CALLBACK(8, update_knob, 0, sample_small_knobs_p, DSTUDIO_KNOB_TYPE);
+
     //~ // Knobs SAMPLE : PITCH
     //~ init_knob(sample_knobs_p, 7, -0.5475, -0.3291);
     //~ DSTUDIO_SET_AREA(7, 148.0, 213.0, 286.0, 351.0) 
@@ -65,6 +72,9 @@ int main(int argc, char ** argv) {
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
+
+    free_knobs(sample_knobs_p);
+    free_knobs(sample_small_knobs_p);
     
     return 0;
 }

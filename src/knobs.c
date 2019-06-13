@@ -62,11 +62,6 @@ void finalize_knobs(UIKnobs * knobs, GLuint program_id) {
             glVertexAttribDivisor(3, 1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    
-    GLuint scale_matrix_id = glGetUniformLocation(program_id, "scale_matrix");
-    glUseProgram(program_id);
-    glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, &knobs->scale_matrix[0].x);
-    glUseProgram(0);
 }
 
 void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {    
@@ -81,10 +76,7 @@ void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const
     knobs->count = count;
     
     knobs->instance_offsets_buffer = malloc(count * sizeof(Vec2));
-    memset(knobs->instance_offsets_buffer, 0, count * sizeof(Vec2));
-    
     knobs->instance_rotations_buffer = malloc(count * sizeof(GLfloat));
-    memset(knobs->instance_rotations_buffer, 0, count * sizeof(GLfloat));
 
     knobs->texture_scale = texture_scale;
     get_png_pixel(texture_filename, &knobs->texture, 1);
@@ -123,7 +115,7 @@ void init_knobs_gpu_side(UIKnobs * knobs) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void render_knobs(UIKnobs * knobs) {
+void render_knobs(UIKnobs * knobs) {    
     glBindTexture(GL_TEXTURE_2D, knobs->texture_id);
         glBindVertexArray(knobs->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, knobs->index_buffer_object);
