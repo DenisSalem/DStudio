@@ -69,7 +69,8 @@
     vertex_indexes[2] = 2; \
     vertex_indexes[3] = 3;
 
-#define DSTUDIO_KNOB_TYPE 1
+#define DSTUDIO_KNOB_TYPE_1 1
+#define DSTUDIO_KNOB_TYPE_2 2
 
 typedef struct UIArea_t {
     float min_x;

@@ -19,10 +19,36 @@
 
 #define DSANDGRAINS_VIEWPORT_WIDTH  800
 #define DSANDGRAINS_VIEWPORT_HEIGHT 480
+
+#define DSANDGRAINS_SAMPLE_KNOBS 8
+#define DSANDGRAINS_SAMPLE_SMALL_KNOBS 10
+
 #define DSANDGRAINS_UI_ELEMENTS_COUNT 18
 
 #include "../knobs.h"
 #include "../ui.h"
+
+#define DSANDGRAINS_INIT_KNOB(knobs_p, knob_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \
+        init_knob( \
+            knobs_p, \
+            knob_index, \
+            init_knob_array_p->gl_x, \
+            init_knob_array_p->gl_y \
+        ); \
+        DSTUDIO_SET_AREA( \
+            ui_element_index, \
+            init_knob_array_p->min_area_x, \
+            init_knob_array_p->max_area_x, \
+            init_knob_array_p->min_area_y, \
+            init_knob_array_p->max_area_y \
+        ) \
+        DSTUDIO_SET_UI_CALLBACK( \
+            ui_element_index,\
+            update_knob, \
+            knob_index,\
+            knobs_p, \
+            init_knob_array_p->ui_element_type\
+        );
 
 typedef struct UIBackground_t {
     Vec4                vertexes_attributes[4];

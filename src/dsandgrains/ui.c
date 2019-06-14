@@ -46,7 +46,11 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         return;
     }
     
-    if (active_ui_element.type == DSTUDIO_KNOB_TYPE) {
+    if (active_ui_element.type == DSTUDIO_KNOB_TYPE_1) {
+        rotation = compute_knob_rotation(xpos, ypos, active_knob_center);
+        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
+    }
+    else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_2) {
         rotation = compute_knob_rotation(xpos, ypos, active_knob_center);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
     }
@@ -65,7 +69,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
                 active_ui_element.index = ui_callbacks[i].index;
                 active_ui_element.context_p = ui_callbacks[i].context_p;
                 active_ui_element.type = ui_callbacks[i].type;
-                if (active_ui_element.type == DSTUDIO_KNOB_TYPE) {
+                if (active_ui_element.type & 3) { // IF DSTUDIO_KNOB_TYPE_1 OR DSTUDIO_KNOB_TYPE_2
                     active_knob_center.x = ui_areas[i].x;
                     active_knob_center.y = ui_areas[i].y;
                 }
