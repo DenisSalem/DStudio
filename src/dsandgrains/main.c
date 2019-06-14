@@ -10,7 +10,7 @@ typedef struct init_knob_array_t {
     GLfloat max_area_x;
     GLfloat min_area_y;
     GLfloat max_area_y;
-    int ui_element_type;
+    unsigned char ui_element_type;
 } InitKnobArray;
 
 int main(int argc, char ** argv) {
