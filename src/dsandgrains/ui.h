@@ -22,8 +22,9 @@
 
 #define DSANDGRAINS_SAMPLE_KNOBS 8
 #define DSANDGRAINS_SAMPLE_SMALL_KNOBS 10
+#define DSANDGRAINS_VOICE_KNOBS 3
 
-#define DSANDGRAINS_UI_ELEMENTS_COUNT 18
+#define DSANDGRAINS_UI_ELEMENTS_COUNT 21
 
 #include "../knobs.h"
 #include "../ui.h"
@@ -71,6 +72,7 @@ typedef struct UI_t {
     UIBackground        background;
     UIKnobs             sample_knobs;
     UIKnobs             sample_small_knobs;
+    UIKnobs             voice_knobs;
     UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];
 } UI;

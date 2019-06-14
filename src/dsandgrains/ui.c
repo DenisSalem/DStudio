@@ -33,12 +33,14 @@
 
 static UIKnobs * sample_knobs_p;
 static UIKnobs * sample_small_knobs_p;
+static UIKnobs * voice_knobs_p;
+
 static UIBackground * background_p;
 static UIArea * ui_areas;
 static UICallback * ui_callbacks;
 static UICallback active_ui_element = {0};
 static Vec2 active_knob_center;
-static GLuint scale_matrix_id;
+static useconds_t framerate = 20000;
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
     float rotation;
@@ -88,6 +90,7 @@ void * ui_thread(void * arg) {
     background_p = &ui->background;
     sample_knobs_p = &ui->sample_knobs;
     sample_small_knobs_p = &ui->sample_small_knobs;
+    voice_knobs_p = &ui->voice_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
     
@@ -116,19 +119,22 @@ void * ui_thread(void * arg) {
     
     init_knobs_gpu_side(sample_knobs_p);
     init_knobs_gpu_side(sample_small_knobs_p);
+    init_knobs_gpu_side(voice_knobs_p);
     
-    finalize_knobs(sample_knobs_p, interactive_program_id);
-    finalize_knobs(sample_small_knobs_p, interactive_program_id);
+    finalize_knobs(sample_knobs_p);
+    finalize_knobs(sample_small_knobs_p);
+    finalize_knobs(voice_knobs_p);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );
     
-    scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    GLuint scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     const GLfloat * sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     const GLfloat * sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
+    const GLfloat * voice_knobs_scale_matrix_p = &voice_knobs_p->scale_matrix[0].x;
     
     while (!glfwWindowShouldClose(window)) {
-        usleep(20000);
+        usleep(framerate);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(non_interactive_program_id);
@@ -138,6 +144,8 @@ void * ui_thread(void * arg) {
             render_knobs(sample_knobs_p);
             glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
             render_knobs(sample_small_knobs_p);
+            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
+            render_knobs(voice_knobs_p);
         glUseProgram(0);
         
         glfwSwapBuffers(window);

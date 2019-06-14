@@ -32,7 +32,7 @@ void free_knobs(UIKnobs * knobs) {
     free(knobs->texture);
 }
 
-void finalize_knobs(UIKnobs * knobs, GLuint program_id) {
+void finalize_knobs(UIKnobs * knobs) {
     glGenBuffers(1, &knobs->instance_offsets);
     glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_offsets);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * knobs->count, knobs->instance_offsets_buffer, GL_STATIC_DRAW);
