@@ -33,35 +33,15 @@ void free_knobs(UIKnobs * knobs) {
 }
 
 void finalize_knobs(UIKnobs * knobs) {
-    glGenBuffers(1, &knobs->instance_offsets);
-    glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_offsets);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * knobs->count, knobs->instance_offsets_buffer, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &knobs->instance_rotations);
-    glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_rotations);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * knobs->count, knobs->instance_rotations_buffer, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
-    glGenVertexArrays(1, &knobs->vertex_array_object);
-    glBindVertexArray(knobs->vertex_array_object);
-        glBindBuffer(GL_ARRAY_BUFFER, knobs->vertex_buffer_object);
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-            glEnableVertexAttribArray(0);
-            glVertexAttribDivisor(0, 0);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
-            glEnableVertexAttribArray(1);
-            glVertexAttribDivisor(1, 0);
-        glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_offsets);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (GLvoid *) 0 );
-            glEnableVertexAttribArray(2);
-            glVertexAttribDivisor(2, 1);
-        glBindBuffer(GL_ARRAY_BUFFER, knobs->instance_rotations);
-            glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
-            glEnableVertexAttribArray(3);
-            glVertexAttribDivisor(3, 1);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    finalize_ui_element(
+        knobs->count,
+        &knobs->instance_offsets,
+        knobs->instance_offsets_buffer,
+        &knobs->instance_rotations,
+        knobs->instance_rotations_buffer,
+        &knobs->vertex_array_object,
+        knobs->vertex_buffer_object
+    );
 }
 
 void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {    

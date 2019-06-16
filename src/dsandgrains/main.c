@@ -73,6 +73,7 @@ int main(int argc, char ** argv) {
 
     free_knobs(sample_knobs_p);
     free_knobs(sample_small_knobs_p);
+    free_knobs(voice_knobs_p);
     
     return 0;
 }

@@ -27,10 +27,11 @@ find_package (Threads REQUIRED)
 add_executable(
 	dsandgrains
 	dsandgrains/main.c
+    dsandgrains/ui.c
     extensions.c
     knobs.c
+    sliders.c
     ui.c
-    dsandgrains/ui.c
 )
 
 if(DEFINED DSTUDIO_USE_GLFW3)

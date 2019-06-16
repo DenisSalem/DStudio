@@ -21,30 +21,29 @@
 #define DSTUDIO_KNOBS_H_INCLUDED
 
 #include "ui.h"
-
-typedef struct UIKnobs_t {
+typedef struct UISliders_t {
     unsigned char *             texture;
     Vec4                        vertexes_attributes[4];
     Vec2                        scale_matrix[2];
     int                         count;
     Vec2  *                     instance_offsets_buffer;
     GLint                       instance_offsets;
-    GLfloat  *                  instance_rotations_buffer;
-    GLint                       instance_rotations;
+    GLfloat  *                  instance_translations_buffer;
+    GLint                       instance_translations;
     GLuint                      vertex_buffer_object;
     GLuint                      vertex_array_object;
     GLchar                      vertex_indexes[4];
     GLuint                      texture_id;
     GLuint                      texture_scale;
     GLuint                      index_buffer_object;
-} UIKnobs;
+} UISliders;
 
-void free_knobs(UIKnobs * knobs);
-void finalize_knobs(UIKnobs * knobs);
-void init_knob(UIKnobs * knobs, int index, float x, float y);
-void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
-void init_knobs_gpu_side(UIKnobs * knobs);
-void render_knobs(UIKnobs * knobs);
-void update_knob(int index, void * context, void * args);
+void free_sliders(UISliders * sliders);
+void finalize_sliders(UISliders * sliders);
+void init_slider(UISliders * sliders, int index, float x, float y);
+void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale, const char * texture_filename);
+void init_sliders_gpu_side(UISliders * sliders);
+void render_sliders(UISliders * sliders);
+void update_slider(int index, void * context, void * args);
 
 #endif

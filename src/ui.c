@@ -91,6 +91,39 @@ int get_png_pixel(const char * filename, png_bytep * buffer, int alpha) {
     return 0;
 }
 
+void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object) {
+    
+    glGenBuffers(1, instance_offsets_p);
+    glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * count, instance_offsets_buffer, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenBuffers(1, instance_motions_p);
+    glBindBuffer(GL_ARRAY_BUFFER, *instance_motions_p);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * count, instance_motions_buffer, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    glGenVertexArrays(1, vertex_array_object_p);
+    glBindVertexArray(*vertex_array_object_p);
+        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribDivisor(0, 0);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
+            glEnableVertexAttribArray(1);
+            glVertexAttribDivisor(1, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (GLvoid *) 0 );
+            glEnableVertexAttribArray(2);
+            glVertexAttribDivisor(2, 1);
+        glBindBuffer(GL_ARRAY_BUFFER, *instance_motions_p);
+            glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
+            glEnableVertexAttribArray(3);
+            glVertexAttribDivisor(3, 1);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
 void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
     glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
     #ifdef DSTUDIO_DEBUG 

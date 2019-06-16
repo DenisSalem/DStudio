@@ -118,6 +118,7 @@ inline float compute_knob_rotation(double xpos, double ypos, Vec2 active_knob_ce
 }
 
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
+void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object);
 // png_bytep is basically unsigned char
 int get_png_pixel(const char * filename, png_bytep * buffer, int alpha);
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);
