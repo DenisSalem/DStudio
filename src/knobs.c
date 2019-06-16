@@ -45,11 +45,7 @@ void finalize_knobs(UIKnobs * knobs) {
 }
 
 void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {    
-    Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
-    instance_offset->x = offset_x;
-    instance_offset->y = offset_y;
-    
-    knobs->instance_rotations_buffer[index] = 0;
+
 }
 
 void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {

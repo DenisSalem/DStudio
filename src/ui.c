@@ -24,6 +24,25 @@
 #include "extensions.h"
 #include "ui.h"
 
+void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
+    glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
+    #ifdef DSTUDIO_DEBUG 
+    printf("glShaderSource : %d\n", glGetError()); 
+    #endif
+    glCompileShader(shader_id);
+    #ifdef DSTUDIO_DEBUG
+        printf("glCompileShader : %d\n", glGetError());
+    #endif
+    #ifdef DSTUDIO_DEBUG
+        GLsizei info_log_length = 2048;
+        char shader_error_message[2048] = {0};
+        glGetShaderInfoLog(shader_id, info_log_length, NULL, shader_error_message);
+        if (strlen(shader_error_message) != 0) { 
+            printf("%s\n", shader_error_message);
+        }
+    #endif
+}
+
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id) {
     GLchar * shader_buffer = NULL;
     // NON INTERACTIVE VERTEX SHADER
@@ -124,23 +143,12 @@ void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instanc
     glBindVertexArray(0);
 }
 
-void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
-    glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
-    #ifdef DSTUDIO_DEBUG 
-    printf("glShaderSource : %d\n", glGetError()); 
-    #endif
-    glCompileShader(shader_id);
-    #ifdef DSTUDIO_DEBUG
-        printf("glCompileShader : %d\n", glGetError());
-    #endif
-    #ifdef DSTUDIO_DEBUG
-        GLsizei info_log_length = 2048;
-        char shader_error_message[2048] = {0};
-        glGetShaderInfoLog(shader_id, info_log_length, NULL, shader_error_message);
-        if (strlen(shader_error_message) != 0) { 
-            printf("%s\n", shader_error_message);
-        }
-    #endif
+void init_ui_element(Vec2 * instance_offset_p) {
+    Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
+    instance_offset->x = offset_x;
+    instance_offset->y = offset_y;
+    
+    knobs->instance_rotations_buffer[index] = 0;
 }
 
 void load_shader(GLchar ** shader_buffer, const char * filename) {

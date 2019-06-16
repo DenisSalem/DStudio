@@ -32,6 +32,13 @@ void free_sliders(UISliders * sliders) {
 }
 
 void finalize_sliders(UISliders * sliders) {
-    // Prepare args for the following
-    // Call general finalizer
+    finalize_ui_element(
+        sliders->count,
+        &sliders->instance_offsets,
+        sliders->instance_offsets_buffer,
+        &sliders->instance_translations,
+        sliders->instance_translations_buffer,
+        &sliders->vertex_array_object,
+        sliders->vertex_buffer_object
+    );
 }
