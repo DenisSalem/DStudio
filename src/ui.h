@@ -69,7 +69,8 @@
     vertex_indexes[2] = 2; \
     vertex_indexes[3] = 3;
 
-#define DSTUDIO_KNOB_TYPE 1
+#define DSTUDIO_KNOB_TYPE_1 1
+#define DSTUDIO_KNOB_TYPE_2 2
 
 typedef struct UIArea_t {
     float min_x;
@@ -91,6 +92,8 @@ typedef struct vec2_t {
     GLfloat x;
     GLfloat y;
 } Vec2;
+
+void compile_shader(GLuint shader_id, GLchar ** source_pointer);
 
 inline float compute_knob_rotation(double xpos, double ypos, Vec2 active_knob_center) {
     float rotation = 0;
@@ -117,9 +120,10 @@ inline float compute_knob_rotation(double xpos, double ypos, Vec2 active_knob_ce
 }
 
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
+
+void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object);
 // png_bytep is basically unsigned char
 int get_png_pixel(const char * filename, png_bytep * buffer, int alpha);
-void compile_shader(GLuint shader_id, GLchar ** source_pointer);
 void load_shader(GLchar ** shader_buffer, const char * filename);
 
 #endif

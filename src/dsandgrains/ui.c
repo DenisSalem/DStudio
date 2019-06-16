@@ -32,11 +32,15 @@
 #include "ui.h"
 
 static UIKnobs * sample_knobs_p;
+static UIKnobs * sample_small_knobs_p;
+static UIKnobs * voice_knobs_p;
+
 static UIBackground * background_p;
 static UIArea * ui_areas;
 static UICallback * ui_callbacks;
 static UICallback active_ui_element = {0};
 static Vec2 active_knob_center;
+static useconds_t framerate = 20000;
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
     float rotation;
@@ -44,7 +48,11 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         return;
     }
     
-    if (active_ui_element.type == DSTUDIO_KNOB_TYPE) {
+    if (active_ui_element.type == DSTUDIO_KNOB_TYPE_1) {
+        rotation = compute_knob_rotation(xpos, ypos, active_knob_center);
+        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
+    }
+    else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_2) {
         rotation = compute_knob_rotation(xpos, ypos, active_knob_center);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
     }
@@ -63,7 +71,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
                 active_ui_element.index = ui_callbacks[i].index;
                 active_ui_element.context_p = ui_callbacks[i].context_p;
                 active_ui_element.type = ui_callbacks[i].type;
-                if (active_ui_element.type == DSTUDIO_KNOB_TYPE) {
+                if (active_ui_element.type & 3) { // IF DSTUDIO_KNOB_TYPE_1 OR DSTUDIO_KNOB_TYPE_2
                     active_knob_center.x = ui_areas[i].x;
                     active_knob_center.y = ui_areas[i].y;
                 }
@@ -81,6 +89,8 @@ void * ui_thread(void * arg) {
     UI * ui = arg;
     background_p = &ui->background;
     sample_knobs_p = &ui->sample_knobs;
+    sample_small_knobs_p = &ui->sample_small_knobs;
+    voice_knobs_p = &ui->voice_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
     
@@ -108,21 +118,34 @@ void * ui_thread(void * arg) {
     init_background(background_p);
     
     init_knobs_gpu_side(sample_knobs_p);
+    init_knobs_gpu_side(sample_small_knobs_p);
+    init_knobs_gpu_side(voice_knobs_p);
     
-    finalize_knobs(sample_knobs_p, interactive_program_id);
+    finalize_knobs(sample_knobs_p);
+    finalize_knobs(sample_small_knobs_p);
+    finalize_knobs(voice_knobs_p);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );
+    
+    GLuint scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    const GLfloat * sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
+    const GLfloat * sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
+    const GLfloat * voice_knobs_scale_matrix_p = &voice_knobs_p->scale_matrix[0].x;
+    
     while (!glfwWindowShouldClose(window)) {
-        usleep(20000);
+        usleep(framerate);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(non_interactive_program_id);
             render_background(background_p);
-
         glUseProgram(interactive_program_id);
+            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
             render_knobs(sample_knobs_p);
-            
+            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
+            render_knobs(sample_small_knobs_p);
+            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
+            render_knobs(voice_knobs_p);
         glUseProgram(0);
         
         glfwSwapBuffers(window);
@@ -130,9 +153,8 @@ void * ui_thread(void * arg) {
     }
     glDeleteProgram(non_interactive_program_id);
     glDeleteProgram(interactive_program_id);
-    free_knobs(sample_knobs_p);
-    free_background(background_p);
     glfwTerminate();
+    free_background(background_p);
     return NULL;
 }
 
@@ -181,7 +203,6 @@ static void init_background(UIBackground * background) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, background->texture);
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
-
 
     glGenVertexArrays(1, &background->vertex_array_object);
     glBindVertexArray(background->vertex_array_object);

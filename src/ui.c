@@ -24,6 +24,25 @@
 #include "extensions.h"
 #include "ui.h"
 
+void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
+    glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
+    #ifdef DSTUDIO_DEBUG 
+    printf("glShaderSource : %d\n", glGetError()); 
+    #endif
+    glCompileShader(shader_id);
+    #ifdef DSTUDIO_DEBUG
+        printf("glCompileShader : %d\n", glGetError());
+    #endif
+    #ifdef DSTUDIO_DEBUG
+        GLsizei info_log_length = 2048;
+        char shader_error_message[2048] = {0};
+        glGetShaderInfoLog(shader_id, info_log_length, NULL, shader_error_message);
+        if (strlen(shader_error_message) != 0) { 
+            printf("%s\n", shader_error_message);
+        }
+    #endif
+}
+
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id) {
     GLchar * shader_buffer = NULL;
     // NON INTERACTIVE VERTEX SHADER
@@ -91,23 +110,45 @@ int get_png_pixel(const char * filename, png_bytep * buffer, int alpha) {
     return 0;
 }
 
-void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
-    glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
-    #ifdef DSTUDIO_DEBUG 
-    printf("glShaderSource : %d\n", glGetError()); 
-    #endif
-    glCompileShader(shader_id);
-    #ifdef DSTUDIO_DEBUG
-        printf("glCompileShader : %d\n", glGetError());
-    #endif
-    #ifdef DSTUDIO_DEBUG
-        GLsizei info_log_length = 2048;
-        char shader_error_message[2048] = {0};
-        glGetShaderInfoLog(shader_id, info_log_length, NULL, shader_error_message);
-        if (strlen(shader_error_message) != 0) { 
-            printf("%s\n", shader_error_message);
-        }
-    #endif
+void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object) {
+    
+    glGenBuffers(1, instance_offsets_p);
+    glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * count, instance_offsets_buffer, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenBuffers(1, instance_motions_p);
+    glBindBuffer(GL_ARRAY_BUFFER, *instance_motions_p);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * count, instance_motions_buffer, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    glGenVertexArrays(1, vertex_array_object_p);
+    glBindVertexArray(*vertex_array_object_p);
+        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribDivisor(0, 0);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
+            glEnableVertexAttribArray(1);
+            glVertexAttribDivisor(1, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (GLvoid *) 0 );
+            glEnableVertexAttribArray(2);
+            glVertexAttribDivisor(2, 1);
+        glBindBuffer(GL_ARRAY_BUFFER, *instance_motions_p);
+            glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
+            glEnableVertexAttribArray(3);
+            glVertexAttribDivisor(3, 1);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void init_ui_element(Vec2 * instance_offset_p) {
+    Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
+    instance_offset->x = offset_x;
+    instance_offset->y = offset_y;
+    
+    knobs->instance_rotations_buffer[index] = 0;
 }
 
 void load_shader(GLchar ** shader_buffer, const char * filename) {
