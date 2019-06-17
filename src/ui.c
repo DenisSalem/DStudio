@@ -143,13 +143,13 @@ void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instanc
     glBindVertexArray(0);
 }
 
-void init_ui_element(Vec2 * instance_offset_p) {
-    Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
-    instance_offset->x = offset_x;
-    instance_offset->y = offset_y;
+//~ void init_ui_element(Vec2 * instance_offset_p) {
+    //~ Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
+    //~ instance_offset->x = offset_x;
+    //~ instance_offset->y = offset_y;
     
-    knobs->instance_rotations_buffer[index] = 0;
-}
+    //~ knobs->instance_rotations_buffer[index] = 0;
+//~ }
 
 void load_shader(GLchar ** shader_buffer, const char * filename) {
     FILE * shader = fopen (filename, "r");
