@@ -50,10 +50,8 @@ void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const
         &knobs->count,
         texture_scale,
         &knobs->texture_scale,
-        
         texture_filename,
         &knobs->texture,
-        
         &knobs->instance_offsets_buffer,
         &knobs->instance_rotations_buffer,
         &knobs->vertex_indexes[0],
