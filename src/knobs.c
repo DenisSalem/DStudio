@@ -24,10 +24,6 @@
 #include "knobs.h"
 
 void free_knobs(UIKnobs * knobs) {
-    glDeleteBuffers(1, &knobs->index_buffer_object);
-    glDeleteBuffers(1, &knobs->vertex_buffer_object);
-    glDeleteVertexArrays(1, &knobs->vertex_array_object);
-    glDeleteTextures(1, &knobs->texture_id);
     free(knobs->instance_offsets_buffer);
     free(knobs->texture);
 }
@@ -45,29 +41,26 @@ void finalize_knobs(UIKnobs * knobs) {
 }
 
 void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {    
-    Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
-    instance_offset->x = offset_x;
-    instance_offset->y = offset_y;
-    
-    knobs->instance_rotations_buffer[index] = 0;
+    init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_rotations_buffer[index]);
 }
 
 void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
-    knobs->count = count;
-    
-    knobs->instance_offsets_buffer = malloc(count * sizeof(Vec2));
-    knobs->instance_rotations_buffer = malloc(count * sizeof(GLfloat));
-
-    knobs->texture_scale = texture_scale;
-    get_png_pixel(texture_filename, &knobs->texture, 1);
-    
-    GLchar * vertex_indexes = knobs->vertex_indexes;
-    DSTUDIO_SET_VERTEX_INDEXES
-    
-    knobs->scale_matrix[0].x = ((float) texture_scale) / ((float) DSANDGRAINS_VIEWPORT_WIDTH);
-    knobs->scale_matrix[0].y = 0;
-    knobs->scale_matrix[1].x = 0;
-    knobs->scale_matrix[1].y = ((float) texture_scale) / ((float) DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_ui_elements_cpu_side(
+        count,
+        &knobs->count,
+        texture_scale,
+        &knobs->texture_scale,
+        
+        texture_filename,
+        &knobs->texture,
+        
+        &knobs->instance_offsets_buffer,
+        &knobs->instance_rotations_buffer,
+        &knobs->vertex_indexes[0],
+        &knobs->scale_matrix[0],
+        DSANDGRAINS_VIEWPORT_WIDTH,
+        DSANDGRAINS_VIEWPORT_HEIGHT
+    );
 }
 
 void init_knobs_gpu_side(UIKnobs * knobs) {

@@ -23,10 +23,6 @@
 #include "sliders.h"
 
 void free_sliders(UISliders * sliders) {
-    glDeleteBuffers(1, &sliders->index_buffer_object);
-    glDeleteBuffers(1, &sliders->vertex_buffer_object);
-    glDeleteVertexArrays(1, &sliders->vertex_array_object);
-    glDeleteTextures(1, &sliders->texture_id);
     free(sliders->instance_offsets_buffer);
     free(sliders->texture);
 }
@@ -41,4 +37,8 @@ void finalize_sliders(UISliders * sliders) {
         &sliders->vertex_array_object,
         sliders->vertex_buffer_object
     );
+}
+
+void init_slider(UISliders * sliders, int index, float offset_x, float offset_y) {    
+    init_ui_element(&sliders->instance_offsets_buffer[index], offset_x, offset_y, &sliders->instance_translations_buffer[index]);
 }

@@ -151,18 +151,12 @@ void * ui_thread(void * arg) {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    glDeleteProgram(non_interactive_program_id);
-    glDeleteProgram(interactive_program_id);
-    glfwTerminate();
     free_background(background_p);
+    glfwTerminate();
     return NULL;
 }
 
 static void free_background(UIBackground * background) {
-    glDeleteBuffers(1, &background->index_buffer_object);
-    glDeleteBuffers(1, &background->vertex_buffer_object);
-    glDeleteVertexArrays(1, &background->vertex_array_object);
-    glDeleteTextures(1, &background->texture_id);
     free(background->texture);
 }
 

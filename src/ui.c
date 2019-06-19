@@ -111,7 +111,6 @@ int get_png_pixel(const char * filename, png_bytep * buffer, int alpha) {
 }
 
 void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object) {
-    
     glGenBuffers(1, instance_offsets_p);
     glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * count, instance_offsets_buffer, GL_STATIC_DRAW);
@@ -143,13 +142,28 @@ void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instanc
     glBindVertexArray(0);
 }
 
-//~ void init_ui_element(Vec2 * instance_offset_p) {
-    //~ Vec2 * instance_offset = &knobs->instance_offsets_buffer[index];
-    //~ instance_offset->x = offset_x;
-    //~ instance_offset->y = offset_y;
+void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer) {
+    instance_offset_p->x = offset_x;
+    instance_offset_p->y = offset_y;
+    *motion_buffer = 0;
+}
+
+void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, GLuint * texture_scale_p, const char * texture_filename, unsigned char ** texture_p, Vec2 ** offsets_buffer_p, GLfloat ** motions_buffer_p, GLchar * vertex_indexes, Vec2 * scale_matrix, int viewport_width, int viewport_height) {
+    *count_p = count;
+    *texture_scale_p = texture_scale;
+
+    get_png_pixel(texture_filename, texture_p, 1);
+
+    *offsets_buffer_p = malloc(count * sizeof(Vec2));
+    *motions_buffer_p = malloc(count * sizeof(GLfloat));
     
-    //~ knobs->instance_rotations_buffer[index] = 0;
-//~ }
+    DSTUDIO_SET_VERTEX_INDEXES
+    
+    scale_matrix[0].x = ((float) texture_scale) / ((float) viewport_width);
+    scale_matrix[0].y = 0;
+    scale_matrix[1].x = 0;
+    scale_matrix[1].y = ((float) texture_scale) / ((float) viewport_height);
+}
 
 void load_shader(GLchar ** shader_buffer, const char * filename) {
     FILE * shader = fopen (filename, "r");

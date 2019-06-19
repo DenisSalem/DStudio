@@ -72,6 +72,7 @@ int main(int argc, char ** argv) {
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
 
     free_knobs(sample_knobs_p);
+    printf("Fail\n");
     free_knobs(sample_small_knobs_p);
     free_knobs(voice_knobs_p);
     
