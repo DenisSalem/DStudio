@@ -62,28 +62,16 @@ void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const
 }
 
 void init_knobs_gpu_side(UIKnobs * knobs) {
-    Vec4 * vertexes_attributes = knobs->vertexes_attributes;
-    DSTUDIO_SET_VERTEX_ATTRIBUTES
-    DSTUDIO_SET_S_T_COORDINATES
-
-    GLuint * vertex_buffer_object_p = &knobs->vertex_buffer_object;
-    glGenBuffers(1, vertex_buffer_object_p);
-    glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenTextures(1, &knobs->texture_id);
-    glBindTexture(GL_TEXTURE_2D, knobs->texture_id);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, knobs->texture_scale, knobs->texture_scale, 0, GL_RGBA, GL_UNSIGNED_BYTE, knobs->texture);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    
-    glGenBuffers(1, &knobs->index_buffer_object);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, knobs->index_buffer_object);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLchar), knobs->vertex_indexes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    init_ui_elements_gpu_side(
+        1,
+        knobs->vertexes_attributes,
+        &knobs->vertex_buffer_object,
+        &knobs->texture_id,
+        knobs->texture_scale,
+        knobs->texture,
+        &knobs->index_buffer_object,
+        knobs->vertex_indexes
+    );
 }
 
 void render_knobs(UIKnobs * knobs) {    

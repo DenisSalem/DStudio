@@ -165,7 +165,7 @@ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, G
     scale_matrix[1].y = ((float) texture_scale) / ((float) viewport_height);
 }
 
-void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture) {
+void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
     DSTUDIO_SET_VERTEX_ATTRIBUTES
     DSTUDIO_SET_S_T_COORDINATES
 
@@ -179,12 +179,15 @@ void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_scale, texture_scale, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture);
+        if (enable_aa) {
+            // do the thing
+        }
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    glGenBuffers(1, &knobs->index_buffer_object);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, knobs->index_buffer_object);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLchar), knobs->vertex_indexes, GL_STATIC_DRAW);
+    glGenBuffers(1, index_buffer_object_p);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *index_buffer_object_p);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLchar), vertex_indexes, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
