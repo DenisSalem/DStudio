@@ -93,7 +93,7 @@ void * ui_thread(void * arg) {
     voice_knobs_p = &ui->voice_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
-    
+
     DSTUDIO_EXIT_IF_FAILURE( (glfwInit() != GLFW_TRUE) )
     
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -106,15 +106,13 @@ void * ui_thread(void * arg) {
     DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE((window == 0))
         
     glfwMakeContextCurrent(window);
-
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
-
+    
     DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
-
+    
     GLuint interactive_program_id, non_interactive_program_id;
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
-
     init_background(background_p);
     
     init_knobs_gpu_side(sample_knobs_p);
@@ -126,7 +124,8 @@ void * ui_thread(void * arg) {
     finalize_knobs(voice_knobs_p);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable( GL_BLEND );
+    glEnable(GL_BLEND);
+    glEnable(GL_SCISSOR_TEST);
     
     GLuint scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     const GLfloat * sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
@@ -135,8 +134,9 @@ void * ui_thread(void * arg) {
     
     while (!glfwWindowShouldClose(window)) {
         usleep(framerate);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //~ if (first_render) {
+            glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+        //~ }
         glUseProgram(non_interactive_program_id);
             render_background(background_p);
         glUseProgram(interactive_program_id);
@@ -183,7 +183,7 @@ static void init_background(UIBackground * background) {
         glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
-    get_png_pixel("../assets/dsandgrains_background.png", &background->texture, 0);
+    get_png_pixel(DSANDGRAINS_BACKGROUND_ASSET_PATH, &background->texture, 0);
     
     glGenTextures(1, &background->texture_id);
     glBindTexture(GL_TEXTURE_2D, background->texture_id);

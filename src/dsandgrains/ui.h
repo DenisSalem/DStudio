@@ -26,6 +26,10 @@
 
 #define DSANDGRAINS_UI_ELEMENTS_COUNT 21
 
+#define DSANDGRAINS_KNOB1_ASSET_PATH "../assets/knob1.png"
+#define DSANDGRAINS_KNOB2_ASSET_PATH "../assets/knob2.png"
+#define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
+
 #include "../knobs.h"
 #include "../ui.h"
 

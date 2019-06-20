@@ -16,7 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include <errno.h>
+       
 #ifdef DSTUDIO_DEBUG
     #include <stdio.h>
 #endif
@@ -47,19 +48,19 @@ void create_shader_program(GLuint * interactive_program_id, GLuint * non_interac
     GLchar * shader_buffer = NULL;
     // NON INTERACTIVE VERTEX SHADER
     GLuint non_interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    load_shader(&shader_buffer, "../non_interactive_vertex.shader");
+    load_shader(&shader_buffer, DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH);
     compile_shader(non_interactive_vertex_shader, &shader_buffer);
     free(shader_buffer);
  
      // INTERACTIVE VERTEX SHADER
     GLuint interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    load_shader(&shader_buffer, "../interactive_vertex.shader");
+    load_shader(&shader_buffer, DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH);
     compile_shader(interactive_vertex_shader, &shader_buffer);
     free(shader_buffer);
 
     //FRAGMENT SHADER
     GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    load_shader(&shader_buffer, "../fragment.shader");
+    load_shader(&shader_buffer, DSTUDIO_FRAGMENT_SHADER_PATH);
     compile_shader(fragment_shader, &shader_buffer);
 
     // Linking Shader
@@ -107,7 +108,12 @@ int get_png_pixel(const char * filename, png_bytep * buffer, int alpha) {
             return PNG_IMAGE_SIZE(image);
         }
     }
-    return 0;
+    else {
+        printf("Can't load asset \"%s\": %s.\n", filename, image.message);
+        exit(-1);
+    }
+    printf("Something went wrong while reading \"%s\".\n", filename);
+    exit(-1);
 }
 
 void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object) {
@@ -195,6 +201,10 @@ void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint
 
 void load_shader(GLchar ** shader_buffer, const char * filename) {
     FILE * shader = fopen (filename, "r");
+    if (shader == NULL) {
+        printf("Failed to open \"%s\" with errno: %d.\n", filename, errno);
+        exit(-1);
+    }
     (*shader_buffer) = malloc(2048 * sizeof(GLchar));
     GLchar * local_shader_buffer = (*shader_buffer);
     for (int i=0; i < 2048; i++) {

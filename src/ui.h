@@ -20,6 +20,10 @@
 #ifndef DSTUDIO_UI_H_INCLUDED
 #define DSTUDIO_UI_H_INCLUDED
 
+#define DSTUDIO_FRAGMENT_SHADER_PATH "../assets/fragment.shader"
+#define DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH "../assets/interactive_vertex.shader"
+#define DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH "../assets/non_interactive_vertex.shader"
+
 #ifdef DSTUDIO_USE_GLFW3
     #include <GLFW/glfw3.h>
 #endif

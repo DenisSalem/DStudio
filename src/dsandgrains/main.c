@@ -21,10 +21,10 @@ int main(int argc, char ** argv) {
     UIArea * ui_areas = &ui.areas[0];
     UICallback * ui_callbacks = &ui.callbacks[0];
         
-    init_knobs_cpu_side(sample_knobs_p, 8, 64, "../assets/knob1.png");
-    init_knobs_cpu_side(sample_small_knobs_p, 10, 48, "../assets/knob2.png");
-    init_knobs_cpu_side(voice_knobs_p, 3, 64, "../assets/knob1.png");
-        
+    init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
+    init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    
     InitKnobArray init_knobs_array[DSANDGRAINS_UI_ELEMENTS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
         {-0.7075, 0.25, 84.0,  149.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: END
