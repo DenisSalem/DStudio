@@ -23,11 +23,6 @@
 #include "dsandgrains/ui.h"
 #include "knobs.h"
 
-void free_knobs(UIKnobs * knobs) {
-    free(knobs->instance_offsets_buffer);
-    free(knobs->texture);
-}
-
 void finalize_knobs(UIKnobs * knobs) {
     finalize_ui_element(
         knobs->count,

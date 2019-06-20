@@ -38,7 +38,6 @@ typedef struct UISliders_t {
     GLuint                      index_buffer_object;
 } UISliders;
 
-void free_sliders(UISliders * sliders);
 void finalize_sliders(UISliders * sliders);
 void init_slider(UISliders * sliders, int index, float x, float y);
 void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale, const char * texture_filename);

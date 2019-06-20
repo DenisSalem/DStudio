@@ -184,6 +184,7 @@ void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint
         }
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
+    free(texture);
     
     glGenBuffers(1, index_buffer_object_p);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *index_buffer_object_p);

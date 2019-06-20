@@ -151,13 +151,8 @@ void * ui_thread(void * arg) {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    free_background(background_p);
     glfwTerminate();
     return NULL;
-}
-
-static void free_background(UIBackground * background) {
-    free(background->texture);
 }
 
 static void init_background(UIBackground * background) {

@@ -39,7 +39,6 @@ typedef struct UIKnobs_t {
     GLuint                      index_buffer_object;
 } UIKnobs;
 
-void free_knobs(UIKnobs * knobs);
 void finalize_knobs(UIKnobs * knobs);
 void init_knob(UIKnobs * knobs, int index, float x, float y);
 void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);

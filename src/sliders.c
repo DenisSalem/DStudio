@@ -22,11 +22,6 @@
 
 #include "sliders.h"
 
-void free_sliders(UISliders * sliders) {
-    free(sliders->instance_offsets_buffer);
-    free(sliders->texture);
-}
-
 void finalize_sliders(UISliders * sliders) {
     finalize_ui_element(
         sliders->count,

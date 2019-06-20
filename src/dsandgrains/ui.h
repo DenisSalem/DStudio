@@ -77,7 +77,6 @@ typedef struct UI_t {
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];
 } UI;
 
-static void free_background(UIBackground * background);
 static void init_background(UIBackground * background);
 static void render_background(UIBackground * background);
 
