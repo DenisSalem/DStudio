@@ -206,3 +206,13 @@ void load_shader(GLchar ** shader_buffer, const char * filename) {
     }
     fclose(shader);
 }
+
+void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count) {    
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+        glBindVertexArray(vertex_array_object);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
+                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, count);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}

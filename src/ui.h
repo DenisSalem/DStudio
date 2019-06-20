@@ -122,10 +122,11 @@ inline float compute_knob_rotation(double xpos, double ypos, Vec2 active_knob_ce
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
 
 void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object);
-// png_bytep is basically unsigned char
-int get_png_pixel(const char * filename, png_bytep * buffer, int alpha);
+int get_png_pixel(const char * filename, png_bytep * buffer, int alpha); // png_bytep is basically unsigned char
 void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
 void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, GLuint * texture_scale_p, const char * texture_filename, unsigned char ** texture_p, Vec2 ** offsets_buffer_p, GLfloat ** motions_buffer_p, GLchar * vertex_indexes, Vec2 * scale_matrix, int viewport_width, int viewport_height);
 void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes);
 void load_shader(GLchar ** shader_buffer, const char * filename);
+void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
+
 #endif
