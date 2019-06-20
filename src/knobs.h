@@ -28,9 +28,9 @@ typedef struct UIKnobs_t {
     Vec2                        scale_matrix[2];
     int                         count;
     Vec2  *                     instance_offsets_buffer;
-    GLint                       instance_offsets;
+    GLuint                      instance_offsets;
     GLfloat  *                  instance_rotations_buffer;
-    GLint                       instance_rotations;
+    GLuint                      instance_rotations;
     GLuint                      vertex_buffer_object;
     GLuint                      vertex_array_object;
     GLchar                      vertex_indexes[4];
