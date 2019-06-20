@@ -41,7 +41,19 @@ static UICallback * ui_callbacks;
 static UICallback active_ui_element = {0};
 static Vec2 active_knob_center;
 static useconds_t framerate = 20000;
+static char first_render = 1;
+static char areas_index = -1;
 
+static GLint scissor_x, scissor_y;
+static GLsizei scissor_width, scissor_height;
+
+static GLuint interactive_program_id, non_interactive_program_id;
+static GLuint scale_matrix_id;
+
+static const GLfloat * sample_knobs_scale_matrix_p;
+static const GLfloat * sample_small_knobs_scale_matrix_p;
+static const GLfloat * voice_knobs_scale_matrix_p;
+    
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
     float rotation;
     if (active_ui_element.callback == NULL) {
@@ -57,102 +69,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
     }
     
-}
-
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        for (int i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
-            if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
-                active_ui_element.callback = ui_callbacks[i].callback;
-                active_ui_element.index = ui_callbacks[i].index;
-                active_ui_element.context_p = ui_callbacks[i].context_p;
-                active_ui_element.type = ui_callbacks[i].type;
-                if (active_ui_element.type & 3) { // IF DSTUDIO_KNOB_TYPE_1 OR DSTUDIO_KNOB_TYPE_2
-                    active_knob_center.x = ui_areas[i].x;
-                    active_knob_center.y = ui_areas[i].y;
-                }
-                break;
-            }
-        }
-    }
-    if (action == GLFW_RELEASE) {
-        active_ui_element.callback = NULL;
-    }
-}
-
-// Should be splitted
-void * ui_thread(void * arg) {
-    UI * ui = arg;
-    background_p = &ui->background;
-    sample_knobs_p = &ui->sample_knobs;
-    sample_small_knobs_p = &ui->sample_small_knobs;
-    voice_knobs_p = &ui->voice_knobs;
-    ui_areas = &ui->areas[0];
-    ui_callbacks = &ui->callbacks[0];
-
-    DSTUDIO_EXIT_IF_FAILURE( (glfwInit() != GLFW_TRUE) )
-    
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
-    GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
-    
-    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE((window == 0))
-        
-    glfwMakeContextCurrent(window);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetCursorPosCallback(window, cursor_position_callback);
-    
-    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
-    
-    GLuint interactive_program_id, non_interactive_program_id;
-    create_shader_program(&interactive_program_id, &non_interactive_program_id);
-    init_background(background_p);
-    
-    init_knobs_gpu_side(sample_knobs_p);
-    init_knobs_gpu_side(sample_small_knobs_p);
-    init_knobs_gpu_side(voice_knobs_p);
-    
-    finalize_knobs(sample_knobs_p);
-    finalize_knobs(sample_small_knobs_p);
-    finalize_knobs(voice_knobs_p);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glEnable(GL_SCISSOR_TEST);
-    
-    GLuint scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
-    const GLfloat * sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
-    const GLfloat * sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
-    const GLfloat * voice_knobs_scale_matrix_p = &voice_knobs_p->scale_matrix[0].x;
-    
-    while (!glfwWindowShouldClose(window)) {
-        usleep(framerate);
-        //~ if (first_render) {
-            glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-        //~ }
-        glUseProgram(non_interactive_program_id);
-            render_background(background_p);
-        glUseProgram(interactive_program_id);
-            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
-            render_knobs(sample_knobs_p);
-            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
-            render_knobs(sample_small_knobs_p);
-            glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
-            render_knobs(voice_knobs_p);
-        glUseProgram(0);
-        
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
-    glfwTerminate();
-    return NULL;
 }
 
 static void init_background(UIBackground * background) {
@@ -204,6 +120,40 @@ static void init_background(UIBackground * background) {
     glBindVertexArray(0);
 }
 
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        for (char i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
+            if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
+                active_ui_element.callback = ui_callbacks[i].callback;
+                active_ui_element.index = ui_callbacks[i].index;
+                active_ui_element.context_p = ui_callbacks[i].context_p;
+                active_ui_element.type = ui_callbacks[i].type;
+                
+                // SETUP glScissor params
+                if (areas_index < 0) { 
+                    areas_index = i;
+                    scissor_x = (GLint) ui_areas[i].min_x;
+                    scissor_y = (GLint) DSANDGRAINS_VIEWPORT_HEIGHT - ui_areas[i].max_y;
+                    scissor_width = (GLsizei) ui_areas[i].max_x - ui_areas[i].min_x;
+                    scissor_height = (GLsizei) ui_areas[i].max_y - ui_areas[i].min_y;
+                }
+                if (active_ui_element.type & 3) { // IF DSTUDIO_KNOB_TYPE_1 OR DSTUDIO_KNOB_TYPE_2
+                    active_knob_center.x = ui_areas[i].x;
+                    active_knob_center.y = ui_areas[i].y;
+                }
+                break;
+            }
+        }
+    }
+    if (action == GLFW_RELEASE) {
+        active_ui_element.callback = NULL;
+        areas_index = -1;
+    }
+}
+
 static void render_background(UIBackground * background) {
         glBindTexture(GL_TEXTURE_2D, background->texture_id);
             glBindVertexArray(background->vertex_array_object);
@@ -212,4 +162,85 @@ static void render_background(UIBackground * background) {
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+static void render_viewport() {
+    glUseProgram(non_interactive_program_id);
+        render_background(background_p);
+        
+    glUseProgram(interactive_program_id);
+        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
+        render_knobs(sample_knobs_p);
+        
+        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
+        render_knobs(sample_small_knobs_p);
+        
+        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
+        render_knobs(voice_knobs_p);
+}
+
+// Should be splitted
+void * ui_thread(void * arg) {
+    UI * ui = arg;
+    background_p = &ui->background;
+    sample_knobs_p = &ui->sample_knobs;
+    sample_small_knobs_p = &ui->sample_small_knobs;
+    voice_knobs_p = &ui->voice_knobs;
+    ui_areas = &ui->areas[0];
+    ui_callbacks = &ui->callbacks[0];
+
+    DSTUDIO_EXIT_IF_FAILURE( (glfwInit() != GLFW_TRUE) )
+    
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    
+    GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
+    
+    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE((window == 0))
+        
+    glfwMakeContextCurrent(window);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    
+    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
+    
+    create_shader_program(&interactive_program_id, &non_interactive_program_id);
+    init_background(background_p);
+    
+    init_knobs_gpu_side(sample_knobs_p);
+    init_knobs_gpu_side(sample_small_knobs_p);
+    init_knobs_gpu_side(voice_knobs_p);
+    
+    finalize_knobs(sample_knobs_p);
+    finalize_knobs(sample_small_knobs_p);
+    finalize_knobs(voice_knobs_p);
+
+    scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
+    sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
+    voice_knobs_scale_matrix_p = &voice_knobs_p->scale_matrix[0].x;
+    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glEnable(GL_SCISSOR_TEST);
+    
+    while (!glfwWindowShouldClose(window)) {
+        usleep(framerate);
+        if (first_render) {
+            glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+            first_render = 0;
+            render_viewport();
+        }
+        else if (areas_index >= 0) {
+            glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
+            render_viewport();
+        }
+        
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    glfwTerminate();
+    return NULL;
 }
