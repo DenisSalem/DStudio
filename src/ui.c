@@ -92,17 +92,12 @@ void create_shader_program(GLuint * interactive_program_id, GLuint * non_interac
     #endif
 }
 
-int get_png_pixel(const char * filename, png_bytep * buffer, int alpha) {
+int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format) {
     png_image image;
     memset(&image, 0, sizeof(image));
     image.version = PNG_IMAGE_VERSION;
     if (png_image_begin_read_from_file(&image, filename) != 0) {
-        if (alpha !=0 ) {
-        image.format = PNG_FORMAT_RGBA;
-        }
-        else {
-            image.format = PNG_FORMAT_RGB;
-        }
+        image.format = format;
         *buffer = malloc(PNG_IMAGE_SIZE(image));
         if (*buffer != NULL && png_image_finish_read(&image, NULL, *buffer, 0, NULL) != 0) {
             return PNG_IMAGE_SIZE(image);
@@ -158,7 +153,7 @@ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, G
     *count_p = count;
     *texture_scale_p = texture_scale;
 
-    get_png_pixel(texture_filename, texture_p, 1);
+    get_png_pixel(texture_filename, texture_p, PNG_FORMAT_RGBA);
 
     *offsets_buffer_p = malloc(count * sizeof(Vec2));
     *motions_buffer_p = malloc(count * sizeof(GLfloat));

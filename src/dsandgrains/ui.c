@@ -30,6 +30,7 @@
 #include "../common.h"
 #include "../knobs.h"
 #include "ui.h"
+#include "../ui_statics.h"
 
 static UIKnobs * sample_knobs_p;
 static UIKnobs * sample_small_knobs_p;
@@ -42,6 +43,7 @@ static UICallback active_ui_element = {0};
 static Vec2 active_knob_center;
 static useconds_t framerate = 20000;
 static char first_render = 1;
+static char window_visible = 0;
 static char areas_index = -1;
 
 static GLint scissor_x, scissor_y;
@@ -53,23 +55,10 @@ static GLuint scale_matrix_id;
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
 static const GLfloat * voice_knobs_scale_matrix_p;
-    
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
-    float rotation;
-    if (active_ui_element.callback == NULL) {
-        return;
-    }
-    
-    if (active_ui_element.type == DSTUDIO_KNOB_TYPE_1) {
-        rotation = compute_knob_rotation(xpos, ypos, active_knob_center);
-        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
-    }
-    else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_2) {
-        rotation = compute_knob_rotation(xpos, ypos, active_knob_center);
-        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &rotation);
-    }
-    
-}
+
+DEFINE_FRAMEBUFFER_SIZE_CHANGE_CALLBACK
+DEFINE_CURSOR_POSITION_CALLBACK
+DEFINE_MOUSE_BUTTON_CALLBACK
 
 static void init_background(UIBackground * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
@@ -99,7 +88,7 @@ static void init_background(UIBackground * background) {
         glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
-    get_png_pixel(DSANDGRAINS_BACKGROUND_ASSET_PATH, &background->texture, 0);
+    get_png_pixel(DSANDGRAINS_BACKGROUND_ASSET_PATH, &background->texture, PNG_FORMAT_RGB);
     
     glGenTextures(1, &background->texture_id);
     glBindTexture(GL_TEXTURE_2D, background->texture_id);
@@ -118,40 +107,6 @@ static void init_background(UIBackground * background) {
             glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-}
-
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        for (char i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
-            if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
-                active_ui_element.callback = ui_callbacks[i].callback;
-                active_ui_element.index = ui_callbacks[i].index;
-                active_ui_element.context_p = ui_callbacks[i].context_p;
-                active_ui_element.type = ui_callbacks[i].type;
-                
-                // SETUP glScissor params
-                if (areas_index < 0) { 
-                    areas_index = i;
-                    scissor_x = (GLint) ui_areas[i].min_x;
-                    scissor_y = (GLint) DSANDGRAINS_VIEWPORT_HEIGHT - ui_areas[i].max_y;
-                    scissor_width = (GLsizei) ui_areas[i].max_x - ui_areas[i].min_x;
-                    scissor_height = (GLsizei) ui_areas[i].max_y - ui_areas[i].min_y;
-                }
-                if (active_ui_element.type & 3) { // IF DSTUDIO_KNOB_TYPE_1 OR DSTUDIO_KNOB_TYPE_2
-                    active_knob_center.x = ui_areas[i].x;
-                    active_knob_center.y = ui_areas[i].y;
-                }
-                break;
-            }
-        }
-    }
-    if (action == GLFW_RELEASE) {
-        active_ui_element.callback = NULL;
-        areas_index = -1;
-    }
 }
 
 static void render_background(UIBackground * background) {
@@ -181,6 +136,7 @@ static void render_viewport() {
 
 // Should be splitted
 void * ui_thread(void * arg) {
+    int fresh_window_attrib;
     UI * ui = arg;
     background_p = &ui->background;
     sample_knobs_p = &ui->sample_knobs;
@@ -203,7 +159,9 @@ void * ui_thread(void * arg) {
     glfwMakeContextCurrent(window);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
-    
+    // Window shouldn't be resized, but with some windows manager it might happens. OpenGL need to be notified to redraw the whole scene.
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_change_callback);   
+    	
     DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
@@ -228,6 +186,13 @@ void * ui_thread(void * arg) {
     
     while (!glfwWindowShouldClose(window)) {
         usleep(framerate);
+        
+        fresh_window_attrib = glfwGetWindowAttrib(window, GLFW_VISIBLE);
+        if (!window_visible && fresh_window_attrib) {
+            first_render = 1;
+        }
+        window_visible = fresh_window_attrib;
+
         if (first_render) {
             glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
             first_render = 0;
