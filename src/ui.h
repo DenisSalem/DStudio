@@ -99,7 +99,7 @@ typedef struct vec2_t {
 
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);
 
-inline float compute_knob_rotation(double xpos, double ypos, Vec2 active_knob_center) {
+static inline float compute_knob_rotation(double xpos, double ypos, Vec2 active_knob_center) {
     float rotation = 0;
 
     float y = - ypos + active_knob_center.y;
