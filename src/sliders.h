@@ -17,8 +17,8 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_KNOBS_H_INCLUDED
-#define DSTUDIO_KNOBS_H_INCLUDED
+#ifndef DSTUDIO_SLIDERS_H_INCLUDED
+#define DSTUDIO_SLIDERS_H_INCLUDED
 
 #include "ui.h"
 typedef struct UISliders_t {

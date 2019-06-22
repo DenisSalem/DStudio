@@ -23,6 +23,9 @@
 #define DSTUDIO_FRAGMENT_SHADER_PATH "../assets/fragment.shader"
 #define DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH "../assets/interactive_vertex.shader"
 #define DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH "../assets/non_interactive_vertex.shader"
+#define DSANDGRAINS_KNOB1_ASSET_PATH "../assets/knob1.png"
+#define DSANDGRAINS_KNOB2_ASSET_PATH "../assets/knob2.png"
+#define DSANDGRAINS_SLIDER1_ASSET_PATH "../assets/slider1.png"
 
 #ifdef DSTUDIO_USE_GLFW3
     #include <GLFW/glfw3.h>

@@ -192,7 +192,6 @@ void * ui_thread(void * arg) {
             first_render = 1;
         }
         window_visible = fresh_window_attrib;
-
         if (first_render) {
             glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
             first_render = 0;

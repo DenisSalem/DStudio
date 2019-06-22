@@ -26,11 +26,10 @@
 
 #define DSANDGRAINS_UI_ELEMENTS_COUNT 21
 
-#define DSANDGRAINS_KNOB1_ASSET_PATH "../assets/knob1.png"
-#define DSANDGRAINS_KNOB2_ASSET_PATH "../assets/knob2.png"
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
 
 #include "../knobs.h"
+#include "../sliders.h"
 #include "../ui.h"
 
 #define DSANDGRAINS_INIT_KNOB(knobs_p, knob_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \
@@ -76,6 +75,7 @@ typedef struct UI_t {
     UIBackground        background;
     UIKnobs             sample_knobs;
     UIKnobs             sample_small_knobs;
+    UISliders           sliders_dahdsr;
     UIKnobs             voice_knobs;
     UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];

@@ -18,12 +18,14 @@ int main(int argc, char ** argv) {
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
     UIKnobs * sample_small_knobs_p = &ui.sample_small_knobs;
     UIKnobs * voice_knobs_p = &ui.voice_knobs;
+    UISliders * sliders_dahdsr = &ui.sliders_dahdsr;
     UIArea * ui_areas = &ui.areas[0];
     UICallback * ui_callbacks = &ui.callbacks[0];
         
     init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
     init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
     init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    init_sliders_cpu_side(sliders_dahdsr, 1, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
     
     InitKnobArray init_knobs_array[DSANDGRAINS_UI_ELEMENTS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
