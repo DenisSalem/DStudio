@@ -20,7 +20,6 @@
 #include <stdlib.h>
 
 #include "extensions.h"
-#include "dsandgrains/ui.h"
 #include "knobs.h"
 
 void finalize_knobs(UIKnobs * knobs) {
@@ -39,7 +38,7 @@ void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {
     init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_rotations_buffer[index]);
 }
 
-void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
+void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename, int viewport_width, int viewport_height) {
     init_ui_elements_cpu_side(
         count,
         &knobs->count,
@@ -51,8 +50,8 @@ void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const
         &knobs->instance_rotations_buffer,
         &knobs->vertex_indexes[0],
         &knobs->scale_matrix[0],
-        DSANDGRAINS_VIEWPORT_WIDTH,
-        DSANDGRAINS_VIEWPORT_HEIGHT
+        viewport_width,
+        viewport_height
     );
 }
 

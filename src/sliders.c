@@ -35,5 +35,53 @@ void finalize_sliders(UISliders * sliders) {
 }
 
 void init_slider(UISliders * sliders, int index, float offset_x, float offset_y) {    
-    init_ui_element(&sliders->instance_offsets_buffer[index], offset_x, offset_y, &sliders->instance_translations_buffer[index]);
+    init_ui_element(
+        &sliders->instance_offsets_buffer[index],
+        offset_x,
+        offset_y,
+        &sliders->instance_translations_buffer[index]
+    );
+}
+
+void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale, const char * texture_filename, int viewport_width, int viewport_height) {
+    init_ui_elements_cpu_side(
+        count,
+        &sliders->count,
+        texture_scale,
+        &sliders->texture_scale,
+        texture_filename,
+        &sliders->texture,
+        &sliders->instance_offsets_buffer,
+        &sliders->instance_translations_buffer,
+        &sliders->vertex_indexes[0],
+        &sliders->scale_matrix[0],
+        viewport_width,
+        viewport_height
+    );
+}
+
+void init_sliders_gpu_side(UISliders * sliders) {
+    init_ui_elements_gpu_side(
+        1,
+        sliders->vertexes_attributes,
+        &sliders->vertex_buffer_object,
+        &sliders->texture_id,
+        sliders->texture_scale,
+        sliders->texture,
+        &sliders->index_buffer_object,
+        sliders->vertex_indexes
+    );
+}
+
+void render_sliders(UISliders * sliders) {    
+    render_ui_elements(sliders->texture_id, sliders->vertex_array_object, sliders->index_buffer_object, sliders->count);
+}
+
+void update_slider(int index, void * context, void * args) {
+    //~ float * rotation = (float*) args;
+    //~ UIKnobs * sample_knobs_p = (UIKnobs *) context;
+    //~ sample_knobs_p->instance_rotations_buffer[index] = *rotation;
+    //~ glBindBuffer(GL_ARRAY_BUFFER, sample_knobs_p->instance_rotations);
+        //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sample_knobs_p->count, sample_knobs_p->instance_rotations_buffer);
+    //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

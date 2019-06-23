@@ -78,6 +78,17 @@
 
 #define DSTUDIO_KNOB_TYPE_1 1
 #define DSTUDIO_KNOB_TYPE_2 2
+#define DSTUDIO_SLICER_TYPE_1 3
+
+typedef struct init_ui_element_array_t {
+    GLfloat gl_x;
+    GLfloat gl_y;
+    GLfloat min_area_x;
+    GLfloat max_area_x;
+    GLfloat min_area_y;
+    GLfloat max_area_y;
+    unsigned char ui_element_type;
+} InitUIElementArray;
 
 typedef struct UIArea_t {
     float min_x;

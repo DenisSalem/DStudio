@@ -34,6 +34,7 @@
 
 static UIKnobs * sample_knobs_p;
 static UIKnobs * sample_small_knobs_p;
+static UISliders * sliders_dahdsr_p;
 static UIKnobs * voice_knobs_p;
 
 static UIBackground * background_p;
@@ -54,6 +55,7 @@ static GLuint scale_matrix_id;
 
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
+static const GLfloat * sliders_dahdsr_scale_matrix_p;
 static const GLfloat * voice_knobs_scale_matrix_p;
 
 DEFINE_FRAMEBUFFER_SIZE_CHANGE_CALLBACK
@@ -132,6 +134,9 @@ static void render_viewport() {
         
         glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
         render_knobs(voice_knobs_p);
+
+        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
+        render_sliders(sliders_dahdsr_p);
 }
 
 // Should be splitted
@@ -141,6 +146,7 @@ void * ui_thread(void * arg) {
     background_p = &ui->background;
     sample_knobs_p = &ui->sample_knobs;
     sample_small_knobs_p = &ui->sample_small_knobs;
+    sliders_dahdsr_p = &ui->sliders_dahdsr;
     voice_knobs_p = &ui->voice_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
@@ -170,14 +176,17 @@ void * ui_thread(void * arg) {
     init_knobs_gpu_side(sample_knobs_p);
     init_knobs_gpu_side(sample_small_knobs_p);
     init_knobs_gpu_side(voice_knobs_p);
+    init_sliders_gpu_side(sliders_dahdsr_p);
     
     finalize_knobs(sample_knobs_p);
     finalize_knobs(sample_small_knobs_p);
     finalize_knobs(voice_knobs_p);
+    finalize_sliders(sliders_dahdsr_p);
 
     scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
+    sliders_dahdsr_scale_matrix_p = &sliders_dahdsr_p->scale_matrix[0].x;
     voice_knobs_scale_matrix_p = &voice_knobs_p->scale_matrix[0].x;
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
