@@ -15,9 +15,9 @@ int main(int argc, char ** argv) {
     init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_sliders_cpu_side(sliders_dahdsr_p, 1, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_sliders_cpu_side(sliders_dahdsr_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
-    InitUIElementArray init_knobs_array[DSANDGRAINS_UI_ELEMENTS_COUNT] = {
+    InitUIElementArray init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
         {-0.7075, 0.25, 84.0,  149.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: END
         {-0.5475, 0.25, 148.0, 213.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: GRAIN SIZE
@@ -58,8 +58,13 @@ int main(int argc, char ** argv) {
         DSTUDIO_INIT_KNOB(voice_knobs_p, i, gl_x, gl_y, 18+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
     
-    InitUIElementArray init_sliders_array[DSANDGRAINS_UI_ELEMENTS_COUNT] = {
-        {-0.14, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1}
+    InitUIElementArray init_sliders_array[DSANDGRAINS_SLIDERS_COUNT] = {
+        {-0.14, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
+        {-0.1, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
+        {-0.06, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
+        {-0.02, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
+        {0.02, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
+        {0.06, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1}
     };
     
     InitUIElementArray * init_slider_array_p;
