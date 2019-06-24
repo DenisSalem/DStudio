@@ -22,38 +22,16 @@
 
 #define DSANDGRAINS_SAMPLE_KNOBS 8
 #define DSANDGRAINS_SAMPLE_SMALL_KNOBS 10
+#define DSANDGRAINS_SLIDERS_DAHDSR 1
 #define DSANDGRAINS_VOICE_KNOBS 3
 
-#define DSANDGRAINS_UI_ELEMENTS_COUNT 21
+#define DSANDGRAINS_UI_ELEMENTS_COUNT 22
 
-#define DSANDGRAINS_KNOB1_ASSET_PATH "../assets/knob1.png"
-#define DSANDGRAINS_KNOB2_ASSET_PATH "../assets/knob2.png"
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
 
 #include "../knobs.h"
+#include "../sliders.h"
 #include "../ui.h"
-
-#define DSANDGRAINS_INIT_KNOB(knobs_p, knob_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \
-        init_knob( \
-            knobs_p, \
-            knob_index, \
-            init_knob_array_p->gl_x, \
-            init_knob_array_p->gl_y \
-        ); \
-        DSTUDIO_SET_AREA( \
-            ui_element_index, \
-            init_knob_array_p->min_area_x, \
-            init_knob_array_p->max_area_x, \
-            init_knob_array_p->min_area_y, \
-            init_knob_array_p->max_area_y \
-        ) \
-        DSTUDIO_SET_UI_CALLBACK( \
-            ui_element_index,\
-            update_knob, \
-            knob_index,\
-            knobs_p, \
-            init_knob_array_p->ui_element_type\
-        );
 
 typedef struct UIBackground_t {
     Vec4                vertexes_attributes[4];
@@ -76,6 +54,7 @@ typedef struct UI_t {
     UIBackground        background;
     UIKnobs             sample_knobs;
     UIKnobs             sample_small_knobs;
+    UISliders           sliders_dahdsr;
     UIKnobs             voice_knobs;
     UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];

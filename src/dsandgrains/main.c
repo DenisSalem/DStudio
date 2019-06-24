@@ -3,29 +3,21 @@
 #include "../common.h"
 #include "ui.h"
 
-typedef struct init_knob_array_t {
-    GLfloat gl_x;
-    GLfloat gl_y;
-    GLfloat min_area_x;
-    GLfloat max_area_x;
-    GLfloat min_area_y;
-    GLfloat max_area_y;
-    unsigned char ui_element_type;
-} InitKnobArray;
-
 int main(int argc, char ** argv) {
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
     UIKnobs * sample_small_knobs_p = &ui.sample_small_knobs;
     UIKnobs * voice_knobs_p = &ui.voice_knobs;
+    UISliders * sliders_dahdsr_p = &ui.sliders_dahdsr;
     UIArea * ui_areas = &ui.areas[0];
     UICallback * ui_callbacks = &ui.callbacks[0];
         
-    init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
-    init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
-    init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_sliders_cpu_side(sliders_dahdsr_p, 1, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
-    InitKnobArray init_knobs_array[DSANDGRAINS_UI_ELEMENTS_COUNT] = {
+    InitUIElementArray init_knobs_array[DSANDGRAINS_UI_ELEMENTS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
         {-0.7075, 0.25, 84.0,  149.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: END
         {-0.5475, 0.25, 148.0, 213.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: GRAIN SIZE
@@ -50,22 +42,32 @@ int main(int argc, char ** argv) {
         { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
     };
 
-    InitKnobArray * init_knob_array_p;
+    InitUIElementArray * init_knob_array_p;
     
     for (int i = 0; i < DSANDGRAINS_SAMPLE_KNOBS; i++) {
         init_knob_array_p = &init_knobs_array[i];
-        DSANDGRAINS_INIT_KNOB(sample_knobs_p, i, gl_x, gl_y, i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_KNOB(sample_knobs_p, i, gl_x, gl_y, i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
     
     for (int i = 0; i < DSANDGRAINS_SAMPLE_SMALL_KNOBS; i++) {
         init_knob_array_p = &init_knobs_array[8+i];
-        DSANDGRAINS_INIT_KNOB(sample_small_knobs_p, i, gl_x, gl_y, 8+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_KNOB(sample_small_knobs_p, i, gl_x, gl_y, 8+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
     for (int i = 0; i < DSANDGRAINS_VOICE_KNOBS; i++) {
         init_knob_array_p = &init_knobs_array[18+i];
-        DSANDGRAINS_INIT_KNOB(voice_knobs_p, i, gl_x, gl_y, 18+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_KNOB(voice_knobs_p, i, gl_x, gl_y, 18+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
-
+    
+    InitUIElementArray init_sliders_array[DSANDGRAINS_UI_ELEMENTS_COUNT] = {
+        {-0.14, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1}
+    };
+    
+    InitUIElementArray * init_slider_array_p;
+    for (int i = 0; i < DSANDGRAINS_SLIDERS_DAHDSR; i++) {
+        init_slider_array_p = &init_sliders_array[i];
+        DSTUDIO_INIT_SLIDER(sliders_dahdsr_p, i, gl_x, gl_y, i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    }
+    
     pthread_t ui_thread_id;
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))

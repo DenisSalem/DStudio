@@ -41,9 +41,31 @@ typedef struct UIKnobs_t {
 
 void finalize_knobs(UIKnobs * knobs);
 void init_knob(UIKnobs * knobs, int index, float x, float y);
-void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
+void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename, int viewport_width, int viewport_height);
 void init_knobs_gpu_side(UIKnobs * knobs);
 void render_knobs(UIKnobs * knobs);
 void update_knob(int index, void * context, void * args);
+
+#define DSTUDIO_INIT_KNOB(knobs_p, knob_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \
+        init_knob( \
+            knobs_p, \
+            knob_index, \
+            init_knob_array_p->gl_x, \
+            init_knob_array_p->gl_y \
+        ); \
+        DSTUDIO_SET_AREA( \
+            ui_element_index, \
+            init_knob_array_p->min_area_x, \
+            init_knob_array_p->max_area_x, \
+            init_knob_array_p->min_area_y, \
+            init_knob_array_p->max_area_y \
+        ) \
+        DSTUDIO_SET_UI_CALLBACK( \
+            ui_element_index,\
+            update_knob, \
+            knob_index,\
+            knobs_p, \
+            init_knob_array_p->ui_element_type\
+        );
 
 #endif
