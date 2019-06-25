@@ -59,18 +59,18 @@ int main(int argc, char ** argv) {
     }
     
     InitUIElementArray init_sliders_array[DSANDGRAINS_SLIDERS_COUNT] = {
-        {-0.14, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
-        {-0.1, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
-        {-0.06, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
-        {-0.02, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
-        {0.02, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1},
-        {0.06, -0.816666, 20.0,  85.0,  147.0, 212.0, DSTUDIO_SLICER_TYPE_1}
+        {-0.14, -0.816666, 338.0,  349.0, 414.0, 456.0, DSTUDIO_SLICER_TYPE_1},
+        {-0.1, -0.816666, 20.0,  85.0, 414.0, 456.0, DSTUDIO_SLICER_TYPE_1},
+        {-0.06, -0.816666, 20.0,  85.0, 414.0, 456.0, DSTUDIO_SLICER_TYPE_1},
+        {-0.02, -0.816666, 20.0,  85.0, 414.0, 456.0, DSTUDIO_SLICER_TYPE_1},
+        {0.02, -0.816666, 20.0,  85.0, 414.0, 456.0, DSTUDIO_SLICER_TYPE_1},
+        {0.06, -0.816666, 20.0,  85.0, 414.0, 456.0, DSTUDIO_SLICER_TYPE_1}
     };
     
     InitUIElementArray * init_slider_array_p;
     for (int i = 0; i < DSANDGRAINS_SLIDERS_DAHDSR; i++) {
         init_slider_array_p = &init_sliders_array[i];
-        DSTUDIO_INIT_SLIDER(sliders_dahdsr_p, i, gl_x, gl_y, i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_SLIDER(sliders_dahdsr_p, i, gl_x, gl_y, 21+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
     
     pthread_t ui_thread_id;

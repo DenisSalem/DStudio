@@ -30,7 +30,6 @@
 #include "../common.h"
 #include "../knobs.h"
 #include "ui.h"
-#include "../ui_statics.h"
 
 static UIKnobs * sample_knobs_p;
 static UIKnobs * sample_small_knobs_p;
@@ -41,7 +40,8 @@ static UIBackground * background_p;
 static UIArea * ui_areas;
 static UICallback * ui_callbacks;
 static UICallback active_ui_element = {0};
-static Vec2 active_knob_center;
+static Vec2 active_ui_element_center;
+static Vec2 active_slider_range;
 static useconds_t framerate = 20000;
 static char first_render = 1;
 static char window_visible = 0;
@@ -52,15 +52,15 @@ static GLsizei scissor_width, scissor_height;
 
 static GLuint interactive_program_id, non_interactive_program_id;
 static GLuint scale_matrix_id;
+static GLuint motion_type_id;
 
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
 static const GLfloat * sliders_dahdsr_scale_matrix_p;
 static const GLfloat * voice_knobs_scale_matrix_p;
+static GLfloat motion_type;
 
-DEFINE_FRAMEBUFFER_SIZE_CHANGE_CALLBACK
-DEFINE_CURSOR_POSITION_CALLBACK
-DEFINE_MOUSE_BUTTON_CALLBACK
+#include "../ui_statics.h"
 
 static void init_background(UIBackground * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
@@ -126,6 +126,10 @@ static void render_viewport() {
         render_background(background_p);
         
     glUseProgram(interactive_program_id);
+        // KNOBS
+        motion_type = 0.0;
+        glUniform1f(motion_type_id, motion_type);
+
         glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
         render_knobs(sample_knobs_p);
         
@@ -134,6 +138,10 @@ static void render_viewport() {
         
         glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
         render_knobs(voice_knobs_p);
+
+        // SLIDERS
+        motion_type = 1.0;
+        glUniform1f(motion_type_id, motion_type);
 
         glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
         render_sliders(sliders_dahdsr_p);
@@ -184,11 +192,12 @@ void * ui_thread(void * arg) {
     finalize_sliders(sliders_dahdsr_p);
 
     scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
     sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
     sliders_dahdsr_scale_matrix_p = &sliders_dahdsr_p->scale_matrix[0].x;
     voice_knobs_scale_matrix_p = &voice_knobs_p->scale_matrix[0].x;
-    
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_SCISSOR_TEST);

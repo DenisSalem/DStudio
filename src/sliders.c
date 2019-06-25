@@ -78,10 +78,10 @@ void render_sliders(UISliders * sliders) {
 }
 
 void update_slider(int index, void * context, void * args) {
-    //~ float * rotation = (float*) args;
-    //~ UIKnobs * sample_knobs_p = (UIKnobs *) context;
-    //~ sample_knobs_p->instance_rotations_buffer[index] = *rotation;
-    //~ glBindBuffer(GL_ARRAY_BUFFER, sample_knobs_p->instance_rotations);
-        //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sample_knobs_p->count, sample_knobs_p->instance_rotations_buffer);
-    //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
+    float * translation = (float*) args;
+    UISliders * sliders_p = (UISliders *) context;
+    sliders_p->instance_translations_buffer[index] = *translation;
+    glBindBuffer(GL_ARRAY_BUFFER, sliders_p->instance_translations);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sliders_p->count, sliders_p->instance_translations_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
