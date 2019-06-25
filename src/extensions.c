@@ -49,6 +49,7 @@ int load_extensions() {
     DSTUDIO_BIND_GL_FUN(VertexAttribPointer)
     DSTUDIO_BIND_GL_FUN(ShaderSource)
     DSTUDIO_BIND_GL_FUN(UniformMatrix2fv)
+    DSTUDIO_BIND_GL_FUN(Uniform1f)
     DSTUDIO_BIND_GL_FUN(UseProgram)
 
     #ifdef DSTUDIO_DEBUG

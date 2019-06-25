@@ -74,9 +74,9 @@ void render_knobs(UIKnobs * knobs) {
 
 void update_knob(int index, void * context, void * args) {
     float * rotation = (float*) args;
-    UIKnobs * sample_knobs_p = (UIKnobs *) context;
-    sample_knobs_p->instance_rotations_buffer[index] = *rotation;
-    glBindBuffer(GL_ARRAY_BUFFER, sample_knobs_p->instance_rotations);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * sample_knobs_p->count, sample_knobs_p->instance_rotations_buffer);
+    UIKnobs * knobs_p = (UIKnobs *) context;
+    knobs_p->instance_rotations_buffer[index] = *rotation;
+    glBindBuffer(GL_ARRAY_BUFFER, knobs_p->instance_rotations);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * knobs_p->count, knobs_p->instance_rotations_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

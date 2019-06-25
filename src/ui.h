@@ -78,7 +78,7 @@
 
 #define DSTUDIO_KNOB_TYPE_1 1
 #define DSTUDIO_KNOB_TYPE_2 2
-#define DSTUDIO_SLICER_TYPE_1 3
+#define DSTUDIO_SLICER_TYPE_1 4
 
 typedef struct init_ui_element_array_t {
     GLfloat gl_x;
