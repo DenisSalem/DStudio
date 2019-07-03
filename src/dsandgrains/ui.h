@@ -26,7 +26,7 @@
 
 #define DSANDGRAINS_KNOBS_COUNT DSANDGRAINS_SAMPLE_KNOBS+DSANDGRAINS_SAMPLE_SMALL_KNOBS+DSANDGRAINS_VOICE_KNOBS
 #define DSANDGRAINS_SLIDERS_COUNT_PER_GROUP 6
-#define DSANDGRAINS_UI_ELEMENTS_COUNT (DSANDGRAINS_SLIDERS_COUNT_PER_GROUP * 2 ) + DSANDGRAINS_KNOBS_COUNT
+#define DSANDGRAINS_UI_ELEMENTS_COUNT (DSANDGRAINS_SLIDERS_COUNT_PER_GROUP * 4 ) + DSANDGRAINS_KNOBS_COUNT
 
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
 
@@ -57,6 +57,8 @@ typedef struct UI_t {
     UIKnobs             sample_small_knobs;
     UISliders           sliders_dahdsr;
     UISliders           sliders_dahdsr_pitch;
+    UISliders           sliders_dahdsr_lfo;
+    UISliders           sliders_dahdsr_lfo_pitch;
     UIKnobs             voice_knobs;
     UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];

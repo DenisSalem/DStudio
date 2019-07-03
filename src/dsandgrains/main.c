@@ -10,6 +10,8 @@ int main(int argc, char ** argv) {
     UIKnobs * voice_knobs_p = &ui.voice_knobs;
     UISliders * sliders_dahdsr_p = &ui.sliders_dahdsr;
     UISliders * sliders_dahdsr_pitch_p = &ui.sliders_dahdsr_pitch;
+    UISliders * sliders_dahdsr_lfo_p = &ui.sliders_dahdsr_lfo;
+    UISliders * sliders_dahdsr_lfo_pitch_p = &ui.sliders_dahdsr_lfo_pitch;
     UIArea * ui_areas = &ui.areas[0];
     UICallback * ui_callbacks = &ui.callbacks[0];
         
@@ -18,7 +20,9 @@ int main(int argc, char ** argv) {
     init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_sliders_cpu_side(sliders_dahdsr_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_sliders_cpu_side(sliders_dahdsr_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    
+    init_sliders_cpu_side(sliders_dahdsr_lfo_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_sliders_cpu_side(sliders_dahdsr_lfo_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+
     InitUIElementArray init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
         {-0.7075, 0.25, 84.0,  149.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: END
@@ -59,7 +63,9 @@ int main(int argc, char ** argv) {
         init_knob_array_p = &init_knobs_array[18+i];
         DSTUDIO_INIT_KNOB(voice_knobs_p, i, gl_x, gl_y, 18+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
-    
+
+    InitUIElementArray * init_slider_array_p;
+
     InitUIElementArray init_sliders_dahdsr_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
         {-0.14, -0.816666, 338.0, 349.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
         {-0.1,  -0.816666, 354.0, 365.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
@@ -69,7 +75,6 @@ int main(int argc, char ** argv) {
         {0.06, -0.816666,  418.0, 429.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1}
     };
     
-    InitUIElementArray * init_slider_array_p;
     for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
         init_slider_array_p = &init_sliders_dahdsr_array[i];
         DSTUDIO_INIT_SLIDER(sliders_dahdsr_p, i, gl_x, gl_y, 21+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
@@ -82,7 +87,6 @@ int main(int argc, char ** argv) {
         {0.1225, -0.558333, 443.0, 454.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
         {0.1625, -0.558333, 459.0, 470.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
         {0.2025, -0.558333, 475.0, 486.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1}
-
     };
     
     for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
@@ -90,6 +94,34 @@ int main(int argc, char ** argv) {
         DSTUDIO_INIT_SLIDER(sliders_dahdsr_pitch_p, i, gl_x, gl_y, 27+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
 
+    InitUIElementArray init_sliders_dahdsr_lfo_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+        {-0.2625, -0.283333, 289.0, 300.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {-0.2225, -0.283333, 305.0, 316.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {-0.1825, -0.283333, 321.0, 332.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {-0.1425, -0.283333, 337.0, 348.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {-0.1025, -0.283333, 353.0, 364.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {-0.0625, -0.283333, 369.0, 380.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
+    };
+    
+    for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
+        init_slider_array_p = &init_sliders_dahdsr_lfo_array[i];
+        DSTUDIO_INIT_SLIDER(sliders_dahdsr_lfo_p, i, gl_x, gl_y, 33+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    }
+
+    InitUIElementArray init_sliders_dahdsr_lfo_pitch_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+        {0.0025, -0.283333, 395.0, 406.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.0425, -0.283333, 411.0, 422.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.0825, -0.283333, 427.0, 438.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.1225, -0.283333, 443.0, 454.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.1625, -0.283333, 459.0, 470.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.2025, -0.283333, 475.0, 486.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
+    };
+    
+    for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
+        init_slider_array_p = &init_sliders_dahdsr_lfo_pitch_array[i];
+        DSTUDIO_INIT_SLIDER(sliders_dahdsr_lfo_pitch_p, i, gl_x, gl_y, 39+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    }
+    
     pthread_t ui_thread_id;
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
