@@ -65,7 +65,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         motion = compute_knob_rotation(xpos, ypos);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
-    else if (active_ui_element.type == DSTUDIO_SLICER_TYPE_1) {
+    else if (active_ui_element.type == DSTUDIO_SLIDER_TYPE_1) {
         motion = compute_slider_translation(ypos);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
