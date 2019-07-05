@@ -37,6 +37,7 @@ static UISliders * sliders_dahdsr_p;
 static UISliders * sliders_dahdsr_pitch_p;
 static UISliders * sliders_dahdsr_lfo_p;
 static UISliders * sliders_dahdsr_lfo_pitch_p;
+static UISliders * sliders_equalizer_p;
 static UIKnobs * voice_knobs_p;
 
 static UIBackground * background_p;
@@ -63,6 +64,7 @@ static const GLfloat * sliders_dahdsr_scale_matrix_p;
 static const GLfloat * sliders_dahdsr_pitch_scale_matrix_p;
 static const GLfloat * sliders_dahdsr_lfo_scale_matrix_p;
 static const GLfloat * sliders_dahdsr_lfo_pitch_scale_matrix_p;
+static const GLfloat * sliders_equalizer_scale_matrix_p;
 static const GLfloat * voice_knobs_scale_matrix_p;
 static GLfloat motion_type;
 
@@ -160,6 +162,9 @@ static void render_viewport() {
         
         glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
         render_sliders(sliders_dahdsr_lfo_pitch_p);
+
+        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
+        render_sliders(sliders_equalizer_p);
 }
 
 // Should be splitted
@@ -173,6 +178,8 @@ void * ui_thread(void * arg) {
     sliders_dahdsr_pitch_p = &ui->sliders_dahdsr_pitch;
     sliders_dahdsr_lfo_p = &ui->sliders_dahdsr_lfo;
     sliders_dahdsr_lfo_pitch_p = &ui->sliders_dahdsr_lfo_pitch;
+    sliders_equalizer_p = &ui->sliders_equalizer;
+    
     voice_knobs_p = &ui->voice_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
@@ -206,6 +213,7 @@ void * ui_thread(void * arg) {
     init_sliders_gpu_side(sliders_dahdsr_pitch_p);
     init_sliders_gpu_side(sliders_dahdsr_lfo_p);
     init_sliders_gpu_side(sliders_dahdsr_lfo_pitch_p);
+    init_sliders_gpu_side(sliders_equalizer_p);
     
     finalize_knobs(sample_knobs_p);
     finalize_knobs(sample_small_knobs_p);
@@ -214,6 +222,7 @@ void * ui_thread(void * arg) {
     finalize_sliders(sliders_dahdsr_pitch_p);
     finalize_sliders(sliders_dahdsr_lfo_p);
     finalize_sliders(sliders_dahdsr_lfo_pitch_p);
+    finalize_sliders(sliders_equalizer_p);
 
     scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
@@ -226,6 +235,7 @@ void * ui_thread(void * arg) {
     sliders_dahdsr_pitch_scale_matrix_p = &sliders_dahdsr_pitch_p->scale_matrix[0].x;
     sliders_dahdsr_lfo_scale_matrix_p = &sliders_dahdsr_lfo_p->scale_matrix[0].x;
     sliders_dahdsr_lfo_pitch_scale_matrix_p = &sliders_dahdsr_lfo_pitch_p->scale_matrix[0].x;
+    sliders_equalizer_scale_matrix_p = &sliders_equalizer_p->scale_matrix[0].x;
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);

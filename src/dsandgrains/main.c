@@ -12,6 +12,7 @@ int main(int argc, char ** argv) {
     UISliders * sliders_dahdsr_pitch_p = &ui.sliders_dahdsr_pitch;
     UISliders * sliders_dahdsr_lfo_p = &ui.sliders_dahdsr_lfo;
     UISliders * sliders_dahdsr_lfo_pitch_p = &ui.sliders_dahdsr_lfo_pitch;
+    UISliders * sliders_equalizer_p = &ui.sliders_equalizer;
     UIArea * ui_areas = &ui.areas[0];
     UICallback * ui_callbacks = &ui.callbacks[0];
         
@@ -22,6 +23,7 @@ int main(int argc, char ** argv) {
     init_sliders_cpu_side(sliders_dahdsr_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_sliders_cpu_side(sliders_dahdsr_lfo_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_sliders_cpu_side(sliders_dahdsr_lfo_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_sliders_cpu_side(sliders_equalizer_p, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
 
     InitUIElementArray init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
@@ -121,7 +123,22 @@ int main(int argc, char ** argv) {
         init_slider_array_p = &init_sliders_dahdsr_lfo_pitch_array[i];
         DSTUDIO_INIT_SLIDER(sliders_dahdsr_lfo_pitch_p, i, gl_x, gl_y, 39+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
+
+    InitUIElementArray init_sliders_equalizer_array[DSANDGRAINS_EQUALIZER_SLIDERS_COUNT] = {
+        {0.32, -0.475, 522.0, 533.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.36, -0.475, 538.0, 549.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.4,  -0.475, 554.0, 565.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.44, -0.475, 570.0, 581.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.48, -0.475, 586.0, 597.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.52, -0.475, 602.0, 613.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.56, -0.475, 618.0, 629.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        {0.60, -0.475, 634.0, 645.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1}
+    };
     
+    for (int i = 0; i < DSANDGRAINS_EQUALIZER_SLIDERS_COUNT; i++) {
+        init_slider_array_p = &init_sliders_equalizer_array[i];
+        DSTUDIO_INIT_SLIDER(sliders_equalizer_p, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    }
     pthread_t ui_thread_id;
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
