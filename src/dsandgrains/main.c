@@ -1,9 +1,17 @@
 #include <pthread.h>
 
 #include "../common.h"
+#include "../instances.h"
 #include "ui.h"
+#include "instances.h"
+
 
 int main(int argc, char ** argv) {
+    
+    new_instance(INSTANCES_DIRECTORY);
+    
+    
+    
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
     UIKnobs * sample_small_knobs_p = &ui.sample_small_knobs;

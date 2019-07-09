@@ -29,6 +29,8 @@ add_executable(
 	dsandgrains/main.c
     dsandgrains/ui.c
     extensions.c
+    fileutils.c
+    instances.c
     knobs.c
     sliders.c
     ui.c
