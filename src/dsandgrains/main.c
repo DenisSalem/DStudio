@@ -8,7 +8,7 @@
 
 int main(int argc, char ** argv) {
     
-    new_instance(INSTANCES_DIRECTORY);
+    new_instance(INSTANCES_DIRECTORY, "dsandgrains");
     
     
     

@@ -1,3 +1,4 @@
+#include <dirent.h>
 #include <errno.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -10,6 +11,53 @@
 
 static struct passwd * pw = 0;
 static struct stat st = {0};
+
+int count_process(const char * process_name) {
+    DIR * dr = 0;
+    struct dirent *de;
+    char * processus_status_path = malloc(sizeof(char) * 64);
+    char * line_buffer = 0;
+    size_t line_buffer_size = 0;
+    explicit_bzero(processus_status_path, sizeof(char) * 64);
+    int count = 0;
+    long long int process_id;
+    dr = opendir("/proc");
+    FILE * processus_status = 0;
+    
+    int process_name_match = 0;
+    int process_uid_match = 0;
+    
+    while ((de = readdir(dr)) != NULL) {
+        process_id = strtol(de->d_name, NULL, 10);
+        if (process_id != 0) {
+            strcat(processus_status_path, "/proc/");
+            strcat(processus_status_path, de->d_name);
+            strcat(processus_status_path, "/status");
+            processus_status = fopen(processus_status_path, "r");
+            
+            while(getline(&line_buffer, &line_buffer_size, processus_status)) {
+                if (strncmp(line_buffer, "Name:", 5) == 0 ) {
+                    process_name_match = strncmp(process_name, line_buffer+6, strlen(process_name));
+                }
+                if (strncmp(line_buffer, "Uid:", 4) == 0 ) {
+                    process_uid_match = getuid() == atoi(line_buffer+5);
+                    break;
+                }
+            }
+
+            if (process_name_match == 0 && process_uid_match) {
+                count+=1;
+            }
+
+            explicit_bzero(processus_status_path, sizeof(char) * 64);
+            fclose(processus_status);
+        }
+        
+    }
+    free(processus_status_path);
+    free(line_buffer);
+    return count;
+}
 
 void expand_user(char ** dest, const char * directory) {
     if (pw == 0) {
@@ -39,6 +87,7 @@ void recursive_mkdir(char * directory) {
         }   
 
         if (previous_index == index) {
+            mkdir(directory, 0700);
             break;
         }
         else {
