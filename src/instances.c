@@ -10,9 +10,6 @@
 
 static struct stat st = {0};
 
-size_t get_filesize(char * filename) {
-}
-
 void new_instance(const char * given_directory, const char * process_name) {
     char * directory = 0;
     int file_count = 0;
