@@ -8,9 +8,9 @@
 
 int main(int argc, char ** argv) {
     
+    Instances instances = {0};
     new_instance(INSTANCES_DIRECTORY, "dsandgrains");
-    
-    printf("Done with new instance\n");
+    instances.contexts = malloc( sizeof(InstanceContext) );
     
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;

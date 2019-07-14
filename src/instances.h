@@ -3,7 +3,6 @@ typedef struct InstanceContext_t {
 } InstanceContext;
 
 typedef struct Instances_t {
-    const char * binary_name;
     InstanceContext * contexts;
 } Instances;
 
