@@ -34,7 +34,9 @@ int count_process(const char * process_name) {
             strcat(processus_status_path, de->d_name);
             strcat(processus_status_path, "/status");
             processus_status = fopen(processus_status_path, "r");
-            
+            if (ENOENT == errno) {
+                continue;
+            }
             while(getline(&line_buffer, &line_buffer_size, processus_status)) {
                 if (strncmp(line_buffer, "Name:", 5) == 0 ) {
                     process_name_match = strncmp(process_name, line_buffer+6, strlen(process_name));

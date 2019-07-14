@@ -17,6 +17,7 @@ void new_instance(const char * given_directory, const char * process_name) {
     int max_instance_id = 0;
     DIR * dr = 0;
     struct dirent *de;
+    printf("HERE 0\n");
     int instances_count = count_process(process_name);
     expand_user(&directory, given_directory);
     char * instance_filename_buffer = malloc(sizeof(char) * 128); 
@@ -31,7 +32,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         }
         recursive_mkdir(directory);
     }
-
+    printf("HERE 1\n");
     dr = opendir(directory);
     if (instances_count > 1) {
         while ((de = readdir(dr)) != NULL) {

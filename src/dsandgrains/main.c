@@ -10,7 +10,7 @@ int main(int argc, char ** argv) {
     
     new_instance(INSTANCES_DIRECTORY, "dsandgrains");
     
-    
+    printf("Done with new instance\n");
     
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
