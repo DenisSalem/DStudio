@@ -27,9 +27,7 @@
 #define DSANDGRAINS_KNOB2_ASSET_PATH "../assets/knob2.png"
 #define DSANDGRAINS_SLIDER1_ASSET_PATH "../assets/slider1.png"
 
-#ifdef DSTUDIO_USE_GLFW3
-    #include <GLFW/glfw3.h>
-#endif
+#include "window_management.h"
 
 #include <math.h>
 #include <png.h>

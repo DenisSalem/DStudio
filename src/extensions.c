@@ -18,8 +18,43 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "extensions.h"
+
+// https://www.khronos.org/opengl/wiki/Tutorial:_OpenGL_3.0_Context_Creation_(GLX)
+int is_extension_supported(const char * list, const char * extension) {
+    const char *start;
+    const char *where, *terminator;
+  
+    /* Extension names should not have spaces. */
+    where = strchr(extension, ' ');
+    if (where || *extension == '\0') {
+        return 0;
+    }
+
+    /* It takes a bit of care to be fool-proof about parsing the
+    OpenGL extensions string. Don't be fooled by sub-strings,
+    etc. */
+    for (start=list;;) {
+        where = strstr(start, extension);
+        if (!where) {
+            break;
+        }
+    
+        terminator = where + strlen(extension);
+
+        if ( where == start || *(where - 1) == ' ' ) {
+            if ( *terminator == ' ' || *terminator == '\0' ) {
+                return 1;
+            }
+        }
+
+        start = terminator;
+    }
+
+  return 0;
+}
 
 int load_extensions() {
     void* libGL = dlopen("libGL.so", RTLD_LAZY);
@@ -60,6 +95,7 @@ int load_extensions() {
     
     GLint extensions_count;
     glGetIntegerv(GL_NUM_EXTENSIONS, &extensions_count);
+    printf("Extensions count: %d.\n", extensions_count);
     for (GLint i=0; i < extensions_count; i++) { 
         const char* extension = (const char*) glGetStringi(GL_EXTENSIONS, i);
         printf("Extention\t%d : %s\n", i, extension);

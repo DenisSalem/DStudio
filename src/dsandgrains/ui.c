@@ -20,15 +20,16 @@
 
 #include "../extensions.h"
 
-#ifdef DSTUDIO_USE_GLFW3
-    #include <GLFW/glfw3.h>
-#endif
+#include "../window_management.h"
 
 #include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "../common.h"
+#include "../fileutils.h"
 #include "../knobs.h"
+#include "instances.h"
 #include "ui.h"
 
 static UIKnobs * sample_knobs_p;
@@ -68,7 +69,7 @@ static const GLfloat * sliders_equalizer_scale_matrix_p;
 static const GLfloat * voice_knobs_scale_matrix_p;
 static GLfloat motion_type;
 
-#include "../ui_statics.h"
+//#include "../ui_statics.h"
 
 static void init_background(UIBackground * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
@@ -169,6 +170,11 @@ static void render_viewport() {
 
 // Should be splitted
 void * ui_thread(void * arg) {
+    unsigned int instances_count;
+    unsigned int instances_last_id;
+    unsigned long int previous_timestamp = 0;
+    //timespec tStruct = {0};
+
     int fresh_window_attrib;
     UI * ui = arg;
     background_p = &ui->background;
@@ -184,24 +190,23 @@ void * ui_thread(void * arg) {
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
 
-    DSTUDIO_EXIT_IF_FAILURE( (glfwInit() != GLFW_TRUE) )
+    init_context("DSANDGRAINS",DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //~ glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    //~ glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //~ glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //~ glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
+    //~ GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
     
-    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE((window == 0))
         
-    glfwMakeContextCurrent(window);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetCursorPosCallback(window, cursor_position_callback);
+    //~ glfwMakeContextCurrent(window);
+    //~ glfwSetMouseButtonCallback(window, mouse_button_callback);
+    //~ glfwSetCursorPosCallback(window, cursor_position_callback);
     // Window shouldn't be resized, but with some windows manager it might happens. OpenGL need to be notified to redraw the whole scene.
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_change_callback);   
+    //~ glfwSetFramebufferSizeCallback(window, framebuffer_size_change_callback);   
     	
-    DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE(load_extensions())
+    DSTUDIO_EXIT_IF_FAILURE(load_extensions())
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
     init_background(background_p);
@@ -241,15 +246,21 @@ void * ui_thread(void * arg) {
     glEnable(GL_BLEND);
     glEnable(GL_SCISSOR_TEST);
     
-    while (!glfwWindowShouldClose(window)) {
+    while (1) {
         usleep(framerate);
+
+        /* MANAGE INSTANCES */
+        //count_instances(INSTANCES_DIRECTORY, &instances_count, &instances_last_id);
+        //clock_gettime(CLOCK_REALTIME, &tStruct);
+
+        /* RENDER */
+        //~ fresh_window_attrib = glfwGetWindowAttrib(window, GLFW_VISIBLE);
+        //~ if (!window_visible && fresh_window_attrib) {
+            //~ first_render = 1;
+        //~ }
+        //~ window_visible = fresh_window_attrib;
         
-        fresh_window_attrib = glfwGetWindowAttrib(window, GLFW_VISIBLE);
-        if (!window_visible && fresh_window_attrib) {
-            first_render = 1;
-        }
-        window_visible = fresh_window_attrib;
-        if (first_render) {
+        if (1/*first_render*/) {
             glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
             first_render = 0;
             render_viewport();
@@ -259,9 +270,9 @@ void * ui_thread(void * arg) {
             render_viewport();
         }
         
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        swap_window_buffer();
+        //glfwPollEvents();
     }
-    glfwTerminate();
+    destroy_context();
     return NULL;
 }

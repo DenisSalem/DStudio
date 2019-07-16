@@ -12,11 +12,10 @@
         printf("!" #value "\n"); \
         exit(-1); \
     }
-    
-#define DSTUDIO_EXIT_IF_FAILURE_GLFW_TERMINATE(value) \
-    if (value != 0) { \
-        printf("!" #value "\n"); \
-        glfwTerminate(); \
+
+#define DSTUDIO_EXIT_IF_NULL(value) \
+    if (value == 0) { \
+        printf("0 == " #value "\n"); \
         exit(-1); \
     }
     

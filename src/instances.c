@@ -12,12 +12,13 @@ static struct stat st = {0};
 
 void new_instance(const char * given_directory, const char * process_name) {
     char * directory = 0;
-    int file_count = 0;
-    long long int filename_is_an_instance;
-    int max_instance_id = 0;
+    unsigned int count = 0;
+    unsigned int last_id = 0;
+
     DIR * dr = 0;
     struct dirent *de;
-    int instances_count = count_process(process_name);
+
+    int processes_count = count_process(process_name);
     expand_user(&directory, given_directory);
     char * instance_filename_buffer = malloc(sizeof(char) * 128); 
     explicit_bzero(instance_filename_buffer, sizeof(char) * 128);
@@ -31,17 +32,11 @@ void new_instance(const char * given_directory, const char * process_name) {
         }
         recursive_mkdir(directory);
     }
-    dr = opendir(directory);
-    if (instances_count > 1) {
-        while ((de = readdir(dr)) != NULL) {
-            filename_is_an_instance = strtol(de->d_name, NULL, 10);
-            if (filename_is_an_instance != 0 && filename_is_an_instance > max_instance_id) {
-                max_instance_id = filename_is_an_instance;
-            }
-        }
+    if (processes_count > 1) {
+        count_instances(directory, &count, &last_id);
         strcat(instance_filename_buffer, directory);
         strcat(instance_filename_buffer, "/");
-        sprintf(string_representation_of_integer,"%d", max_instance_id+1);
+        sprintf(string_representation_of_integer,"%d", last_id+1);
         strcat(instance_filename_buffer, string_representation_of_integer);
         new_instance = fopen(instance_filename_buffer, "w+");
         fclose(new_instance);
@@ -49,6 +44,7 @@ void new_instance(const char * given_directory, const char * process_name) {
     }
     else {
         // Clear instances caches
+        dr = opendir(directory);
         while ((de = readdir(dr)) != NULL) {
             strcat(instance_filename_buffer, directory);
             strcat(instance_filename_buffer, "/");

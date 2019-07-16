@@ -4,6 +4,7 @@ typedef struct InstanceContext_t {
 
 typedef struct Instances_t {
     InstanceContext * contexts;
+    unsigned int count;
 } Instances;
 
 void new_instance();

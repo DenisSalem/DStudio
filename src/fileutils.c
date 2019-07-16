@@ -12,7 +12,28 @@
 static struct passwd * pw = 0;
 static struct stat st = {0};
 
-int count_process(const char * process_name) {
+void count_instances(const char * directory, unsigned int * count, unsigned int * last_id) {
+    DIR * dr = 0;
+    struct dirent *de;
+    long long int filename_is_an_instance;
+    
+    *last_id = 0;
+    *count = 0;
+    dr = opendir(directory);
+    
+    while ((de = readdir(dr)) != NULL) {
+        filename_is_an_instance = strtol(de->d_name, NULL, 10);
+        if (filename_is_an_instance != 0) {
+            *count += 1;
+            if(filename_is_an_instance > *last_id) {
+                *last_id = filename_is_an_instance;
+            }
+        }
+    }
+    closedir(dr);
+}
+
+unsigned int count_process(const char * process_name) {
     DIR * dr = 0;
     struct dirent *de;
     char * processus_status_path = malloc(sizeof(char) * 64);

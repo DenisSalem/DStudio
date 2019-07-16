@@ -5,12 +5,14 @@
 #include "ui.h"
 #include "instances.h"
 
-
 int main(int argc, char ** argv) {
     
     Instances instances = {0};
     new_instance(INSTANCES_DIRECTORY, "dsandgrains");
     instances.contexts = malloc( sizeof(InstanceContext) );
+    if (instances.contexts) {
+        instances.count +=1;
+    } 
     
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
@@ -147,6 +149,7 @@ int main(int argc, char ** argv) {
         init_slider_array_p = &init_sliders_equalizer_array[i];
         DSTUDIO_INIT_SLIDER(sliders_equalizer_p, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
+    
     pthread_t ui_thread_id;
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
