@@ -14,10 +14,10 @@
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
 
 
-
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
 static int ctx_error_occurred = 0;
+static int window_alive = 1;
 
 static Display              *display;
 static Window               window;
@@ -26,7 +26,6 @@ static Colormap             color_map;
 static XWindowAttributes    gwa;
 static XEvent               x_event;
 static GLXContext           opengl_context;
-
 static int visual_attribs[] = {
       GLX_X_RENDERABLE    , True,
       GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
@@ -61,6 +60,10 @@ void destroy_context() {
     glXDestroyContext(display, opengl_context);
     XDestroyWindow(display, window);
     XCloseDisplay(display);
+}
+
+int do_no_exit_loop() {
+    return window_alive;
 }
 
 static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
@@ -134,6 +137,11 @@ void init_context(const char * window_name, int width, int height) {
     size_hints->max_height = height;
         
     XSetWMSizeHints(display, window, size_hints, XA_WM_NORMAL_HINTS);
+    Atom delWindow = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+    XSetWMProtocols(display , window, &delWindow, 1);
+
+    XSelectInput(display, window, ExposureMask | KeyPressMask);
+
 
     DSTUDIO_EXIT_IF_NULL(window)
     
@@ -180,9 +188,25 @@ void init_context(const char * window_name, int width, int height) {
     glXMakeCurrent( display, window, opengl_context );
 }
 
+void listen_events() {
+    XNextEvent(display, &x_event);
+    if (x_event.type == ClientMessage) {
+        window_alive = 0;
+    }
+    if (x_event.type == Expose) {
+        printf("Event\n");
+    }
+}
+
+int need_to_redraw_all() {
+    return x_event.type == Expose;    
+}
+
 void swap_window_buffer() {
     glXSwapBuffers(display, window);
 }
+
+
 
 #endif
 

@@ -49,7 +49,6 @@ static Vec2 active_ui_element_center;
 static Vec2 active_slider_range;
 static useconds_t framerate = 20000;
 static char first_render = 1;
-static char window_visible = 0;
 static char areas_index = -1;
 
 static GLint scissor_x, scissor_y;
@@ -175,7 +174,6 @@ void * ui_thread(void * arg) {
     unsigned long int previous_timestamp = 0;
     //timespec tStruct = {0};
 
-    int fresh_window_attrib;
     UI * ui = arg;
     background_p = &ui->background;
     sample_knobs_p = &ui->sample_knobs;
@@ -192,15 +190,8 @@ void * ui_thread(void * arg) {
 
     init_context("DSANDGRAINS",DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
-    //~ glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    //~ glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //~ glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     //~ glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    //~ GLFWwindow* window = glfwCreateWindow(DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, "DSANDGRAINS", NULL, NULL);
-    
-        
-    //~ glfwMakeContextCurrent(window);
     //~ glfwSetMouseButtonCallback(window, mouse_button_callback);
     //~ glfwSetCursorPosCallback(window, cursor_position_callback);
     // Window shouldn't be resized, but with some windows manager it might happens. OpenGL need to be notified to redraw the whole scene.
@@ -246,7 +237,7 @@ void * ui_thread(void * arg) {
     glEnable(GL_BLEND);
     glEnable(GL_SCISSOR_TEST);
     
-    while (1) {
+    while (do_no_exit_loop()) {
         usleep(framerate);
 
         /* MANAGE INSTANCES */
@@ -254,13 +245,8 @@ void * ui_thread(void * arg) {
         //clock_gettime(CLOCK_REALTIME, &tStruct);
 
         /* RENDER */
-        //~ fresh_window_attrib = glfwGetWindowAttrib(window, GLFW_VISIBLE);
-        //~ if (!window_visible && fresh_window_attrib) {
-            //~ first_render = 1;
-        //~ }
-        //~ window_visible = fresh_window_attrib;
         
-        if (1/*first_render*/) {
+        if (need_to_redraw_all()) {
             glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
             first_render = 0;
             render_viewport();
@@ -271,7 +257,7 @@ void * ui_thread(void * arg) {
         }
         
         swap_window_buffer();
-        //glfwPollEvents();
+        listen_events();
     }
     destroy_context();
     return NULL;
