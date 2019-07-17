@@ -18,7 +18,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 
 static int ctx_error_occurred = 0;
 static int window_alive = 1;
-
+static int refresh_all = 1;
 static Display              *display;
 static Window               window;
 static XVisualInfo          * visual_info;
@@ -140,7 +140,7 @@ void init_context(const char * window_name, int width, int height) {
     Atom delWindow = XInternAtom(display, "WM_DELETE_WINDOW", 0);
     XSetWMProtocols(display , window, &delWindow, 1);
 
-    XSelectInput(display, window, ExposureMask | KeyPressMask);
+    XSelectInput(display, window, ExposureMask | KeyPressMask | ButtonPressMask);
 
 
     DSTUDIO_EXIT_IF_NULL(window)
@@ -194,12 +194,13 @@ void listen_events() {
         window_alive = 0;
     }
     if (x_event.type == Expose) {
-        printf("Event\n");
+        refresh_all = x_event.type == Expose;
     }
+    printf("Event\n");
 }
 
 int need_to_redraw_all() {
-    return x_event.type == Expose;    
+    return refresh_all;    
 }
 
 void swap_window_buffer() {
