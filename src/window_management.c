@@ -8,11 +8,13 @@
 #include "extensions.h"
 #include "window_management.h"
 
+static void (*cursor_position_callback)(int xpos, int ypos) = 0;
+void (*mouse_button_callback)(int xpos, int ypos, int button, int action) = 0;
+
 #ifdef DSTUDIO_RELY_ON_X11
 
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
-
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
@@ -140,13 +142,24 @@ void init_context(const char * window_name, int width, int height) {
     Atom delWindow = XInternAtom(display, "WM_DELETE_WINDOW", 0);
     XSetWMProtocols(display , window, &delWindow, 1);
 
-    XSelectInput(display, window, ExposureMask | KeyPressMask | ButtonPressMask);
+    XSelectInput(
+        display,
+        window,
+        ExposureMask | 
+        KeyPressMask | 
+        KeyReleaseMask | 
+        PointerMotionMask | 
+        ButtonPressMask | 
+        ButtonReleaseMask | 
+        VisibilityChangeMask
+    );
 
 
     DSTUDIO_EXIT_IF_NULL(window)
     
     XFree(visual_info);
     XMapWindow(display, window);
+    XAutoRepeatOff(display);
     XStoreName(display, window, window_name);
     
     // Begin OpenGL context creation
@@ -165,6 +178,7 @@ void init_context(const char * window_name, int width, int height) {
         int context_attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
             GLX_CONTEXT_MINOR_VERSION_ARB, 3,
+            GLX_CONTEXT_PROFILE_MASK_ARB,   GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
             //GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
             None
         };
@@ -189,25 +203,64 @@ void init_context(const char * window_name, int width, int height) {
 }
 
 void listen_events() {
-    XNextEvent(display, &x_event);
-    if (x_event.type == ClientMessage) {
-        window_alive = 0;
+    while(XPending(display)) {
+        XNextEvent(display, &x_event);
+        if(x_event.type == ClientMessage) {
+            window_alive = 0;
+            return;
+        }
+        else if (x_event.type == Expose) {
+            refresh_all = 1;
+        }
+        else if (x_event.type == ButtonPress) {
+            if (x_event.xbutton.button == Button1) {
+                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
+            }
+            else if (x_event.xbutton.button == Button3) {
+                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
+            }
+        }
+        else if (x_event.type == ButtonRelease) {
+            if (x_event.xbutton.button == Button1) {
+                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_RELEASE);
+            }
+            else if (x_event.xbutton.button == Button3) {
+                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_RELEASE);
+            }
+        }
+        else if(x_event.type == MotionNotify) {
+            cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
+        }
+        else if(x_event.type == KeyPress) {
+        }
+        else if(x_event.type == KeyRelease) {
+        }
+        else if(x_event.type == VisibilityNotify) {
+            // Should freeze render if obscured
+        }
     }
-    if (x_event.type == Expose) {
-        refresh_all = x_event.type == Expose;
-    }
-    printf("Event\n");
+    XPeekEvent(display, &x_event);
 }
 
 int need_to_redraw_all() {
-    return refresh_all;    
+    if (refresh_all) {
+        refresh_all = 0;
+        return 1;
+    }
+    return 0;    
+}
+
+void set_cursor_position_callback(void (*callback)(int xpos, int ypos)) {
+    cursor_position_callback = callback;
+}
+
+void set_mouse_button_callback(void (*callback)(int xpos, int ypos, int button, int action)) {
+    mouse_button_callback = callback;
 }
 
 void swap_window_buffer() {
     glXSwapBuffers(display, window);
 }
-
-
 
 #endif
 

@@ -68,7 +68,7 @@ static const GLfloat * sliders_equalizer_scale_matrix_p;
 static const GLfloat * voice_knobs_scale_matrix_p;
 static GLfloat motion_type;
 
-//#include "../ui_statics.h"
+#include "../ui_statics.h"
 
 static void init_background(UIBackground * background) {
     GLuint * vertex_indexes = background->vertex_indexes;
@@ -192,10 +192,8 @@ void * ui_thread(void * arg) {
     
     //~ glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    //~ glfwSetMouseButtonCallback(window, mouse_button_callback);
-    //~ glfwSetCursorPosCallback(window, cursor_position_callback);
-    // Window shouldn't be resized, but with some windows manager it might happens. OpenGL need to be notified to redraw the whole scene.
-    //~ glfwSetFramebufferSizeCallback(window, framebuffer_size_change_callback);   
+    set_mouse_button_callback(mouse_button_callback);
+    set_cursor_position_callback(cursor_position_callback);
     	
     DSTUDIO_EXIT_IF_FAILURE(load_extensions())
     
@@ -248,14 +246,12 @@ void * ui_thread(void * arg) {
         
         if (need_to_redraw_all()) {
             glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-            first_render = 0;
             render_viewport();
         }
         else if (areas_index >= 0) {
             glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
             render_viewport();
         }
-        
         swap_window_buffer();
         listen_events();
     }

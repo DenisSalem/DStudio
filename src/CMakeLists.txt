@@ -43,7 +43,7 @@ add_executable(
 )
 
 target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} m)
 
 if(DEFINED DSTUDIO_RELY_ON_X11)
     target_include_directories(dsandgrains PRIVATE ${X11_INCLUDE_DIR})

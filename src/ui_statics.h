@@ -17,7 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-static inline float compute_knob_rotation(double xpos, double ypos) {
+static inline float compute_knob_rotation(int xpos, int ypos) {
     float rotation = 0;
 
     float y = - ypos + active_ui_element_center.y;
@@ -41,7 +41,7 @@ static inline float compute_knob_rotation(double xpos, double ypos) {
     return rotation;
 }
 
-static inline float compute_slider_translation(double ypos) {    
+static inline float compute_slider_translation(int ypos) {    
     if (ypos > active_slider_range.y) {
         ypos = active_slider_range.y;
     }
@@ -52,7 +52,7 @@ static inline float compute_slider_translation(double ypos) {
     return translation / (DSANDGRAINS_VIEWPORT_HEIGHT >> 1);
 }
 
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos){
+static void cursor_position_callback(int xpos, int ypos){
     float motion;
     if (active_ui_element.callback == NULL) {
         return;
@@ -70,15 +70,9 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
 }
-
-static void framebuffer_size_change_callback(GLFWwindow * window, int width, int height) {
-    first_render = 1; 
-}
     
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+static void mouse_button_callback(int xpos, int ypos, int button, int action) {
+    if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         for (char i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
                 active_ui_element.callback = ui_callbacks[i].callback;
@@ -105,7 +99,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
             }
         }
     }
-    if (action == GLFW_RELEASE) {
+    if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
         active_ui_element.callback = NULL;
         areas_index = -1;
     }
