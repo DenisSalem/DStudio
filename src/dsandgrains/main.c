@@ -1,11 +1,14 @@
 #include <pthread.h>
+#include <unistd.h>
 
 #include "../common.h"
 #include "../instances.h"
 #include "ui.h"
 #include "instances.h"
+#include "../system_usage.h"
 
 int main(int argc, char ** argv) {
+    SystemUsage system_usage;
     
     Instances instances = {0};
     new_instance(INSTANCES_DIRECTORY, "dsandgrains");
@@ -13,7 +16,7 @@ int main(int argc, char ** argv) {
     if (instances.contexts) {
         instances.count +=1;
     } 
-    
+
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
     UIKnobs * sample_small_knobs_p = &ui.sample_small_knobs;
@@ -149,11 +152,29 @@ int main(int argc, char ** argv) {
         init_slider_array_p = &init_sliders_equalizer_array[i];
         DSTUDIO_INIT_SLIDER(sliders_equalizer_p, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
-    
-    pthread_t ui_thread_id;
 
+        
+    pthread_t ui_thread_id;
+    clock_t cpu_time;
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
+
+    //~ while (1) {
+        //~ cpu_time = clock();
+        //~ usleep(250000);
+        //~ double time_usage = (double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC;
+        //~ printf("%lf %lf\n", (time_usage/0.25)*100.0, time_usage);
+    //~ }
     
+    char * test = 0;
+    update_system_usage(&system_usage);
+    test = malloc(sizeof(char) * 10000000);
+    printf("%ld\n", (long int)test);
+    usleep(1000000);
+    update_system_usage(&system_usage);
+    free(test);
+    usleep(1000000);
+    update_system_usage(&system_usage);
+    DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
+
     return 0;
 }

@@ -38,6 +38,7 @@ add_executable(
     instances.c
     knobs.c
     sliders.c
+    system_usage.c
     ui.c
     window_management.c
 )
