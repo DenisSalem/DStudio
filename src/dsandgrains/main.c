@@ -1,5 +1,4 @@
 #include <pthread.h>
-#include <unistd.h>
 
 #include "../common.h"
 #include "../instances.h"
@@ -8,15 +7,15 @@
 #include "../system_usage.h"
 
 int main(int argc, char ** argv) {
-    SystemUsage system_usage;
-    
+    SystemUsage system_usage = {0};
+
     Instances instances = {0};
     new_instance(INSTANCES_DIRECTORY, "dsandgrains");
     instances.contexts = malloc( sizeof(InstanceContext) );
     if (instances.contexts) {
         instances.count +=1;
-    } 
-
+    }
+    
     UI ui = {0};
     UIKnobs * sample_knobs_p = &ui.sample_knobs;
     UIKnobs * sample_small_knobs_p = &ui.sample_small_knobs;
@@ -28,7 +27,11 @@ int main(int argc, char ** argv) {
     UISliders * sliders_equalizer_p = &ui.sliders_equalizer;
     UIArea * ui_areas = &ui.areas[0];
     UICallback * ui_callbacks = &ui.callbacks[0];
-        
+    UISystemUsage * ui_system_usage = &ui.system_usage;
+    system_usage.ui = &ui.system_usage;
+
+    init_ui_system_usage_cpu_side(ui_system_usage, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, 78, 23, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+
     init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
@@ -37,7 +40,7 @@ int main(int argc, char ** argv) {
     init_sliders_cpu_side(sliders_dahdsr_lfo_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_sliders_cpu_side(sliders_dahdsr_lfo_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_sliders_cpu_side(sliders_equalizer_p, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-
+    
     InitUIElementArray init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
         {-0.7075, 0.25, 84.0,  149.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: END
@@ -152,29 +155,14 @@ int main(int argc, char ** argv) {
         init_slider_array_p = &init_sliders_equalizer_array[i];
         DSTUDIO_INIT_SLIDER(sliders_equalizer_p, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
-
-        
-    pthread_t ui_thread_id;
-    clock_t cpu_time;
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
-
-    //~ while (1) {
-        //~ cpu_time = clock();
-        //~ usleep(250000);
-        //~ double time_usage = (double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC;
-        //~ printf("%lf %lf\n", (time_usage/0.25)*100.0, time_usage);
-    //~ }
     
-    char * test = 0;
-    update_system_usage(&system_usage);
-    test = malloc(sizeof(char) * 10000000);
-    printf("%ld\n", (long int)test);
-    usleep(1000000);
-    update_system_usage(&system_usage);
-    free(test);
-    usleep(1000000);
-    update_system_usage(&system_usage);
+    pthread_t ui_thread_id, system_usage_thread_id;
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, &system_usage))
+
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
+    system_usage.cut_thread = 1;
+    DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
 
     return 0;
 }

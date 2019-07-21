@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include <errno.h>
        
 #ifdef DSTUDIO_DEBUG
