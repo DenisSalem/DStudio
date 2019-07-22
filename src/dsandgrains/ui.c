@@ -75,14 +75,7 @@ static void init_background(UIBackground * background) {
     DSTUDIO_SET_VERTEX_INDEXES
         
     Vec4 * vertexes_attributes = background->vertexes_attributes;
-    vertexes_attributes[0].x = -1.0f;
-    vertexes_attributes[0].y =  1.0f;
-    vertexes_attributes[1].x = -1.0f;
-    vertexes_attributes[1].y = -1.0f;
-    vertexes_attributes[2].x =  1.0f;
-    vertexes_attributes[2].y =  1.0f;
-    vertexes_attributes[3].x =  1.0f;
-    vertexes_attributes[3].y = -1.0f;
+    DSTUDIO_SET_VERTEX_ATTRIBUTES
     
     DSTUDIO_SET_S_T_COORDINATES
     
@@ -183,7 +176,7 @@ void * ui_thread(void * arg) {
     sliders_dahdsr_lfo_p = &ui->sliders_dahdsr_lfo;
     sliders_dahdsr_lfo_pitch_p = &ui->sliders_dahdsr_lfo_pitch;
     sliders_equalizer_p = &ui->sliders_equalizer;
-    
+    //system_usage_ui_p
     voice_knobs_p = &ui->voice_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
@@ -199,6 +192,7 @@ void * ui_thread(void * arg) {
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
     init_background(background_p);
+    //init_system_usage_ui(system_usage_ui_p, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, 78, 23, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
     init_knobs_gpu_side(sample_knobs_p);
     init_knobs_gpu_side(sample_small_knobs_p);

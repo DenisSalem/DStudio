@@ -42,7 +42,7 @@ typedef struct SystemUsage_t {
     UISystemUsage * ui;
 } SystemUsage;
 
-void init_ui_system_usage_cpu_side(UISystemUsage * system_usage, const char * texture_filename, int texture_width, int texture_height, int viewport_width, int viewport_height);
+void init_system_usage_ui(UISystemUsage * system_usage, const char * texture_filename, int texture_width, int texture_height, int viewport_width, int viewport_height);
 void * update_system_usage(void * args);
 
 #endif

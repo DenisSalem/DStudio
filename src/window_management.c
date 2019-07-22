@@ -74,7 +74,7 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
     swa->colormap = color_map;
     swa->background_pixmap = None ;
     swa->border_pixel      = 0;
-    swa->event_mask        = ExposureMask | KeyPressMask | StructureNotifyMask;
+    swa->event_mask        = ExposureMask | StructureNotifyMask;
 }
 
 void destroy_context() {
@@ -170,7 +170,8 @@ void init_context(const char * window_name, int width, int height) {
         PointerMotionMask | 
         ButtonPressMask | 
         ButtonReleaseMask | 
-        VisibilityChangeMask
+        VisibilityChangeMask |
+        FocusChangeMask
     );
 
 
@@ -178,7 +179,6 @@ void init_context(const char * window_name, int width, int height) {
     
     XFree(visual_info);
     XMapWindow(display, window);
-    XAutoRepeatOff(display);
     XStoreName(display, window, window_name);
     
     // Begin OpenGL context creation
@@ -251,11 +251,19 @@ void listen_events() {
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {
+            printf("KeyPress\n");
         }
         else if(x_event.type == KeyRelease) {
+            printf("KeyRelease\n");
         }
         else if(x_event.type == VisibilityNotify) {
             // Should freeze render if obscured
+        }
+        else if(x_event.type == FocusIn) {
+            XAutoRepeatOff(display);
+        }
+        else if(x_event.type == FocusOut) {
+            XAutoRepeatOn(display);
         }
     }
     XPeekEvent(display, &x_event);
