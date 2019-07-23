@@ -251,13 +251,13 @@ void listen_events() {
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {
-            printf("KeyPress\n");
+            //printf("KeyPress\n");
         }
         else if(x_event.type == KeyRelease) {
-            printf("KeyRelease\n");
+            //printf("KeyRelease\n");
         }
         else if(x_event.type == VisibilityNotify) {
-            // Should freeze render if obscured
+            //printf("Should freeze render if obscured.\n");
         }
         else if(x_event.type == FocusIn) {
             XAutoRepeatOff(display);

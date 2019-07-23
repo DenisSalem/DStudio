@@ -119,6 +119,7 @@ void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, G
 void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, GLuint * texture_scale_p, const char * texture_filename, unsigned char ** texture_p, Vec2 ** offsets_buffer_p, GLfloat ** motions_buffer_p, GLchar * vertex_indexes, Vec2 * scale_matrix, int viewport_width, int viewport_height);
 void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes);
 void load_shader(GLchar ** shader_buffer, const char * filename);
+void render_background_element(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object);
 void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
 
 #endif

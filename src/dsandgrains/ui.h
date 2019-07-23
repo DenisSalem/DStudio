@@ -31,6 +31,10 @@
 
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
 #define DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH "../assets/system_usage.png"
+
+#define DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND      0
+#define DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE    1
+
 #include "../knobs.h"
 #include "../sliders.h"
 #include "../system_usage.h"
@@ -38,7 +42,7 @@
 
 typedef struct UIBackground_t {
     Vec4                vertexes_attributes[4];
-    GLuint              vertex_indexes[6];
+    GLuint              vertex_indexes[4];
     unsigned char *     texture;
     GLuint              vertex_array_object;
     GLuint              index_buffer_object;
@@ -69,6 +73,5 @@ typedef struct UI_t {
 } UI;
 
 static void init_background(UIBackground * background);
-static void render_background(UIBackground * background);
 
 void * ui_thread(void * arg);

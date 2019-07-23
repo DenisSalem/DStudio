@@ -40,6 +40,7 @@ static UISliders * sliders_dahdsr_lfo_p;
 static UISliders * sliders_dahdsr_lfo_pitch_p;
 static UISliders * sliders_equalizer_p;
 static UIKnobs * voice_knobs_p;
+static UISystemUsage * ui_system_usage_p;
 
 static UIBackground * background_p;
 static UIArea * ui_areas;
@@ -112,19 +113,19 @@ static void init_background(UIBackground * background) {
     glBindVertexArray(0);
 }
 
-static void render_background(UIBackground * background) {
-        glBindTexture(GL_TEXTURE_2D, background->texture_id);
-            glBindVertexArray(background->vertex_array_object);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, background->index_buffer_object);
-                    glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, (GLvoid *) 0);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
+static void render_background(void * obj, int type) {
+    if (type == DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND) {
+        render_background_element( ((UIBackground * ) obj)->texture_id, ((UIBackground * ) obj)->vertex_array_object, ((UIBackground * ) obj)->index_buffer_object);
+    }
+    else if (type == DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE){
+        render_background_element( ((UISystemUsage * ) obj)->texture_id, ((UISystemUsage * ) obj)->vertex_array_object, ((UISystemUsage * ) obj)->index_buffer_object);
+    }
 }
 
 static void render_viewport() {
     glUseProgram(non_interactive_program_id);
-        render_background(background_p);
+        render_background(background_p, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
+        render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
         
     glUseProgram(interactive_program_id);
         // KNOBS
@@ -176,15 +177,14 @@ void * ui_thread(void * arg) {
     sliders_dahdsr_lfo_p = &ui->sliders_dahdsr_lfo;
     sliders_dahdsr_lfo_pitch_p = &ui->sliders_dahdsr_lfo_pitch;
     sliders_equalizer_p = &ui->sliders_equalizer;
-    //system_usage_ui_p
+    ui_system_usage_p = &ui->system_usage;
+    
     voice_knobs_p = &ui->voice_knobs;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
 
     init_context("DSANDGRAINS",DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    
-    //~ glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
+        
     set_mouse_button_callback(mouse_button_callback);
     set_cursor_position_callback(cursor_position_callback);
     	
@@ -192,7 +192,7 @@ void * ui_thread(void * arg) {
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
     init_background(background_p);
-    //init_system_usage_ui(system_usage_ui_p, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, 78, 23, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_system_usage_ui(ui_system_usage_p, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, 78, 23, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
     init_knobs_gpu_side(sample_knobs_p);
     init_knobs_gpu_side(sample_small_knobs_p);

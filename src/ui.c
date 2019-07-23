@@ -144,6 +144,44 @@ void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instanc
     glBindVertexArray(0);
 }
 
+static void init_background(GLuint * vertex_indexes, Vec4 * vertexes_attributes, GLuint * index_buffer_object_p) {
+    DSTUDIO_SET_VERTEX_INDEXES
+    DSTUDIO_SET_VERTEX_ATTRIBUTES
+    DSTUDIO_SET_S_T_COORDINATES
+    
+    *index_buffer_object_p = 0;
+    glGenBuffers(1, index_buffer_object_p);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, * éindex_buffer_object);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), vertex_indexes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+   
+    GLuint * vertex_buffer_object_p = &background->vertex_buffer_object;
+    glGenBuffers(1, vertex_buffer_object_p);
+    glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    get_png_pixel(DSANDGRAINS_BACKGROUND_ASSET_PATH, &background->texture, PNG_FORMAT_RGB);
+    
+    glGenTextures(1, &background->texture_id);
+    glBindTexture(GL_TEXTURE_2D, background->texture_id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, background->texture);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenVertexArrays(1, &background->vertex_array_object);
+    glBindVertexArray(background->vertex_array_object);
+        glBindBuffer(GL_ARRAY_BUFFER, background->vertex_buffer_object);         
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
+            glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
 void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer) {
     instance_offset_p->x = offset_x;
     instance_offset_p->y = offset_y;
@@ -213,7 +251,17 @@ void load_shader(GLchar ** shader_buffer, const char * filename) {
     fclose(shader);
 }
 
-void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count) {    
+void render_background_element(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object) {
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+        glBindVertexArray(vertex_array_object);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
+                glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, (GLvoid *) 0);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count) {
     glBindTexture(GL_TEXTURE_2D, texture_id);
         glBindVertexArray(vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
