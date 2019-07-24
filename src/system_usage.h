@@ -26,6 +26,7 @@ typedef struct UISystemUsage_t {
     unsigned char *             texture;
     Vec4                        vertexes_attributes[4];
     Vec2                        scale_matrix[2];
+    Vec2                        offset;
     GLuint                      vertex_buffer_object;
     GLuint                      vertex_array_object;
     GLuint                      vertex_indexes[4];

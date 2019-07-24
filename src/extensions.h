@@ -50,6 +50,7 @@ DSTUDIO_DEF_GL_FUN(void,            VertexAttribDivisor,        GLuint index, GL
 DSTUDIO_DEF_GL_FUN(void,            VertexAttribPointer,        GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer)
 DSTUDIO_DEF_GL_FUN(void,            UniformMatrix2fv,           GLint location, GLsizei count,  GLboolean transpose,  const GLfloat *value)
 DSTUDIO_DEF_GL_FUN(void,            Uniform1f,                  GLint location, GLfloat v0)
+DSTUDIO_DEF_GL_FUN(void,            Uniform2fv,                 GLint location, GLsizei count, const GLfloat *value)
 DSTUDIO_DEF_GL_FUN(void,            UseProgram,                 GLuint program)
 DSTUDIO_DEF_GL_FUN(void,            ShaderSource,               GLuint shader, GLsizei count, const GLchar **string, const GLint *length)     
 

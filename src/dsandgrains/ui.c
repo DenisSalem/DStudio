@@ -56,11 +56,13 @@ static GLint scissor_x, scissor_y;
 static GLsizei scissor_width, scissor_height;
 
 static GLuint interactive_program_id, non_interactive_program_id;
-static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id;
+static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id, background_element_offset_id;
 static GLuint motion_type_id;
 
-static const GLfloat *background_scale_matrix_p;
-static const GLfloat *ui_system_usage_scale_matrix_p;
+static const GLfloat * background_scale_matrix_p;
+static const GLfloat * ui_system_usage_scale_matrix_p;
+static const GLfloat * ui_system_usage_offset_p;
+static const GLfloat * background_offset_p;
 
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
@@ -75,6 +77,8 @@ static GLfloat motion_type;
 #include "../ui_statics.h"
 
 static void init_background(UIBackground * background) {
+    background_p->offset.x = 0;
+    background_p->offset.y = 0;
     init_background_element(
         background->vertex_indexes,
         background->vertexes_attributes,
@@ -105,9 +109,13 @@ static void render_background(void * obj, int type) {
 static void render_viewport() {
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, background_scale_matrix_p);
+        glUniform2fv(background_element_offset_id, 1, background_offset_p);
+
         render_background(background_p, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
 
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
+        glUniform2fv(background_element_offset_id, 1, ui_system_usage_offset_p);
+
         render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
         
     glUseProgram(interactive_program_id);
@@ -195,12 +203,15 @@ void * ui_thread(void * arg) {
     finalize_sliders(sliders_dahdsr_lfo_pitch_p);
     finalize_sliders(sliders_equalizer_p);
 
-    interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    background_element_offset_id = glGetUniformLocation(non_interactive_program_id, "offset");
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
+    interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
 
     background_scale_matrix_p = &background_p->scale_matrix[0].x;
     ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
+    ui_system_usage_offset_p = &ui_system_usage_p->offset.x;
+    background_offset_p = &background_p->offset.x;
 
     sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
@@ -215,7 +226,7 @@ void * ui_thread(void * arg) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_SCISSOR_TEST);
-    
+
     while (do_no_exit_loop()) {
         usleep(framerate);
 
