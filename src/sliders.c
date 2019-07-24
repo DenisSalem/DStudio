@@ -62,7 +62,7 @@ void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale,
 
 void init_sliders_gpu_side(UISliders * sliders) {
     init_ui_elements_gpu_side(
-        1,
+        0,
         sliders->vertexes_attributes,
         &sliders->vertex_buffer_object,
         &sliders->texture_id,
