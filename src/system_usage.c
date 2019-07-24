@@ -24,8 +24,8 @@
 #include "system_usage.h"
 
 void init_system_usage_ui(UISystemUsage * system_usage, const char * texture_filename, int texture_width, int texture_height, int viewport_width, int viewport_height) {  
-    system_usage->offset.x = 0.5;
-    system_usage->offset.y = 0.5;
+    system_usage->offset.x = 0.0225;
+    system_usage->offset.y = 0.889583;
     
     init_background_element(
         system_usage->vertex_indexes,
