@@ -56,8 +56,11 @@ static GLint scissor_x, scissor_y;
 static GLsizei scissor_width, scissor_height;
 
 static GLuint interactive_program_id, non_interactive_program_id;
-static GLuint scale_matrix_id;
+static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id;
 static GLuint motion_type_id;
+
+static const GLfloat *background_scale_matrix_p;
+static const GLfloat *ui_system_usage_scale_matrix_p;
 
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
@@ -72,45 +75,22 @@ static GLfloat motion_type;
 #include "../ui_statics.h"
 
 static void init_background(UIBackground * background) {
-    GLuint * vertex_indexes = background->vertex_indexes;
-    DSTUDIO_SET_VERTEX_INDEXES
-        
-    Vec4 * vertexes_attributes = background->vertexes_attributes;
-    DSTUDIO_SET_VERTEX_ATTRIBUTES
-    
-    DSTUDIO_SET_S_T_COORDINATES
-    
-    background->index_buffer_object = 0;
-    glGenBuffers(1, &background->index_buffer_object);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, background->index_buffer_object);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), vertex_indexes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-   
-    GLuint * vertex_buffer_object_p = &background->vertex_buffer_object;
-    glGenBuffers(1, vertex_buffer_object_p);
-    glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
-    get_png_pixel(DSANDGRAINS_BACKGROUND_ASSET_PATH, &background->texture, PNG_FORMAT_RGB);
-    
-    glGenTextures(1, &background->texture_id);
-    glBindTexture(GL_TEXTURE_2D, background->texture_id);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, background->texture);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glGenVertexArrays(1, &background->vertex_array_object);
-    glBindVertexArray(background->vertex_array_object);
-        glBindBuffer(GL_ARRAY_BUFFER, background->vertex_buffer_object);         
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
-            glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    init_background_element(
+        background->vertex_indexes,
+        background->vertexes_attributes,
+        &background->index_buffer_object,
+        &background->vertex_buffer_object,
+        DSANDGRAINS_BACKGROUND_ASSET_PATH,
+        &background->texture,
+        0,
+        &background->texture_id,
+        &background->vertex_array_object,
+        800,
+        480,
+        DSANDGRAINS_VIEWPORT_WIDTH,
+        DSANDGRAINS_VIEWPORT_HEIGHT,
+        background->scale_matrix
+    );
 }
 
 static void render_background(void * obj, int type) {
@@ -124,7 +104,10 @@ static void render_background(void * obj, int type) {
 
 static void render_viewport() {
     glUseProgram(non_interactive_program_id);
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, background_scale_matrix_p);
         render_background(background_p, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
+
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
         render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
         
     glUseProgram(interactive_program_id);
@@ -132,32 +115,32 @@ static void render_viewport() {
         motion_type = 0.0;
         glUniform1f(motion_type_id, motion_type);
 
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
         render_knobs(sample_knobs_p);
         
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
         render_knobs(sample_small_knobs_p);
         
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
         render_knobs(voice_knobs_p);
 
         // SLIDERS
         motion_type = 1.0;
         glUniform1f(motion_type_id, motion_type);
 
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
         render_sliders(sliders_dahdsr_p);
         
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_pitch_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_pitch_scale_matrix_p);
         render_sliders(sliders_dahdsr_pitch_p);
         
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_scale_matrix_p);
         render_sliders(sliders_dahdsr_lfo_p);
         
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
         render_sliders(sliders_dahdsr_lfo_pitch_p);
 
-        glUniformMatrix2fv(scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
         render_sliders(sliders_equalizer_p);
 }
 
@@ -212,9 +195,13 @@ void * ui_thread(void * arg) {
     finalize_sliders(sliders_dahdsr_lfo_pitch_p);
     finalize_sliders(sliders_equalizer_p);
 
-    scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
+    non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
-    
+
+    background_scale_matrix_p = &background_p->scale_matrix[0].x;
+    ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
+
     sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
     voice_knobs_scale_matrix_p = &voice_knobs_p->scale_matrix[0].x;

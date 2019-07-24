@@ -30,8 +30,6 @@ typedef struct UISystemUsage_t {
     GLuint                      vertex_array_object;
     GLuint                      vertex_indexes[4];
     GLuint                      texture_id;
-    GLuint                      texture_width;
-    GLuint                      texture_height;
     GLuint                      index_buffer_object;
 } UISystemUsage;
 

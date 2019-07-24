@@ -42,12 +42,14 @@
 
 typedef struct UIBackground_t {
     Vec4                vertexes_attributes[4];
+    Vec2                scale_matrix[2];
     GLuint              vertex_indexes[4];
     unsigned char *     texture;
     GLuint              vertex_array_object;
     GLuint              index_buffer_object;
     GLuint              vertex_buffer_object;
     GLuint              texture_id;
+
 } UIBackground;
 
 typedef struct UICallback_t {
