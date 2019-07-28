@@ -39,6 +39,7 @@ add_executable(
     knobs.c
     sliders.c
     system_usage.c
+    text.c
     ui.c
     window_management.c
 )

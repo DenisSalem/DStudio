@@ -29,7 +29,7 @@ typedef struct UISystemUsage_t {
     Vec2                        offset;
     GLuint                      vertex_buffer_object;
     GLuint                      vertex_array_object;
-    GLuint                      vertex_indexes[4];
+    GLchar                      vertex_indexes[4];
     GLuint                      texture_id;
     GLuint                      index_buffer_object;
 } UISystemUsage;

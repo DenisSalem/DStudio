@@ -58,7 +58,7 @@ void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const
 void init_knobs_gpu_side(UIKnobs * knobs) {
     init_ui_elements_gpu_side(
         1,
-        knobs->vertexes_attributes,
+        knobs->vertex_attributes,
         &knobs->vertex_buffer_object,
         &knobs->texture_id,
         knobs->texture_scale,

@@ -99,10 +99,10 @@ static void init_background(UIBackground * background) {
 
 static void render_background(void * obj, int type) {
     if (type == DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND) {
-        render_background_element( ((UIBackground * ) obj)->texture_id, ((UIBackground * ) obj)->vertex_array_object, ((UIBackground * ) obj)->index_buffer_object);
+        render_ui_elements( ((UIBackground * ) obj)->texture_id, ((UIBackground * ) obj)->vertex_array_object, ((UIBackground * ) obj)->index_buffer_object, -1);
     }
     else if (type == DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE){
-        render_background_element( ((UISystemUsage * ) obj)->texture_id, ((UISystemUsage * ) obj)->vertex_array_object, ((UISystemUsage * ) obj)->index_buffer_object);
+        render_ui_elements( ((UISystemUsage * ) obj)->texture_id, ((UISystemUsage * ) obj)->vertex_array_object, ((UISystemUsage * ) obj)->index_buffer_object, -1);
     }
 }
 

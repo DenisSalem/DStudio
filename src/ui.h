@@ -49,24 +49,24 @@
     ui_callbacks[array_index].type = input_type;
 
 #define DSTUDIO_SET_VERTEX_ATTRIBUTES \
-    vertexes_attributes[0].x = -1.0; \
-    vertexes_attributes[0].y = 1.0; \
-    vertexes_attributes[1].x = -1.0; \
-    vertexes_attributes[1].y = -1.0; \
-    vertexes_attributes[2].x =  1.0; \
-    vertexes_attributes[2].y =  1.0; \
-    vertexes_attributes[3].x =  1.0; \
-    vertexes_attributes[3].y = -1.0;
+    vertex_attributes[0].x = -1.0; \
+    vertex_attributes[0].y = 1.0; \
+    vertex_attributes[1].x = -1.0; \
+    vertex_attributes[1].y = -1.0; \
+    vertex_attributes[2].x =  1.0; \
+    vertex_attributes[2].y =  1.0; \
+    vertex_attributes[3].x =  1.0; \
+    vertex_attributes[3].y = -1.0;
      
 #define DSTUDIO_SET_S_T_COORDINATES \
-    vertexes_attributes[0].z = 0.0f; \
-    vertexes_attributes[0].w = 0.0f; \
-    vertexes_attributes[1].z = 0.0f; \
-    vertexes_attributes[1].w = 1.0f; \
-    vertexes_attributes[2].z = 1.0f; \
-    vertexes_attributes[2].w = 0.0f; \
-    vertexes_attributes[3].z = 1.0f; \
-    vertexes_attributes[3].w = 1.0f;
+    vertex_attributes[0].z = 0.0f; \
+    vertex_attributes[0].w = 0.0f; \
+    vertex_attributes[1].z = 0.0f; \
+    vertex_attributes[1].w = 1.0f; \
+    vertex_attributes[2].z = 1.0f; \
+    vertex_attributes[2].w = 0.0f; \
+    vertex_attributes[3].z = 1.0f; \
+    vertex_attributes[3].w = 1.0f;
     
 #define DSTUDIO_SET_VERTEX_INDEXES \
     vertex_indexes[0] = 0; \
@@ -114,10 +114,14 @@ void compile_shader(GLuint shader_id, GLchar ** source_pointer);
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
 
 void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object);
+
+void gen_gl_buffer(GLenum type, GLuint * vertex_buffer_object_p,  void * vertex_attributes, GLenum mode, unsigned int data_size);
+
 int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format); // png_bytep is basically unsigned char
+
 void init_background_element(
-    GLuint * vertex_indexes,
-    Vec4 * vertexes_attributes,
+    GLchar * vertex_indexes,
+    Vec4 * vertex_attributes,
     GLuint * index_buffer_object_p,
     GLuint * vertex_buffer_object_p,
     const char * texture_filename,
@@ -131,11 +135,35 @@ void init_background_element(
     GLuint viewport_height,
     Vec2 * scale_matrix
     );
+    
 void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
-void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, GLuint * texture_scale_p, const char * texture_filename, unsigned char ** texture_p, Vec2 ** offsets_buffer_p, GLfloat ** motions_buffer_p, GLchar * vertex_indexes, Vec2 * scale_matrix, int viewport_width, int viewport_height);
-void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes);
-void load_shader(GLchar ** shader_buffer, const char * filename);
-void render_background_element(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object);
-void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
 
+void init_ui_elements_cpu_side(
+    int count, int * count_p,
+    GLuint texture_scale,
+    GLuint * texture_scale_p,
+    const char * texture_filename,
+    unsigned char ** texture_p,
+    Vec2 ** offsets_buffer_p,
+    GLfloat ** motions_buffer_p,
+    GLchar * vertex_indexes,
+    Vec2 * scale_matrix,
+    int viewport_width,
+    int viewport_height
+);
+
+void init_ui_elements_gpu_side(
+    int enable_aa,
+    Vec4 * vertex_attributes,
+    GLuint * vertex_buffer_object_p,
+    GLuint * texture_id_p,
+    GLuint texture_scale,
+    unsigned char * texture,
+    GLuint * index_buffer_object_p,
+    GLchar * vertex_indexes
+);
+
+void load_shader(GLchar ** shader_buffer, const char * filename);
+
+void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
 #endif

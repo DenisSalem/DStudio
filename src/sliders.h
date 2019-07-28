@@ -22,20 +22,20 @@
 
 #include "ui.h"
 typedef struct UISliders_t {
-    unsigned char *             texture;
-    Vec4                        vertexes_attributes[4];
-    Vec2                        scale_matrix[2];
-    int                         count;
-    Vec2  *                     instance_offsets_buffer;
-    GLuint                      instance_offsets;
-    GLfloat  *                  instance_translations_buffer;
-    GLuint                      instance_translations;
-    GLuint                      vertex_buffer_object;
-    GLuint                      vertex_array_object;
-    GLchar                      vertex_indexes[4];
-    GLuint                      texture_id;
-    GLuint                      texture_scale;
-    GLuint                      index_buffer_object;
+    unsigned char * texture;
+    Vec4            vertexes_attributes[4];
+    Vec2            scale_matrix[2];
+    int             count;
+    Vec2 *          instance_offsets_buffer;
+    GLuint          instance_offsets;
+    GLfloat *       instance_translations_buffer;
+    GLuint          instance_translations;
+    GLuint          vertex_buffer_object;
+    GLuint          vertex_array_object;
+    GLchar          vertex_indexes[4];
+    GLuint          texture_id;
+    GLuint          texture_scale;
+    GLuint          index_buffer_object;
 } UISliders;
 
 void finalize_sliders(UISliders * sliders);

@@ -24,7 +24,7 @@
 
 typedef struct UIKnobs_t {
     unsigned char *             texture;
-    Vec4                        vertexes_attributes[4];
+    Vec4                        vertex_attributes[4];
     Vec2                        scale_matrix[2];
     int                         count;
     Vec2  *                     instance_offsets_buffer;

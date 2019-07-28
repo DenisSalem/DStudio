@@ -93,36 +93,10 @@ void create_shader_program(GLuint * interactive_program_id, GLuint * non_interac
     #endif
 }
 
-int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format) {
-    png_image image;
-    memset(&image, 0, sizeof(image));
-    image.version = PNG_IMAGE_VERSION;
-    if (png_image_begin_read_from_file(&image, filename) != 0) {
-        image.format = format;
-        *buffer = malloc(PNG_IMAGE_SIZE(image));
-        if (*buffer != NULL && png_image_finish_read(&image, NULL, *buffer, 0, NULL) != 0) {
-            return PNG_IMAGE_SIZE(image);
-        }
-    }
-    else {
-        printf("Can't load asset \"%s\": %s.\n", filename, image.message);
-        exit(-1);
-    }
-    printf("Something went wrong while reading \"%s\".\n", filename);
-    exit(-1);
-}
-
 void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object) {
-    glGenBuffers(1, instance_offsets_p);
-    glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vec2) * count, instance_offsets_buffer, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, instance_motions_p);
-    glBindBuffer(GL_ARRAY_BUFFER, *instance_motions_p);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * count, instance_motions_buffer, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
+    gen_gl_buffer(GL_ARRAY_BUFFER, instance_offsets_p, instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec2) * count);
+    gen_gl_buffer(GL_ARRAY_BUFFER, instance_motions_p, instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
+   
     glGenVertexArrays(1, vertex_array_object_p);
     glBindVertexArray(*vertex_array_object_p);
         glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
@@ -144,9 +118,36 @@ void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instanc
     glBindVertexArray(0);
 }
 
+void gen_gl_buffer(GLenum type, GLuint * buffer_object_p, void * data, GLenum mode, unsigned int data_size) {
+    *buffer_object_p = 0;
+    glGenBuffers(1, buffer_object_p);
+    glBindBuffer(type, *buffer_object_p);
+        glBufferData(type, data_size, data, mode);
+    glBindBuffer(type, 0);
+}
+
+int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format) {
+    png_image image;
+    memset(&image, 0, sizeof(image));
+    image.version = PNG_IMAGE_VERSION;
+    if (png_image_begin_read_from_file(&image, filename) != 0) {
+        image.format = format;
+        *buffer = malloc(PNG_IMAGE_SIZE(image));
+        if (*buffer != NULL && png_image_finish_read(&image, NULL, *buffer, 0, NULL) != 0) {
+            return PNG_IMAGE_SIZE(image);
+        }
+    }
+    else {
+        printf("Can't load asset \"%s\": %s.\n", filename, image.message);
+        exit(-1);
+    }
+    printf("Something went wrong while reading \"%s\".\n", filename);
+    exit(-1);
+}
+
 void init_background_element(
-    GLuint * vertex_indexes,
-    Vec4 * vertexes_attributes,
+    GLchar * vertex_indexes,
+    Vec4 * vertex_attributes,
     GLuint * index_buffer_object_p,
     GLuint * vertex_buffer_object_p,
     const char * texture_filename,
@@ -169,16 +170,8 @@ void init_background_element(
     scale_matrix[1].x = 0;
     scale_matrix[1].y = ((float) texture_height) / ((float) viewport_height);
 
-    *index_buffer_object_p = 0;
-    glGenBuffers(1, index_buffer_object_p);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *index_buffer_object_p);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), vertex_indexes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-   
-    glGenBuffers(1, vertex_buffer_object_p);
-    glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_p, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
+    gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
     
     get_png_pixel(texture_filename, texture_p, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
     
@@ -227,14 +220,11 @@ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, G
     scale_matrix[1].y = ((float) texture_scale) / ((float) viewport_height);
 }
 
-void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
+void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertex_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
     DSTUDIO_SET_VERTEX_ATTRIBUTES
     DSTUDIO_SET_S_T_COORDINATES
 
-    glGenBuffers(1, vertex_buffer_object_p);
-    glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertexes_attributes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
 
     glGenTextures(1, texture_id_p);
     glBindTexture(GL_TEXTURE_2D, *texture_id_p);
@@ -247,10 +237,7 @@ void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertexes_attributes, GLuint
     glBindTexture(GL_TEXTURE_2D, 0);
     free(texture);
     
-    glGenBuffers(1, index_buffer_object_p);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *index_buffer_object_p);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLchar), vertex_indexes, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_p, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
 }
 
 void load_shader(GLchar ** shader_buffer, const char * filename) {
@@ -271,21 +258,16 @@ void load_shader(GLchar ** shader_buffer, const char * filename) {
     fclose(shader);
 }
 
-void render_background_element(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object) {
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-        glBindVertexArray(vertex_array_object);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
-                glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, (GLvoid *) 0);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
 void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count) {
     glBindTexture(GL_TEXTURE_2D, texture_id);
         glBindVertexArray(vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
-                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, count);
+                if (count < 0) {
+                    glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0);
+                }
+                else {
+                    glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, count);
+                }
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
