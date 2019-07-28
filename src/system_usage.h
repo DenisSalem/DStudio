@@ -21,6 +21,7 @@
 #define SYSTEM_USAGE_INCLUDED
 
 #include "ui.h"
+#include "text.h"
 
 typedef struct UISystemUsage_t {
     unsigned char *             texture;
@@ -39,6 +40,7 @@ typedef struct SystemUsage_t {
     int cut_thread;
     void (*update_ui)(double cpu_usage, double mem_usage);
     UISystemUsage * ui;
+    UIText ui_text;
 } SystemUsage;
 
 void init_system_usage_ui(UISystemUsage * system_usage, const char * texture_filename, int texture_width, int texture_height, int viewport_width, int viewport_height);

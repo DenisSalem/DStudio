@@ -38,6 +38,7 @@
 #include "../knobs.h"
 #include "../sliders.h"
 #include "../system_usage.h"
+#include "../text.h"
 #include "../ui.h"
 
 typedef struct UIBackground_t {

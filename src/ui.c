@@ -174,7 +174,7 @@ void init_background_element(
     gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
     
     get_png_pixel(texture_filename, texture_p, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
-    
+
     glGenTextures(1, texture_id_p);
     glBindTexture(GL_TEXTURE_2D, *texture_id_p);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -185,6 +185,8 @@ void init_background_element(
 
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
+    
+    free(*texture_p);
 
     glGenVertexArrays(1, vertex_array_object_p);
     glBindVertexArray(*vertex_array_object_p);

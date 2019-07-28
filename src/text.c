@@ -17,6 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "extensions.h"
 #include "text.h"
 
 void init_text(UIText * ui_text, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width,unsigned int viewport_height) {
@@ -35,4 +36,19 @@ void init_text(UIText * ui_text, const char * texture_filename, unsigned int tex
     scale_matrix[0].y = 0;
     scale_matrix[1].x = 0;
     scale_matrix[1].y = ((float) texture_height / DSTUDIO_CHAR_SIZE_DIVISOR) / ((float) viewport_height);
+    
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_text->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
+    
+    glGenTextures(1, &ui_text->texture_id);
+    glBindTexture(GL_TEXTURE_2D, ui_text->texture_id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_width, texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_buffer);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+
+        glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    free(texture_buffer);
 }

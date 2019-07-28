@@ -17,6 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef DSTUDIO_TEXT_H_INCLUDED
+#define DSTUDIO_TEXT_H_INCLUDED
+
 #include "ui.h"
 
 #define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
@@ -38,3 +41,5 @@ typedef struct UIText_t {
 } UIText;
 
 void init_text(UIText * ui_text, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width,unsigned int viewport_height);
+
+#endif
