@@ -159,11 +159,15 @@ void init_background_element(
     GLuint texture_height,
     GLuint viewport_width,
     GLuint viewport_height,
-    Vec2 * scale_matrix
-    ) {
+    Vec2 * scale_matrix,
+    GLuint * instance_offsets_p,
+    Vec2 * instance_offsets_buffer,
+    GLuint count
+) {
+    
     DSTUDIO_SET_VERTEX_INDEXES
     DSTUDIO_SET_VERTEX_ATTRIBUTES
-    DSTUDIO_SET_S_T_COORDINATES
+    DSTUDIO_SET_S_T_COORDINATES(1.0f, 1.0f)
 
     scale_matrix[0].x = ((float) texture_width) / ((float) viewport_width);
     scale_matrix[0].y = 0;
@@ -172,7 +176,8 @@ void init_background_element(
 
     gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_p, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
     gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
-    
+    gen_gl_buffer(GL_ARRAY_BUFFER, instance_offsets_p, instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec2) * count);
+
     get_png_pixel(texture_filename, texture_p, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
     glGenTextures(1, texture_id_p);
@@ -195,6 +200,12 @@ void init_background_element(
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
             glEnableVertexAttribArray(1);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (GLvoid *) 0 );
+            glEnableVertexAttribArray(2);
+            glVertexAttribDivisor(2, 1);
+            
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -224,7 +235,7 @@ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, G
 
 void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertex_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
     DSTUDIO_SET_VERTEX_ATTRIBUTES
-    DSTUDIO_SET_S_T_COORDINATES
+    DSTUDIO_SET_S_T_COORDINATES(1.0f, 1.0f)
 
     gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
 
@@ -264,12 +275,7 @@ void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint in
     glBindTexture(GL_TEXTURE_2D, texture_id);
         glBindVertexArray(vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
-                if (count < 0) {
-                    glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0);
-                }
-                else {
-                    glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, count);
-                }
+                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, count);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);

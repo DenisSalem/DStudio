@@ -29,8 +29,9 @@
 #define DSANDGRAINS_EQUALIZER_SLIDERS_COUNT 8
 #define DSANDGRAINS_UI_ELEMENTS_COUNT (DSANDGRAINS_SLIDERS_COUNT_PER_GROUP * 4 ) + DSANDGRAINS_EQUALIZER_SLIDERS_COUNT + DSANDGRAINS_KNOBS_COUNT
 
-#define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
+#define DSANDGRAINS_BACKGROUND_ASSET_PATH   "../assets/dsandgrains_background.png"
 #define DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH "../assets/system_usage.png"
+#define DSANDGRAINS_CHAR_TABLE_ASSET_PATH   "../assets/char_table.png"
 
 #define DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND      0
 #define DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE    1
@@ -50,7 +51,8 @@ typedef struct UIBackground_t {
     GLuint              index_buffer_object;
     GLuint              vertex_buffer_object;
     GLuint              texture_id;
-    Vec2                offset;
+    GLuint              instance_offsets;
+    Vec2                instance_offsets_buffer;
 
 } UIBackground;
 

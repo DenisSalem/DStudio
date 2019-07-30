@@ -58,15 +58,15 @@
     vertex_attributes[3].x =  1.0; \
     vertex_attributes[3].y = -1.0;
      
-#define DSTUDIO_SET_S_T_COORDINATES \
+#define DSTUDIO_SET_S_T_COORDINATES(x, y) \
     vertex_attributes[0].z = 0.0f; \
     vertex_attributes[0].w = 0.0f; \
     vertex_attributes[1].z = 0.0f; \
-    vertex_attributes[1].w = 1.0f; \
-    vertex_attributes[2].z = 1.0f; \
+    vertex_attributes[1].w = y; \
+    vertex_attributes[2].z = x; \
     vertex_attributes[2].w = 0.0f; \
-    vertex_attributes[3].z = 1.0f; \
-    vertex_attributes[3].w = 1.0f;
+    vertex_attributes[3].z = x; \
+    vertex_attributes[3].w = y;
     
 #define DSTUDIO_SET_VERTEX_INDEXES \
     vertex_indexes[0] = 0; \
@@ -133,7 +133,10 @@ void init_background_element(
     GLuint texture_height,
     GLuint viewport_width,
     GLuint viewport_height,
-    Vec2 * scale_matrix
+    Vec2 * scale_matrix,
+    GLuint * instance_offsets_p,
+    Vec2 * instance_offsets_buffer,
+    GLuint count
     );
     
 void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);

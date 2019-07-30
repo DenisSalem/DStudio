@@ -61,8 +61,8 @@ static GLuint motion_type_id;
 
 static const GLfloat * background_scale_matrix_p;
 static const GLfloat * ui_system_usage_scale_matrix_p;
-static const GLfloat * ui_system_usage_offset_p;
-static const GLfloat * background_offset_p;
+// static const GLfloat * ui_system_usage_offset_p;
+// static const GLfloat * background_offset_p;
 
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
@@ -77,8 +77,8 @@ static GLfloat motion_type;
 #include "../ui_statics.h"
 
 static void init_background(UIBackground * background) {
-    background_p->offset.x = 0;
-    background_p->offset.y = 0;
+    background_p->instance_offsets_buffer.x = 0;
+    background_p->instance_offsets_buffer.y = 0;
     init_background_element(
         background->vertex_indexes,
         background->vertexes_attributes,
@@ -93,28 +93,31 @@ static void init_background(UIBackground * background) {
         480,
         DSANDGRAINS_VIEWPORT_WIDTH,
         DSANDGRAINS_VIEWPORT_HEIGHT,
-        background->scale_matrix
+        background->scale_matrix,
+        &background->instance_offsets,
+        &background->instance_offsets_buffer,
+        1
     );
 }
 
 static void render_background(void * obj, int type) {
     if (type == DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND) {
-        render_ui_elements( ((UIBackground * ) obj)->texture_id, ((UIBackground * ) obj)->vertex_array_object, ((UIBackground * ) obj)->index_buffer_object, -1);
+        render_ui_elements( ((UIBackground * ) obj)->texture_id, ((UIBackground * ) obj)->vertex_array_object, ((UIBackground * ) obj)->index_buffer_object, 1);
     }
     else if (type == DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE){
-        render_ui_elements( ((UISystemUsage * ) obj)->texture_id, ((UISystemUsage * ) obj)->vertex_array_object, ((UISystemUsage * ) obj)->index_buffer_object, -1);
+        render_ui_elements( ((UISystemUsage * ) obj)->texture_id, ((UISystemUsage * ) obj)->vertex_array_object, ((UISystemUsage * ) obj)->index_buffer_object, 1);
     }
 }
 
 static void render_viewport() {
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, background_scale_matrix_p);
-        glUniform2fv(background_element_offset_id, 1, background_offset_p);
+        //glUniform2fv(background_element_offset_id, 1, background_offset_p);
 
         render_background(background_p, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
 
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
-        glUniform2fv(background_element_offset_id, 1, ui_system_usage_offset_p);
+        //glUniform2fv(background_element_offset_id, 1, ui_system_usage_offset_p);
 
         render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
         
@@ -183,7 +186,7 @@ void * ui_thread(void * arg) {
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
     init_background(background_p);
-    init_system_usage_ui(ui_system_usage_p, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, 78, 23, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_system_usage_ui(ui_system_usage_p, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, DSANDGRAINS_CHAR_TABLE_ASSET_PATH, 78, 23, 104, 234, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
     init_knobs_gpu_side(sample_knobs_p);
     init_knobs_gpu_side(sample_small_knobs_p);
@@ -203,15 +206,15 @@ void * ui_thread(void * arg) {
     finalize_sliders(sliders_dahdsr_lfo_pitch_p);
     finalize_sliders(sliders_equalizer_p);
 
-    background_element_offset_id = glGetUniformLocation(non_interactive_program_id, "offset");
+    //background_element_offset_id = glGetUniformLocation(non_interactive_program_id, "offset");
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
     interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
 
     background_scale_matrix_p = &background_p->scale_matrix[0].x;
     ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
-    ui_system_usage_offset_p = &ui_system_usage_p->offset.x;
-    background_offset_p = &background_p->offset.x;
+    //ui_system_usage_offset_p = &ui_system_usage_p->offset.x;
+    //background_offset_p = &background_p->offset.x;
 
     sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;

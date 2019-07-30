@@ -27,12 +27,15 @@ typedef struct UISystemUsage_t {
     unsigned char *             texture;
     Vec4                        vertexes_attributes[4];
     Vec2                        scale_matrix[2];
-    Vec2                        offset;
+    Vec2                        instance_offsets_buffer;
+    GLuint                      instance_offsets;
     GLuint                      vertex_buffer_object;
     GLuint                      vertex_array_object;
     GLchar                      vertex_indexes[4];
     GLuint                      texture_id;
     GLuint                      index_buffer_object;
+    UIText ui_text_cpu;
+    UIText ui_text_mem;
 } UISystemUsage;
 
 typedef struct SystemUsage_t {
@@ -40,10 +43,19 @@ typedef struct SystemUsage_t {
     int cut_thread;
     void (*update_ui)(double cpu_usage, double mem_usage);
     UISystemUsage * ui;
-    UIText ui_text;
 } SystemUsage;
 
-void init_system_usage_ui(UISystemUsage * system_usage, const char * texture_filename, int texture_width, int texture_height, int viewport_width, int viewport_height);
+void init_system_usage_ui(
+    UISystemUsage * system_usage,
+    const char * texture_system_usage_filename,
+    const char * texture_text_filename,
+    unsigned int texture_system_usage_width,
+    unsigned int texture_system_usage_height,
+    unsigned int texture_text_width,
+    unsigned int texture_text_height,
+    unsigned int viewport_width, 
+    unsigned int viewport_height
+);
 void * update_system_usage(void * args);
 
 #endif

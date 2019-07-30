@@ -6,7 +6,7 @@
 #include "instances.h"
 #include "../system_usage.h"
 
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv) {    
     SystemUsage system_usage = {0};
 
     Instances instances = {0};

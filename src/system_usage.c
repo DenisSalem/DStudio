@@ -23,25 +23,48 @@
 #include "extensions.h"
 #include "system_usage.h"
 
-void init_system_usage_ui(UISystemUsage * system_usage, const char * texture_filename, int texture_width, int texture_height, int viewport_width, int viewport_height) {  
-    system_usage->offset.x = 0.0225;
-    system_usage->offset.y = 0.889583;
+void init_system_usage_ui(
+    UISystemUsage * system_usage,
+    const char * texture_system_usage_filename,
+    const char * texture_text_filename,
+    unsigned int texture_system_usage_width,
+    unsigned int texture_system_usage_height,
+    unsigned int texture_text_width,
+    unsigned int texture_text_height,
+    unsigned int viewport_width,
+    unsigned int viewport_height
+) {  
+    system_usage->instance_offsets_buffer.x = 0.0225;
+    system_usage->instance_offsets_buffer.y = 0.889583;
     
     init_background_element(
         system_usage->vertex_indexes,
         system_usage->vertexes_attributes,
         &system_usage->index_buffer_object,
         &system_usage->vertex_buffer_object,
-        texture_filename,
+        texture_system_usage_filename,
         &system_usage->texture,
         1,
         &system_usage->texture_id,
         &system_usage->vertex_array_object,
-        texture_width,
-        texture_height,
+        texture_system_usage_width,
+        texture_system_usage_height,
         viewport_width,
         viewport_height,
-        system_usage->scale_matrix
+        system_usage->scale_matrix, 
+        &system_usage->instance_offsets,
+        &system_usage->instance_offsets_buffer,
+        1
+    );
+    
+    init_text(
+        &system_usage->ui_text_cpu,
+        6,
+        texture_text_filename,
+        texture_text_width,
+        texture_text_height,
+        viewport_width,
+        viewport_height
     );
 }
 
