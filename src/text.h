@@ -28,7 +28,7 @@ typedef struct UIText_t {
     Vec4            vertex_attributes[4];
     Vec2            scale_matrix[2];
     unsigned int    string_size;
-    Vec2 *          instance_offsets_buffer;
+    Vec4 *          instance_offsets_buffer;
     GLuint          instance_offsets;
     Vec2            text_position;
     GLuint          vertex_buffer_object;
@@ -39,6 +39,6 @@ typedef struct UIText_t {
     char *          string_buffer;
 } UIText;
 
-void init_text(UIText * ui_text, unsigned int string_size, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width,unsigned int viewport_height);
+void init_text(UIText * ui_text, unsigned int string_size, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width,unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y);
 
 #endif

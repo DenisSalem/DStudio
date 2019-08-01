@@ -52,7 +52,7 @@ typedef struct UIBackground_t {
     GLuint              vertex_buffer_object;
     GLuint              texture_id;
     GLuint              instance_offsets;
-    Vec2                instance_offsets_buffer;
+    Vec4                instance_offsets_buffer;
 
 } UIBackground;
 

@@ -36,6 +36,8 @@ void init_system_usage_ui(
 ) {  
     system_usage->instance_offsets_buffer.x = 0.0225;
     system_usage->instance_offsets_buffer.y = 0.889583;
+    system_usage->instance_offsets_buffer.z = 0;
+    system_usage->instance_offsets_buffer.w = 0;
     
     init_background_element(
         system_usage->vertex_indexes,
@@ -51,7 +53,7 @@ void init_system_usage_ui(
         texture_system_usage_height,
         viewport_width,
         viewport_height,
-        system_usage->scale_matrix, 
+        system_usage->scale_matrix,
         &system_usage->instance_offsets,
         &system_usage->instance_offsets_buffer,
         1
@@ -64,8 +66,13 @@ void init_system_usage_ui(
         texture_text_width,
         texture_text_height,
         viewport_width,
-        viewport_height
+        viewport_height,
+        0.14,
+        0.889583
     );
+    system_usage->ui_text_cpu.instance_offsets_buffer[0].z =  system_usage->ui_text_cpu.scale_matrix[0].x * 3;
+    system_usage->ui_text_cpu.instance_offsets_buffer[0].w =  system_usage->ui_text_cpu.scale_matrix[1].y * 3;
+    printf("%f %f %f\n", system_usage->ui_text_cpu.instance_offsets_buffer[0].z, system_usage->ui_text_cpu.instance_offsets_buffer[0].w);
 }
 
 void * update_system_usage(void * args) {

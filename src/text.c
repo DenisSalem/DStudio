@@ -21,7 +21,7 @@
 #include "extensions.h"
 #include "text.h"
 
-void init_text(UIText * ui_text, unsigned int string_size, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width, unsigned int viewport_height) {
+void init_text(UIText * ui_text, unsigned int string_size, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y) {
     png_bytep texture_buffer;
     get_png_pixel(texture_filename, &texture_buffer, PNG_FORMAT_RGBA);
     ui_text->string_size = string_size;
@@ -55,7 +55,8 @@ void init_text(UIText * ui_text, unsigned int string_size, const char * texture_
     
     free(texture_buffer);
     
-    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_text->instance_offsets, ui_text->instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec2) * string_size);
+    ui_text->instance_offsets_buffer = malloc(sizeof(Vec4) * string_size);
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_text->instance_offsets, ui_text->instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec4) * string_size);
     
     glGenVertexArrays(1, &ui_text->vertex_array_object);
     glBindVertexArray(ui_text->vertex_array_object);

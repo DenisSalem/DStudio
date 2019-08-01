@@ -135,7 +135,7 @@ void init_background_element(
     GLuint viewport_height,
     Vec2 * scale_matrix,
     GLuint * instance_offsets_p,
-    Vec2 * instance_offsets_buffer,
+    Vec4 * instance_offsets_buffer,
     GLuint count
     );
     

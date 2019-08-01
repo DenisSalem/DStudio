@@ -161,7 +161,7 @@ void init_background_element(
     GLuint viewport_height,
     Vec2 * scale_matrix,
     GLuint * instance_offsets_p,
-    Vec2 * instance_offsets_buffer,
+    Vec4 * instance_offsets_buffer,
     GLuint count
 ) {
     
@@ -176,7 +176,7 @@ void init_background_element(
 
     gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_p, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
     gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
-    gen_gl_buffer(GL_ARRAY_BUFFER, instance_offsets_p, instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec2) * count);
+    gen_gl_buffer(GL_ARRAY_BUFFER, instance_offsets_p, instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec4) * count);
 
     get_png_pixel(texture_filename, texture_p, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
@@ -198,11 +198,14 @@ void init_background_element(
         glBindBuffer(GL_ARRAY_BUFFER, *vertex_buffer_object_p);         
             glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
             glEnableVertexAttribArray(0);
+            glVertexAttribDivisor(0, 0);
+
             glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
             glEnableVertexAttribArray(1);
-        
+            glVertexAttribDivisor(1, 0);
+
         glBindBuffer(GL_ARRAY_BUFFER, *instance_offsets_p);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), (GLvoid *) 0 );
+            glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), (GLvoid *) 0 );
             glEnableVertexAttribArray(2);
             glVertexAttribDivisor(2, 1);
             

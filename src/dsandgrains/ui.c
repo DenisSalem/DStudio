@@ -79,6 +79,8 @@ static GLfloat motion_type;
 static void init_background(UIBackground * background) {
     background_p->instance_offsets_buffer.x = 0;
     background_p->instance_offsets_buffer.y = 0;
+    background_p->instance_offsets_buffer.z = 0;
+    background_p->instance_offsets_buffer.w = 0;
     init_background_element(
         background->vertex_indexes,
         background->vertexes_attributes,
