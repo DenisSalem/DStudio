@@ -40,5 +40,5 @@ typedef struct UIText_t {
 } UIText;
 
 void init_text(UIText * ui_text, unsigned int string_size, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width,unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y);
-
+void render_text(UIText * text);
 #endif

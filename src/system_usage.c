@@ -72,7 +72,6 @@ void init_system_usage_ui(
     );
     system_usage->ui_text_cpu.instance_offsets_buffer[0].z =  system_usage->ui_text_cpu.scale_matrix[0].x * 3;
     system_usage->ui_text_cpu.instance_offsets_buffer[0].w =  system_usage->ui_text_cpu.scale_matrix[1].y * 3;
-    printf("%f %f %f\n", system_usage->ui_text_cpu.instance_offsets_buffer[0].z, system_usage->ui_text_cpu.instance_offsets_buffer[0].w);
 }
 
 void * update_system_usage(void * args) {

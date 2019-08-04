@@ -74,3 +74,8 @@ void init_text(UIText * ui_text, unsigned int string_size, const char * texture_
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
+
+void render_text(UIText * text) {    
+    render_ui_elements(text->texture_id, text->vertex_array_object, text->index_buffer_object, text->string_size);
+    printf("%d\n", glGetError());
+}
