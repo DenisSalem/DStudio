@@ -58,7 +58,6 @@ void init_system_usage_ui(
         &system_usage->instance_offsets_buffer,
         1
     );
-    
     init_text(
         &system_usage->ui_text_cpu,
         6,
@@ -67,11 +66,10 @@ void init_system_usage_ui(
         texture_text_height,
         viewport_width,
         viewport_height,
-        0.14,
-        0.889583
+        0.135,
+        0.916666
     );
-    system_usage->ui_text_cpu.instance_offsets_buffer[0].z =  system_usage->ui_text_cpu.scale_matrix[0].x * 3;
-    system_usage->ui_text_cpu.instance_offsets_buffer[0].w =  system_usage->ui_text_cpu.scale_matrix[1].y * 3;
+
 }
 
 void * update_system_usage(void * args) {

@@ -35,7 +35,7 @@ typedef struct UIText_t {
     GLuint          vertex_array_object;
     GLchar          vertex_indexes[4];
     GLuint          texture_id;
-    GLchar          index_buffer_object;
+    GLuint          index_buffer_object;
     char *          string_buffer;
 } UIText;
 

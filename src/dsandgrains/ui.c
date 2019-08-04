@@ -185,6 +185,7 @@ void * ui_thread(void * arg) {
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
     init_background(background_p);
+
     init_system_usage_ui(ui_system_usage_p, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, DSANDGRAINS_CHAR_TABLE_ASSET_PATH, 78, 23, 104, 234, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     
     init_knobs_gpu_side(sample_knobs_p);
@@ -226,7 +227,7 @@ void * ui_thread(void * arg) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_SCISSOR_TEST);
-
+    
     while (do_no_exit_loop()) {
         usleep(framerate);
 
