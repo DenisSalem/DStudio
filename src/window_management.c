@@ -19,9 +19,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include<X11/X.h>
-#include<X11/Xatom.h>
-#include<X11/Xlib.h>
+#include <string.h>
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
 
 #include "common.h"
 #include "extensions.h"
@@ -46,6 +47,7 @@ static XVisualInfo          * visual_info;
 static Colormap             color_map;
 static XWindowAttributes    gwa;
 static XEvent               x_event;
+static XEvent               x_sent_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
       GLX_X_RENDERABLE    , True,
@@ -229,7 +231,11 @@ void listen_events() {
             return;
         }
         else if (x_event.type == Expose) {
-            refresh_all = 1;
+            if (x_event.xexpose.send_event == 1) {
+            }
+            else {
+                refresh_all = 1;
+            }
         }
         else if (x_event.type == ButtonPress) {
             if (x_event.xbutton.button == Button1) {
@@ -275,6 +281,14 @@ int need_to_redraw_all() {
         return 1;
     }
     return 0;    
+}
+
+void send_expose_event() {
+    memset(&x_sent_event, 0, sizeof(x_sent_event));
+    x_sent_event.type = Expose;
+    x_sent_event.xexpose.send_event = 1;
+    XSendEvent(display, window, 0, ExposureMask, &x_sent_event);
+    XFlush(display);
 }
 
 void set_cursor_position_callback(void (*callback)(int xpos, int ypos)) {

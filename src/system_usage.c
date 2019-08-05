@@ -22,6 +22,7 @@
 
 #include "extensions.h"
 #include "system_usage.h"
+#include "window_management.h"
 
 void init_system_usage_ui(
     UISystemUsage * system_usage,
@@ -69,15 +70,34 @@ void init_system_usage_ui(
         0.135,
         0.916666
     );
-
+    system_usage->ready = 1;
+    sem_init(&system_usage->mutex, 0, 1);
 }
 
 void * update_system_usage(void * args) {
     SystemUsage * system_usage = (SystemUsage *) args;
-    while (!system_usage->cut_thread) {
+    while(!system_usage->ui->ready) {
+        usleep(1000);
+    }
+    char * cpu_usage_string_value = 0;
+    Vec4 * ui_text_cpu_offset_buffer = system_usage->ui->ui_text_cpu.instance_offsets_buffer;
+    unsigned int * ui_text_cpu_actual_size = &system_usage->ui->ui_text_cpu.actual_string_size;
+    GLuint ui_text_offset_buffer_object = system_usage->ui->ui_text_cpu.instance_offsets;
+    cpu_usage_string_value = system_usage->ui->ui_text_cpu.string_buffer;
+
+    while (1) {
         clock_t cpu_time = clock();
         usleep(250000);
+        sem_wait(&system_usage->ui->mutex);
+        if (system_usage->ui->cut_thread) {
+            sem_post(&system_usage->ui->mutex);
+            break;
+        }
         system_usage->cpu_usage = (((double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
+        sprintf(cpu_usage_string_value, "%0.1f%%", system_usage->cpu_usage);
+        send_expose_event();
+        system_usage->ui->update = 1;
+        sem_post(&system_usage->ui->mutex);
     }
     return NULL;
 }

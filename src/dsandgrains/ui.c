@@ -17,7 +17,6 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "../extensions.h"
 
 #include "../window_management.h"
@@ -230,11 +229,18 @@ void * ui_thread(void * arg) {
     
     while (do_no_exit_loop()) {
         usleep(framerate);
-
+        
         /* MANAGE INSTANCES */
         //count_instances(INSTANCES_DIRECTORY, &instances_count, &instances_last_id);
         //clock_gettime(CLOCK_REALTIME, &tStruct);
 
+        // UPDATE AND RENDER TEXT
+        if (ui_system_usage_p->update) {
+            update_text(&ui_system_usage_p->ui_text_cpu);
+            glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+            render_viewport();
+        }
+        
         /* RENDER */
         
         if (need_to_redraw_all()) {
@@ -248,6 +254,11 @@ void * ui_thread(void * arg) {
         swap_window_buffer();
         listen_events();
     }
+    
+    sem_wait(&ui_system_usage_p->mutex);
+    ui_system_usage_p->cut_thread = 1;
     destroy_context();
+    sem_post(&ui_system_usage_p->mutex);
+
     return NULL;
 }

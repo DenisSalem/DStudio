@@ -25,7 +25,9 @@ void init_text(UIText * ui_text, unsigned int string_size, const char * texture_
     png_bytep texture_buffer;
     get_png_pixel(texture_filename, &texture_buffer, PNG_FORMAT_RGBA);
     ui_text->string_size = string_size;
+    ui_text->actual_string_size = 0;
     ui_text->string_buffer = malloc(sizeof(char) * string_size);
+
     explicit_bzero(ui_text->string_buffer, sizeof(char) * string_size);
 
     GLchar * vertex_indexes = ui_text->vertex_indexes;
@@ -83,5 +85,24 @@ void init_text(UIText * ui_text, unsigned int string_size, const char * texture_
 }
 
 void render_text(UIText * text) {
-    render_ui_elements(text->texture_id, text->vertex_array_object, text->index_buffer_object, text->string_size);
+    if (text->actual_string_size) {
+        render_ui_elements(text->texture_id, text->vertex_array_object, text->index_buffer_object, text->actual_string_size);
+    }
+}
+
+void update_text(UIText * text) {
+        char * string_value = text->string_buffer;
+        Vec4 * offset_buffer = text->instance_offsets_buffer;
+        int linear_coordinate, coordinate_x, coordinate_y;
+        for (int i = 0; string_value[i] != 0; i++) {
+            if (string_value[i] >= 32 && string_value[i] <= 126) {
+                linear_coordinate = string_value[i] - 32;
+            }
+            offset_buffer[i].z = (GLfloat) (linear_coordinate % (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
+            offset_buffer[i].w = (GLfloat) (linear_coordinate / DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
+        }
+        text->actual_string_size = strlen(string_value);
+        glBindBuffer(GL_ARRAY_BUFFER, text->instance_offsets);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, text->actual_string_size * sizeof(Vec4), offset_buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

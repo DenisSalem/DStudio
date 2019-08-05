@@ -20,28 +20,32 @@
 #ifndef SYSTEM_USAGE_INCLUDED
 #define SYSTEM_USAGE_INCLUDED
 
+#include <semaphore.h>
 #include "ui.h"
 #include "text.h"
 
 typedef struct UISystemUsage_t {
-    unsigned char *             texture;
-    Vec4                        vertexes_attributes[4];
-    Vec2                        scale_matrix[2];
-    Vec4                        instance_offsets_buffer;
-    GLuint                      instance_offsets;
-    GLuint                      vertex_buffer_object;
-    GLuint                      vertex_array_object;
-    GLchar                      vertex_indexes[4];
-    GLuint                      texture_id;
-    GLuint                      index_buffer_object;
-    UIText ui_text_cpu;
-    UIText ui_text_mem;
+    unsigned char * texture;
+    Vec4            vertexes_attributes[4];
+    Vec2            scale_matrix[2];
+    Vec4            instance_offsets_buffer;
+    GLuint          instance_offsets;
+    GLuint          vertex_buffer_object;
+    GLuint          vertex_array_object;
+    GLchar          vertex_indexes[4];
+    GLuint          texture_id;
+    GLuint          index_buffer_object;
+    UIText          ui_text_cpu;
+    UIText          ui_text_mem;
+    int             ready;
+    int             update;
+    sem_t           mutex;
+    int             cut_thread;
 } UISystemUsage;
 
 typedef struct SystemUsage_t {
-    double cpu_usage;
-    int cut_thread;
-    void (*update_ui)(double cpu_usage, double mem_usage);
+    double          cpu_usage;
+    void            (*update_ui)(double cpu_usage, double mem_usage);
     UISystemUsage * ui;
 } SystemUsage;
 
