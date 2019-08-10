@@ -362,7 +362,7 @@ void * ui_thread(void * arg) {
         // UPDATE AND RENDER TEXT
         if (ui_system_usage_p->update) {
             update_text(&ui_system_usage_p->ui_text_cpu);
-            glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+            glScissor(450, 438, 48, 31);
             render_viewport();
         }
         
