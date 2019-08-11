@@ -141,6 +141,7 @@ static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
 }
 
 void init_context(const char * window_name, int width, int height) {
+    DSTUDIO_EXIT_IF_NULL(XInitThreads());
     int (*old_handler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctx_error_handler);
     Window root_window;
     XSetWindowAttributes swa;
@@ -237,13 +238,13 @@ void listen_events() {
             }
         }
         else if (x_event.type == ButtonPress) {
-                if (x_event.xbutton.button == Button1) {
-                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
-                }
-                else if (x_event.xbutton.button == Button3) {
-                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
-                }
-                cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
+            if (x_event.xbutton.button == Button1) {
+                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
+            }
+            else if (x_event.xbutton.button == Button3) {
+                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
+            }
+            cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if (x_event.type == ButtonRelease) {
             if (x_event.xbutton.button == Button1) {
@@ -272,7 +273,7 @@ void listen_events() {
             XAutoRepeatOn(display);
         }
     }
-    XPeekEvent(display, &x_event);
+    XPeekEvent(display, &x_event);    
 }
 
 int need_to_redraw_all() {
@@ -287,7 +288,7 @@ void send_expose_event() {
     memset(&x_sent_expose_event, 0, sizeof(x_sent_expose_event));
     x_sent_expose_event.type = Expose;
     x_sent_expose_event.xexpose.send_event = 1;
-    XSendEvent(display, window, 0, ExposureMask, &x_sent_expose_event);
+    XSendEvent(display, window, 1, ExposureMask, &x_sent_expose_event);
     XFlush(display);
 }
 
