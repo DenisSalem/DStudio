@@ -24,6 +24,7 @@
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/XKBlib.h>
 
 #include "common.h"
 #include "extensions.h"
@@ -40,8 +41,7 @@ void (*mouse_button_callback)(int xpos, int ypos, int button, int action) = 0;
     KeyReleaseMask | \
     ButtonPressMask | \
     ButtonReleaseMask | \
-    VisibilityChangeMask |\
-    FocusChangeMask
+    VisibilityChangeMask
 
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
@@ -175,7 +175,7 @@ void init_context(const char * window_name, int width, int height) {
     XSetWMProtocols(display , window, &delWindow, 1);
 
     XSelectInput(display, window, DSTUDIO_X11_INPUT_MASKS | ButtonMotionMask);
-
+    XkbSetDetectableAutoRepeat (display, 1, NULL);
 
     DSTUDIO_EXIT_IF_NULL(window)
     
@@ -265,12 +265,6 @@ void listen_events() {
         }
         else if(x_event.type == VisibilityNotify) {
             //printf("Should freeze render i"f obscured.\n");
-        }
-        else if(x_event.type == FocusIn) {
-            XAutoRepeatOff(display);
-        }
-        else if(x_event.type == FocusOut) {
-            XAutoRepeatOn(display);
         }
     }
     XPeekEvent(display, &x_event);    
