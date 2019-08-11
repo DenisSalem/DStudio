@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -32,6 +33,15 @@ static void (*cursor_position_callback)(int xpos, int ypos) = 0;
 void (*mouse_button_callback)(int xpos, int ypos, int button, int action) = 0;
 
 #ifdef DSTUDIO_RELY_ON_X11
+
+#define DSTUDIO_X11_INPUT_MASKS \
+    ExposureMask | \
+    KeyPressMask | \
+    KeyReleaseMask | \
+    ButtonPressMask | \
+    ButtonReleaseMask | \
+    VisibilityChangeMask |\
+    FocusChangeMask
 
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
@@ -47,7 +57,7 @@ static XVisualInfo          * visual_info;
 static Colormap             color_map;
 static XWindowAttributes    gwa;
 static XEvent               x_event;
-static XEvent               x_sent_event;
+static XEvent               x_sent_expose_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
       GLX_X_RENDERABLE    , True,
@@ -76,7 +86,7 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
     swa->colormap = color_map;
     swa->background_pixmap = None ;
     swa->border_pixel      = 0;
-    swa->event_mask        = ExposureMask | StructureNotifyMask;
+    swa->event_mask        = ExposureMask | StructureNotifyMask |PointerMotionMask;
 }
 
 void destroy_context() {
@@ -163,18 +173,7 @@ void init_context(const char * window_name, int width, int height) {
     Atom delWindow = XInternAtom(display, "WM_DELETE_WINDOW", 0);
     XSetWMProtocols(display , window, &delWindow, 1);
 
-    XSelectInput(
-        display,
-        window,
-        ExposureMask | 
-        KeyPressMask | 
-        KeyReleaseMask | 
-        PointerMotionMask | 
-        ButtonPressMask | 
-        ButtonReleaseMask | 
-        VisibilityChangeMask |
-        FocusChangeMask
-    );
+    XSelectInput(display, window, DSTUDIO_X11_INPUT_MASKS | ButtonMotionMask);
 
 
     DSTUDIO_EXIT_IF_NULL(window)
@@ -238,12 +237,13 @@ void listen_events() {
             }
         }
         else if (x_event.type == ButtonPress) {
-            if (x_event.xbutton.button == Button1) {
-                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
-            }
-            else if (x_event.xbutton.button == Button3) {
-                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
-            }
+                if (x_event.xbutton.button == Button1) {
+                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
+                }
+                else if (x_event.xbutton.button == Button3) {
+                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
+                }
+                cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if (x_event.type == ButtonRelease) {
             if (x_event.xbutton.button == Button1) {
@@ -263,7 +263,7 @@ void listen_events() {
             //printf("KeyRelease\n");
         }
         else if(x_event.type == VisibilityNotify) {
-            //printf("Should freeze render if obscured.\n");
+            //printf("Should freeze render i"f obscured.\n");
         }
         else if(x_event.type == FocusIn) {
             XAutoRepeatOff(display);
@@ -284,10 +284,10 @@ int need_to_redraw_all() {
 }
 
 void send_expose_event() {
-    memset(&x_sent_event, 0, sizeof(x_sent_event));
-    x_sent_event.type = Expose;
-    x_sent_event.xexpose.send_event = 1;
-    XSendEvent(display, window, 0, ExposureMask, &x_sent_event);
+    memset(&x_sent_expose_event, 0, sizeof(x_sent_expose_event));
+    x_sent_expose_event.type = Expose;
+    x_sent_expose_event.xexpose.send_event = 1;
+    XSendEvent(display, window, 0, ExposureMask, &x_sent_expose_event);
     XFlush(display);
 }
 

@@ -27,7 +27,7 @@
 #define DSTUDIO_MOUSE_BUTTON_RIGHT      2
 #define DSTUDIO_MOUSE_BUTTON_PRESS      4
 #define DSTUDIO_MOUSE_BUTTON_RELEASE    8
-
+        
 void destroy_context();
 int do_no_exit_loop();
 void init_context(const char * window_name, int width, int height);
