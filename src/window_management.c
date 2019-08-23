@@ -264,7 +264,7 @@ void listen_events() {
             //printf("KeyRelease\n");
         }
         else if(x_event.type == VisibilityNotify) {
-            //printf("Should freeze render i"f obscured.\n");
+            //printf("Should freeze render if obscured.\n");
         }
     }
     XPeekEvent(display, &x_event);    

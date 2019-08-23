@@ -21,12 +21,14 @@
 #include <semaphore.h>
 
 #include "../common.h"
+#include "../fileutils.h"
 #include "../instances.h"
-#include "ui.h"
-#include "instances.h"
 #include "../system_usage.h"
+#include "instances.h"
+#include "ui.h"
 
 int main(int argc, char ** argv) {
+    set_physical_memory();
     SystemUsage system_usage = {0};
 
     Instances instances = {0};

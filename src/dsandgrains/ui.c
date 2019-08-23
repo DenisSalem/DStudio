@@ -61,6 +61,7 @@ static GLuint motion_type_id;
 static const GLfloat * background_scale_matrix_p;
 static const GLfloat * ui_system_usage_scale_matrix_p;
 static const GLfloat * ui_text_cpu_usage_scale_matrix_p;
+static const GLfloat * ui_text_mem_usage_scale_matrix_p;
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
 static const GLfloat * sliders_dahdsr_scale_matrix_p;
@@ -265,6 +266,7 @@ static void init_ui(UI * ui) {
     background_scale_matrix_p = &background_p->scale_matrix[0].x;
     ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
     ui_text_cpu_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
+    ui_text_mem_usage_scale_matrix_p = &ui_system_usage_p->ui_text_mem.scale_matrix[0].x;
 
     sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
@@ -296,6 +298,9 @@ static void render_viewport() {
 
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_cpu_usage_scale_matrix_p);
         render_text(&ui_system_usage_p->ui_text_cpu);
+        
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_mem_usage_scale_matrix_p);
+        render_text(&ui_system_usage_p->ui_text_mem);
         
     glUseProgram(interactive_program_id);
         // KNOBS
@@ -362,6 +367,8 @@ void * ui_thread(void * arg) {
         // UPDATE AND RENDER TEXT
         if (ui_system_usage_p->update) {
             update_text(&ui_system_usage_p->ui_text_cpu);
+            update_text(&ui_system_usage_p->ui_text_mem);
+
             glScissor(450, 438, 48, 31);
             render_viewport();
         }

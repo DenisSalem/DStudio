@@ -11,6 +11,7 @@
 
 static struct passwd * pw = 0;
 static struct stat st = {0};
+double physical_memory_kib = 0;
 
 void count_instances(const char * directory, unsigned int * count, unsigned int * last_id) {
     DIR * dr = 0;
@@ -58,7 +59,7 @@ unsigned int count_process(const char * process_name) {
             if (ENOENT == errno) {
                 continue;
             }
-            while(getline(&line_buffer, &line_buffer_size, processus_status)) {
+            while(getline(&line_buffer, &line_buffer_size, processus_status) > 0) {
                 if (strncmp(line_buffer, "Name:", 5) == 0 ) {
                     process_name_match = strncmp(process_name, line_buffer+6, strlen(process_name));
                 }
@@ -92,6 +93,30 @@ void expand_user(char ** dest, const char * directory) {
     strcpy(&(*dest)[strlen(pw->pw_dir)], tild_ptr);
 }
 
+double get_proc_memory_usage() {
+    char processus_id[8] = {0};
+    char processus_status_path[32] = {0};
+    char * line_buffer = 0;
+    size_t line_buffer_size = 0;
+    FILE * processus_status = 0;
+    
+    sprintf(processus_id, "%d", getpid());
+    strcat(processus_status_path, "/proc/");
+    strcat(processus_status_path, processus_id);
+    strcat(processus_status_path, "/status");
+    
+    processus_status = fopen(processus_status_path, "r");
+    if (ENOENT == errno) {
+        return -1;
+    }
+    while(getline(&line_buffer, &line_buffer_size, processus_status) > 0) {
+        if (strncmp(line_buffer, "VmRSS:", 6) == 0 ) {
+            strrchr(line_buffer, ' ')[0] = 0;
+            return atof(strpbrk(line_buffer, " ")) / physical_memory_kib * 100;
+        }
+    }
+}
+
 void recursive_mkdir(char * directory) {
     char * tmp_str = malloc(sizeof(char) * strlen(directory));
     int index = 0;
@@ -118,4 +143,18 @@ void recursive_mkdir(char * directory) {
         }
     }
     free(tmp_str);
+}
+
+void set_physical_memory() {
+    char * line_buffer = 0;
+    size_t line_buffer_size = 0;
+    FILE * meminfo_fd = 0;
+    meminfo_fd = fopen("/proc/meminfo", "r");
+    while(getline(&line_buffer, &line_buffer_size, meminfo_fd) > 0) {
+        if (strncmp(line_buffer, "MemTotal:", 9) == 0 ) {
+            strrchr(line_buffer, ' ')[0] = 0;
+            physical_memory_kib = atof(strpbrk(line_buffer, " "));
+            break;
+        }
+    }
 }
