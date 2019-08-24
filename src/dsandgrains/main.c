@@ -28,7 +28,7 @@
 #include "ui.h"
 
 int main(int argc, char ** argv) {
-    set_physical_memory();
+    DSTUDIO_EXIT_IF_FAILURE(set_physical_memory());
     SystemUsage system_usage = {0};
 
     Instances instances = {0};

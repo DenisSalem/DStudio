@@ -56,7 +56,10 @@ unsigned int count_process(const char * process_name) {
             strcat(processus_status_path, de->d_name);
             strcat(processus_status_path, "/status");
             processus_status = fopen(processus_status_path, "r");
-            if (ENOENT == errno) {
+            if (0 != errno && processus_status == NULL) {
+                #ifdef DSTUDIO_DEBUG
+                printf("count_process(): %s: %s", processus_status_path, strerror(errno));
+                #endif
                 continue;
             }
             while(getline(&line_buffer, &line_buffer_size, processus_status) > 0) {
@@ -106,15 +109,21 @@ double get_proc_memory_usage() {
     strcat(processus_status_path, "/status");
     
     processus_status = fopen(processus_status_path, "r");
-    if (ENOENT == errno) {
+    if (0 != errno && processus_status == NULL) {
+        #ifdef DSTUDIO_DEBUG
+        printf("get_proc_memory_usage(): %s: %s\n", processus_status_path, strerror(errno));
+        #endif
         return -1;
     }
     while(getline(&line_buffer, &line_buffer_size, processus_status) > 0) {
         if (strncmp(line_buffer, "VmRSS:", 6) == 0 ) {
             strrchr(line_buffer, ' ')[0] = 0;
+            fclose(processus_status);
             return atof(strpbrk(line_buffer, " ")) / physical_memory_kib * 100;
         }
     }
+    fclose(processus_status);
+    return -1;
 }
 
 void recursive_mkdir(char * directory) {
@@ -145,16 +154,23 @@ void recursive_mkdir(char * directory) {
     free(tmp_str);
 }
 
-void set_physical_memory() {
+int set_physical_memory() {
     char * line_buffer = 0;
     size_t line_buffer_size = 0;
     FILE * meminfo_fd = 0;
     meminfo_fd = fopen("/proc/meminfo", "r");
+    if (0 != errno && meminfo_fd == NULL) {
+        #ifdef DSTUDIO_DEBUG
+        printf("set_physical_memory(): /proc/meminfo: %s\n", strerror(errno));
+        #endif
+        return -1;
+    }
     while(getline(&line_buffer, &line_buffer_size, meminfo_fd) > 0) {
         if (strncmp(line_buffer, "MemTotal:", 9) == 0 ) {
             strrchr(line_buffer, ' ')[0] = 0;
             physical_memory_kib = atof(strpbrk(line_buffer, " "));
-            break;
+            fclose(meminfo_fd);
+            return 0;
         }
     }
 }

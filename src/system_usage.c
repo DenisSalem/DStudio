@@ -111,6 +111,7 @@ void * update_system_usage(void * args) {
         clock_t cpu_time = clock();
         usleep(250000);
         sem_wait(&system_usage->ui->mutex);
+        
         if (system_usage->ui->cut_thread) {
             sem_post(&system_usage->ui->mutex);
             break;
@@ -118,15 +119,18 @@ void * update_system_usage(void * args) {
         system_usage->cpu_usage = (((double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
         system_usage->mem_usage = get_proc_memory_usage();
 
-        sprintf(cpu_usage_string_value, "%0.1f%%", system_usage->cpu_usage);
-        sprintf(mem_usage_string_value, "%0.1f%%", system_usage->mem_usage);
+        if (system_usage->cpu_usage != -1) {
+            sprintf(cpu_usage_string_value, "%0.1f%%", system_usage->cpu_usage);
+        }
+        if (system_usage->mem_usage != -1) {
+            sprintf(mem_usage_string_value, "%0.1f%%", system_usage->mem_usage);
+        }
         
         send_expose_event();
         system_usage->ui->update = 1;
         sem_post(&system_usage->ui->mutex);
         
         get_proc_memory_usage();
-
     }
     
     return NULL;
