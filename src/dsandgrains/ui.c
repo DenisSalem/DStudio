@@ -115,7 +115,19 @@ static void init_ui(UI * ui) {
     ui_system_usage_p = &ui->system_usage;
     
     init_background(background_p);
-    init_system_usage_ui(ui_system_usage_p, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, DSANDGRAINS_CHAR_TABLE_ASSET_PATH, 30, 23, 104, 234, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_system_usage_ui(
+        ui_system_usage_p,
+        DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH,
+        DSANDGRAINS_CHAR_TABLE_ASSET_PATH,
+        30, 
+        23, 
+        104, 
+        234,
+        DSANDGRAINS_VIEWPORT_WIDTH,
+        DSANDGRAINS_VIEWPORT_HEIGHT,
+        -0.03675,
+        0.889583
+    );
 
     init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
@@ -369,7 +381,7 @@ void * ui_thread(void * arg) {
             update_text(&ui_system_usage_p->ui_text_cpu);
             update_text(&ui_system_usage_p->ui_text_mem);
 
-            glScissor(450, 438, 48, 31);
+            glScissor(402, 438, 48, 31);
             render_viewport();
         }
         

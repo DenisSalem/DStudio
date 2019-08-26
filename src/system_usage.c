@@ -34,10 +34,12 @@ void init_system_usage_ui(
     unsigned int texture_text_width,
     unsigned int texture_text_height,
     unsigned int viewport_width,
-    unsigned int viewport_height
+    unsigned int viewport_height,
+    GLfloat gl_x,
+    GLfloat gl_y
 ) {  
-    system_usage->instance_offsets_buffer.x = 0.0225;
-    system_usage->instance_offsets_buffer.y = 0.889583;
+    system_usage->instance_offsets_buffer.x = gl_x;
+    system_usage->instance_offsets_buffer.y = gl_y;
     system_usage->instance_offsets_buffer.z = 0;
     system_usage->instance_offsets_buffer.w = 0;
     
@@ -68,8 +70,8 @@ void init_system_usage_ui(
         texture_text_height,
         viewport_width,
         viewport_height,
-        0.135,
-        0.916666
+        gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
+        gl_y + 0.027083
     );
     init_text(
         &system_usage->ui_text_mem,
@@ -79,8 +81,8 @@ void init_system_usage_ui(
         texture_text_height,
         viewport_width,
         viewport_height,
-        0.135,
-        0.8625
+        gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
+        gl_y - 0.027083
     );
     system_usage->ready = 1;
     sem_init(&system_usage->mutex, 0, 1);

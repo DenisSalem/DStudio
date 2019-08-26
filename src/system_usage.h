@@ -59,7 +59,9 @@ void init_system_usage_ui(
     unsigned int texture_text_width,
     unsigned int texture_text_height,
     unsigned int viewport_width, 
-    unsigned int viewport_height
+    unsigned int viewport_height,
+    GLfloat gl_x,
+    GLfloat gl_y
 );
 void * update_system_usage(void * args);
 
