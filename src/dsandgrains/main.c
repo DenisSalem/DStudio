@@ -37,6 +37,7 @@ int main(int argc, char ** argv) {
     if (instances.contexts) {
         instances.count +=1;
     }
+    printf("%d\n", instances.count);
     
     UI ui = {0};
     system_usage.ui = &ui.system_usage;

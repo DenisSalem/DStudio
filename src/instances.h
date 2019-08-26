@@ -8,3 +8,6 @@ typedef struct Instances_t {
 } Instances;
 
 void new_instance();
+
+// Periodically check if new instances were added
+void * update_instances(void * args);
