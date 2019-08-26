@@ -1,15 +1,23 @@
 #include <dirent.h>
 #include <errno.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+
 #include "fileutils.h"
 #include "instances.h"
 
 static struct stat st = {0};
 static char * instances_directory = 0;
+
+void init_instances_ui(UIInstances * instances) {
+    sem_init(&instances->mutex, 0, 1);
+    instances->ready = 1;
+}
 
 void new_instance(const char * given_directory, const char * process_name) {
     unsigned int count = 0;
@@ -54,6 +62,7 @@ void new_instance(const char * given_directory, const char * process_name) {
             }
             explicit_bzero(instance_filename_buffer, sizeof(char) * 128);
         }
+        closedir(dr);
         strcat(instance_filename_buffer, instances_directory);
         strcat(instance_filename_buffer, "/1");
         FILE * new_instance = fopen(instance_filename_buffer, "w+");
@@ -63,8 +72,27 @@ void new_instance(const char * given_directory, const char * process_name) {
 }
 
 void * update_instances(void * args) {
+    DIR * dr = 0;
+    struct dirent *de;
+    Instances * instances = args;
+    while(!instances->ui->ready) {
+        usleep(1000);
+    }
+    while(1) {
+        usleep(100000);
+        sem_wait(&instances->ui->mutex);
+        if (instances->ui->cut_thread) {
+            sem_post(&instances->ui->mutex);
+            break;
+        }
         dr = opendir(instances_directory);
         while ((de = readdir(dr)) != NULL) {
-            printf("%d\n", de->d_name);
+            if (de->d_name[0] != '.') {
+                printf("%s ", de->d_name);
+            }
         }
+        closedir(dr);
+        printf("\n");
+        sem_post(&instances->ui->mutex);
+    }
 }

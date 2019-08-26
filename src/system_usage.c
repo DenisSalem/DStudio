@@ -84,8 +84,8 @@ void init_system_usage_ui(
         gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
         gl_y - 0.027083
     );
-    system_usage->ready = 1;
     sem_init(&system_usage->mutex, 0, 1);
+    system_usage->ready = 1;
 }
 
 void * update_system_usage(void * args) {

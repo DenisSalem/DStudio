@@ -39,6 +39,7 @@
 #include "../knobs.h"
 #include "../sliders.h"
 #include "../system_usage.h"
+#include "../instances.h"
 #include "../text.h"
 #include "../ui.h"
 
@@ -76,6 +77,7 @@ typedef struct UI_t {
     UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UISystemUsage       system_usage;
+    UIInstances         instances;
 } UI;
 
 static void init_background(UIBackground * background);

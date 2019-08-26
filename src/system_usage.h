@@ -46,7 +46,6 @@ typedef struct UISystemUsage_t {
 typedef struct SystemUsage_t {
     double          cpu_usage;
     double          mem_usage;
-    void            (*update_ui)(double cpu_usage, double mem_usage);
     UISystemUsage * ui;
 } SystemUsage;
 
@@ -63,6 +62,7 @@ void init_system_usage_ui(
     GLfloat gl_x,
     GLfloat gl_y
 );
+
 void * update_system_usage(void * args);
 
 #endif

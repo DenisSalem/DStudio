@@ -37,18 +37,19 @@ int main(int argc, char ** argv) {
     if (instances.contexts) {
         instances.count +=1;
     }
-    printf("%d\n", instances.count);
     
     UI ui = {0};
     system_usage.ui = &ui.system_usage;
+    instances.ui = &ui.instances;
     
-    pthread_t ui_thread_id, system_usage_thread_id;
+    pthread_t ui_thread_id, system_usage_thread_id, instances_thread_id;
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, &system_usage))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, &instances))
     
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
-
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_thread_id, NULL))
 
     return 0;
 }

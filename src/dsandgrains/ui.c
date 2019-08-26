@@ -40,6 +40,7 @@ static UISliders * sliders_dahdsr_lfo_pitch_p;
 static UISliders * sliders_equalizer_p;
 static UIKnobs * voice_knobs_p;
 static UISystemUsage * ui_system_usage_p;
+static UIInstances * ui_instances_p;
 
 static UIBackground * background_p;
 static UIArea * ui_areas;
@@ -113,6 +114,7 @@ static void init_ui(UI * ui) {
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
     ui_system_usage_p = &ui->system_usage;
+    ui_instances_p = &ui->instances;
     
     init_background(background_p);
     init_system_usage_ui(
@@ -128,6 +130,7 @@ static void init_ui(UI * ui) {
         -0.03675,
         0.889583
     );
+    init_instances_ui(ui_instances_p);
 
     init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
@@ -401,8 +404,14 @@ void * ui_thread(void * arg) {
     
     sem_wait(&ui_system_usage_p->mutex);
     ui_system_usage_p->cut_thread = 1;
-    destroy_context();
     sem_post(&ui_system_usage_p->mutex);
+
+    sem_wait(&ui_instances_p->mutex);
+    ui_instances_p->cut_thread = 1;
+    sem_post(&ui_instances_p->mutex);
+
+    destroy_context();
+
 
     return NULL;
 }

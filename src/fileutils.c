@@ -81,6 +81,7 @@ unsigned int count_process(const char * process_name) {
         }
         
     }
+    closedir(dr);
     free(processus_status_path);
     free(line_buffer);
     return count;

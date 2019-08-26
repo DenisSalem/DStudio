@@ -9,16 +9,16 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 if ( (NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE MATCHES Release))
-    message(STATUS "Release mode. ${CMAKE_CXX_FLAGS_RELEASE} -Wall -Winline")
+    message(STATUS "Release mode. ${CMAKE_CXX_FLAGS_RELEASE} -Werror -Wall -Winline")
     set(CMAKE_BUILD_TYPE "Release")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Winline")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Werror -Wall -Winline")
 
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message(STATUS "Debug mode. ${CMAKE_CXX_FLAGS_DEBUG} -Wall -Winline")
+    message(STATUS "Debug mode. ${CMAKE_CXX_FLAGS_DEBUG} -Werror -Wall -Winline ")
     add_definitions(-DDSTUDIO_DEBUG)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Winline")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror -Wall -Winline")
 endif()
 
 find_package(OpenGL REQUIRED)
