@@ -86,6 +86,12 @@ void * update_instances(void * args) {
             break;
         }
         dr = opendir(instances_directory);
+        int dirlen = -2;
+        while ((de = readdir(dr)) != NULL) {
+            dirlen++;
+        }
+        rewinddir(dr);
+        printf("[%d] ", dirlen);
         while ((de = readdir(dr)) != NULL) {
             if (de->d_name[0] != '.') {
                 printf("%s ", de->d_name);
