@@ -41,10 +41,9 @@ void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned i
     
     init_text(
         &instances->ui->lines[0],
+        0,
         33,
         DSTUDIO_CHAR_TABLE_ASSET_PATH,
-        DSTUDIO_CHAR_TABLE_ASSET_WIDTH,
-        DSTUDIO_CHAR_TABLE_ASSET_HEIGHT,
         viewport_width,
         viewport_height,
         pos_x,
