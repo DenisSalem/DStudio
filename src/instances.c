@@ -4,22 +4,62 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/inotify.h>
+
 #include <sys/stat.h>
 #include <unistd.h>
 
-
 #include "fileutils.h"
 #include "instances.h"
+#include "ui.h"
 
 static struct stat st = {0};
-static char * instances_directory = 0;
+static InstanceContext * current_active_instance = 0; 
+static Instances * instances;
 
-void init_instances_ui(UIInstances * instances) {
-    sem_init(&instances->mutex, 0, 1);
-    instances->ready = 1;
+char * instances_directory = 0;
+
+void exit_instances_thread() {
+    sem_wait(&instances->ui->mutex);
+    instances->ui->cut_thread = 1;
+    sem_post(&instances->ui->mutex);
+    
+    char * instance_path = malloc(sizeof(char) * 128);
+    explicit_bzero(instance_path, sizeof(char) * 128);
+    sprintf(instance_path, "%s/%d", instances_directory, current_active_instance->identifier);
+    unlink(instance_path);
 }
 
-void new_instance(const char * given_directory, const char * process_name) {
+void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y) {
+    instances->ui->lines = malloc(sizeof(UIText) * lines_number);
+    Vec2 * scale_matrix = &instances->ui->scale_matrix[0];
+    
+    scale_matrix[0].x = 0.75 * (((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR);
+    scale_matrix[0].y = 0;
+    scale_matrix[1].x = 0;
+    scale_matrix[1].y = 0.75 * (((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR);
+    
+    init_text(
+        &instances->ui->lines[0],
+        33,
+        DSTUDIO_CHAR_TABLE_ASSET_PATH,
+        DSTUDIO_CHAR_TABLE_ASSET_WIDTH,
+        DSTUDIO_CHAR_TABLE_ASSET_HEIGHT,
+        viewport_width,
+        viewport_height,
+        pos_x,
+        pos_y,
+        scale_matrix
+    );
+    
+    strcpy(instances->ui->lines[0].string_buffer, "gjpTGJP"); //instances->contexts[0].name);
+    update_text(&instances->ui->lines[0]);
+    sem_init(&instances->ui->mutex, 0, 1);
+    instances->ui->ready = 1;
+}
+
+void new_instance(const char * given_directory, const char * process_name, Instances * given_instances) {
+    instances = given_instances;
     unsigned int count = 0;
     unsigned int last_id = 0;
 
@@ -67,6 +107,13 @@ void new_instance(const char * given_directory, const char * process_name) {
         strcat(instance_filename_buffer, "/1");
         FILE * new_instance = fopen(instance_filename_buffer, "w+");
         fclose(new_instance);
+        instances->contexts = malloc( sizeof(InstanceContext) );
+        if (instances->contexts) {
+            instances->count +=1;
+            instances->contexts[0].identifier = 1;
+            current_active_instance  = &instances->contexts[0];
+            strcpy(current_active_instance->name, "Instance 1");
+        }
     }
     free(instance_filename_buffer);
 }
@@ -74,31 +121,72 @@ void new_instance(const char * given_directory, const char * process_name) {
 void * update_instances(void * args) {
     DIR * dr = 0;
     struct dirent *de;
-    Instances * instances = args;
+    int fd = 0;
+    int wd = 0;
+    InstanceContext * saved_contexts = 0;
     while(!instances->ui->ready) {
         usleep(1000);
     }
+    
+    fd = inotify_init();
+    if (errno != 0 && fd == -1) {
+        printf("inotify_init(): failed\n");
+        exit(-1);
+    }
+    wd = inotify_add_watch(fd, instances_directory, IN_CREATE | IN_DELETE);
+    if (errno != 0 && wd == 0) {
+        printf("inotify_add_watch(): failed\n");
+        exit(-1);
+    }
+
+	struct inotify_event  * event = malloc(sizeof(struct inotify_event) + 16 + 1);
+
     while(1) {
-        usleep(100000);
+        if(read(fd, event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
+            continue;
+        }
+        
         sem_wait(&instances->ui->mutex);
         if (instances->ui->cut_thread) {
             sem_post(&instances->ui->mutex);
             break;
         }
-        dr = opendir(instances_directory);
-        int dirlen = -2;
-        while ((de = readdir(dr)) != NULL) {
-            dirlen++;
-        }
-        rewinddir(dr);
-        printf("[%d] ", dirlen);
-        while ((de = readdir(dr)) != NULL) {
-            if (de->d_name[0] != '.') {
-                printf("%s ", de->d_name);
-            }
-        }
-        closedir(dr);
-        printf("\n");
         sem_post(&instances->ui->mutex);
+        
+		if (event->mask == IN_CREATE) {
+            instances->count++;
+            saved_contexts = instances->contexts;
+            instances->contexts = realloc(instances->contexts, sizeof(InstanceContext) * instances->count);
+            
+            if (instances->contexts == NULL) {
+                instances->contexts = saved_contexts;
+                instances->count--;
+                continue;
+            }
+            
+            explicit_bzero(&instances->contexts[instances->count-1], sizeof(InstanceContext));
+            current_active_instance = &instances->contexts[instances->count-1];
+            current_active_instance->identifier = 1;
+            strcat(current_active_instance->name, "Instance ");
+            strcat(current_active_instance->name, event->name);
+            instances->ui->window_offset++;
+            send_expose_event();
+
+            #ifdef DSTUDIO_DEBUG
+			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * instances->count);
+            printf("Currents instances:\n");
+            for(int i = 0; i < instances->count; i++) {
+                printf("\t%s\n", instances->contexts[i].name);
+            }
+            #endif
+        }
+		
+		else if (event->mask == IN_DELETE) {
+            instances->count++;
+            // Move context data in memory and then realloc
+            #ifdef DSTUDIO_DEBUG
+			printf("Remove instance with id=%s\n", event->name);
+            #endif
+        }
     }
 }

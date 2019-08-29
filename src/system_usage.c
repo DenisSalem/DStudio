@@ -71,7 +71,8 @@ void init_system_usage_ui(
         viewport_width,
         viewport_height,
         gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
-        gl_y + 0.027083
+        gl_y + 0.027083,
+        NULL
     );
     init_text(
         &system_usage->ui_text_mem,
@@ -82,7 +83,8 @@ void init_system_usage_ui(
         viewport_width,
         viewport_height,
         gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
-        gl_y - 0.027083
+        gl_y - 0.027083,
+        system_usage->ui_text_cpu.scale_matrix
     );
     sem_init(&system_usage->mutex, 0, 1);
     system_usage->ready = 1;

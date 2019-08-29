@@ -27,6 +27,7 @@
 
 #include "../common.h"
 #include "../fileutils.h"
+#include "../instances.h"
 #include "../knobs.h"
 #include "instances.h"
 #include "ui.h"
@@ -61,8 +62,7 @@ static GLuint motion_type_id;
 
 static const GLfloat * background_scale_matrix_p;
 static const GLfloat * ui_system_usage_scale_matrix_p;
-static const GLfloat * ui_text_cpu_usage_scale_matrix_p;
-static const GLfloat * ui_text_mem_usage_scale_matrix_p;
+static const GLfloat * ui_text_system_usage_scale_matrix_p;
 static const GLfloat * sample_knobs_scale_matrix_p;
 static const GLfloat * sample_small_knobs_scale_matrix_p;
 static const GLfloat * sliders_dahdsr_scale_matrix_p;
@@ -117,10 +117,11 @@ static void init_ui(UI * ui) {
     ui_instances_p = &ui->instances;
     
     init_background(background_p);
+
     init_system_usage_ui(
         ui_system_usage_p,
         DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH,
-        DSANDGRAINS_CHAR_TABLE_ASSET_PATH,
+        DSTUDIO_CHAR_TABLE_ASSET_PATH,
         30, 
         23, 
         104, 
@@ -130,7 +131,14 @@ static void init_ui(UI * ui) {
         -0.03675,
         0.889583
     );
-    init_instances_ui(ui_instances_p);
+
+    init_instances_ui(
+        7,
+        DSANDGRAINS_VIEWPORT_WIDTH,
+        DSANDGRAINS_VIEWPORT_HEIGHT,
+        0.6775,
+        0.360416
+    );
 
     init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
     init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
@@ -255,7 +263,7 @@ static void init_ui(UI * ui) {
         init_slider_array_p = &init_sliders_equalizer_array[i];
         DSTUDIO_INIT_SLIDER(sliders_equalizer_p, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
-    
+
     init_knobs_gpu_side(sample_knobs_p);
     init_knobs_gpu_side(sample_small_knobs_p);
     init_knobs_gpu_side(voice_knobs_p);
@@ -280,8 +288,7 @@ static void init_ui(UI * ui) {
 
     background_scale_matrix_p = &background_p->scale_matrix[0].x;
     ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
-    ui_text_cpu_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
-    ui_text_mem_usage_scale_matrix_p = &ui_system_usage_p->ui_text_mem.scale_matrix[0].x;
+    ui_text_system_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
 
     sample_knobs_scale_matrix_p = &sample_knobs_p->scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs_p->scale_matrix[0].x;
@@ -311,12 +318,19 @@ static void render_viewport() {
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
         render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
 
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_cpu_usage_scale_matrix_p);
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
         render_text(&ui_system_usage_p->ui_text_cpu);
         
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_mem_usage_scale_matrix_p);
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
         render_text(&ui_system_usage_p->ui_text_mem);
+
+        // SCREEN
         
+        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
+        render_text(&ui_instances_p->lines[0]);
+        
+
+
     glUseProgram(interactive_program_id);
         // KNOBS
         motion_type = 0.0;
@@ -346,8 +360,8 @@ static void render_viewport() {
         
         glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
         render_sliders(sliders_dahdsr_lfo_pitch_p);
-
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
+        
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
         render_sliders(sliders_equalizer_p);
 }
 
@@ -359,7 +373,6 @@ void * ui_thread(void * arg) {
     //timespec tStruct = {0};
 
     init_context("DSANDGRAINS",DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-        
     set_mouse_button_callback(mouse_button_callback);
     set_cursor_position_callback(cursor_position_callback);
     	
@@ -405,13 +418,9 @@ void * ui_thread(void * arg) {
     sem_wait(&ui_system_usage_p->mutex);
     ui_system_usage_p->cut_thread = 1;
     sem_post(&ui_system_usage_p->mutex);
-
-    sem_wait(&ui_instances_p->mutex);
-    ui_instances_p->cut_thread = 1;
-    sem_post(&ui_instances_p->mutex);
-
+    
+    exit_instances_thread();
     destroy_context();
-
 
     return NULL;
 }

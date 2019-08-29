@@ -31,7 +31,6 @@
 
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH   "../assets/dsandgrains_background.png"
 #define DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH "../assets/system_usage.png"
-#define DSANDGRAINS_CHAR_TABLE_ASSET_PATH   "../assets/char_table.png"
 
 #define DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND      0
 #define DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE    1

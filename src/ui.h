@@ -20,12 +20,15 @@
 #ifndef DSTUDIO_UI_H_INCLUDED
 #define DSTUDIO_UI_H_INCLUDED
 
-#define DSTUDIO_FRAGMENT_SHADER_PATH "../assets/fragment.shader"
-#define DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH "../assets/interactive_vertex.shader"
-#define DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH "../assets/non_interactive_vertex.shader"
-#define DSANDGRAINS_KNOB1_ASSET_PATH "../assets/knob1.png"
-#define DSANDGRAINS_KNOB2_ASSET_PATH "../assets/knob2.png"
-#define DSANDGRAINS_SLIDER1_ASSET_PATH "../assets/slider1.png"
+#define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
+#define DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH      "../assets/interactive_vertex.shader"
+#define DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH  "../assets/non_interactive_vertex.shader"
+#define DSANDGRAINS_KNOB1_ASSET_PATH                "../assets/knob1.png"
+#define DSANDGRAINS_KNOB2_ASSET_PATH                "../assets/knob2.png"
+#define DSANDGRAINS_SLIDER1_ASSET_PATH              "../assets/slider1.png"
+#define DSTUDIO_CHAR_TABLE_ASSET_PATH               "../assets/char_table.png"
+#define DSTUDIO_CHAR_TABLE_ASSET_WIDTH              104
+#define DSTUDIO_CHAR_TABLE_ASSET_HEIGHT             234
 
 #include "window_management.h"
 
@@ -169,4 +172,8 @@ void init_ui_elements_gpu_side(
 void load_shader(GLchar ** shader_buffer, const char * filename);
 
 void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
+
+void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture);
+void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions);
+
 #endif

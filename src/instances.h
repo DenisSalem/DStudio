@@ -5,16 +5,20 @@
 
 #include "text.h"
 
+char * instances_directory;
+
 typedef struct InstanceContext_t {
-    const char * instance_name;
+    char name[33];
     int identifier;
 } InstanceContext;
 
 typedef struct UIInstances_t {
     UIText * lines;
+    int window_offset;
     sem_t mutex;
     int cut_thread;
     int ready;
+    Vec2 scale_matrix[2];
 } UIInstances;
 
 typedef struct Instances_t {
@@ -23,8 +27,9 @@ typedef struct Instances_t {
     UIInstances * ui;
 } Instances;
 
-void init_instances_ui();
-void new_instance();
+void exit_instances_thread();
+void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y);
+void new_instance(const char * given_directory, const char * process_name, Instances * instances);
 
 // Periodically check if new instances were added
 void * update_instances(void * args);

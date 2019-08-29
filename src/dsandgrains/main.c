@@ -32,11 +32,7 @@ int main(int argc, char ** argv) {
     SystemUsage system_usage = {0};
 
     Instances instances = {0};
-    new_instance(INSTANCES_DIRECTORY, "dsandgrains");
-    instances.contexts = malloc( sizeof(InstanceContext) );
-    if (instances.contexts) {
-        instances.count +=1;
-    }
+    new_instance(INSTANCES_DIRECTORY, "dsandgrains", &instances);
     
     UI ui = {0};
     system_usage.ui = &ui.system_usage;
@@ -45,7 +41,7 @@ int main(int argc, char ** argv) {
     pthread_t ui_thread_id, system_usage_thread_id, instances_thread_id;
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, &system_usage))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, &instances))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, NULL))
     
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
