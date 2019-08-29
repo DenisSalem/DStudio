@@ -128,7 +128,7 @@ static void init_ui(UI * ui) {
         234,
         DSANDGRAINS_VIEWPORT_WIDTH,
         DSANDGRAINS_VIEWPORT_HEIGHT,
-        -0.03675,
+        -0.035,
         0.889583
     );
 
@@ -320,13 +320,11 @@ static void render_viewport() {
 
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
         render_text(&ui_system_usage_p->ui_text_cpu);
-        
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
         render_text(&ui_system_usage_p->ui_text_mem);
 
         // SCREEN
         
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
         render_text(&ui_instances_p->lines[0]);
         
 

@@ -41,7 +41,7 @@ void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned i
     
     init_text(
         &instances->ui->lines[0],
-        0,
+        1,
         33,
         DSTUDIO_CHAR_TABLE_ASSET_PATH,
         viewport_width,
@@ -51,7 +51,7 @@ void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned i
         scale_matrix
     );
     
-    strcpy(instances->ui->lines[0].string_buffer, "gjpTGJP"); //instances->contexts[0].name);
+    strcpy(instances->ui->lines[0].string_buffer, instances->contexts[0].name);
     update_text(&instances->ui->lines[0]);
     sem_init(&instances->ui->mutex, 0, 1);
     instances->ui->ready = 1;

@@ -69,7 +69,7 @@ void init_system_usage_ui(
         DSTUDIO_CHAR_TABLE_ASSET_PATH,
         viewport_width,
         viewport_height,
-        gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
+        gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) viewport_width)),
         gl_y + 0.027083,
         NULL
     );
@@ -80,7 +80,7 @@ void init_system_usage_ui(
         DSTUDIO_CHAR_TABLE_ASSET_PATH,
         viewport_width,
         viewport_height,
-        gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
+        gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) viewport_width)),
         gl_y - 0.027083,
         system_usage->ui_text_cpu.scale_matrix
     );
