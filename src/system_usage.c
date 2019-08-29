@@ -64,10 +64,9 @@ void init_system_usage_ui(
     );
     init_text(
         &system_usage->ui_text_cpu,
+        0,
         6,
-        texture_text_filename,
-        texture_text_width,
-        texture_text_height,
+        DSTUDIO_CHAR_TABLE_ASSET_PATH,
         viewport_width,
         viewport_height,
         gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
@@ -76,16 +75,16 @@ void init_system_usage_ui(
     );
     init_text(
         &system_usage->ui_text_mem,
+        0,
         6,
-        texture_text_filename,
-        texture_text_width,
-        texture_text_height,
+        DSTUDIO_CHAR_TABLE_ASSET_PATH,
         viewport_width,
         viewport_height,
         gl_x + ((GLfloat) (texture_system_usage_width+9) / ((GLfloat) viewport_width)),
         gl_y - 0.027083,
         system_usage->ui_text_cpu.scale_matrix
     );
+    
     sem_init(&system_usage->mutex, 0, 1);
     system_usage->ready = 1;
 }

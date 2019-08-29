@@ -21,7 +21,7 @@
 #include "extensions.h"
 #include "text.h"
 
-void init_text(UIText * ui_text, unsigned int string_size, const char * texture_filename, unsigned int texture_width, unsigned int texture_height, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y, Vec2 * input_scale_matrix) {
+void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const char * texture_filename, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y, Vec2 * input_scale_matrix) {
     Vec2 * scale_matrix = NULL;
     png_bytep texture_buffer;
     get_png_pixel(texture_filename, &texture_buffer, PNG_FORMAT_RGBA);
@@ -42,10 +42,10 @@ void init_text(UIText * ui_text, unsigned int string_size, const char * texture_
     if (input_scale_matrix == NULL) {
         ui_text->scale_matrix = malloc(sizeof(Vec2) * 2);
         scale_matrix = ui_text->scale_matrix;
-        scale_matrix[0].x = ((float) texture_width / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR;
+        scale_matrix[0].x = ((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR;
         scale_matrix[0].y = 0;
         scale_matrix[1].x = 0;
-        scale_matrix[1].y = ((float) texture_height / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR;
+        scale_matrix[1].y = ((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR;
     }
     else {
         ui_text->scale_matrix = input_scale_matrix;
@@ -53,11 +53,11 @@ void init_text(UIText * ui_text, unsigned int string_size, const char * texture_
     }
     
     setup_texture_gpu_side(
-        1,
+        enable_aa,
         1,
         &ui_text->texture_id,
-        texture_width,
-        texture_height,
+        DSTUDIO_CHAR_TABLE_ASSET_WIDTH,
+        DSTUDIO_CHAR_TABLE_ASSET_HEIGHT,
         texture_buffer
     );
     
@@ -66,8 +66,6 @@ void init_text(UIText * ui_text, unsigned int string_size, const char * texture_
     for (int i=0; i < string_size; i++) {
         ui_text->instance_offsets_buffer[i].x = pos_x + i * scale_matrix[0].x * 2;
         ui_text->instance_offsets_buffer[i].y = pos_y;
-        ui_text->instance_offsets_buffer[i].z = 6 / DSTUDIO_CHAR_SIZE_DIVISOR;
-        ui_text->instance_offsets_buffer[i].w = 3 / DSTUDIO_CHAR_SIZE_DIVISOR;
     }
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_text->instance_offsets, ui_text->instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec4) * string_size);
     setup_vertex_array_gpu_side(&ui_text->vertex_array_object, ui_text->vertex_buffer_object, ui_text->instance_offsets, 0);
