@@ -136,7 +136,7 @@ static void init_ui(UI * ui) {
         7,
         DSANDGRAINS_VIEWPORT_WIDTH,
         DSANDGRAINS_VIEWPORT_HEIGHT,
-        0.6775,
+        0.678,
         0.360416
     );
 

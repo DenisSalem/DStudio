@@ -34,15 +34,15 @@ void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned i
     instances->ui->lines = malloc(sizeof(UIText) * lines_number);
     Vec2 * scale_matrix = &instances->ui->scale_matrix[0];
     
-    scale_matrix[0].x = 0.75 * (((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR);
+    scale_matrix[0].x = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR);
     scale_matrix[0].y = 0;
     scale_matrix[1].x = 0;
-    scale_matrix[1].y = 0.75 * (((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR);
+    scale_matrix[1].y = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR);
     
     init_text(
         &instances->ui->lines[0],
         1,
-        33,
+        29,
         DSTUDIO_CHAR_TABLE_ASSET_PATH,
         viewport_width,
         viewport_height,
