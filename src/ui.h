@@ -27,6 +27,7 @@
 #define DSANDGRAINS_KNOB2_ASSET_PATH                "../assets/knob2.png"
 #define DSANDGRAINS_SLIDER1_ASSET_PATH              "../assets/slider1.png"
 #define DSTUDIO_CHAR_TABLE_ASSET_PATH               "../assets/char_table.png"
+#define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
 #define DSTUDIO_CHAR_TABLE_ASSET_WIDTH              104
 #define DSTUDIO_CHAR_TABLE_ASSET_HEIGHT             234
 
