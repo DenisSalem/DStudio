@@ -14,10 +14,12 @@ typedef struct InstanceContext_t {
 
 typedef struct UIInstances_t {
     UIText * lines;
+    int lines_number;
     int window_offset;
     sem_t mutex;
     int cut_thread;
     int ready;
+    int update;
     Vec2 scale_matrix[2];
 } UIInstances;
 
@@ -33,5 +35,5 @@ void new_instance(const char * given_directory, const char * process_name, Insta
 
 // Periodically check if new instances were added
 void * update_instances(void * args);
-
+void * update_instances_text();
 #endif

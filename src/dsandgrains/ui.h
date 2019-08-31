@@ -16,6 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+#include "../knobs.h"
+#include "../sliders.h"
+#include "../system_usage.h"
+#include "../instances.h"
+#include "../text.h"
+#include "../ui.h"
 
 #define DSANDGRAINS_VIEWPORT_WIDTH  800
 #define DSANDGRAINS_VIEWPORT_HEIGHT 480
@@ -34,13 +40,6 @@
 
 #define DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND      0
 #define DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE    1
-
-#include "../knobs.h"
-#include "../sliders.h"
-#include "../system_usage.h"
-#include "../instances.h"
-#include "../text.h"
-#include "../ui.h"
 
 typedef struct UIBackground_t {
     Vec4                vertexes_attributes[4];

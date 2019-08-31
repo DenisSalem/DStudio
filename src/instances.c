@@ -32,6 +32,7 @@ void exit_instances_thread() {
 
 void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y) {
     instances->ui->lines = malloc(sizeof(UIText) * lines_number);
+    instances->ui->lines_number = lines_number;
     Vec2 * scale_matrix = &instances->ui->scale_matrix[0];
     
     scale_matrix[0].x = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR);
@@ -39,20 +40,21 @@ void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned i
     scale_matrix[1].x = 0;
     scale_matrix[1].y = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR);
     
-    init_text(
-        &instances->ui->lines[0],
-        0,
-        29,
-        DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH,
-        viewport_width,
-        viewport_height,
-        pos_x,
-        pos_y,
-        scale_matrix
-    );
-    
-    strcpy(instances->ui->lines[0].string_buffer, instances->contexts[0].name);
-    update_text(&instances->ui->lines[0]);
+    for (int i = 0; i < lines_number; i++) {
+        init_text(
+            &instances->ui->lines[i],
+            0,
+            29,
+            DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH,
+            viewport_width,
+            viewport_height,
+            pos_x,
+            pos_y-i*(11.0/240.0),
+            scale_matrix
+        );
+    }
+    instances->ui->update = 1;
+    send_expose_event();
     sem_init(&instances->ui->mutex, 0, 1);
     instances->ui->ready = 1;
 }
@@ -169,7 +171,7 @@ void * update_instances(void * args) {
             strcat(current_active_instance->name, "Instance ");
             strcat(current_active_instance->name, event->name);
             instances->ui->window_offset++;
-            send_expose_event();
+            instances->ui->update = 1;
 
             #ifdef DSTUDIO_DEBUG
 			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * instances->count);
@@ -187,5 +189,12 @@ void * update_instances(void * args) {
 			printf("Remove instance with id=%s\n", event->name);
             #endif
         }
+    }
+}
+
+void * update_instances_text() {
+    for(int i = 0; i < instances->count; i++) {
+        strcpy(instances->ui->lines[i].string_buffer, instances->contexts[i].name);
+        update_text(&instances->ui->lines[i]);
     }
 }

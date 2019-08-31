@@ -88,12 +88,14 @@ void update_text(UIText * text) {
         char * string_value = text->string_buffer;
         Vec4 * offset_buffer = text->instance_offsets_buffer;
         int linear_coordinate, coordinate_x, coordinate_y;
+        
         for (int i = 0; string_value[i] != 0; i++) {
             if (string_value[i] >= 32 && string_value[i] <= 126) {
                 linear_coordinate = string_value[i] - 32;
             }
             offset_buffer[i].z = (GLfloat) (linear_coordinate % (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
             offset_buffer[i].w = (linear_coordinate / (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
+
         }
         text->actual_string_size = strlen(string_value);
         glBindBuffer(GL_ARRAY_BUFFER, text->instance_offsets);

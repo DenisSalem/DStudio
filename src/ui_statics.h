@@ -18,6 +18,7 @@
 */
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
+    render_mask = DSTUDIO_RENDER_KNOBS;
     float rotation = 0;
 
     float y = - ypos + active_ui_element_center.y;
@@ -41,7 +42,8 @@ static inline float compute_knob_rotation(int xpos, int ypos) {
     return rotation;
 }
 
-static inline float compute_slider_translation(int ypos) {    
+static inline float compute_slider_translation(int ypos) {
+    render_mask = DSTUDIO_RENDER_SLIDERS;
     if (ypos > active_slider_range.y) {
         ypos = active_slider_range.y;
     }

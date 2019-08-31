@@ -52,6 +52,7 @@ static Vec2 active_slider_range;
 static useconds_t framerate = 20000;
 static char first_render = 1;
 static char areas_index = -1;
+static int render_mask = 0;
 
 static GLint scissor_x, scissor_y;
 static GLsizei scissor_width, scissor_height;
@@ -310,61 +311,68 @@ static void render_background(void * obj, int type) {
     }
 }
 
-static void render_viewport() {
+static void render_viewport(int mask) {
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, background_scale_matrix_p);
         render_background(background_p, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
+        // SYSTEM USAGE
+        if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
+            render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
 
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
-        render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
-
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
-        render_text(&ui_system_usage_p->ui_text_cpu);
-        render_text(&ui_system_usage_p->ui_text_mem);
-
-        // SCREEN
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
+            render_text(&ui_system_usage_p->ui_text_cpu);
+            render_text(&ui_system_usage_p->ui_text_mem);
+        }
+        // INSTANCES
+        if (mask & DSTUDIO_RENDER_INSTANCES) {
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
+            for (int i = 0; i < ui_instances_p->lines_number; i++) {
+                render_text(&ui_instances_p->lines[i]);
+            }
+        }
         
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
-        render_text(&ui_instances_p->lines[0]);
-        
-
-
     glUseProgram(interactive_program_id);
         // KNOBS
-        motion_type = 0.0;
-        glUniform1f(motion_type_id, motion_type);
+        if (mask & DSTUDIO_RENDER_KNOBS) {
+            motion_type = 0.0;
+            glUniform1f(motion_type_id, motion_type);
 
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
-        render_knobs(sample_knobs_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
+            render_knobs(sample_knobs_p);
         
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
-        render_knobs(sample_small_knobs_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
+            render_knobs(sample_small_knobs_p);
         
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
-        render_knobs(voice_knobs_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
+            render_knobs(voice_knobs_p);
+        }
 
         // SLIDERS
-        motion_type = 1.0;
-        glUniform1f(motion_type_id, motion_type);
+        if (mask & DSTUDIO_RENDER_SLIDERS) {
+            motion_type = 1.0;
+            glUniform1f(motion_type_id, motion_type);
 
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
-        render_sliders(sliders_dahdsr_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
+            render_sliders(sliders_dahdsr_p);
         
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_pitch_scale_matrix_p);
-        render_sliders(sliders_dahdsr_pitch_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_pitch_scale_matrix_p);
+            render_sliders(sliders_dahdsr_pitch_p);
         
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_scale_matrix_p);
-        render_sliders(sliders_dahdsr_lfo_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_scale_matrix_p);
+            render_sliders(sliders_dahdsr_lfo_p);
         
-        glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
-        render_sliders(sliders_dahdsr_lfo_pitch_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
+            render_sliders(sliders_dahdsr_lfo_pitch_p);
         
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
-        render_sliders(sliders_equalizer_p);
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
+            render_sliders(sliders_equalizer_p);
+        }
 }
 
 // Should be splitted
 void * ui_thread(void * arg) {
+    int redraw_all = 0;
     unsigned int instances_count;
     unsigned int instances_last_id;
     unsigned long int previous_timestamp = 0;
@@ -386,28 +394,39 @@ void * ui_thread(void * arg) {
     while (do_no_exit_loop()) {
         usleep(framerate);
         
-        /* MANAGE INSTANCES */
-        //count_instances(INSTANCES_DIRECTORY, &instances_count, &instances_last_id);
-        //clock_gettime(CLOCK_REALTIME, &tStruct);
-
-        // UPDATE AND RENDER TEXT
-        if (ui_system_usage_p->update) {
-            update_text(&ui_system_usage_p->ui_text_cpu);
-            update_text(&ui_system_usage_p->ui_text_mem);
-
-            glScissor(402, 438, 48, 31);
-            render_viewport();
-        }
-        
         /* RENDER */
         
         if (need_to_redraw_all()) {
             glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-            render_viewport();
+            render_viewport(DSTUDIO_RENDER_ALL);
         }
-        else if (areas_index >= 0) {
-            glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
-            render_viewport();
+        else {
+            if (areas_index >= 0) {
+                glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
+                render_viewport(render_mask);
+            }
+            
+            // UPDATE AND RENDER TEXT
+            sem_wait(&ui_system_usage_p->mutex);
+            if (ui_system_usage_p->update && !redraw_all) {
+                update_text(&ui_system_usage_p->ui_text_cpu);
+                update_text(&ui_system_usage_p->ui_text_mem);
+                glScissor(402, 438, 48, 31);
+                render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
+                ui_system_usage_p->update = 0;
+            }
+            sem_post(&ui_system_usage_p->mutex);
+
+            sem_wait(&ui_instances_p->mutex);
+            if (ui_instances_p->update && !redraw_all) {
+                update_instances_text();
+                glScissor(669, 254, 117, 79);
+                render_viewport(DSTUDIO_RENDER_INSTANCES);
+                ui_instances_p->update = 0;
+            }
+            sem_post(&ui_instances_p->mutex);
+            render_mask = 0;
+
         }
         swap_window_buffer();
         listen_events();

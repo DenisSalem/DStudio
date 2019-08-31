@@ -30,7 +30,11 @@
 #define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
 #define DSTUDIO_CHAR_TABLE_ASSET_WIDTH              104
 #define DSTUDIO_CHAR_TABLE_ASSET_HEIGHT             234
-
+#define DSTUDIO_RENDER_ALL              0xfffffff
+#define DSTUDIO_RENDER_KNOBS            1
+#define DSTUDIO_RENDER_SLIDERS          2
+#define DSTUDIO_RENDER_SYSTEM_USAGE     4
+#define DSTUDIO_RENDER_INSTANCES        8
 #include "window_management.h"
 
 #include <math.h>
