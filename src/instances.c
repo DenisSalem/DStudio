@@ -170,7 +170,9 @@ void * update_instances(void * args) {
             current_active_instance->identifier = 1;
             strcat(current_active_instance->name, "Instance ");
             strcat(current_active_instance->name, event->name);
-            instances->ui->window_offset++;
+            if (instances->count > instances->ui->lines_number) {
+                instances->ui->window_offset++;
+            }
             instances->ui->update = 1;
 
             #ifdef DSTUDIO_DEBUG
@@ -183,7 +185,7 @@ void * update_instances(void * args) {
         }
 		
 		else if (event->mask == IN_DELETE) {
-            instances->count++;
+            instances->count--;
             // Move context data in memory and then realloc
             #ifdef DSTUDIO_DEBUG
 			printf("Remove instance with id=%s\n", event->name);
@@ -193,9 +195,14 @@ void * update_instances(void * args) {
 }
 
 void * update_instances_text() {
-    for(int i = 0; i < instances->count; i++) {
-        if (i < instances->ui->lines_number) {
-            strcpy(instances->ui->lines[i].string_buffer, instances->contexts[i].name);
+    int offset = instances->ui->window_offset;
+    for(int i = 0; i < instances->ui->lines_number; i++) {
+        if (i + offset < instances->count) {
+            strcpy(instances->ui->lines[i].string_buffer, instances->contexts[i+offset].name);
+            update_text(&instances->ui->lines[i]);
+        }
+        else {
+            strcpy(instances->ui->lines[i].string_buffer, "");
             update_text(&instances->ui->lines[i]);
         }
     }
