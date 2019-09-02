@@ -196,7 +196,7 @@ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, G
     scale_matrix[1].y = ((float) texture_scale) / ((float) viewport_height);
 }
 
-void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertex_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_scale, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
+void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertex_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
     DSTUDIO_SET_VERTEX_ATTRIBUTES
     DSTUDIO_SET_S_T_COORDINATES(1.0f, 1.0f)
 
@@ -206,8 +206,8 @@ void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertex_attributes, GLuint *
         enable_aa,
         1,
         texture_id_p,
-        texture_scale,
-        texture_scale,
+        texture_width,
+        texture_height,
         texture
     );
     

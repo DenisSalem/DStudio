@@ -104,5 +104,6 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
     if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
         active_ui_element.callback = NULL;
         areas_index = -1;
+        render_mask = 0;
     }
 }

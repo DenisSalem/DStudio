@@ -62,6 +62,7 @@ void init_knobs_gpu_side(UIKnobs * knobs) {
         &knobs->vertex_buffer_object,
         &knobs->texture_id,
         knobs->texture_scale,
+        knobs->texture_scale,
         knobs->texture,
         &knobs->index_buffer_object,
         knobs->vertex_indexes

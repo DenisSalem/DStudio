@@ -67,6 +67,7 @@ void init_sliders_gpu_side(UISliders * sliders) {
         &sliders->vertex_buffer_object,
         &sliders->texture_id,
         sliders->texture_scale,
+        sliders->texture_scale,
         sliders->texture,
         &sliders->index_buffer_object,
         sliders->vertex_indexes

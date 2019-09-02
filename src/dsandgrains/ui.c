@@ -403,6 +403,7 @@ void * ui_thread(void * arg) {
         else {
             if (areas_index >= 0) {
                 glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
+                printf("%d\n", render_mask);
                 render_viewport(render_mask);
             }
             
@@ -425,8 +426,6 @@ void * ui_thread(void * arg) {
                 ui_instances_p->update = 0;
             }
             sem_post(&ui_instances_p->mutex);
-            render_mask = 0;
-
         }
         swap_window_buffer();
         listen_events();

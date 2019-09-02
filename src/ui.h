@@ -168,7 +168,8 @@ void init_ui_elements_gpu_side(
     Vec4 * vertex_attributes,
     GLuint * vertex_buffer_object_p,
     GLuint * texture_id_p,
-    GLuint texture_scale,
+    GLuint texture_width,
+    GLuint texture_height,
     unsigned char * texture,
     GLuint * index_buffer_object_p,
     GLchar * vertex_indexes
