@@ -60,7 +60,6 @@ typedef struct UICallback_t {
 } UICallback;
 
 typedef struct UI_t {
-    UIBackground        background;
     UIKnobs             sample_knobs;
     UIKnobs             sample_small_knobs;
     UISliders           sliders_dahdsr;
@@ -75,6 +74,6 @@ typedef struct UI_t {
     UIInstances         instances;
 } UI;
 
-static void init_background(UIBackground * background);
+static void init_background();
 
 void * ui_thread(void * arg);

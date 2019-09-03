@@ -43,7 +43,7 @@ static UIKnobs * voice_knobs_p;
 static UISystemUsage * ui_system_usage_p;
 static UIInstances * ui_instances_p;
 
-static UIBackground * background_p;
+static UIBackground background = {0};
 static UIArea * ui_areas;
 static UICallback * ui_callbacks;
 static UICallback active_ui_element = {0};
@@ -76,32 +76,31 @@ static GLfloat motion_type;
 
 #include "../ui_statics.h"
 
-static void init_background(UIBackground * background) {
-    background_p->instance_offsets_buffer.x = 0;
-    background_p->instance_offsets_buffer.y = 0;
-    background_p->instance_offsets_buffer.z = 0;
-    background_p->instance_offsets_buffer.w = 0;
+static void init_background() {
+    background.instance_offsets_buffer.x = 0;
+    background.instance_offsets_buffer.y = 0;
+    background.instance_offsets_buffer.z = 0;
+    background.instance_offsets_buffer.w = 0;
     init_background_element(
-        background->vertex_indexes,
-        background->vertexes_attributes,
-        &background->index_buffer_object,
-        &background->vertex_buffer_object,
+        background.vertex_indexes,
+        background.vertexes_attributes,
+        &background.index_buffer_object,
+        &background.vertex_buffer_object,
         DSANDGRAINS_BACKGROUND_ASSET_PATH,
-        &background->texture,
+        &background.texture,
         0,
-        &background->texture_id,
-        &background->vertex_array_object,
+        &background.texture_id,
+        &background.vertex_array_object,
         800,
         480,
-        background->scale_matrix,
-        &background->instance_offsets,
-        &background->instance_offsets_buffer,
+        background.scale_matrix,
+        &background.instance_offsets,
+        &background.instance_offsets_buffer,
         1
     );
 }
 
-static void init_ui(UI * ui) {
-    background_p = &ui->background;
+static void init_ui(UI * ui) {    
     sample_knobs_p = &ui->sample_knobs;
     sample_small_knobs_p = &ui->sample_small_knobs;
     voice_knobs_p = &ui->voice_knobs;
@@ -112,10 +111,12 @@ static void init_ui(UI * ui) {
     sliders_equalizer_p = &ui->sliders_equalizer;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
+    
+    // Shared
     ui_system_usage_p = &ui->system_usage;
     ui_instances_p = &ui->instances;
     
-    init_background(background_p);
+    init_background(&background);
 
     init_system_usage_ui(
         ui_system_usage_p,
@@ -281,7 +282,7 @@ static void init_ui(UI * ui) {
     interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
 
-    background_scale_matrix_p = &background_p->scale_matrix[0].x;
+    background_scale_matrix_p = &background.scale_matrix[0].x;
     ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
     ui_text_system_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
 
@@ -308,7 +309,7 @@ static void render_background(void * obj, int type) {
 static void render_viewport(int mask) {
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, background_scale_matrix_p);
-        render_background(background_p, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
+        render_background(&background, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
         // SYSTEM USAGE
         if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
