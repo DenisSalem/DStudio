@@ -93,8 +93,6 @@ static void init_background(UIBackground * background) {
         &background->vertex_array_object,
         800,
         480,
-        DSANDGRAINS_VIEWPORT_WIDTH,
-        DSANDGRAINS_VIEWPORT_HEIGHT,
         background->scale_matrix,
         &background->instance_offsets,
         &background->instance_offsets_buffer,
@@ -127,28 +125,24 @@ static void init_ui(UI * ui) {
         23, 
         104, 
         234,
-        DSANDGRAINS_VIEWPORT_WIDTH,
-        DSANDGRAINS_VIEWPORT_HEIGHT,
         -0.035,
         0.889583
     );
 
     init_instances_ui(
         7,
-        DSANDGRAINS_VIEWPORT_WIDTH,
-        DSANDGRAINS_VIEWPORT_HEIGHT,
         0.678,
         0.360416
     );
 
-    init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_sliders_cpu_side(sliders_dahdsr_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_sliders_cpu_side(sliders_dahdsr_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_sliders_cpu_side(sliders_dahdsr_lfo_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_sliders_cpu_side(sliders_dahdsr_lfo_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
-    init_sliders_cpu_side(sliders_equalizer_p, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH,  DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_knobs_cpu_side(sample_knobs_p, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    init_knobs_cpu_side(sample_small_knobs_p, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
+    init_knobs_cpu_side(voice_knobs_p, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    init_sliders_cpu_side(sliders_dahdsr_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(sliders_dahdsr_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(sliders_dahdsr_lfo_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(sliders_dahdsr_lfo_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(sliders_equalizer_p, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
 
     InitUIElementArray init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
@@ -378,7 +372,7 @@ void * ui_thread(void * arg) {
     unsigned long int previous_timestamp = 0;
     //timespec tStruct = {0};
 
-    init_context("DSANDGRAINS",DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+    init_context("DSANDGRAINS", DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
     set_mouse_button_callback(mouse_button_callback);
     set_cursor_position_callback(cursor_position_callback);
     	
@@ -397,13 +391,12 @@ void * ui_thread(void * arg) {
         /* RENDER */
         
         if (need_to_redraw_all()) {
-            glScissor(0, 0, DSANDGRAINS_VIEWPORT_WIDTH, DSANDGRAINS_VIEWPORT_HEIGHT);
+            glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
             render_viewport(DSTUDIO_RENDER_ALL);
         }
         else {
             if (areas_index >= 0) {
                 glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
-                printf("%d\n", render_mask);
                 render_viewport(render_mask);
             }
             

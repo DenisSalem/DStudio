@@ -51,7 +51,7 @@ static inline float compute_slider_translation(int ypos) {
         ypos = active_slider_range.x;
     }
     float translation = - ypos + active_ui_element_center.y;
-    return translation / (DSANDGRAINS_VIEWPORT_HEIGHT >> 1);
+    return translation / (DSTUDIO_VIEWPORT_HEIGHT >> 1);
 }
 
 static void cursor_position_callback(int xpos, int ypos){
@@ -85,7 +85,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                 if (areas_index < 0) {
                     areas_index = i;
                     scissor_x = (GLint) ui_areas[i].min_x;
-                    scissor_y = (GLint) DSANDGRAINS_VIEWPORT_HEIGHT - ui_areas[i].max_y;
+                    scissor_y = (GLint) DSTUDIO_VIEWPORT_HEIGHT - ui_areas[i].max_y;
                     scissor_width = (GLsizei) ui_areas[i].max_x - ui_areas[i].min_x;
                     scissor_height = (GLsizei) ui_areas[i].max_y - ui_areas[i].min_y;
                 }

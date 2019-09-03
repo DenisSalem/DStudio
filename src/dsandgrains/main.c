@@ -27,6 +27,9 @@
 #include "instances.h"
 #include "ui.h"
 
+const unsigned int DSTUDIO_VIEWPORT_WIDTH = 800;
+const unsigned int DSTUDIO_VIEWPORT_HEIGHT = 480;
+
 int main(int argc, char ** argv) {
     DSTUDIO_EXIT_IF_FAILURE(set_physical_memory());
     SystemUsage system_usage = {0};

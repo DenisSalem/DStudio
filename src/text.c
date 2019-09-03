@@ -21,7 +21,7 @@
 #include "extensions.h"
 #include "text.h"
 
-void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const char * texture_filename, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y, Vec2 * input_scale_matrix) {
+void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const char * texture_filename, GLfloat pos_x, GLfloat pos_y, Vec2 * input_scale_matrix) {
     Vec2 * scale_matrix = NULL;
     png_bytep texture_buffer;
     get_png_pixel(texture_filename, &texture_buffer, PNG_FORMAT_RGBA);
@@ -49,10 +49,10 @@ void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const 
     if (input_scale_matrix == NULL) {
         ui_text->scale_matrix = malloc(sizeof(Vec2) * 2);
         scale_matrix = ui_text->scale_matrix;
-        scale_matrix[0].x = ((float) text_texture_width / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR;
+        scale_matrix[0].x = ((float) text_texture_width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR;
         scale_matrix[0].y = 0;
         scale_matrix[1].x = 0;
-        scale_matrix[1].y = ((float) text_texture_height / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR;
+        scale_matrix[1].y = ((float) text_texture_height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
     }
     else {
         ui_text->scale_matrix = input_scale_matrix;

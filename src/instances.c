@@ -30,15 +30,15 @@ void exit_instances_thread() {
     unlink(instance_path);
 }
 
-void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y) {
+void init_instances_ui(int lines_number, GLfloat pos_x, GLfloat pos_y) {
     instances->ui->lines = malloc(sizeof(UIText) * lines_number);
     instances->ui->lines_number = lines_number;
     Vec2 * scale_matrix = &instances->ui->scale_matrix[0];
     
-    scale_matrix[0].x = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) viewport_width) / DSTUDIO_CHAR_SIZE_DIVISOR);
+    scale_matrix[0].x = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR);
     scale_matrix[0].y = 0;
     scale_matrix[1].x = 0;
-    scale_matrix[1].y = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) viewport_height) / DSTUDIO_CHAR_SIZE_DIVISOR);
+    scale_matrix[1].y = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR);
     
     for (int i = 0; i < lines_number; i++) {
         init_text(
@@ -46,8 +46,6 @@ void init_instances_ui(int lines_number, unsigned int viewport_width, unsigned i
             0,
             29,
             DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH,
-            viewport_width,
-            viewport_height,
             pos_x,
             pos_y-i*(11.0/240.0),
             scale_matrix

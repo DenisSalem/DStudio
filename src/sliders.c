@@ -43,7 +43,7 @@ void init_slider(UISliders * sliders, int index, float offset_x, float offset_y)
     );
 }
 
-void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale, const char * texture_filename, int viewport_width, int viewport_height) {
+void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale, const char * texture_filename) {
     init_ui_elements_cpu_side(
         count,
         &sliders->count,
@@ -54,9 +54,7 @@ void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale,
         &sliders->instance_offsets_buffer,
         &sliders->instance_translations_buffer,
         &sliders->vertex_indexes[0],
-        &sliders->scale_matrix[0],
-        viewport_width,
-        viewport_height
+        &sliders->scale_matrix[0]
     );
 }
 

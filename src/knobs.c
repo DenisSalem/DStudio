@@ -38,7 +38,7 @@ void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {
     init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_rotations_buffer[index]);
 }
 
-void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename, int viewport_width, int viewport_height) {
+void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
     init_ui_elements_cpu_side(
         count,
         &knobs->count,
@@ -49,9 +49,7 @@ void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const
         &knobs->instance_offsets_buffer,
         &knobs->instance_rotations_buffer,
         &knobs->vertex_indexes[0],
-        &knobs->scale_matrix[0],
-        viewport_width,
-        viewport_height
+        &knobs->scale_matrix[0]
     );
 }
 

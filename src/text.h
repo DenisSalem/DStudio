@@ -40,7 +40,7 @@ typedef struct UIText_t {
     char *          string_buffer;
 } UIText;
 
-void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const char * texture_filename, unsigned int viewport_width,unsigned int viewport_height, GLfloat pos_x, GLfloat pos_y, Vec2 * scale_matrix);
+void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const char * texture_filename, GLfloat pos_x, GLfloat pos_y, Vec2 * scale_matrix);
 void render_text(UIText * text);
 void update_text(UIText * text);
 #endif

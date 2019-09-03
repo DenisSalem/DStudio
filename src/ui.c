@@ -138,8 +138,6 @@ void init_background_element(
     GLuint * vertex_array_object_p,
     GLuint texture_width,
     GLuint texture_height,
-    GLuint viewport_width,
-    GLuint viewport_height,
     Vec2 * scale_matrix,
     GLuint * instance_offsets_p,
     Vec4 * instance_offsets_buffer,
@@ -150,10 +148,10 @@ void init_background_element(
     DSTUDIO_SET_VERTEX_ATTRIBUTES
     DSTUDIO_SET_S_T_COORDINATES(1.0f, 1.0f)
 
-    scale_matrix[0].x = ((float) texture_width) / ((float) viewport_width);
+    scale_matrix[0].x = ((float) texture_width) / ((float) DSTUDIO_VIEWPORT_WIDTH);
     scale_matrix[0].y = 0;
     scale_matrix[1].x = 0;
-    scale_matrix[1].y = ((float) texture_height) / ((float) viewport_height);
+    scale_matrix[1].y = ((float) texture_height) / ((float) DSTUDIO_VIEWPORT_HEIGHT);
 
     gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_p, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
     gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
@@ -179,7 +177,7 @@ void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, G
     *motion_buffer = 0;
 }
 
-void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, GLuint * texture_scale_p, const char * texture_filename, unsigned char ** texture_p, Vec2 ** offsets_buffer_p, GLfloat ** motions_buffer_p, GLchar * vertex_indexes, Vec2 * scale_matrix, int viewport_width, int viewport_height) {
+void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, GLuint * texture_scale_p, const char * texture_filename, unsigned char ** texture_p, Vec2 ** offsets_buffer_p, GLfloat ** motions_buffer_p, GLchar * vertex_indexes, Vec2 * scale_matrix) {
     *count_p = count;
     *texture_scale_p = texture_scale;
 
@@ -190,10 +188,10 @@ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, G
     
     DSTUDIO_SET_VERTEX_INDEXES
     
-    scale_matrix[0].x = ((float) texture_scale) / ((float) viewport_width);
+    scale_matrix[0].x = ((float) texture_scale) / ((float) DSTUDIO_VIEWPORT_WIDTH);
     scale_matrix[0].y = 0;
     scale_matrix[1].x = 0;
-    scale_matrix[1].y = ((float) texture_scale) / ((float) viewport_height);
+    scale_matrix[1].y = ((float) texture_scale) / ((float) DSTUDIO_VIEWPORT_HEIGHT);
 }
 
 void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertex_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
@@ -253,6 +251,23 @@ void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLu
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     free(texture);
+}
+
+GLuint setup_texture(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename) {
+    GLuint texture_id = 0;
+    unsigned char * texture_data = 0;
+    get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
+
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, alpha ? GL_RGBA : GL_RGB, texture_width, texture_height, 0, alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, texture_data);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, enable_aa ? GL_LINEAR : GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, enable_aa ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST );
+        glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    free(texture_data);
 }
 
 void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions) {

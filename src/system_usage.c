@@ -33,8 +33,6 @@ void init_system_usage_ui(
     unsigned int texture_system_usage_height,
     unsigned int texture_text_width,
     unsigned int texture_text_height,
-    unsigned int viewport_width,
-    unsigned int viewport_height,
     GLfloat gl_x,
     GLfloat gl_y
 ) {  
@@ -55,8 +53,6 @@ void init_system_usage_ui(
         &system_usage->vertex_array_object,
         texture_system_usage_width,
         texture_system_usage_height,
-        viewport_width,
-        viewport_height,
         system_usage->scale_matrix,
         &system_usage->instance_offsets,
         &system_usage->instance_offsets_buffer,
@@ -67,9 +63,7 @@ void init_system_usage_ui(
         0,
         6,
         DSTUDIO_CHAR_TABLE_ASSET_PATH,
-        viewport_width,
-        viewport_height,
-        gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) viewport_width)),
+        gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH)),
         gl_y + 0.027083,
         NULL
     );
@@ -78,9 +72,7 @@ void init_system_usage_ui(
         0,
         6,
         DSTUDIO_CHAR_TABLE_ASSET_PATH,
-        viewport_width,
-        viewport_height,
-        gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) viewport_width)),
+        gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH)),
         gl_y - 0.027083,
         system_usage->ui_text_cpu.scale_matrix
     );

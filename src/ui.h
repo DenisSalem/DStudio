@@ -20,6 +20,13 @@
 #ifndef DSTUDIO_UI_H_INCLUDED
 #define DSTUDIO_UI_H_INCLUDED
 
+#include <math.h>
+#include <png.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "window_management.h"
+
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
 #define DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH      "../assets/interactive_vertex.shader"
 #define DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH  "../assets/non_interactive_vertex.shader"
@@ -35,12 +42,9 @@
 #define DSTUDIO_RENDER_SLIDERS          2
 #define DSTUDIO_RENDER_SYSTEM_USAGE     4
 #define DSTUDIO_RENDER_INSTANCES        8
-#include "window_management.h"
 
-#include <math.h>
-#include <png.h>
-#include <string.h>
-#include <stdlib.h>
+extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
+extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 
 #define DSTUDIO_SET_AREA(index, mn_x, mx_x, mn_y, mx_y) \
     ui_areas[index].min_x = mn_x; \
@@ -139,8 +143,6 @@ void init_background_element(
     GLuint * vertex_array_object_p,
     GLuint texture_width,
     GLuint texture_height,
-    GLuint viewport_width,
-    GLuint viewport_height,
     Vec2 * scale_matrix,
     GLuint * instance_offsets_p,
     Vec4 * instance_offsets_buffer,
@@ -158,9 +160,7 @@ void init_ui_elements_cpu_side(
     Vec2 ** offsets_buffer_p,
     GLfloat ** motions_buffer_p,
     GLchar * vertex_indexes,
-    Vec2 * scale_matrix,
-    int viewport_width,
-    int viewport_height
+    Vec2 * scale_matrix
 );
 
 void init_ui_elements_gpu_side(
@@ -180,6 +180,7 @@ void load_shader(GLchar ** shader_buffer, const char * filename);
 void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
 
 void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture);
+GLuint setup_texture(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename);
 void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions);
 
 #endif
