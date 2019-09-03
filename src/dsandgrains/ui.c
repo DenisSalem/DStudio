@@ -32,11 +32,6 @@
 #include "instances.h"
 #include "ui.h"
 
-static UISliders * sliders_dahdsr_p;
-static UISliders * sliders_dahdsr_pitch_p;
-static UISliders * sliders_dahdsr_lfo_p;
-static UISliders * sliders_dahdsr_lfo_pitch_p;
-static UISliders * sliders_equalizer_p;
 static UISystemUsage * ui_system_usage_p;
 static UIInstances * ui_instances_p;
 
@@ -44,6 +39,11 @@ static UIBackground background = {0};
 static UIKnobs sample_knobs = {0};
 static UIKnobs sample_small_knobs = {0};
 static UIKnobs voice_knobs = {0};
+static UISliders sliders_dahdsr = {0};
+static UISliders sliders_dahdsr_pitch = {0};
+static UISliders sliders_dahdsr_lfo = {0};
+static UISliders sliders_dahdsr_lfo_pitch = {0};
+static UISliders sliders_equalizer = {0};
 
 static UIArea * ui_areas;
 static UICallback * ui_callbacks;
@@ -102,11 +102,6 @@ static void init_background() {
 }
 
 static void init_ui(UI * ui) {    
-    sliders_dahdsr_p = &ui->sliders_dahdsr;
-    sliders_dahdsr_pitch_p = &ui->sliders_dahdsr_pitch;
-    sliders_dahdsr_lfo_p = &ui->sliders_dahdsr_lfo;
-    sliders_dahdsr_lfo_pitch_p = &ui->sliders_dahdsr_lfo_pitch;
-    sliders_equalizer_p = &ui->sliders_equalizer;
     ui_areas = &ui->areas[0];
     ui_callbacks = &ui->callbacks[0];
     
@@ -137,11 +132,11 @@ static void init_ui(UI * ui) {
     init_knobs_cpu_side(&sample_knobs, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
     init_knobs_cpu_side(&sample_small_knobs, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
     init_knobs_cpu_side(&voice_knobs, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
-    init_sliders_cpu_side(sliders_dahdsr_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(sliders_dahdsr_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(sliders_dahdsr_lfo_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(sliders_dahdsr_lfo_pitch_p, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(sliders_equalizer_p, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(&sliders_dahdsr, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(&sliders_dahdsr_pitch, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(&sliders_dahdsr_lfo, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(&sliders_dahdsr_lfo_pitch, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    init_sliders_cpu_side(&sliders_equalizer, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
 
     InitUIElementArray init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
@@ -197,7 +192,7 @@ static void init_ui(UI * ui) {
     
     for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
         init_slider_array_p = &init_sliders_dahdsr_array[i];
-        DSTUDIO_INIT_SLIDER(sliders_dahdsr_p, i, gl_x, gl_y, 21+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_SLIDER(&sliders_dahdsr, i, gl_x, gl_y, 21+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
     
     InitUIElementArray init_sliders_dahdsr_pitch_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
@@ -211,7 +206,7 @@ static void init_ui(UI * ui) {
     
     for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
         init_slider_array_p = &init_sliders_dahdsr_pitch_array[i];
-        DSTUDIO_INIT_SLIDER(sliders_dahdsr_pitch_p, i, gl_x, gl_y, 27+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_SLIDER(&sliders_dahdsr_pitch, i, gl_x, gl_y, 27+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
 
     InitUIElementArray init_sliders_dahdsr_lfo_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
@@ -225,7 +220,7 @@ static void init_ui(UI * ui) {
     
     for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
         init_slider_array_p = &init_sliders_dahdsr_lfo_array[i];
-        DSTUDIO_INIT_SLIDER(sliders_dahdsr_lfo_p, i, gl_x, gl_y, 33+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_SLIDER(&sliders_dahdsr_lfo, i, gl_x, gl_y, 33+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
 
     InitUIElementArray init_sliders_dahdsr_lfo_pitch_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
@@ -239,7 +234,7 @@ static void init_ui(UI * ui) {
     
     for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
         init_slider_array_p = &init_sliders_dahdsr_lfo_pitch_array[i];
-        DSTUDIO_INIT_SLIDER(sliders_dahdsr_lfo_pitch_p, i, gl_x, gl_y, 39+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_SLIDER(&sliders_dahdsr_lfo_pitch, i, gl_x, gl_y, 39+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
 
     InitUIElementArray init_sliders_equalizer_array[DSANDGRAINS_EQUALIZER_SLIDERS_COUNT] = {
@@ -255,26 +250,26 @@ static void init_ui(UI * ui) {
     
     for (int i = 0; i < DSANDGRAINS_EQUALIZER_SLIDERS_COUNT; i++) {
         init_slider_array_p = &init_sliders_equalizer_array[i];
-        DSTUDIO_INIT_SLIDER(sliders_equalizer_p, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        DSTUDIO_INIT_SLIDER(&sliders_equalizer, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
 
     init_knobs_gpu_side(&sample_knobs);
     init_knobs_gpu_side(&sample_small_knobs);
     init_knobs_gpu_side(&voice_knobs);
-    init_sliders_gpu_side(sliders_dahdsr_p);
-    init_sliders_gpu_side(sliders_dahdsr_pitch_p);
-    init_sliders_gpu_side(sliders_dahdsr_lfo_p);
-    init_sliders_gpu_side(sliders_dahdsr_lfo_pitch_p);
-    init_sliders_gpu_side(sliders_equalizer_p);
+    init_sliders_gpu_side(&sliders_dahdsr);
+    init_sliders_gpu_side(&sliders_dahdsr_pitch);
+    init_sliders_gpu_side(&sliders_dahdsr_lfo);
+    init_sliders_gpu_side(&sliders_dahdsr_lfo_pitch);
+    init_sliders_gpu_side(&sliders_equalizer);
     
     finalize_knobs(&sample_knobs);
     finalize_knobs(&sample_small_knobs);
     finalize_knobs(&voice_knobs);
-    finalize_sliders(sliders_dahdsr_p);
-    finalize_sliders(sliders_dahdsr_pitch_p);
-    finalize_sliders(sliders_dahdsr_lfo_p);
-    finalize_sliders(sliders_dahdsr_lfo_pitch_p);
-    finalize_sliders(sliders_equalizer_p);
+    finalize_sliders(&sliders_dahdsr);
+    finalize_sliders(&sliders_dahdsr_pitch);
+    finalize_sliders(&sliders_dahdsr_lfo);
+    finalize_sliders(&sliders_dahdsr_lfo_pitch);
+    finalize_sliders(&sliders_equalizer);
 
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
     interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
@@ -288,11 +283,11 @@ static void init_ui(UI * ui) {
     sample_small_knobs_scale_matrix_p = &sample_small_knobs.scale_matrix[0].x;
     voice_knobs_scale_matrix_p = &voice_knobs.scale_matrix[0].x;
 
-    sliders_dahdsr_scale_matrix_p = &sliders_dahdsr_p->scale_matrix[0].x;
-    sliders_dahdsr_pitch_scale_matrix_p = &sliders_dahdsr_pitch_p->scale_matrix[0].x;
-    sliders_dahdsr_lfo_scale_matrix_p = &sliders_dahdsr_lfo_p->scale_matrix[0].x;
-    sliders_dahdsr_lfo_pitch_scale_matrix_p = &sliders_dahdsr_lfo_pitch_p->scale_matrix[0].x;
-    sliders_equalizer_scale_matrix_p = &sliders_equalizer_p->scale_matrix[0].x;
+    sliders_dahdsr_scale_matrix_p = &sliders_dahdsr.scale_matrix[0].x;
+    sliders_dahdsr_pitch_scale_matrix_p = &sliders_dahdsr_pitch.scale_matrix[0].x;
+    sliders_dahdsr_lfo_scale_matrix_p = &sliders_dahdsr_lfo.scale_matrix[0].x;
+    sliders_dahdsr_lfo_pitch_scale_matrix_p = &sliders_dahdsr_lfo_pitch.scale_matrix[0].x;
+    sliders_equalizer_scale_matrix_p = &sliders_equalizer.scale_matrix[0].x;
 }
 
 static void render_background(void * obj, int type) {
@@ -347,19 +342,19 @@ static void render_viewport(int mask) {
             glUniform1f(motion_type_id, motion_type);
 
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
-            render_sliders(sliders_dahdsr_p);
+            render_sliders(&sliders_dahdsr);
         
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_pitch_scale_matrix_p);
-            render_sliders(sliders_dahdsr_pitch_p);
+            render_sliders(&sliders_dahdsr_pitch);
         
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_scale_matrix_p);
-            render_sliders(sliders_dahdsr_lfo_p);
+            render_sliders(&sliders_dahdsr_lfo);
         
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
-            render_sliders(sliders_dahdsr_lfo_pitch_p);
+            render_sliders(&sliders_dahdsr_lfo_pitch);
         
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
-            render_sliders(sliders_equalizer_p);
+            render_sliders(&sliders_equalizer);
         }
 }
 
