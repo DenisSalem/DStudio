@@ -60,14 +60,11 @@ typedef struct UICallback_t {
 } UICallback;
 
 typedef struct UI_t {
-    UIKnobs             sample_knobs;
-    UIKnobs             sample_small_knobs;
     UISliders           sliders_dahdsr;
     UISliders           sliders_dahdsr_pitch;
     UISliders           sliders_dahdsr_lfo;
     UISliders           sliders_dahdsr_lfo_pitch;
     UISliders           sliders_equalizer;
-    UIKnobs             voice_knobs;
     UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UISystemUsage       system_usage;
