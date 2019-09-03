@@ -40,10 +40,11 @@ typedef struct UIKnobs_t {
 } UIKnobs;
 
 void finalize_knobs(UIKnobs * knobs);
-void init_knob(UIKnobs * knobs, int index, float x, float y);
+void init_knob(UIElements * knobs, int index, float x, float y);
 void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename);
 void init_knobs_gpu_side(UIKnobs * knobs);
-void render_knobs(UIKnobs * knobs);
+//void render_knobs(UIKnobs * knobs);
+void render_knobs(UIElements * knobs);
 void update_knob(int index, void * context, void * args);
 
 #define DSTUDIO_INIT_KNOB(knobs_p, knob_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \

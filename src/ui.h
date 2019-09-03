@@ -80,6 +80,7 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
     vertex_attributes[3].z = x; \
     vertex_attributes[3].w = y;
     
+// Might not be used anymore because of generalization of ui elements
 #define DSTUDIO_SET_VERTEX_INDEXES \
     vertex_indexes[0] = 0; \
     vertex_indexes[1] = 1; \
@@ -89,6 +90,41 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 #define DSTUDIO_KNOB_TYPE_1 1
 #define DSTUDIO_KNOB_TYPE_2 2
 #define DSTUDIO_SLIDER_TYPE_1 4
+
+typedef struct Vec4_t {
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+    GLfloat w;
+} Vec4;
+
+typedef struct vec2_t {
+    GLfloat x;
+    GLfloat y;
+} Vec2;
+
+typedef struct UITexture_t {
+    GLuint id;
+    GLuint width;
+    GLuint height;
+} UITexture;
+
+typedef struct UIElement_t {
+    unsigned                    count;
+    GLuint                      index_buffer_object;
+    GLuint                      instance_offsets;
+    GLfloat *                   instance_offsets_buffer; /* May be allocated either as array of Vec2 or Vec4 */
+    GLuint                      instance_motions;
+    GLfloat  *                  instance_motions_buffer;
+    Vec2                        scale_matrix[2];
+    unsigned char *             texture;
+    GLuint                      texture_id;
+    GLuint                      texture_scale;
+    GLuint                      vertex_array_object;
+    Vec4                        vertex_attributes[4];  
+    GLuint                      vertex_buffer_object;
+    GLchar                      vertex_indexes[4];
+} UIElements;
 
 typedef struct init_ui_element_array_t {
     GLfloat gl_x;
@@ -108,18 +144,6 @@ typedef struct UIArea_t {
     float x;
     float y;
 } UIArea;
-
-typedef struct Vec4_t {
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-    GLfloat w;
-} Vec4;
-
-typedef struct vec2_t {
-    GLfloat x;
-    GLfloat y;
-} Vec2;
 
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);
 
@@ -148,7 +172,9 @@ void init_background_element(
     Vec4 * instance_offsets_buffer,
     GLuint count
     );
-    
+
+void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interactive, unsigned int count);
+
 void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
 
 void init_ui_elements_cpu_side(
@@ -180,7 +206,7 @@ void load_shader(GLchar ** shader_buffer, const char * filename);
 void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
 
 void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture);
-GLuint setup_texture(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename);
+GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix);
 void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions);
 
 #endif

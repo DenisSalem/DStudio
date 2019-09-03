@@ -171,6 +171,76 @@ void init_background_element(
     setup_vertex_array_gpu_side(vertex_array_object_p, *vertex_buffer_object_p, *instance_offsets_p, 0);
 }
 
+void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interactive, unsigned int count) {
+    /* Copy texture identifier */
+    ui_elements->texture_id = texture_id;
+    
+    /* Setting vertex indexes */
+    GLchar * vertex_indexes = ui_elements->vertex_indexes;
+    vertex_indexes[0] = 0;
+    vertex_indexes[1] = 1;
+    vertex_indexes[2] = 2;
+    vertex_indexes[3] = 3;
+    gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, &ui_elements->index_buffer_object, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
+    
+    /* Setting default vertex coordinates */
+    Vec4 * vertex_attributes = ui_elements->vertex_attributes;
+    vertex_attributes[0].x = -1.0;
+    vertex_attributes[0].y = 1.0;
+    vertex_attributes[1].x = -1.0;
+    vertex_attributes[1].y = -1.0;
+    vertex_attributes[2].x =  1.0;
+    vertex_attributes[2].y =  1.0;
+    vertex_attributes[3].x =  1.0;
+    vertex_attributes[3].y = -1.0;
+    
+    /* Setting default texture coordinates */
+    
+    //~ vertex_attributes[0].z = 0.0f;
+    //~ vertex_attributes[0].w = 0.0f;
+    //~ vertex_attributes[1].z = 0.0f;
+    vertex_attributes[1].w = 1.0;
+    vertex_attributes[2].z = 1.0;
+    //~ vertex_attributes[2].w = 0.0f;
+    vertex_attributes[3].z = 1.0;
+    vertex_attributes[3].w = 1.0;
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
+    
+    /* Setting instance buffers */
+    ui_elements->instance_offsets_buffer = malloc(count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
+    explicit_bzero(ui_elements->instance_offsets_buffer, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
+
+    if (interactive) {
+        ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
+        gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
+    }
+    
+    /* Setting vertex array */
+    glGenVertexArrays(1, &ui_elements->vertex_array_object);
+    glBindVertexArray(ui_elements->vertex_array_object);
+        glBindBuffer(GL_ARRAY_BUFFER, ui_elements->vertex_buffer_object);         
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribDivisor(0, 0);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
+            glEnableVertexAttribArray(1);
+            glVertexAttribDivisor(1, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
+            // If there is no motions required, it means that we might want to offset texture coordinates instead */
+            glVertexAttribPointer(2, interactive ? 2 : 4, GL_FLOAT, GL_FALSE, interactive ? sizeof(Vec2) : sizeof(Vec4), (GLvoid *) 0 );
+            glEnableVertexAttribArray(2);
+            glVertexAttribDivisor(2, 1);
+            if (interactive) {
+                glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_motions);
+                    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
+                    glEnableVertexAttribArray(3);
+                    glVertexAttribDivisor(3, 1);
+            }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
 void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer) {
     instance_offset_p->x = offset_x;
     instance_offset_p->y = offset_y;
@@ -185,6 +255,7 @@ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, G
 
     *offsets_buffer_p = malloc(count * sizeof(Vec2));
     *motions_buffer_p = malloc(count * sizeof(GLfloat));
+    
     
     DSTUDIO_SET_VERTEX_INDEXES
     
@@ -253,7 +324,7 @@ void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLu
     free(texture);
 }
 
-GLuint setup_texture(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename) {
+GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix) {
     GLuint texture_id = 0;
     unsigned char * texture_data = 0;
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
@@ -268,6 +339,16 @@ GLuint setup_texture(int enable_aa, int alpha, GLuint texture_width, GLuint text
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     free(texture_data);
+    
+    /* Setting scale matrix if not NULL */
+    if (scale_matrix) {
+        scale_matrix[0].x = ((float) texture_width) / ((float) DSTUDIO_VIEWPORT_WIDTH);
+        scale_matrix[0].y = 0;
+        scale_matrix[1].x = 0;
+        scale_matrix[1].y = ((float) texture_height) / ((float) DSTUDIO_VIEWPORT_HEIGHT);
+    }
+    
+    return texture_id;
 }
 
 void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions) {
@@ -284,7 +365,7 @@ void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buf
             glVertexAttribPointer(2, instance_motions ? 2 : 4, GL_FLOAT, GL_FALSE, instance_motions ? sizeof(Vec2) : sizeof(Vec4), (GLvoid *) 0 );
             glEnableVertexAttribArray(2);
             glVertexAttribDivisor(2, 1);
-            if (instance_offsets) {
+            if (instance_motions) {
                 glBindBuffer(GL_ARRAY_BUFFER, instance_motions);
                     glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
                     glEnableVertexAttribArray(3);

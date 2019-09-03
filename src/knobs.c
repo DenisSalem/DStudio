@@ -34,7 +34,7 @@ void finalize_knobs(UIKnobs * knobs) {
     );
 }
 
-void init_knob(UIKnobs * knobs, int index, float offset_x, float offset_y) {    
+void init_knob(UIElements * knobs, int index, float offset_x, float offset_y) {    
     init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_rotations_buffer[index]);
 }
 
@@ -67,7 +67,11 @@ void init_knobs_gpu_side(UIKnobs * knobs) {
     );
 }
 
-void render_knobs(UIKnobs * knobs) {    
+//~ void render_knobs(UIKnobs * knobs) {    
+    //~ render_ui_elements(knobs->texture_id, knobs->vertex_array_object, knobs->index_buffer_object, knobs->count);
+//~ }
+
+void render_knobs(UIElements * knobs) {    
     render_ui_elements(knobs->texture_id, knobs->vertex_array_object, knobs->index_buffer_object, knobs->count);
 }
 

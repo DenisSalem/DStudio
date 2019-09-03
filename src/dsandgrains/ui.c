@@ -35,8 +35,14 @@
 static UISystemUsage * ui_system_usage_p;
 static UIInstances * ui_instances_p;
 
-static UIBackground background = {0};
-static UIKnobs sample_knobs = {0};
+/* Background */
+static UIElements background = {0};
+static Vec2 background_scale_matrix[2] = {0};
+
+/* Knobs 1 */
+static UIElements sample_knobs = {0};
+static Vec2 knob1_scale_matrix[2] = {0};
+
 static UIKnobs sample_small_knobs = {0};
 static UIKnobs voice_knobs = {0};
 static UISliders sliders_dahdsr = {0};
@@ -62,7 +68,6 @@ static GLuint interactive_program_id, non_interactive_program_id;
 static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id, background_element_offset_id;
 static GLuint motion_type_id;
 
-static const GLfloat * background_scale_matrix_p;
 static const GLfloat * ui_system_usage_scale_matrix_p;
 static const GLfloat * ui_text_system_usage_scale_matrix_p;
 static const GLfloat * sample_knobs_scale_matrix_p;
@@ -77,40 +82,19 @@ static GLfloat motion_type;
 
 #include "../ui_statics.h"
 
-static void init_background() {
-    background.instance_offsets_buffer.x = 0;
-    background.instance_offsets_buffer.y = 0;
-    background.instance_offsets_buffer.z = 0;
-    background.instance_offsets_buffer.w = 0;
-    init_background_element(
-        background.vertex_indexes,
-        background.vertexes_attributes,
-        &background.index_buffer_object,
-        &background.vertex_buffer_object,
-        DSANDGRAINS_BACKGROUND_ASSET_PATH,
-        &background.texture,
-        0,
-        &background.texture_id,
-        &background.vertex_array_object,
-        800,
-        480,
-        background.scale_matrix,
-        &background.instance_offsets,
-        &background.instance_offsets_buffer,
-        1
-    );
-}
-
 static void init_ui(UI * ui) {    
-    ui_areas = &ui->areas[0];
-    ui_callbacks = &ui->callbacks[0];
-    
-    // Shared
+    /* Setup shared memory */
     ui_system_usage_p = &ui->system_usage;
     ui_instances_p = &ui->instances;
     
-    init_background(&background);
-
+    /* Load shared texture and prepare shared scale_matrix */
+    GLuint background_texture_id = setup_texture_n_scale_matrix(0, 0, 800, 480, DSANDGRAINS_BACKGROUND_ASSET_PATH, background_scale_matrix);
+    GLuint knob1_texture_id = setup_texture_n_scale_matrix(1, 1, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, knob1_scale_matrix);
+    
+    /* might be removedo */
+    ui_areas = &ui->areas[0];
+    ui_callbacks = &ui->callbacks[0];
+    
     init_system_usage_ui(
         ui_system_usage_p,
         DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH,
@@ -129,9 +113,9 @@ static void init_ui(UI * ui) {
         0.360416
     );
 
-    init_knobs_cpu_side(&sample_knobs, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
-    init_knobs_cpu_side(&sample_small_knobs, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
-    init_knobs_cpu_side(&voice_knobs, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    //init_knobs_cpu_side(&sample_knobs, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
+    //~ init_knobs_cpu_side(&sample_small_knobs, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
+    //~ init_knobs_cpu_side(&voice_knobs, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
     init_sliders_cpu_side(&sliders_dahdsr, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
     init_sliders_cpu_side(&sliders_dahdsr_pitch, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
     init_sliders_cpu_side(&sliders_dahdsr_lfo, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
@@ -170,14 +154,14 @@ static void init_ui(UI * ui) {
         DSTUDIO_INIT_KNOB(&sample_knobs, i, gl_x, gl_y, i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
     
-    for (int i = 0; i < DSANDGRAINS_SAMPLE_SMALL_KNOBS; i++) {
-        init_knob_array_p = &init_knobs_array[8+i];
-        DSTUDIO_INIT_KNOB(&sample_small_knobs, i, gl_x, gl_y, 8+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
-    for (int i = 0; i < DSANDGRAINS_VOICE_KNOBS; i++) {
-        init_knob_array_p = &init_knobs_array[18+i];
-        DSTUDIO_INIT_KNOB(&voice_knobs, i, gl_x, gl_y, 18+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
+    //~ for (int i = 0; i < DSANDGRAINS_SAMPLE_SMALL_KNOBS; i++) {
+        //~ init_knob_array_p = &init_knobs_array[8+i];
+        //~ DSTUDIO_INIT_KNOB(&sample_small_knobs, i, gl_x, gl_y, 8+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
+    //~ for (int i = 0; i < DSANDGRAINS_VOICE_KNOBS; i++) {
+        //~ init_knob_array_p = &init_knobs_array[18+i];
+        //~ DSTUDIO_INIT_KNOB(&voice_knobs, i, gl_x, gl_y, 18+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
 
     InitUIElementArray * init_slider_array_p;
 
@@ -252,17 +236,21 @@ static void init_ui(UI * ui) {
         init_slider_array_p = &init_sliders_equalizer_array[i];
         DSTUDIO_INIT_SLIDER(&sliders_equalizer, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     }
-
-    init_knobs_gpu_side(&sample_knobs);
-    init_knobs_gpu_side(&sample_small_knobs);
-    init_knobs_gpu_side(&voice_knobs);
-    init_sliders_gpu_side(&sliders_dahdsr);
-    init_sliders_gpu_side(&sliders_dahdsr_pitch);
-    init_sliders_gpu_side(&sliders_dahdsr_lfo);
-    init_sliders_gpu_side(&sliders_dahdsr_lfo_pitch);
-    init_sliders_gpu_side(&sliders_equalizer);
     
-    finalize_knobs(&sample_knobs);
+    /* Inits ui elements */
+    init_ui_elements(&background, background_texture_id, 0, 1);
+    init_ui_elements(&sample_knobs, knob1_texture_id, 1, 8);
+    
+    //init_knobs_gpu_side(&sample_knobs);
+    //~ init_knobs_gpu_side(&sample_small_knobs);
+    //~ init_knobs_gpu_side(&voice_knobs);
+    //~ init_sliders_gpu_side(&sliders_dahdsr);
+    //~ init_sliders_gpu_side(&sliders_dahdsr_pitch);
+    //~ init_sliders_gpu_side(&sliders_dahdsr_lfo);
+    //~ init_sliders_gpu_side(&sliders_dahdsr_lfo_pitch);
+    //~ init_sliders_gpu_side(&sliders_equalizer);
+    
+    //finalize_knobs(&sample_knobs);
     finalize_knobs(&sample_small_knobs);
     finalize_knobs(&voice_knobs);
     finalize_sliders(&sliders_dahdsr);
@@ -275,11 +263,11 @@ static void init_ui(UI * ui) {
     interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
 
-    background_scale_matrix_p = &background.scale_matrix[0].x;
+    //background_scale_matrix_p = &background.scale_matrix[0].x;
     ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
     ui_text_system_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
 
-    sample_knobs_scale_matrix_p = &sample_knobs.scale_matrix[0].x;
+    //sample_knobs_scale_matrix_p = &sample_knobs.scale_matrix[0].x;
     sample_small_knobs_scale_matrix_p = &sample_small_knobs.scale_matrix[0].x;
     voice_knobs_scale_matrix_p = &voice_knobs.scale_matrix[0].x;
 
@@ -292,7 +280,7 @@ static void init_ui(UI * ui) {
 
 static void render_background(void * obj, int type) {
     if (type == DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND) {
-        render_ui_elements( ((UIBackground * ) obj)->texture_id, ((UIBackground * ) obj)->vertex_array_object, ((UIBackground * ) obj)->index_buffer_object, 1);
+        render_ui_elements( ((UIElements * ) obj)->texture_id, ((UIElements * ) obj)->vertex_array_object, ((UIElements* ) obj)->index_buffer_object, 1);
     }
     else if (type == DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE){
         render_ui_elements( ((UISystemUsage * ) obj)->texture_id, ((UISystemUsage * ) obj)->vertex_array_object, ((UISystemUsage * ) obj)->index_buffer_object, 1);
@@ -301,7 +289,7 @@ static void render_background(void * obj, int type) {
 
 static void render_viewport(int mask) {
     glUseProgram(non_interactive_program_id);
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, background_scale_matrix_p);
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) background_scale_matrix);
         render_background(&background, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
         // SYSTEM USAGE
         if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
@@ -326,14 +314,14 @@ static void render_viewport(int mask) {
             motion_type = 0.0;
             glUniform1f(motion_type_id, motion_type);
 
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_knobs_scale_matrix_p);
+            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) knob1_scale_matrix);
             render_knobs(&sample_knobs);
         
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
-            render_knobs(&sample_small_knobs);
+            //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
+            //~ render_knobs(&sample_small_knobs);
         
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
-            render_knobs(&voice_knobs);
+            //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, voice_knobs_scale_matrix_p);
+            //~ render_knobs(&voice_knobs);
         }
 
         // SLIDERS
