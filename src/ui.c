@@ -45,6 +45,46 @@ void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
     #endif
 }
 
+void configure_ui_element(UIElements * ui_elements, UIElementSettingParams * params) {
+    UIElementSetting * configure_ui_element_p;
+    UIElementSetting * configure_ui_element_array = params->settings;
+    UIArea * ui_areas = params->areas;
+    UICallback * ui_callbacks = params->callbacks;
+    
+    unsigned int array_offset = params->array_offset;
+    printf("count %d\n", ui_elements->count);
+    for (int i = 0; i < ui_elements->count; i++) {
+        printf("%d\n", i);
+        configure_ui_element_p = &configure_ui_element_array[array_offset+i];
+        //DSTUDIO_INIT_KNOB(&sample_knobs, i, gl_x, gl_y, array_offset+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+        if (ui_elements->interactive) {
+            ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
+            ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
+        }
+        else {
+            ( (Vec4 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
+            ( (Vec4 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
+        }
+        ui_elements->instance_motions_buffer[i] = 0;
+
+        DSTUDIO_SET_AREA(
+            array_offset+i,
+            configure_ui_element_p->min_area_x,
+            configure_ui_element_p->max_area_x,
+            configure_ui_element_p->min_area_y,
+            configure_ui_element_p->max_area_y
+        )
+        DSTUDIO_SET_UI_CALLBACK(
+            array_offset+i,
+            params->update_callback,
+            i,
+            ui_elements,
+            configure_ui_element_p->ui_element_type
+        );
+    
+    }
+}
+
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id) {
     GLchar * shader_buffer = NULL;
     // NON INTERACTIVE VERTEX SHADER
@@ -171,7 +211,10 @@ void init_background_element(
     setup_vertex_array_gpu_side(vertex_array_object_p, *vertex_buffer_object_p, *instance_offsets_p, 0);
 }
 
-void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interactive, unsigned int count) {
+void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interactive, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params) {
+    /* How many elements this group holds? */
+    ui_elements->count = count;
+    
     /* Copy texture identifier */
     ui_elements->texture_id = texture_id;
     
@@ -212,7 +255,9 @@ void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interacti
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
 
     if (interactive) {
+        printf("%d\n", interactive);
         ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
+        configure_ui_element(ui_elements, params);
         gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
     }
     
@@ -239,11 +284,12 @@ void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interacti
             }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    printf("End init ui\n");
 }
 
-void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer) {
-    instance_offset_p->x = offset_x;
-    instance_offset_p->y = offset_y;
+void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer) {
+    instance_offset_p[0] = offset_x;
+    instance_offset_p[1] = offset_y;
     *motion_buffer = 0;
 }
 

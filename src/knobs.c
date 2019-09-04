@@ -35,7 +35,7 @@ void finalize_knobs(UIKnobs * knobs) {
 }
 
 void init_knob(UIElements * knobs, int index, float offset_x, float offset_y) {    
-    init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_rotations_buffer[index]);
+    init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_motions_buffer[index]);
 }
 
 void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
@@ -75,11 +75,10 @@ void render_knobs(UIElements * knobs) {
     render_ui_elements(knobs->texture_id, knobs->vertex_array_object, knobs->index_buffer_object, knobs->count);
 }
 
-void update_knob(int index, void * context, void * args) {
-    float * rotation = (float*) args;
-    UIKnobs * knobs_p = (UIKnobs *) context;
-    knobs_p->instance_rotations_buffer[index] = *rotation;
-    glBindBuffer(GL_ARRAY_BUFFER, knobs_p->instance_rotations);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * knobs_p->count, knobs_p->instance_rotations_buffer);
+void update_knob(int index, UIElements * knobs_p, void * args) {
+    float * motion = (float*) args;
+    knobs_p->instance_motions_buffer[index] = *motion;
+    glBindBuffer(GL_ARRAY_BUFFER, knobs_p->instance_motions);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * knobs_p->count, knobs_p->instance_motions_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

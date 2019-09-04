@@ -91,11 +91,18 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
 
 void destroy_context() {
     glXDestroyContext(display, opengl_context);
-    XDestroyWindow(display, window);
-    XCloseDisplay(display);
+    printf("glxdestroy\n");
+
+    //XDestroyWindow(display, window);
+    printf("xdestroywindow\n");
+
+    //XCloseDisplay(display);
+    printf("xclosedisplay\n");
+
 }
 
 int do_no_exit_loop() {
+    printf("window alive: %d\n", window_alive);
     return window_alive;
 }
 
@@ -227,6 +234,7 @@ void listen_events() {
     while(XPending(display)) {
         XNextEvent(display, &x_event);
         if(x_event.type == ClientMessage) {
+            printf("THERE\n");
             window_alive = 0;
             return;
         }

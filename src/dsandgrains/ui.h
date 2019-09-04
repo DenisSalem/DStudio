@@ -38,30 +38,7 @@
 #define DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND      0
 #define DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE    1
 
-typedef struct UIBackground_t {
-    Vec4                vertexes_attributes[4];
-    Vec2                scale_matrix[2];
-    GLchar              vertex_indexes[4];
-    unsigned char *     texture;
-    GLuint              vertex_array_object;
-    GLuint              index_buffer_object;
-    GLuint              vertex_buffer_object;
-    GLuint              texture_id;
-    GLuint              instance_offsets;
-    Vec4                instance_offsets_buffer;
-
-} UIBackground;
-
-typedef struct UICallback_t {
-    void (*callback)(int index, void * context, void * args);
-    int index;
-    void * context_p;
-    int type;
-} UICallback;
-
 typedef struct UI_t {
-    UIArea              areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
-    UICallback          callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];
     UISystemUsage       system_usage;
     UIInstances         instances;
 } UI;

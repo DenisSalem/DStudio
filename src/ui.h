@@ -116,6 +116,7 @@ typedef struct UIElement_t {
     GLfloat *                   instance_offsets_buffer; /* May be allocated either as array of Vec2 or Vec4 */
     GLuint                      instance_motions;
     GLfloat  *                  instance_motions_buffer;
+    unsigned int                interactive;
     Vec2                        scale_matrix[2];
     unsigned char *             texture;
     GLuint                      texture_id;
@@ -126,15 +127,12 @@ typedef struct UIElement_t {
     GLchar                      vertex_indexes[4];
 } UIElements;
 
-typedef struct init_ui_element_array_t {
-    GLfloat gl_x;
-    GLfloat gl_y;
-    GLfloat min_area_x;
-    GLfloat max_area_x;
-    GLfloat min_area_y;
-    GLfloat max_area_y;
-    unsigned char ui_element_type;
-} InitUIElementArray;
+typedef struct UICallback_t {
+    void (*callback)(int index, void * context, void * args);
+    int index;
+    void * context_p;
+    int type;
+} UICallback;
 
 typedef struct UIArea_t {
     float min_x;
@@ -145,7 +143,38 @@ typedef struct UIArea_t {
     float y;
 } UIArea;
 
+/* Obsolete */
+typedef struct InitUIElementArray_t {
+    GLfloat gl_x;
+    GLfloat gl_y;
+    GLfloat min_area_x;
+    GLfloat max_area_x;
+    GLfloat min_area_y;
+    GLfloat max_area_y;
+    unsigned char ui_element_type;
+} InitUIElementArray;
+
+typedef struct ui_element_setting_t {
+    GLfloat gl_x;
+    GLfloat gl_y;
+    GLfloat min_area_x;
+    GLfloat max_area_x;
+    GLfloat min_area_y;
+    GLfloat max_area_y;
+    unsigned char ui_element_type;
+} UIElementSetting;
+
+typedef struct ui_element_setting_params_t {
+    unsigned int        array_offset;
+    UIElementSetting *  settings;
+    UIArea *            areas;
+    UICallback *        callbacks;
+    void (*update_callback) (int index, void * context, void * args);
+} UIElementSettingParams;
+
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);
+
+void configure_ui_element(UIElements * ui_elements, UIElementSettingParams * params);
 
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
 
@@ -173,9 +202,9 @@ void init_background_element(
     GLuint count
     );
 
-void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interactive, unsigned int count);
+void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interactive, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params);
 
-void init_ui_element(Vec2 * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
+void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
 
 void init_ui_elements_cpu_side(
     int count, int * count_p,
@@ -208,5 +237,5 @@ void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint in
 void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture);
 GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix);
 void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions);
-
+ 
 #endif

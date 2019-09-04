@@ -51,15 +51,11 @@ static UISliders sliders_dahdsr_lfo = {0};
 static UISliders sliders_dahdsr_lfo_pitch = {0};
 static UISliders sliders_equalizer = {0};
 
-static UIArea * ui_areas;
-static UICallback * ui_callbacks;
-static UICallback active_ui_element = {0};
-static Vec2 active_ui_element_center;
-static Vec2 active_slider_range;
+UIArea ui_areas[DSANDGRAINS_UI_ELEMENTS_COUNT];
+UICallback ui_callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT];
 static useconds_t framerate = 20000;
 static char first_render = 1;
 static char areas_index = -1;
-static int render_mask = 0;
 
 static GLint scissor_x, scissor_y;
 static GLsizei scissor_width, scissor_height;
@@ -82,7 +78,7 @@ static GLfloat motion_type;
 
 #include "../ui_statics.h"
 
-static void init_ui(UI * ui) {    
+static void init_ui(UI * ui) {
     /* Setup shared memory */
     ui_system_usage_p = &ui->system_usage;
     ui_instances_p = &ui->instances;
@@ -91,38 +87,34 @@ static void init_ui(UI * ui) {
     GLuint background_texture_id = setup_texture_n_scale_matrix(0, 0, 800, 480, DSANDGRAINS_BACKGROUND_ASSET_PATH, background_scale_matrix);
     GLuint knob1_texture_id = setup_texture_n_scale_matrix(1, 1, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, knob1_scale_matrix);
     
-    /* might be removedo */
-    ui_areas = &ui->areas[0];
-    ui_callbacks = &ui->callbacks[0];
-    
-    init_system_usage_ui(
-        ui_system_usage_p,
-        DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH,
-        DSTUDIO_CHAR_TABLE_ASSET_PATH,
-        30, 
-        23, 
-        104, 
-        234,
-        -0.035,
-        0.889583
-    );
+    //~ init_system_usage_ui(
+        //~ ui_system_usage_p,
+        //~ DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH,
+        //~ DSTUDIO_CHAR_TABLE_ASSET_PATH,
+        //~ 30, 
+        //~ 23, 
+        //~ 104, 
+        //~ 234,
+        //~ -0.035,
+        //~ 0.889583
+    //~ );
 
-    init_instances_ui(
-        7,
-        0.678,
-        0.360416
-    );
+    //~ init_instances_ui(
+        //~ 7,
+        //~ 0.678,
+        //~ 0.360416
+    //~ );
 
     //init_knobs_cpu_side(&sample_knobs, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
     //~ init_knobs_cpu_side(&sample_small_knobs, 10, 48, DSANDGRAINS_KNOB2_ASSET_PATH);
     //~ init_knobs_cpu_side(&voice_knobs, 3, 64, DSANDGRAINS_KNOB1_ASSET_PATH);
-    init_sliders_cpu_side(&sliders_dahdsr, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(&sliders_dahdsr_pitch, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(&sliders_dahdsr_lfo, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(&sliders_dahdsr_lfo_pitch, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
-    init_sliders_cpu_side(&sliders_equalizer, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    //~ init_sliders_cpu_side(&sliders_dahdsr, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    //~ init_sliders_cpu_side(&sliders_dahdsr_pitch, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    //~ init_sliders_cpu_side(&sliders_dahdsr_lfo, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    //~ init_sliders_cpu_side(&sliders_dahdsr_lfo_pitch, 6, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
+    //~ init_sliders_cpu_side(&sliders_equalizer, 8, 10, DSANDGRAINS_SLIDER1_ASSET_PATH);
 
-    InitUIElementArray init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
+    UIElementSetting init_knobs_array[DSANDGRAINS_KNOBS_COUNT] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
         {-0.7075, 0.25, 84.0,  149.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: END
         {-0.5475, 0.25, 148.0, 213.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: GRAIN SIZE
@@ -147,12 +139,12 @@ static void init_ui(UI * ui) {
         { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
     };
 
-    InitUIElementArray * init_knob_array_p;
+    //~ InitUIElementArray * init_knob_array_p;
     
-    for (int i = 0; i < DSANDGRAINS_SAMPLE_KNOBS; i++) {
-        init_knob_array_p = &init_knobs_array[i];
-        DSTUDIO_INIT_KNOB(&sample_knobs, i, gl_x, gl_y, i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
+    //~ for (int i = 0; i < DSANDGRAINS_SAMPLE_KNOBS; i++) {
+        //~ init_knob_array_p = &init_knobs_array[i];
+        //~ DSTUDIO_INIT_KNOB(&sample_knobs, i, gl_x, gl_y, i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
     
     //~ for (int i = 0; i < DSANDGRAINS_SAMPLE_SMALL_KNOBS; i++) {
         //~ init_knob_array_p = &init_knobs_array[8+i];
@@ -163,84 +155,97 @@ static void init_ui(UI * ui) {
         //~ DSTUDIO_INIT_KNOB(&voice_knobs, i, gl_x, gl_y, 18+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
     //~ }
 
-    InitUIElementArray * init_slider_array_p;
+    //~ InitUIElementArray * init_slider_array_p;
 
-    InitUIElementArray init_sliders_dahdsr_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
-        {-0.14, -0.816666, 338.0, 349.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1,  -0.816666, 354.0, 365.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.06, -0.816666, 370.0, 381.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.02, -0.816666, 386.0, 397.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.02, -0.816666,  402.0, 413.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.06, -0.816666,  418.0, 429.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ InitUIElementArray init_sliders_dahdsr_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+        //~ {-0.14, -0.816666, 338.0, 349.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.1,  -0.816666, 354.0, 365.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.06, -0.816666, 370.0, 381.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.02, -0.816666, 386.0, 397.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.02, -0.816666,  402.0, 413.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.06, -0.816666,  418.0, 429.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1}
+    //~ };
     
-    for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
-        init_slider_array_p = &init_sliders_dahdsr_array[i];
-        DSTUDIO_INIT_SLIDER(&sliders_dahdsr, i, gl_x, gl_y, 21+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
+    //~ for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
+        //~ init_slider_array_p = &init_sliders_dahdsr_array[i];
+        //~ DSTUDIO_INIT_SLIDER(&sliders_dahdsr, i, gl_x, gl_y, 21+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
     
-    InitUIElementArray init_sliders_dahdsr_pitch_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
-        {0.0025, -0.558333, 395.0, 406.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0425, -0.558333, 411.0, 422.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0825, -0.558333, 427.0, 438.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1225, -0.558333, 443.0, 454.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1625, -0.558333, 459.0, 470.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.2025, -0.558333, 475.0, 486.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ InitUIElementArray init_sliders_dahdsr_pitch_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+        //~ {0.0025, -0.558333, 395.0, 406.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.0425, -0.558333, 411.0, 422.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.0825, -0.558333, 427.0, 438.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.1225, -0.558333, 443.0, 454.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.1625, -0.558333, 459.0, 470.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.2025, -0.558333, 475.0, 486.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1}
+    //~ };
     
-    for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
-        init_slider_array_p = &init_sliders_dahdsr_pitch_array[i];
-        DSTUDIO_INIT_SLIDER(&sliders_dahdsr_pitch, i, gl_x, gl_y, 27+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
+    //~ for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
+        //~ init_slider_array_p = &init_sliders_dahdsr_pitch_array[i];
+        //~ DSTUDIO_INIT_SLIDER(&sliders_dahdsr_pitch, i, gl_x, gl_y, 27+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
 
-    InitUIElementArray init_sliders_dahdsr_lfo_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
-        {-0.2625, -0.283333, 289.0, 300.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.2225, -0.283333, 305.0, 316.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1825, -0.283333, 321.0, 332.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1425, -0.283333, 337.0, 348.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1025, -0.283333, 353.0, 364.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.0625, -0.283333, 369.0, 380.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ InitUIElementArray init_sliders_dahdsr_lfo_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+        //~ {-0.2625, -0.283333, 289.0, 300.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.2225, -0.283333, 305.0, 316.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.1825, -0.283333, 321.0, 332.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.1425, -0.283333, 337.0, 348.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.1025, -0.283333, 353.0, 364.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.0625, -0.283333, 369.0, 380.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
+    //~ };
     
-    for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
-        init_slider_array_p = &init_sliders_dahdsr_lfo_array[i];
-        DSTUDIO_INIT_SLIDER(&sliders_dahdsr_lfo, i, gl_x, gl_y, 33+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
+    //~ for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
+        //~ init_slider_array_p = &init_sliders_dahdsr_lfo_array[i];
+        //~ DSTUDIO_INIT_SLIDER(&sliders_dahdsr_lfo, i, gl_x, gl_y, 33+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
 
-    InitUIElementArray init_sliders_dahdsr_lfo_pitch_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
-        {0.0025, -0.283333, 395.0, 406.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0425, -0.283333, 411.0, 422.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0825, -0.283333, 427.0, 438.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1225, -0.283333, 443.0, 454.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1625, -0.283333, 459.0, 470.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.2025, -0.283333, 475.0, 486.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ InitUIElementArray init_sliders_dahdsr_lfo_pitch_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+        //~ {0.0025, -0.283333, 395.0, 406.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.0425, -0.283333, 411.0, 422.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.0825, -0.283333, 427.0, 438.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.1225, -0.283333, 443.0, 454.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.1625, -0.283333, 459.0, 470.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.2025, -0.283333, 475.0, 486.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
+    //~ };
     
-    for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
-        init_slider_array_p = &init_sliders_dahdsr_lfo_pitch_array[i];
-        DSTUDIO_INIT_SLIDER(&sliders_dahdsr_lfo_pitch, i, gl_x, gl_y, 39+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
+    //~ for (int i = 0; i < DSANDGRAINS_SLIDERS_COUNT_PER_GROUP; i++) {
+        //~ init_slider_array_p = &init_sliders_dahdsr_lfo_pitch_array[i];
+        //~ DSTUDIO_INIT_SLIDER(&sliders_dahdsr_lfo_pitch, i, gl_x, gl_y, 39+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
 
-    InitUIElementArray init_sliders_equalizer_array[DSANDGRAINS_EQUALIZER_SLIDERS_COUNT] = {
-        {0.32, -0.475, 522.0, 533.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.36, -0.475, 538.0, 549.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.4,  -0.475, 554.0, 565.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.44, -0.475, 570.0, 581.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.48, -0.475, 586.0, 597.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.52, -0.475, 602.0, 613.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.56, -0.475, 618.0, 629.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.60, -0.475, 634.0, 645.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ InitUIElementArray init_sliders_equalizer_array[DSANDGRAINS_EQUALIZER_SLIDERS_COUNT] = {
+        //~ {0.32, -0.475, 522.0, 533.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.36, -0.475, 538.0, 549.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.4,  -0.475, 554.0, 565.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.44, -0.475, 570.0, 581.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.48, -0.475, 586.0, 597.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.52, -0.475, 602.0, 613.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.56, -0.475, 618.0, 629.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.60, -0.475, 634.0, 645.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1}
+    //~ };
     
-    for (int i = 0; i < DSANDGRAINS_EQUALIZER_SLIDERS_COUNT; i++) {
-        init_slider_array_p = &init_sliders_equalizer_array[i];
-        DSTUDIO_INIT_SLIDER(&sliders_equalizer, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
-    }
-    
+    //~ for (int i = 0; i < DSANDGRAINS_EQUALIZER_SLIDERS_COUNT; i++) {
+        //~ init_slider_array_p = &init_sliders_equalizer_array[i];
+        //~ DSTUDIO_INIT_SLIDER(&sliders_equalizer, i, gl_x, gl_y, 45+i, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type)
+    //~ }
+
     /* Inits ui elements */
-    init_ui_elements(&background, background_texture_id, 0, 1);
-    init_ui_elements(&sample_knobs, knob1_texture_id, 1, 8);
+    UIElementSettingParams params = {0};
+    params.callbacks = ui_callbacks;
+    params.areas = ui_areas;
     
+    /* Background */
+    init_ui_elements(&background, background_texture_id, 0, 1, NULL, NULL);
+    
+    /* Knobs */
+    params.settings = init_knobs_array;
+    params.array_offset = 0;
+    params.update_callback = update_knob;
+    init_ui_elements(&sample_knobs, knob1_texture_id, 1, 8, configure_ui_element, &params);
+
+    for (int i = 0; i < 8; i++) {
+        printf("%d", ui_callbacks[i].index);
+    }
     //init_knobs_gpu_side(&sample_knobs);
     //~ init_knobs_gpu_side(&sample_small_knobs);
     //~ init_knobs_gpu_side(&voice_knobs);
@@ -251,31 +256,29 @@ static void init_ui(UI * ui) {
     //~ init_sliders_gpu_side(&sliders_equalizer);
     
     //finalize_knobs(&sample_knobs);
-    finalize_knobs(&sample_small_knobs);
-    finalize_knobs(&voice_knobs);
-    finalize_sliders(&sliders_dahdsr);
-    finalize_sliders(&sliders_dahdsr_pitch);
-    finalize_sliders(&sliders_dahdsr_lfo);
-    finalize_sliders(&sliders_dahdsr_lfo_pitch);
-    finalize_sliders(&sliders_equalizer);
+    //~ finalize_knobs(&sample_small_knobs);
+    //~ finalize_knobs(&voice_knobs);
+    //~ finalize_sliders(&sliders_dahdsr);
+    //~ finalize_sliders(&sliders_dahdsr_pitch);
+    //~ finalize_sliders(&sliders_dahdsr_lfo);
+    //~ finalize_sliders(&sliders_dahdsr_lfo_pitch);
+    //~ finalize_sliders(&sliders_equalizer);
 
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
     interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
 
-    //background_scale_matrix_p = &background.scale_matrix[0].x;
-    ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
-    ui_text_system_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
+    //~ ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
+    //~ ui_text_system_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
 
-    //sample_knobs_scale_matrix_p = &sample_knobs.scale_matrix[0].x;
-    sample_small_knobs_scale_matrix_p = &sample_small_knobs.scale_matrix[0].x;
-    voice_knobs_scale_matrix_p = &voice_knobs.scale_matrix[0].x;
+    //~ sample_small_knobs_scale_matrix_p = &sample_small_knobs.scale_matrix[0].x;
+    //~ voice_knobs_scale_matrix_p = &voice_knobs.scale_matrix[0].x;
 
-    sliders_dahdsr_scale_matrix_p = &sliders_dahdsr.scale_matrix[0].x;
-    sliders_dahdsr_pitch_scale_matrix_p = &sliders_dahdsr_pitch.scale_matrix[0].x;
-    sliders_dahdsr_lfo_scale_matrix_p = &sliders_dahdsr_lfo.scale_matrix[0].x;
-    sliders_dahdsr_lfo_pitch_scale_matrix_p = &sliders_dahdsr_lfo_pitch.scale_matrix[0].x;
-    sliders_equalizer_scale_matrix_p = &sliders_equalizer.scale_matrix[0].x;
+    //~ sliders_dahdsr_scale_matrix_p = &sliders_dahdsr.scale_matrix[0].x;
+    //~ sliders_dahdsr_pitch_scale_matrix_p = &sliders_dahdsr_pitch.scale_matrix[0].x;
+    //~ sliders_dahdsr_lfo_scale_matrix_p = &sliders_dahdsr_lfo.scale_matrix[0].x;
+    //~ sliders_dahdsr_lfo_pitch_scale_matrix_p = &sliders_dahdsr_lfo_pitch.scale_matrix[0].x;
+    //~ sliders_equalizer_scale_matrix_p = &sliders_equalizer.scale_matrix[0].x;
 }
 
 static void render_background(void * obj, int type) {
@@ -288,35 +291,35 @@ static void render_background(void * obj, int type) {
 }
 
 static void render_viewport(int mask) {
+
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) background_scale_matrix);
         render_background(&background, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
-        // SYSTEM USAGE
-        if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
-            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
-            render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
+        //~ // SYSTEM USAGE
+        //~ if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
+            //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
+            //~ render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
 
-            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
-            render_text(&ui_system_usage_p->ui_text_cpu);
-            render_text(&ui_system_usage_p->ui_text_mem);
-        }
-        // INSTANCES
-        if (mask & DSTUDIO_RENDER_INSTANCES) {
-            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
-            for (int i = 0; i < ui_instances_p->lines_number; i++) {
-                render_text(&ui_instances_p->lines[i]);
-            }
-        }
-        
+            //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
+            //~ render_text(&ui_system_usage_p->ui_text_cpu);
+            //~ render_text(&ui_system_usage_p->ui_text_mem);
+        //~ }
+        //~ // INSTANCES
+        //~ if (mask & DSTUDIO_RENDER_INSTANCES) {
+            //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
+            //~ for (int i = 0; i < ui_instances_p->lines_number; i++) {
+                //~ render_text(&ui_instances_p->lines[i]);
+            //~ }
+        //~ }
+
     glUseProgram(interactive_program_id);
         // KNOBS
         if (mask & DSTUDIO_RENDER_KNOBS) {
             motion_type = 0.0;
             glUniform1f(motion_type_id, motion_type);
-
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) knob1_scale_matrix);
             render_knobs(&sample_knobs);
-        
+
             //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
             //~ render_knobs(&sample_small_knobs);
         
@@ -326,23 +329,23 @@ static void render_viewport(int mask) {
 
         // SLIDERS
         if (mask & DSTUDIO_RENDER_SLIDERS) {
-            motion_type = 1.0;
-            glUniform1f(motion_type_id, motion_type);
+            //~ motion_type = 1.0;
+            //~ glUniform1f(motion_type_id, motion_type);
 
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
-            render_sliders(&sliders_dahdsr);
+            //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_scale_matrix_p);
+            //~ render_sliders(&sliders_dahdsr);
         
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_pitch_scale_matrix_p);
-            render_sliders(&sliders_dahdsr_pitch);
+            //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_pitch_scale_matrix_p);
+            //~ render_sliders(&sliders_dahdsr_pitch);
         
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_scale_matrix_p);
-            render_sliders(&sliders_dahdsr_lfo);
+            //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_scale_matrix_p);
+            //~ render_sliders(&sliders_dahdsr_lfo);
         
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
-            render_sliders(&sliders_dahdsr_lfo_pitch);
+            //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sliders_dahdsr_lfo_pitch_scale_matrix_p);
+            //~ render_sliders(&sliders_dahdsr_lfo_pitch);
         
-            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
-            render_sliders(&sliders_equalizer);
+            //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, sliders_equalizer_scale_matrix_p);
+            //~ render_sliders(&sliders_equalizer);
         }
 }
 
@@ -352,7 +355,6 @@ void * ui_thread(void * arg) {
     unsigned int instances_count;
     unsigned int instances_last_id;
     unsigned long int previous_timestamp = 0;
-    //timespec tStruct = {0};
 
     init_context("DSANDGRAINS", DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
     set_mouse_button_callback(mouse_button_callback);
@@ -361,7 +363,9 @@ void * ui_thread(void * arg) {
     DSTUDIO_EXIT_IF_FAILURE(load_extensions())
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
+    
     init_ui( (UI *) arg);
+    printf("glError() = %d %d\n", glGetError() , GL_INVALID_OPERATION);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -374,44 +378,46 @@ void * ui_thread(void * arg) {
         
         if (need_to_redraw_all()) {
             glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
-            render_viewport(DSTUDIO_RENDER_ALL);
+            //render_viewport(DSTUDIO_RENDER_ALL);
         }
         else {
             if (areas_index >= 0) {
+                printf("AREAS_INDEX >=0 \n");
                 glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
                 render_viewport(render_mask);
             }
             
-            // UPDATE AND RENDER TEXT
-            sem_wait(&ui_system_usage_p->mutex);
-            if (ui_system_usage_p->update && !redraw_all) {
-                update_text(&ui_system_usage_p->ui_text_cpu);
-                update_text(&ui_system_usage_p->ui_text_mem);
-                glScissor(402, 438, 48, 31);
-                render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
-                ui_system_usage_p->update = 0;
-            }
-            sem_post(&ui_system_usage_p->mutex);
+            //~ // UPDATE AND RENDER TEXT
+            //~ sem_wait(&ui_system_usage_p->mutex);
+            //~ if (ui_system_usage_p->update && !redraw_all) {
+                //~ update_text(&ui_system_usage_p->ui_text_cpu);
+                //~ update_text(&ui_system_usage_p->ui_text_mem);
+                //~ glScissor(402, 438, 48, 31);
+                //~ render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
+                //~ ui_system_usage_p->update = 0;
+            //~ }
+            //~ sem_post(&ui_system_usage_p->mutex);
 
-            sem_wait(&ui_instances_p->mutex);
-            if (ui_instances_p->update && !redraw_all) {
-                update_instances_text();
-                glScissor(669, 254, 117, 79);
-                render_viewport(DSTUDIO_RENDER_INSTANCES);
-                ui_instances_p->update = 0;
-            }
-            sem_post(&ui_instances_p->mutex);
+            //~ sem_wait(&ui_instances_p->mutex);
+            //~ if (ui_instances_p->update && !redraw_all) {
+                //~ update_instances_text();
+                //~ glScissor(669, 254, 117, 79);
+                //~ render_viewport(DSTUDIO_RENDER_INSTANCES);
+                //~ ui_instances_p->update = 0;
+            //~ }
+            //~ sem_post(&ui_instances_p->mutex);
         }
         swap_window_buffer();
         listen_events();
     }
     
-    sem_wait(&ui_system_usage_p->mutex);
-    ui_system_usage_p->cut_thread = 1;
-    sem_post(&ui_system_usage_p->mutex);
+    //~ sem_wait(&ui_system_usage_p->mutex);
+    //~ ui_system_usage_p->cut_thread = 1;
+    //~ sem_post(&ui_system_usage_p->mutex);
     
-    exit_instances_thread();
+    //exit_instances_thread();
+    printf("Destroy context\n");
     destroy_context();
-
+    printf("Exit thread\n");
     return NULL;
 }
