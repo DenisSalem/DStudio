@@ -51,7 +51,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 static int ctx_error_occurred = 0;
 static int window_alive = 1;
 static int refresh_all = 1;
-static Display              *display;
+static Display              *display = NULL;
 static Window               window;
 static XVisualInfo          * visual_info;
 static Colormap             color_map;
@@ -91,18 +91,11 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
 
 void destroy_context() {
     glXDestroyContext(display, opengl_context);
-    printf("glxdestroy\n");
-
-    //XDestroyWindow(display, window);
-    printf("xdestroywindow\n");
-
-    //XCloseDisplay(display);
-    printf("xclosedisplay\n");
-
+    XDestroyWindow(display, window);
+    XCloseDisplay(display);
 }
 
 int do_no_exit_loop() {
-    printf("window alive: %d\n", window_alive);
     return window_alive;
 }
 

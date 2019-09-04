@@ -247,6 +247,7 @@ void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interacti
     //~ vertex_attributes[2].w = 0.0f;
     vertex_attributes[3].z = 1.0;
     vertex_attributes[3].w = 1.0;
+
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
     
     /* Setting instance buffers */
@@ -255,12 +256,15 @@ void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interacti
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
 
     if (interactive) {
-        printf("%d\n", interactive);
+        printf("interactive %d\n", interactive);
         ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
+        printf("BEFORE\n");
         configure_ui_element(ui_elements, params);
+        printf("AFTER\n");
         gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
     }
-    
+        printf("THERE\n");
+
     /* Setting vertex array */
     glGenVertexArrays(1, &ui_elements->vertex_array_object);
     glBindVertexArray(ui_elements->vertex_array_object);
@@ -284,7 +288,6 @@ void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interacti
             }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    printf("End init ui\n");
 }
 
 void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer) {
@@ -351,7 +354,9 @@ void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint in
     glBindTexture(GL_TEXTURE_2D, texture_id);
         glBindVertexArray(vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
+                printf("Bind element\n");
                 glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, count);
+                printf("Draw\n");
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);

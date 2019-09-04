@@ -85,7 +85,7 @@ static void init_ui(UI * ui) {
     
     /* Load shared texture and prepare shared scale_matrix */
     GLuint background_texture_id = setup_texture_n_scale_matrix(0, 0, 800, 480, DSANDGRAINS_BACKGROUND_ASSET_PATH, background_scale_matrix);
-    GLuint knob1_texture_id = setup_texture_n_scale_matrix(1, 1, 8, 64, DSANDGRAINS_KNOB1_ASSET_PATH, knob1_scale_matrix);
+    GLuint knob1_texture_id = setup_texture_n_scale_matrix(1, 1, 64, 64, DSANDGRAINS_KNOB1_ASSET_PATH, knob1_scale_matrix);
     
     //~ init_system_usage_ui(
         //~ ui_system_usage_p,
@@ -244,7 +244,7 @@ static void init_ui(UI * ui) {
     init_ui_elements(&sample_knobs, knob1_texture_id, 1, 8, configure_ui_element, &params);
 
     for (int i = 0; i < 8; i++) {
-        printf("%d", ui_callbacks[i].index);
+        printf("callbacks index %d\n", ui_callbacks[i].index);
     }
     //init_knobs_gpu_side(&sample_knobs);
     //~ init_knobs_gpu_side(&sample_small_knobs);
@@ -295,6 +295,7 @@ static void render_viewport(int mask) {
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) background_scale_matrix);
         render_background(&background, DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND);
+        
         //~ // SYSTEM USAGE
         //~ if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
             //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
@@ -318,6 +319,7 @@ static void render_viewport(int mask) {
             motion_type = 0.0;
             glUniform1f(motion_type_id, motion_type);
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) knob1_scale_matrix);
+            printf("Render knobs\n");
             render_knobs(&sample_knobs);
 
             //~ glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, sample_small_knobs_scale_matrix_p);
@@ -378,7 +380,7 @@ void * ui_thread(void * arg) {
         
         if (need_to_redraw_all()) {
             glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
-            //render_viewport(DSTUDIO_RENDER_ALL);
+            render_viewport(DSTUDIO_RENDER_ALL);
         }
         else {
             if (areas_index >= 0) {
@@ -409,6 +411,7 @@ void * ui_thread(void * arg) {
         }
         swap_window_buffer();
         listen_events();
+        printf("Reach the end of the main render loop\n");
     }
     
     //~ sem_wait(&ui_system_usage_p->mutex);

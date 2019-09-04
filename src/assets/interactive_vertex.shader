@@ -53,6 +53,5 @@ void main() {
                 gl_Position = vec4( scale_matrix * vertex_position.xy + translation, 0, 1.0);
             }
     }
-    gl_Position = vec4(vertex_position.xy, 0, 1.0);
     fragment_texture_coordinates = texture_coordinates;
 } 
