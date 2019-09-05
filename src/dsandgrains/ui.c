@@ -146,7 +146,7 @@ static void init_ui(UI * ui) {
         { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
     };
 
-    UIElementSetting sliders_dahdsr_settings_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+    UIElementSetting sliders_dahdsr_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
         {-0.14, -0.816666, 338.0, 349.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
         {-0.1,  -0.816666, 354.0, 365.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
         {-0.06, -0.816666, 370.0, 381.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
@@ -155,7 +155,7 @@ static void init_ui(UI * ui) {
         {0.06, -0.816666,  418.0, 429.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1}
     };
     
-    UIElementSetting sliders_dahdsr_pitch_settings_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+    UIElementSetting sliders_dahdsr_pitch_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
         {0.0025, -0.558333, 395.0, 406.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
         {0.0425, -0.558333, 411.0, 422.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
         {0.0825, -0.558333, 427.0, 438.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
@@ -164,7 +164,7 @@ static void init_ui(UI * ui) {
         {0.2025, -0.558333, 475.0, 486.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1}
     };
     
-    UIElementSetting sliders_dahdsr_lfo_settings_sarray[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+    UIElementSetting sliders_dahdsr_lfo_settings_sarray[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
         {-0.2625, -0.283333, 289.0, 300.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
         {-0.2225, -0.283333, 305.0, 316.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
         {-0.1825, -0.283333, 321.0, 332.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
@@ -173,7 +173,7 @@ static void init_ui(UI * ui) {
         {-0.0625, -0.283333, 369.0, 380.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
     };
 
-    UIElementSetting sliders_dahdsr_lfo_pitch_settings_array[DSANDGRAINS_SLIDERS_COUNT_PER_GROUP] = {
+    UIElementSetting sliders_dahdsr_lfo_pitch_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
         {0.0025, -0.283333, 395.0, 406.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
         {0.0425, -0.283333, 411.0, 422.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
         {0.0825, -0.283333, 427.0, 438.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
@@ -221,21 +221,21 @@ static void init_ui(UI * ui) {
     
     params.array_offset += 3;
     params.settings = sliders_dahdsr_settings_array;
-    init_ui_elements(&sliders_dahdsr, slider_texture_id, DSANDGRAINS_SLIDERS_COUNT_PER_GROUP, configure_ui_element, &params);
+    init_ui_elements(&sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     
-    params.array_offset += DSANDGRAINS_SLIDERS_COUNT_PER_GROUP;
+    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_dahdsr_pitch_settings_array;
-    init_ui_elements(&sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_SLIDERS_COUNT_PER_GROUP, configure_ui_element, &params);
+    init_ui_elements(&sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     
-    params.array_offset += DSANDGRAINS_SLIDERS_COUNT_PER_GROUP;
+    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_dahdsr_lfo_settings_sarray;
-    init_ui_elements(&sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_SLIDERS_COUNT_PER_GROUP, configure_ui_element, &params);
+    init_ui_elements(&sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
 
-    params.array_offset += DSANDGRAINS_SLIDERS_COUNT_PER_GROUP;
+    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_dahdsr_lfo_pitch_settings_array;
-    init_ui_elements(&sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_SLIDERS_COUNT_PER_GROUP, configure_ui_element, &params);
+    init_ui_elements(&sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
 
-    params.array_offset += DSANDGRAINS_SLIDERS_COUNT_PER_GROUP;
+    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_equalizer_settings_array;
     init_ui_elements(&sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
 
