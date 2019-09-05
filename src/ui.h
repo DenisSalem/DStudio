@@ -128,7 +128,7 @@ typedef struct UIElement_t {
 } UIElements;
 
 typedef struct UICallback_t {
-    void (*callback)(int index, void * context, void * args);
+    void (*callback)(int index, UIElements * context, void * args);
     int index;
     void * context_p;
     int type;
@@ -169,7 +169,7 @@ typedef struct ui_element_setting_params_t {
     UIElementSetting *  settings;
     UIArea *            areas;
     UICallback *        callbacks;
-    void (*update_callback) (int index, void * context, void * args);
+    void (*update_callback) (int index, UIElements * context, void * args);
 } UIElementSettingParams;
 
 void compile_shader(GLuint shader_id, GLchar ** source_pointer);
@@ -202,7 +202,7 @@ void init_background_element(
     GLuint count
     );
 
-void init_ui_elements(UIElements * ui_elements, GLuint texture_id, int interactive, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params);
+void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params);
 
 void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
 

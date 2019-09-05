@@ -65,7 +65,6 @@ static void cursor_position_callback(int xpos, int ypos){
     }
     if (active_ui_element.type == DSTUDIO_KNOB_TYPE_1) {
         motion = compute_knob_rotation(xpos, ypos);
-        printf("callback p %ld\n", active_ui_element.callback);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
     else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_2) {
@@ -80,8 +79,9 @@ static void cursor_position_callback(int xpos, int ypos){
     
 static void mouse_button_callback(int xpos, int ypos, int button, int action) {
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
-        for (char i = 0; i < 8 /*DSANDGRAINS_UI_ELEMENTS_COUNT*/; i++) {
+        for (char i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
+
                 active_ui_element.callback = ui_callbacks[i].callback;
                 active_ui_element.index = ui_callbacks[i].index;
                 active_ui_element.context_p = ui_callbacks[i].context_p;
@@ -102,7 +102,6 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                     active_slider_range.x = ui_areas[i].min_y + ((UISliders *)active_ui_element.context_p)->texture_scale / 2;
                     active_slider_range.y = ui_areas[i].max_y - ((UISliders *)active_ui_element.context_p)->texture_scale / 2;
                 }
-                printf("area id = %d\n", i);
                 break;
             }
         }

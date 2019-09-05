@@ -22,54 +22,9 @@
 #include "extensions.h"
 #include "knobs.h"
 
-void finalize_knobs(UIKnobs * knobs) {
-    finalize_ui_element(
-        knobs->count,
-        &knobs->instance_offsets,
-        knobs->instance_offsets_buffer,
-        &knobs->instance_rotations,
-        knobs->instance_rotations_buffer,
-        &knobs->vertex_array_object,
-        knobs->vertex_buffer_object
-    );
-}
-
 void init_knob(UIElements * knobs, int index, float offset_x, float offset_y) {    
     init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_motions_buffer[index]);
 }
-
-void init_knobs_cpu_side(UIKnobs * knobs, int count, GLuint texture_scale, const char * texture_filename) {
-    init_ui_elements_cpu_side(
-        count,
-        &knobs->count,
-        texture_scale,
-        &knobs->texture_scale,
-        texture_filename,
-        &knobs->texture,
-        &knobs->instance_offsets_buffer,
-        &knobs->instance_rotations_buffer,
-        &knobs->vertex_indexes[0],
-        &knobs->scale_matrix[0]
-    );
-}
-
-void init_knobs_gpu_side(UIKnobs * knobs) {
-    init_ui_elements_gpu_side(
-        1,
-        knobs->vertex_attributes,
-        &knobs->vertex_buffer_object,
-        &knobs->texture_id,
-        knobs->texture_scale,
-        knobs->texture_scale,
-        knobs->texture,
-        &knobs->index_buffer_object,
-        knobs->vertex_indexes
-    );
-}
-
-//~ void render_knobs(UIKnobs * knobs) {    
-    //~ render_ui_elements(knobs->texture_id, knobs->vertex_array_object, knobs->index_buffer_object, knobs->count);
-//~ }
 
 void render_knobs(UIElements * knobs) {    
     render_ui_elements(knobs->texture_id, knobs->vertex_array_object, knobs->index_buffer_object, knobs->count);

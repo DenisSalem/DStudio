@@ -36,16 +36,11 @@ typedef struct UISliders_t {
     Vec4            vertexes_attributes[4];
     GLuint          vertex_buffer_object;
     GLchar          vertex_indexes[4];
-
-
 } UISliders;
 
-void finalize_sliders(UISliders * sliders);
-void init_slider(UISliders * sliders, int index, float x, float y);
-void init_sliders_cpu_side(UISliders * sliders, int count, GLuint texture_scale, const char * texture_filename);
-void init_sliders_gpu_side(UISliders * sliders);
-void render_sliders(UISliders * sliders);
-void update_slider(int index, void * context, void * args);
+void init_slider(UIElements * sliders, int index, float x, float y);
+void render_sliders(UIElements * sliders);
+void update_slider(int index, UIElements * context, void * args);
 
 #define DSTUDIO_INIT_SLIDER(sliders_p, slider_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \
         init_slider( \
