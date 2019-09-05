@@ -50,10 +50,9 @@ void configure_ui_element(UIElements * ui_elements, UIElementSettingParams * par
     UIElementSetting * configure_ui_element_array = params->settings;
     UIArea * ui_areas = params->areas;
     UICallback * ui_callbacks = params->callbacks;
-    
     unsigned int array_offset = params->array_offset;
     for (int i = 0; i < ui_elements->count; i++) {
-        configure_ui_element_p = &configure_ui_element_array[array_offset+i];
+        configure_ui_element_p = &configure_ui_element_array[i];
         if (ui_elements->interactive) {
             ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
             ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
@@ -345,11 +344,11 @@ void load_shader(GLchar ** shader_buffer, const char * filename) {
     fclose(shader);
 }
 
-void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count) {
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-        glBindVertexArray(vertex_array_object);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object);
-                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, count);
+void render_ui_elements(UIElements * ui_elements) {
+    glBindTexture(GL_TEXTURE_2D, ui_elements->texture_id);
+        glBindVertexArray(ui_elements->vertex_array_object);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ui_elements->index_buffer_object);
+                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, ui_elements->count);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);

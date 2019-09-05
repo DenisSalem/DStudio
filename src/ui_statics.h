@@ -20,6 +20,7 @@ static Vec2 active_slider_range = {0};
 static UICallback active_ui_element = {0};
 static Vec2 active_ui_element_center = {0};
 static int render_mask = 0;
+static int slider_texture_scale;
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
     render_mask = DSTUDIO_RENDER_KNOBS;
@@ -99,8 +100,8 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                 active_ui_element_center.y = ui_areas[i].y;
                 
                 if (active_ui_element.type & 4) { /* IF DSTUDIO_SLIDER_TYPE_1 */
-                    active_slider_range.x = ui_areas[i].min_y + ((UISliders *)active_ui_element.context_p)->texture_scale / 2;
-                    active_slider_range.y = ui_areas[i].max_y - ((UISliders *)active_ui_element.context_p)->texture_scale / 2;
+                    active_slider_range.x = ui_areas[i].min_y + slider_texture_scale / 2;
+                    active_slider_range.y = ui_areas[i].max_y - slider_texture_scale / 2;
                 }
                 break;
             }

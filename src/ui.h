@@ -120,7 +120,6 @@ typedef struct UIElement_t {
     Vec2                        scale_matrix[2];
     unsigned char *             texture;
     GLuint                      texture_id;
-    GLuint                      texture_scale;
     GLuint                      vertex_array_object;
     Vec4                        vertex_attributes[4];  
     GLuint                      vertex_buffer_object;
@@ -232,7 +231,7 @@ void init_ui_elements_gpu_side(
 
 void load_shader(GLchar ** shader_buffer, const char * filename);
 
-void render_ui_elements(GLuint texture_id, GLuint vertex_array_object, GLuint index_buffer_object, int count);
+void render_ui_elements(UIElements * ui_elements);
 
 void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture);
 GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix);

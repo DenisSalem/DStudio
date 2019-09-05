@@ -21,46 +21,7 @@
 #define DSTUDIO_SLIDERS_H_INCLUDED
 
 #include "ui.h"
-typedef struct UISliders_t {
-    int             count;
-    GLuint          index_buffer_object;
-    GLuint          instance_translations;
-    GLfloat *       instance_translations_buffer;
-    GLuint          instance_offsets;
-    Vec2 *          instance_offsets_buffer;
-    Vec2            scale_matrix[2];
-    unsigned char * texture;
-    GLuint          texture_id;
-    GLuint          texture_scale;
-    GLuint          vertex_array_object;
-    Vec4            vertexes_attributes[4];
-    GLuint          vertex_buffer_object;
-    GLchar          vertex_indexes[4];
-} UISliders;
 
-void init_slider(UIElements * sliders, int index, float x, float y);
-void render_sliders(UIElements * sliders);
 void update_slider(int index, UIElements * context, void * args);
 
-#define DSTUDIO_INIT_SLIDER(sliders_p, slider_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \
-        init_slider( \
-            sliders_p, \
-            slider_index, \
-            init_slider_array_p->gl_x, \
-            init_slider_array_p->gl_y \
-        ); \
-        DSTUDIO_SET_AREA( \
-            ui_element_index, \
-            init_slider_array_p->min_area_x, \
-            init_slider_array_p->max_area_x, \
-            init_slider_array_p->min_area_y, \
-            init_slider_array_p->max_area_y \
-        ) \
-        DSTUDIO_SET_UI_CALLBACK( \
-            ui_element_index,\
-            update_slider, \
-            slider_index,\
-            sliders_p, \
-            init_slider_array_p->ui_element_type\
-        );
 #endif

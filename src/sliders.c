@@ -22,20 +22,6 @@
 
 #include "sliders.h"
 
-
-void init_slider(UIElements * sliders, int index, float offset_x, float offset_y) {    
-    init_ui_element(
-        &sliders->instance_offsets_buffer[index],
-        offset_x,
-        offset_y,
-        &sliders->instance_motions_buffer[index]
-    );
-}
-
-void render_sliders(UIElements * sliders) {    
-    render_ui_elements(sliders->texture_id, sliders->vertex_array_object, sliders->index_buffer_object, sliders->count);
-}
-
 void update_slider(int index, UIElements * sliders_p, void * args) {
     float * motion = (float*) args;
     sliders_p->instance_motions_buffer[index] = *motion;

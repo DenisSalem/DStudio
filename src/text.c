@@ -80,7 +80,7 @@ void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const 
 
 void render_text(UIText * text) {
     if (text->actual_string_size) {
-        render_ui_elements(text->texture_id, text->vertex_array_object, text->index_buffer_object, text->actual_string_size);
+        //render_ui_elements(text->texture_id, text->vertex_array_object, text->index_buffer_object, text->actual_string_size);
     }
 }
 

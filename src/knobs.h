@@ -22,46 +22,6 @@
 
 #include "ui.h"
 
-typedef struct UIKnobs_t {
-    unsigned char *             texture;
-    Vec4                        vertex_attributes[4];
-    Vec2                        scale_matrix[2];
-    int                         count;
-    Vec2  *                     instance_offsets_buffer;
-    GLuint                      instance_offsets;
-    GLfloat  *                  instance_rotations_buffer;
-    GLuint                      instance_rotations;
-    GLuint                      vertex_buffer_object;
-    GLuint                      vertex_array_object;
-    GLchar                      vertex_indexes[4];
-    GLuint                      texture_id;
-    GLuint                      texture_scale;
-    GLuint                      index_buffer_object;
-} UIKnobs;
-
-void render_knobs(UIElements * knobs);
 void update_knob(int index, UIElements * knobs_p, void * args);
-
-#define DSTUDIO_INIT_KNOB(knobs_p, knob_index, gl_x, gl_y, ui_element_index, min_area_x, max_area_x, min_area_y, max_area_y, ui_element_type) \
-        init_knob( \
-            knobs_p, \
-            knob_index, \
-            init_knob_array_p->gl_x, \
-            init_knob_array_p->gl_y \
-        ); \
-        DSTUDIO_SET_AREA( \
-            ui_element_index, \
-            init_knob_array_p->min_area_x, \
-            init_knob_array_p->max_area_x, \
-            init_knob_array_p->min_area_y, \
-            init_knob_array_p->max_area_y \
-        ) \
-        DSTUDIO_SET_UI_CALLBACK( \
-            ui_element_index,\
-            update_knob, \
-            knob_index,\
-            knobs_p, \
-            init_knob_array_p->ui_element_type\
-        );
 
 #endif

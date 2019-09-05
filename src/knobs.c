@@ -22,14 +22,6 @@
 #include "extensions.h"
 #include "knobs.h"
 
-void init_knob(UIElements * knobs, int index, float offset_x, float offset_y) {    
-    init_ui_element(&knobs->instance_offsets_buffer[index], offset_x, offset_y, &knobs->instance_motions_buffer[index]);
-}
-
-void render_knobs(UIElements * knobs) {    
-    render_ui_elements(knobs->texture_id, knobs->vertex_array_object, knobs->index_buffer_object, knobs->count);
-}
-
 void update_knob(int index, UIElements * knobs_p, void * args) {
     float * motion = (float*) args;
     knobs_p->instance_motions_buffer[index] = *motion;

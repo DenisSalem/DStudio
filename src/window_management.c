@@ -227,7 +227,6 @@ void listen_events() {
     while(XPending(display)) {
         XNextEvent(display, &x_event);
         if(x_event.type == ClientMessage) {
-            printf("THERE\n");
             window_alive = 0;
             return;
         }
