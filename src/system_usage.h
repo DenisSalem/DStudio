@@ -25,18 +25,8 @@
 #include "text.h"
 
 typedef struct UISystemUsage_t {
-    unsigned char * texture;
-    Vec4            vertexes_attributes[4];
-    Vec2            scale_matrix[2];
-    Vec4            instance_offsets_buffer;
-    GLuint          instance_offsets;
-    GLuint          vertex_buffer_object;
-    GLuint          vertex_array_object;
-    GLchar          vertex_indexes[4];
-    GLuint          texture_id;
-    GLuint          index_buffer_object;
-    UIText          ui_text_cpu;
-    UIText          ui_text_mem;
+    UIElements*     ui_text_cpu;
+    UIElements*     ui_text_mem;
     int             ready;
     int             update;
     sem_t           mutex;
@@ -49,17 +39,7 @@ typedef struct SystemUsage_t {
     UISystemUsage * ui;
 } SystemUsage;
 
-void init_system_usage_ui(
-    UISystemUsage * system_usage,
-    const char * texture_system_usage_filename,
-    const char * texture_text_filename,
-    unsigned int texture_system_usage_width,
-    unsigned int texture_system_usage_height,
-    unsigned int texture_text_width,
-    unsigned int texture_text_height,
-    GLfloat gl_x,
-    GLfloat gl_y
-);
+void init_system_usage_ui(UISystemUsage * system_usage, UIElements * text_cpu, UIElements * text_mem);
 
 void * update_system_usage(void * args);
 

@@ -62,22 +62,18 @@ void configure_ui_element(UIElements * ui_elements, UIElementSettingParams * par
             ( (Vec4 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
         }
         ui_elements->instance_motions_buffer[i] = 0;
-
-        DSTUDIO_SET_AREA(
-            array_offset+i,
-            configure_ui_element_p->min_area_x,
-            configure_ui_element_p->max_area_x,
-            configure_ui_element_p->min_area_y,
-            configure_ui_element_p->max_area_y
-        )
-        DSTUDIO_SET_UI_CALLBACK(
-            array_offset+i,
-            params->update_callback,
-            i,
-            ui_elements,
-            configure_ui_element_p->ui_element_type
-        );
+        
+        ui_areas[array_offset+i].min_x = configure_ui_element_p->min_area_x;
+        ui_areas[array_offset+i].max_x = configure_ui_element_p->max_area_x;
+        ui_areas[array_offset+i].min_y = configure_ui_element_p->min_area_y;
+        ui_areas[array_offset+i].max_y = configure_ui_element_p->max_area_y;
+        ui_areas[array_offset+i].x     = (configure_ui_element_p->min_area_x + configure_ui_element_p->max_area_x ) / 2;
+        ui_areas[array_offset+i].y     = (configure_ui_element_p->min_area_y + configure_ui_element_p->max_area_y ) / 2;
     
+        ui_callbacks[array_offset+i].callback = params->update_callback;
+        ui_callbacks[array_offset+i].index = i;
+        ui_callbacks[array_offset+i].context_p = ui_elements;
+        ui_callbacks[array_offset+i].type = configure_ui_element_p->ui_element_type;
     }
 }
 
@@ -155,51 +151,6 @@ int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format)
     printf("Something went wrong while reading \"%s\".\n", filename);
     exit(-1);
 }
-
-//~ void init_background_element(
-    //~ GLchar * vertex_indexes,
-    //~ Vec4 * vertex_attributes,
-    //~ GLuint * index_buffer_object_p,
-    //~ GLuint * vertex_buffer_object_p,
-    //~ const char * texture_filename,
-    //~ unsigned char ** texture_p,
-    //~ int alpha,
-    //~ GLuint * texture_id_p,
-    //~ GLuint * vertex_array_object_p,
-    //~ GLuint texture_width,
-    //~ GLuint texture_height,
-    //~ Vec2 * scale_matrix,
-    //~ GLuint * instance_offsets_p,
-    //~ Vec4 * instance_offsets_buffer,
-    //~ GLuint count
-//~ ) {
-    
-    //~ DSTUDIO_SET_VERTEX_INDEXES
-    //~ DSTUDIO_SET_VERTEX_ATTRIBUTES
-    //~ DSTUDIO_SET_S_T_COORDINATES(1.0f, 1.0f)
-
-    //~ scale_matrix[0].x = ((float) texture_width) / ((float) DSTUDIO_VIEWPORT_WIDTH);
-    //~ scale_matrix[0].y = 0;
-    //~ scale_matrix[1].x = 0;
-    //~ scale_matrix[1].y = ((float) texture_height) / ((float) DSTUDIO_VIEWPORT_HEIGHT);
-
-    //~ gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_p, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
-    //~ gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
-    //~ gen_gl_buffer(GL_ARRAY_BUFFER, instance_offsets_p, instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec4) * count);
-
-    //~ get_png_pixel(texture_filename, texture_p, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
-
-    //~ setup_texture_gpu_side(
-        //~ 0,
-        //~ alpha,
-        //~ texture_id_p,
-        //~ texture_width,
-        //~ texture_height,
-        //~ *texture_p
-    //~ );
-
-    //~ setup_vertex_array_gpu_side(vertex_array_object_p, *vertex_buffer_object_p, *instance_offsets_p, 0);
-//~ }
 
 void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params) {
     Vec4 * offsets; 
@@ -292,42 +243,6 @@ void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y
     *motion_buffer = 0;
 }
 
-//~ void init_ui_elements_cpu_side(int count, int * count_p, GLuint texture_scale, GLuint * texture_scale_p, const char * texture_filename, unsigned char ** texture_p, Vec2 ** offsets_buffer_p, GLfloat ** motions_buffer_p, GLchar * vertex_indexes, Vec2 * scale_matrix) {
-    //~ *count_p = count;
-    //~ *texture_scale_p = texture_scale;
-
-    //~ get_png_pixel(texture_filename, texture_p, PNG_FORMAT_RGBA);
-
-    //~ *offsets_buffer_p = malloc(count * sizeof(Vec2));
-    //~ *motions_buffer_p = malloc(count * sizeof(GLfloat));
-    
-    
-    //~ DSTUDIO_SET_VERTEX_INDEXES
-    
-    //~ scale_matrix[0].x = ((float) texture_scale) / ((float) DSTUDIO_VIEWPORT_WIDTH);
-    //~ scale_matrix[0].y = 0;
-    //~ scale_matrix[1].x = 0;
-    //~ scale_matrix[1].y = ((float) texture_scale) / ((float) DSTUDIO_VIEWPORT_HEIGHT);
-//~ }
-
-//~ void init_ui_elements_gpu_side(int enable_aa, Vec4 * vertex_attributes, GLuint * vertex_buffer_object_p, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture, GLuint * index_buffer_object_p, GLchar * vertex_indexes) {
-    //~ DSTUDIO_SET_VERTEX_ATTRIBUTES
-    //~ DSTUDIO_SET_S_T_COORDINATES(1.0f, 1.0f)
-
-    //~ gen_gl_buffer(GL_ARRAY_BUFFER, vertex_buffer_object_p, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
-
-    //~ setup_texture_gpu_side(
-        //~ enable_aa,
-        //~ 1,
-        //~ texture_id_p,
-        //~ texture_width,
-        //~ texture_height,
-        //~ texture
-    //~ );
-    
-    //~ gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_object_p, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
-//~ }
-
 void load_shader(GLchar ** shader_buffer, const char * filename) {
     FILE * shader = fopen (filename, "r");
     if (shader == NULL) {
@@ -356,19 +271,6 @@ void render_ui_elements(UIElements * ui_elements) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-//~ void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture) {
-    //~ glGenTextures(1, texture_id_p);
-    //~ glBindTexture(GL_TEXTURE_2D, *texture_id_p);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        //~ glTexImage2D(GL_TEXTURE_2D, 0, alpha ? GL_RGBA : GL_RGB, texture_width, texture_height, 0, alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, texture);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, enable_aa ? GL_LINEAR : GL_NEAREST);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, enable_aa ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST );
-        //~ glGenerateMipmap(GL_TEXTURE_2D);
-    //~ glBindTexture(GL_TEXTURE_2D, 0);
-    //~ free(texture);
-//~ }
-
 GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix) {
     GLuint texture_id = 0;
     unsigned char * texture_data = 0;
@@ -395,27 +297,3 @@ GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_wid
     
     return texture_id;
 }
-
-//~ void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions) {
-    //~ glGenVertexArrays(1, vertex_array_object);
-    //~ glBindVertexArray(*vertex_array_object);
-        //~ glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);         
-            //~ glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-            //~ glEnableVertexAttribArray(0);
-            //~ glVertexAttribDivisor(0, 0);
-            //~ glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)(2 * sizeof(GLfloat)));
-            //~ glEnableVertexAttribArray(1);
-            //~ glVertexAttribDivisor(1, 0);
-        //~ glBindBuffer(GL_ARRAY_BUFFER, instance_offsets);
-            //~ glVertexAttribPointer(2, instance_motions ? 2 : 4, GL_FLOAT, GL_FALSE, instance_motions ? sizeof(Vec2) : sizeof(Vec4), (GLvoid *) 0 );
-            //~ glEnableVertexAttribArray(2);
-            //~ glVertexAttribDivisor(2, 1);
-            //~ if (instance_motions) {
-                //~ glBindBuffer(GL_ARRAY_BUFFER, instance_motions);
-                    //~ glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
-                    //~ glEnableVertexAttribArray(3);
-                    //~ glVertexAttribDivisor(3, 1);
-            //~ }
-        //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //~ glBindVertexArray(0);
-//~ }

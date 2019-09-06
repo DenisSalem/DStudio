@@ -26,7 +26,6 @@
 
 typedef struct UIText_t {
     Vec4            vertex_attributes[4];
-    Vec2 *          scale_matrix;
     unsigned int    string_size;
     unsigned int    actual_string_size;
     Vec4 *          instance_offsets_buffer;

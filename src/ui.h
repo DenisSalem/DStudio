@@ -46,46 +46,11 @@
 extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
 extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 
-#define DSTUDIO_SET_AREA(index, mn_x, mx_x, mn_y, mx_y) \
-    ui_areas[index].min_x = mn_x; \
-    ui_areas[index].max_x = mx_x; \
-    ui_areas[index].min_y = mn_y; \
-    ui_areas[index].max_y = mx_y; \
-    ui_areas[index].x     = (mn_x + mx_x ) / 2;\
-    ui_areas[index].y     = (mn_y + mx_y ) / 2;
-
-#define DSTUDIO_SET_UI_CALLBACK(array_index, input_callback, input_index, input_context, input_type) \
-    ui_callbacks[array_index].callback = input_callback; \
-    ui_callbacks[array_index].index = input_index; \
-    ui_callbacks[array_index].context_p = input_context; \
-    ui_callbacks[array_index].type = input_type;
-
-#define DSTUDIO_SET_VERTEX_ATTRIBUTES \
-    vertex_attributes[0].x = -1.0; \
-    vertex_attributes[0].y = 1.0; \
-    vertex_attributes[1].x = -1.0; \
-    vertex_attributes[1].y = -1.0; \
-    vertex_attributes[2].x =  1.0; \
-    vertex_attributes[2].y =  1.0; \
-    vertex_attributes[3].x =  1.0; \
-    vertex_attributes[3].y = -1.0;
-     
-#define DSTUDIO_SET_S_T_COORDINATES(x, y) \
-    vertex_attributes[0].z = 0.0f; \
-    vertex_attributes[0].w = 0.0f; \
-    vertex_attributes[1].z = 0.0f; \
-    vertex_attributes[1].w = y; \
-    vertex_attributes[2].z = x; \
-    vertex_attributes[2].w = 0.0f; \
-    vertex_attributes[3].z = x; \
-    vertex_attributes[3].w = y;
-    
-// Might not be used anymore because of generalization of ui elements
-#define DSTUDIO_SET_VERTEX_INDEXES \
-    vertex_indexes[0] = 0; \
-    vertex_indexes[1] = 1; \
-    vertex_indexes[2] = 2; \
-    vertex_indexes[3] = 3;
+#define DSTUDIO_SET_TEXT_SCALE_MATRIX(matrix, width, height) \
+    matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR; \
+    matrix[0].y = 0; \
+    matrix[1].x = 0; \
+    matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
 
 #define DSTUDIO_KNOB_TYPE_1 1
 #define DSTUDIO_KNOB_TYPE_2 2
@@ -180,24 +145,6 @@ void create_shader_program(GLuint * interactive_program_id, GLuint * non_interac
 void gen_gl_buffer(GLenum type, GLuint * vertex_buffer_object_p,  void * vertex_attributes, GLenum mode, unsigned int data_size);
 
 int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format); // png_bytep is basically unsigned char
-
-//~ void init_background_element(
-    //~ GLchar * vertex_indexes,
-    //~ Vec4 * vertex_attributes,
-    //~ GLuint * index_buffer_object_p,
-    //~ GLuint * vertex_buffer_object_p,
-    //~ const char * texture_filename,
-    //~ unsigned char ** texture_p,
-    //~ int alpha,
-    //~ GLuint * texture_id_p,
-    //~ GLuint * vertex_array_object_p,
-    //~ GLuint texture_width,
-    //~ GLuint texture_height,
-    //~ Vec2 * scale_matrix,
-    //~ GLuint * instance_offsets_p,
-    //~ Vec4 * instance_offsets_buffer,
-    //~ GLuint count
-    //~ );
 
 void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params);
 
