@@ -41,23 +41,23 @@ void init_system_usage_ui(
     system_usage->instance_offsets_buffer.z = 0;
     system_usage->instance_offsets_buffer.w = 0;
     
-    init_background_element(
-        system_usage->vertex_indexes,
-        system_usage->vertexes_attributes,
-        &system_usage->index_buffer_object,
-        &system_usage->vertex_buffer_object,
-        texture_system_usage_filename,
-        &system_usage->texture,
-        1,
-        &system_usage->texture_id,
-        &system_usage->vertex_array_object,
-        texture_system_usage_width,
-        texture_system_usage_height,
-        system_usage->scale_matrix,
-        &system_usage->instance_offsets,
-        &system_usage->instance_offsets_buffer,
-        1
-    );
+    //~ init_background_element(
+        //~ system_usage->vertex_indexes,
+        //~ system_usage->vertexes_attributes,
+        //~ &system_usage->index_buffer_object,
+        //~ &system_usage->vertex_buffer_object,
+        //~ texture_system_usage_filename,
+        //~ &system_usage->texture,
+        //~ 1,
+        //~ &system_usage->texture_id,
+        //~ &system_usage->vertex_array_object,
+        //~ texture_system_usage_width,
+        //~ texture_system_usage_height,
+        //~ system_usage->scale_matrix,
+        //~ &system_usage->instance_offsets,
+        //~ &system_usage->instance_offsets_buffer,
+        //~ 1
+    //~ );
     init_text(
         &system_usage->ui_text_cpu,
         0,

@@ -59,14 +59,14 @@ void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const 
         scale_matrix = input_scale_matrix;
     }
     
-    setup_texture_gpu_side(
-        enable_aa,
-        1,
-        &ui_text->texture_id,
-        text_texture_width,
-        text_texture_height,
-        texture_buffer
-    );
+    //~ setup_texture_gpu_side(
+        //~ enable_aa,
+        //~ 1,
+        //~ &ui_text->texture_id,
+        //~ text_texture_width,
+        //~ text_texture_height,
+        //~ texture_buffer
+    //~ );
     
     ui_text->instance_offsets_buffer = malloc(sizeof(Vec4) * string_size);
     explicit_bzero(ui_text->instance_offsets_buffer, sizeof(Vec4) * string_size);
@@ -75,7 +75,7 @@ void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const 
         ui_text->instance_offsets_buffer[i].y = pos_y;
     }
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_text->instance_offsets, ui_text->instance_offsets_buffer, GL_STATIC_DRAW, sizeof(Vec4) * string_size);
-    setup_vertex_array_gpu_side(&ui_text->vertex_array_object, ui_text->vertex_buffer_object, ui_text->instance_offsets, 0);
+    //setup_vertex_array_gpu_side(&ui_text->vertex_array_object, ui_text->vertex_buffer_object, ui_text->instance_offsets, 0);
 }
 
 void render_text(UIText * text) {

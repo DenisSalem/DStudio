@@ -177,64 +177,36 @@ void configure_ui_element(UIElements * ui_elements, UIElementSettingParams * par
 
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
 
-void finalize_ui_element( int count, GLuint * instance_offsets_p, Vec2 * instance_offsets_buffer, GLuint * instance_motions_p, GLfloat * instance_motions_buffer, GLuint * vertex_array_object_p, GLuint vertex_buffer_object);
-
 void gen_gl_buffer(GLenum type, GLuint * vertex_buffer_object_p,  void * vertex_attributes, GLenum mode, unsigned int data_size);
 
 int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format); // png_bytep is basically unsigned char
 
-void init_background_element(
-    GLchar * vertex_indexes,
-    Vec4 * vertex_attributes,
-    GLuint * index_buffer_object_p,
-    GLuint * vertex_buffer_object_p,
-    const char * texture_filename,
-    unsigned char ** texture_p,
-    int alpha,
-    GLuint * texture_id_p,
-    GLuint * vertex_array_object_p,
-    GLuint texture_width,
-    GLuint texture_height,
-    Vec2 * scale_matrix,
-    GLuint * instance_offsets_p,
-    Vec4 * instance_offsets_buffer,
-    GLuint count
-    );
+//~ void init_background_element(
+    //~ GLchar * vertex_indexes,
+    //~ Vec4 * vertex_attributes,
+    //~ GLuint * index_buffer_object_p,
+    //~ GLuint * vertex_buffer_object_p,
+    //~ const char * texture_filename,
+    //~ unsigned char ** texture_p,
+    //~ int alpha,
+    //~ GLuint * texture_id_p,
+    //~ GLuint * vertex_array_object_p,
+    //~ GLuint texture_width,
+    //~ GLuint texture_height,
+    //~ Vec2 * scale_matrix,
+    //~ GLuint * instance_offsets_p,
+    //~ Vec4 * instance_offsets_buffer,
+    //~ GLuint count
+    //~ );
 
 void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params);
 
 void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
 
-void init_ui_elements_cpu_side(
-    int count, int * count_p,
-    GLuint texture_scale,
-    GLuint * texture_scale_p,
-    const char * texture_filename,
-    unsigned char ** texture_p,
-    Vec2 ** offsets_buffer_p,
-    GLfloat ** motions_buffer_p,
-    GLchar * vertex_indexes,
-    Vec2 * scale_matrix
-);
-
-void init_ui_elements_gpu_side(
-    int enable_aa,
-    Vec4 * vertex_attributes,
-    GLuint * vertex_buffer_object_p,
-    GLuint * texture_id_p,
-    GLuint texture_width,
-    GLuint texture_height,
-    unsigned char * texture,
-    GLuint * index_buffer_object_p,
-    GLchar * vertex_indexes
-);
-
 void load_shader(GLchar ** shader_buffer, const char * filename);
 
 void render_ui_elements(UIElements * ui_elements);
 
-void setup_texture_gpu_side(int enable_aa, int alpha, GLuint * texture_id_p, GLuint texture_width, GLuint texture_height, unsigned char * texture);
 GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix);
-void setup_vertex_array_gpu_side(GLuint * vertex_array_object, GLuint vertex_buffer_object, GLuint instance_offsets, GLuint instance_motions);
  
 #endif

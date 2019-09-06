@@ -39,6 +39,10 @@ static UIInstances * ui_instances_p;
 static UIElements background = {0};
 static Vec2 background_scale_matrix[2] = {0};
 
+/* System Usage */
+static UIElements system_usage = {0};
+static Vec2 system_usage_scale_matrix[2] = {0};
+
 /* Knobs 1 */
 static UIElements sample_knobs = {0};
 static UIElements voice_knobs = {0};
@@ -94,7 +98,8 @@ static void init_ui(UI * ui) {
     GLuint knob1_texture_id = setup_texture_n_scale_matrix(1, 1, 64, 64, DSANDGRAINS_KNOB1_ASSET_PATH, knob1_scale_matrix);
     GLuint knob2_texture_id = setup_texture_n_scale_matrix(1, 1, 48, 48, DSANDGRAINS_KNOB2_ASSET_PATH, knob2_scale_matrix);
     GLuint slider_texture_id = setup_texture_n_scale_matrix(0, 1, 10, 10, DSANDGRAINS_SLIDER1_ASSET_PATH, slider_scale_matrix);
-    
+    GLuint system_usage_texture_id = setup_texture_n_scale_matrix(0, 1, 30, 23, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, system_usage_scale_matrix);
+
     /* Tell to mouse button callback the height of the current active slider */
     slider_texture_scale = 10;
     
@@ -200,7 +205,11 @@ static void init_ui(UI * ui) {
     
     /* Background */
     init_ui_elements(&background, background_texture_id, 1, NULL, NULL);
-    
+
+    /* System Usage */
+    Vec4 offsets = {-0.035, 0.889583, 0, 0};
+    init_ui_elements(&system_usage, system_usage_texture_id, 1, NULL, &offsets);
+   
     /* Knobs */
     params.update_callback = update_knob;
     
@@ -263,11 +272,11 @@ static void render_viewport(int mask) {
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) background_scale_matrix);
         render_ui_elements(&background);
         
-        //~ // SYSTEM USAGE
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) system_usage_scale_matrix);
+        render_ui_elements(&system_usage);
+        
+        // SYSTEM USAGE
         //~ if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
-            //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_system_usage_scale_matrix_p);
-            //~ render_background(ui_system_usage_p, DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE);
-
             //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
             //~ render_text(&ui_system_usage_p->ui_text_cpu);
             //~ render_text(&ui_system_usage_p->ui_text_mem);
