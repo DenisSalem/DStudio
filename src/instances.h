@@ -13,7 +13,7 @@ typedef struct InstanceContext_t {
 } InstanceContext;
 
 typedef struct UIInstances_t {
-    UIText * lines;
+    UIElements * lines;
     int lines_number;
     int window_offset;
     sem_t mutex;

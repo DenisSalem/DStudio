@@ -29,6 +29,7 @@
 #include "../fileutils.h"
 #include "../instances.h"
 #include "../knobs.h"
+#include "../text.h"
 #include "instances.h"
 #include "ui.h"
 
@@ -101,7 +102,8 @@ static void init_ui(UI * ui) {
     GLuint knob2_texture_id = setup_texture_n_scale_matrix(1, 1, 48, 48, DSANDGRAINS_KNOB2_ASSET_PATH, knob2_scale_matrix);
     GLuint slider_texture_id = setup_texture_n_scale_matrix(0, 1, 10, 10, DSANDGRAINS_SLIDER1_ASSET_PATH, slider_scale_matrix);
     GLuint system_usage_texture_id = setup_texture_n_scale_matrix(0, 1, 30, 23, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, system_usage_scale_matrix);
-    //DSTUDIO_SET_TEXT_SCALE_MATRIX(matrix, width, height)
+    GLuint charset_texture_id = setup_texture_n_scale_matrix(0, 1, 30, 23, DSTUDIO_CHAR_TABLE_ASSET_PATH, NULL);
+    DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_scale_matrix, 104, 234)
     
     /* Tell to mouse button callback the height of the current active slider */
     slider_texture_scale = 10;

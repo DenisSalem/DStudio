@@ -45,12 +45,13 @@ void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
     #endif
 }
 
-void configure_ui_element(UIElements * ui_elements, UIElementSettingParams * params) {
+void configure_ui_element(UIElements * ui_elements, void * params) {
+    UIElementSettingParams * ui_element_setting_params = (UIElementSettingParams *) params;
     UIElementSetting * configure_ui_element_p;
-    UIElementSetting * configure_ui_element_array = params->settings;
-    UIArea * ui_areas = params->areas;
-    UICallback * ui_callbacks = params->callbacks;
-    unsigned int array_offset = params->array_offset;
+    UIElementSetting * configure_ui_element_array = ui_element_setting_params->settings;
+    UIArea * ui_areas = ui_element_setting_params->areas;
+    UICallback * ui_callbacks = ui_element_setting_params->callbacks;
+    unsigned int array_offset = ui_element_setting_params->array_offset;
     for (int i = 0; i < ui_elements->count; i++) {
         configure_ui_element_p = &configure_ui_element_array[i];
         if (ui_elements->interactive) {
@@ -70,7 +71,7 @@ void configure_ui_element(UIElements * ui_elements, UIElementSettingParams * par
         ui_areas[array_offset+i].x     = (configure_ui_element_p->min_area_x + configure_ui_element_p->max_area_x ) / 2;
         ui_areas[array_offset+i].y     = (configure_ui_element_p->min_area_y + configure_ui_element_p->max_area_y ) / 2;
     
-        ui_callbacks[array_offset+i].callback = params->update_callback;
+        ui_callbacks[array_offset+i].callback = ui_element_setting_params->update_callback;
         ui_callbacks[array_offset+i].index = i;
         ui_callbacks[array_offset+i].context_p = ui_elements;
         ui_callbacks[array_offset+i].type = configure_ui_element_p->ui_element_type;
@@ -152,7 +153,7 @@ int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format)
     exit(-1);
 }
 
-void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, UIElementSettingParams * params), void * params) {
+void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params) {
     Vec4 * offsets; 
     int interactive = configure_ui_element != NULL ? 1 : 0;
     ui_elements->interactive = interactive;
