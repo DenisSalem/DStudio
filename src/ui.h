@@ -46,12 +46,6 @@
 extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
 extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 
-#define DSTUDIO_SET_TEXT_SCALE_MATRIX(matrix, width, height) \
-    matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR; \
-    matrix[0].y = 0; \
-    matrix[1].x = 0; \
-    matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
-
 #define DSTUDIO_KNOB_TYPE_1 1
 #define DSTUDIO_KNOB_TYPE_2 2
 #define DSTUDIO_SLIDER_TYPE_1 4
@@ -141,7 +135,7 @@ void configure_ui_element(UIElements * ui_elements, void * params);
 void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
 void gen_gl_buffer(GLenum type, GLuint * vertex_buffer_object_p,  void * vertex_attributes, GLenum mode, unsigned int data_size);
 int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format); // png_bytep is basically unsigned char
-void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params);
+void init_ui_elements(int interactive, UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params);
 void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
 void load_shader(GLchar ** shader_buffer, const char * filename);
 void render_ui_elements(UIElements * ui_elements);

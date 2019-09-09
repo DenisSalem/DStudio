@@ -25,21 +25,16 @@
 #include "text.h"
 
 typedef struct UISystemUsage_t {
-    UIElements*     ui_text_cpu;
-    UIElements*     ui_text_mem;
+    unsigned int    string_size;
+    char            cpu_string_buffer[7];
+    char            mem_string_buffer[7];
     int             ready;
     int             update;
     sem_t           mutex;
     int             cut_thread;
 } UISystemUsage;
 
-typedef struct SystemUsage_t {
-    double          cpu_usage;
-    double          mem_usage;
-    UISystemUsage * ui;
-} SystemUsage;
-
-void init_system_usage_ui(UISystemUsage * system_usage, UIElements * text_cpu, UIElements * text_mem);
+void init_system_usage_ui(UISystemUsage * system_usage, unsigned int string_size);
 
 void * update_system_usage(void * args);
 

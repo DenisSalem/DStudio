@@ -153,9 +153,8 @@ int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format)
     exit(-1);
 }
 
-void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params) {
+void init_ui_elements(int interactive, UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params) {
     Vec4 * offsets; 
-    int interactive = configure_ui_element != NULL ? 1 : 0;
     ui_elements->interactive = interactive;
     /* How many elements this group holds? */
     ui_elements->count = count;
@@ -184,6 +183,7 @@ void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int 
     
     /* Setting default texture coordinates */
     
+    
     //~ vertex_attributes[0].z = 0.0f;
     //~ vertex_attributes[0].w = 0.0f;
     //~ vertex_attributes[1].z = 0.0f;
@@ -193,24 +193,25 @@ void init_ui_elements(UIElements * ui_elements, GLuint texture_id, unsigned int 
     vertex_attributes[3].z = 1.0;
     vertex_attributes[3].w = 1.0;
 
-    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
     
     /* Setting instance buffers */
     ui_elements->instance_offsets_buffer = malloc(count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
     explicit_bzero(ui_elements->instance_offsets_buffer, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
     
-    if (interactive) {
+    if (configure_ui_element != NULL && params != NULL) {
         ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
         configure_ui_element(ui_elements, params);
-        gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
     }
-    if (params != NULL && !interactive) {
+    
+    if (params != NULL && !interactive && configure_ui_element == NULL) {
         offsets = (Vec4 *) &ui_elements->instance_offsets_buffer[0];
         offsets->x = ((Vec4 *) params)->x;
         offsets->y = ((Vec4 *) params)->y;
         offsets->z = ((Vec4 *) params)->z;
         offsets->w = ((Vec4 *) params)->w;
     }
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
 
     /* Setting vertex array */

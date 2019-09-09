@@ -24,20 +24,11 @@
 
 #define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
 
-//~ typedef struct UIText_t {
-    //~ Vec4            vertex_attributes[4];
-    //~ unsigned int    string_size;
-    //~ unsigned int    actual_string_size;
-    //~ Vec4 *          instance_offsets_buffer;
-    //~ GLuint          instance_offsets;
-    //~ Vec2            text_position;
-    //~ GLuint          vertex_buffer_object;
-    //~ GLuint          vertex_array_object;
-    //~ GLchar          vertex_indexes[4];
-    //~ GLuint          texture_id;
-    //~ GLuint          index_buffer_object;
-    //~ char *          string_buffer;
-//~ } UIText;
+#define DSTUDIO_SET_TEXT_SCALE_MATRIX(matrix, width, height) \
+    matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR; \
+    matrix[0].y = 0; \
+    matrix[1].x = 0; \
+    matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
 
 typedef struct UITextSettingParams {
     unsigned int string_size;
@@ -47,7 +38,5 @@ typedef struct UITextSettingParams {
 } UITextSettingParams;
 
 void configure_text_element(UIElements * ui_text, void * params);
-//void init_text(UIText * ui_text, int enable_aa, unsigned int string_size, const char * texture_filename, GLfloat pos_x, GLfloat pos_y, Vec2 * scale_matrix);
-//void render_text(UIText * text);
-void update_text(UIElements * text);
+void update_text(UIElements * text, char * string_value);
 #endif

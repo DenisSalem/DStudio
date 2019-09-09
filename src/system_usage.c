@@ -25,78 +25,45 @@
 #include "system_usage.h"
 #include "window_management.h"
 
-void init_system_usage_ui(UISystemUsage * system_usage, UIElements * text_cpu, UIElements * text_mem) {
-    system_usage->ui_text_cpu = text_cpu;
-    system_usage->ui_text_mem = text_mem;
-    //~ init_text(
-        //~ &system_usage->ui_text_cpu,
-        //~ 0,
-        //~ 6,
-        //~ DSTUDIO_CHAR_TABLE_ASSET_PATH,
-        //~ gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH)),
-        //~ gl_y + 0.027083,
-        //~ NULL
-    //~ );
-    //~ init_text(
-        //~ &system_usage->ui_text_mem,
-        //~ 0,
-        //~ 6,
-        //~ DSTUDIO_CHAR_TABLE_ASSET_PATH,
-        //~ gl_x + ((GLfloat) (texture_system_usage_width+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH)),
-        //~ gl_y - 0.027083,
-        //~ system_usage->ui_text_cpu.scale_matrix
-    //~ );
-    
+void init_system_usage_ui(UISystemUsage * system_usage, unsigned int string_size) {
     sem_init(&system_usage->mutex, 0, 1);
     system_usage->ready = 1;
+    system_usage->string_size;
 }
 
 void * update_system_usage(void * args) {
-    //~ SystemUsage * system_usage = (SystemUsage *) args;
-    //~ while(!system_usage->ui->ready) {
-        //~ usleep(1000);
-    //~ }
-    
-    //~ char * cpu_usage_string_value = 0;
-    //~ char * mem_usage_string_value = 0;
-    
-    //~ Vec4 * ui_text_cpu_offset_buffer = system_usage->ui->ui_text_cpu.instance_offsets_buffer;
-    //~ Vec4 * ui_text_mem_offset_buffer = system_usage->ui->ui_text_mem.instance_offsets_buffer;
-    
-    //~ unsigned int * ui_text_cpu_actual_size = &system_usage->ui->ui_text_cpu.actual_string_size;
-    //~ unsigned int * ui_text_mem_actual_size = &system_usage->ui->ui_text_mem.actual_string_size;
-    
-    //~ GLuint ui_text_offset_buffer_object = system_usage->ui->ui_text_cpu.instance_offsets;
-    //~ GLuint ui_mem_offset_buffer_object = system_usage->ui->ui_text_mem.instance_offsets;
-    
-    //~ cpu_usage_string_value = system_usage->ui->ui_text_cpu.string_buffer;
-    //~ mem_usage_string_value = system_usage->ui->ui_text_mem.string_buffer;
+    UISystemUsage * system_usage = (UISystemUsage *) args;
+    while(!system_usage->ready) {
+        usleep(1000);
+    }
 
-    //~ while (1) {
-        //~ clock_t cpu_time = clock();
-        //~ usleep(250000);
-        //~ sem_wait(&system_usage->ui->mutex);
+    while (1) {
+        clock_t cpu_time = clock();
+        usleep(250000);
+        sem_wait(&system_usage->mutex);
         
-        //~ if (system_usage->ui->cut_thread) {
-            //~ sem_post(&system_usage->ui->mutex);
-            //~ break;
-        //~ }
-        //~ system_usage->cpu_usage = (((double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
-        //~ system_usage->mem_usage = get_proc_memory_usage();
+        if (system_usage->cut_thread) {
+            sem_post(&system_usage->mutex);
+            break;
+        }
+        double cpu_usage = (((double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
+        double mem_usage = get_proc_memory_usage();
 
-        //~ if (system_usage->cpu_usage != -1) {
-            //~ sprintf(cpu_usage_string_value, "%0.1f%%", system_usage->cpu_usage);
-        //~ }
-        //~ if (system_usage->mem_usage != -1) {
-            //~ sprintf(mem_usage_string_value, "%0.1f%%", system_usage->mem_usage);
-        //~ }
+        if (cpu_usage != -1) {
+            explicit_bzero(system_usage->cpu_string_buffer, 6);
+            sprintf(system_usage->cpu_string_buffer, "%0.1f%%", cpu_usage);
+        }
+        if (mem_usage != -1) {
+            explicit_bzero(system_usage->mem_string_buffer, 6);
+            sprintf(system_usage->mem_string_buffer, "%0.1f%%", mem_usage);
+        }
         
-        //~ send_expose_event();
-        //~ system_usage->ui->update = 1;
-        //~ sem_post(&system_usage->ui->mutex);
+        send_expose_event();
+        system_usage->update = 1;
+        sem_post(&system_usage->mutex);
         
-        //~ get_proc_memory_usage();
-    //~ }
+        get_proc_memory_usage();
+    }
     
-    //~ return NULL;
+    return NULL;
 }

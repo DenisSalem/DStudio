@@ -43,6 +43,7 @@ static Vec2 background_scale_matrix[2] = {0};
 /* System Usage */
 static UIElements system_usage = {0};
 static UIElements cpu_usage = {0};
+static UIElements mem_usage = {0};
 static Vec2 system_usage_scale_matrix[2] = {0};
 static Vec2 charset_scale_matrix[2] = {0};
 
@@ -96,29 +97,17 @@ static void init_ui(UI * ui) {
     ui_system_usage_p = &ui->system_usage;
     ui_instances_p = &ui->instances;
     
-    /* Load shared texture and prepare shared scale_matrix */
+    /* Load shared texture and prepare shared scale matrices */
     GLuint background_texture_id = setup_texture_n_scale_matrix(0, 0, 800, 480, DSANDGRAINS_BACKGROUND_ASSET_PATH, background_scale_matrix);
     GLuint knob1_texture_id = setup_texture_n_scale_matrix(1, 1, 64, 64, DSANDGRAINS_KNOB1_ASSET_PATH, knob1_scale_matrix);
     GLuint knob2_texture_id = setup_texture_n_scale_matrix(1, 1, 48, 48, DSANDGRAINS_KNOB2_ASSET_PATH, knob2_scale_matrix);
     GLuint slider_texture_id = setup_texture_n_scale_matrix(0, 1, 10, 10, DSANDGRAINS_SLIDER1_ASSET_PATH, slider_scale_matrix);
     GLuint system_usage_texture_id = setup_texture_n_scale_matrix(0, 1, 30, 23, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, system_usage_scale_matrix);
-    GLuint charset_texture_id = setup_texture_n_scale_matrix(0, 1, 30, 23, DSTUDIO_CHAR_TABLE_ASSET_PATH, NULL);
+    GLuint charset_texture_id = setup_texture_n_scale_matrix(0, 1, 104, 234, DSTUDIO_CHAR_TABLE_ASSET_PATH, NULL);
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_scale_matrix, 104, 234)
     
     /* Tell to mouse button callback the height of the current active slider */
     slider_texture_scale = 10;
-    
-    //~ init_system_usage_ui(
-        //~ ui_system_usage_p,
-        //~ DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH,
-        //~ DSTUDIO_CHAR_TABLE_ASSET_PATH,
-        //~ 30, 
-        //~ 23, 
-        //~ 104, 
-        //~ 234,
-        //~ -0.035,
-        //~ 0.889583
-    //~ );
 
     //~ init_instances_ui(
         //~ 7,
@@ -209,49 +198,65 @@ static void init_ui(UI * ui) {
     params.areas = ui_areas;
     
     /* Background */
-    init_ui_elements(&background, background_texture_id, 1, NULL, NULL);
+    init_ui_elements(0, &background, background_texture_id, 1, NULL, NULL);
 
     /* System Usage */
     Vec4 offsets = {-0.035, 0.889583, 0, 0};
-    init_ui_elements(&system_usage, system_usage_texture_id, 1, NULL, &offsets);
-   
+    init_ui_elements(0, &system_usage, system_usage_texture_id, 1, NULL, &offsets);
+
+    /* CPU & MEM Usage */
+    UITextSettingParams text_params;
+    text_params.scale_matrix = charset_scale_matrix;   
+    
+    text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
+    text_params.gl_y = 0.916666;
+    text_params.string_size = 6;
+    init_ui_elements(0, &cpu_usage, charset_texture_id, 6, configure_text_element, &text_params);
+
+    text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
+    text_params.gl_y = 0.862499;
+    text_params.string_size = 6;
+    init_ui_elements(0, &mem_usage, charset_texture_id, 6, configure_text_element, &text_params);
+    
     /* Knobs */
     params.update_callback = update_knob;
     
     params.settings = sample_knobs_settings_array;
     params.array_offset = 0;
-    init_ui_elements(&sample_knobs, knob1_texture_id, 8, configure_ui_element, &params);
+    init_ui_elements(1, &sample_knobs, knob1_texture_id, 8, configure_ui_element, &params);
     
     params.settings = sample_small_knobs_settings_array;
     params.array_offset += 8;
-    init_ui_elements(&sample_small_knobs, knob2_texture_id, 10, configure_ui_element, &params);
+    init_ui_elements(1, &sample_small_knobs, knob2_texture_id, 10, configure_ui_element, &params);
     
     params.settings = voice_knobs_settings_array;
     params.array_offset += 10;
-    init_ui_elements(&voice_knobs, knob1_texture_id, 3, configure_ui_element, &params);
+    init_ui_elements(1, &voice_knobs, knob1_texture_id, 3, configure_ui_element, &params);
     
     /* Sliders */
     params.update_callback = update_slider;
     
     params.array_offset += 3;
     params.settings = sliders_dahdsr_settings_array;
-    init_ui_elements(&sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(1, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_dahdsr_pitch_settings_array;
-    init_ui_elements(&sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(1, &sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_dahdsr_lfo_settings_sarray;
-    init_ui_elements(&sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(1, &sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_dahdsr_lfo_pitch_settings_array;
-    init_ui_elements(&sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(1, &sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     params.settings = sliders_equalizer_settings_array;
-    init_ui_elements(&sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(1, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
+
+    init_system_usage_ui(ui_system_usage_p, 6);   
 
     /* Setting shader uniform input ID */
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
@@ -281,11 +286,14 @@ static void render_viewport(int mask) {
         render_ui_elements(&system_usage);
         
         // SYSTEM USAGE
-        //~ if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
-            //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, ui_text_system_usage_scale_matrix_p);
-            //~ render_text(&ui_system_usage_p->ui_text_cpu);
-            //~ render_text(&ui_system_usage_p->ui_text_mem);
-        //~ }
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_scale_matrix);
+        render_ui_elements(&cpu_usage);
+        
+        if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_scale_matrix);
+            render_ui_elements(&cpu_usage);
+            render_ui_elements(&mem_usage);
+        }
         //~ // INSTANCES
         //~ if (mask & DSTUDIO_RENDER_INSTANCES) {
             //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
@@ -366,16 +374,16 @@ void * ui_thread(void * arg) {
                 render_viewport(render_mask);
             }
             
-            //~ // UPDATE AND RENDER TEXT
-            //~ sem_wait(&ui_system_usage_p->mutex);
-            //~ if (ui_system_usage_p->update && !redraw_all) {
-                //~ update_text(&ui_system_usage_p->ui_text_cpu);
-                //~ update_text(&ui_system_usage_p->ui_text_mem);
-                //~ glScissor(402, 438, 48, 31);
-                //~ render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
-                //~ ui_system_usage_p->update = 0;
-            //~ }
-            //~ sem_post(&ui_system_usage_p->mutex);
+            // UPDATE AND RENDER TEXT
+            sem_wait(&ui_system_usage_p->mutex);
+            if (ui_system_usage_p->update && !redraw_all) {
+                update_text(&cpu_usage, ui_system_usage_p->cpu_string_buffer);
+                update_text(&mem_usage, ui_system_usage_p->mem_string_buffer);
+                glScissor(402, 438, 48, 31);
+                render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
+                ui_system_usage_p->update = 0;
+            }
+            sem_post(&ui_system_usage_p->mutex);
 
             //~ sem_wait(&ui_instances_p->mutex);
             //~ if (ui_instances_p->update && !redraw_all) {
