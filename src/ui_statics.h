@@ -82,7 +82,6 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         for (char i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
-
                 active_ui_element.callback = ui_callbacks[i].callback;
                 active_ui_element.index = ui_callbacks[i].index;
                 active_ui_element.context_p = ui_callbacks[i].context_p;

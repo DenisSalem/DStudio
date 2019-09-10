@@ -115,6 +115,7 @@ static void init_ui(UI * ui) {
         //~ 0.360416
     //~ );
 
+    
     UIElementSetting sample_knobs_settings_array[DSANDGRAINS_SAMPLE_KNOBS] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
         {-0.7075, 0.25, 84.0,  149.0, 147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: END
@@ -145,14 +146,27 @@ static void init_ui(UI * ui) {
         { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
     };
 
-    UIElementSetting sliders_dahdsr_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
-        {-0.14, -0.816666, 338.0, 349.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1,  -0.816666, 354.0, 365.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.06, -0.816666, 370.0, 381.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.02, -0.816666, 386.0, 397.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.02, -0.816666,  402.0, 413.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.06, -0.816666,  418.0, 429.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    UIElementSetting * sliders_dahdsr_settings_array = malloc(DSANDGRAINS_DAHDSR_SLIDERS_COUNT * sizeof(UIElementSetting));
+    sliders_dahdsr_settings_array->gl_x = -0.14;
+    sliders_dahdsr_settings_array->gl_y = -0.816666;
+    sliders_dahdsr_settings_array->min_area_x = 338.0;
+    sliders_dahdsr_settings_array->max_area_x = 349.0;
+    sliders_dahdsr_settings_array->min_area_y = 413.0;
+    sliders_dahdsr_settings_array->max_area_y = 457.0;
+    for (int i = 0 ; i < DSANDGRAINS_DAHDSR_SLIDERS_COUNT - 1; i++){
+        memcpy(&sliders_dahdsr_settings_array[i+1], &sliders_dahdsr_settings_array[i], sizeof(UIElementSetting));
+        sliders_dahdsr_settings_array[i+1].gl_x += 0.04;
+        sliders_dahdsr_settings_array[i+1].min_area_x += 16;
+        sliders_dahdsr_settings_array[i+1].min_area_y += 16;
+    }
+    //~ UIElementSetting sliders_dahdsr_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
+        //~ {-0.14, -0.816666, 338.0, 349.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.1,  -0.816666, 354.0, 365.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.06, -0.816666, 370.0, 381.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
+        //~ {-0.02, -0.816666, 386.0, 397.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.02,  -0.816666,  402.0, 413.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
+        //~ {0.06,  -0.816666,  418.0, 429.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1}
+    //~ };
     
     UIElementSetting sliders_dahdsr_pitch_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
         {0.0025, -0.558333, 395.0, 406.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
@@ -398,9 +412,9 @@ void * ui_thread(void * arg) {
         listen_events();
     }
     
-    //~ sem_wait(&ui_system_usage_p->mutex);
-    //~ ui_system_usage_p->cut_thread = 1;
-    //~ sem_post(&ui_system_usage_p->mutex);
+    sem_wait(&ui_system_usage_p->mutex);
+    ui_system_usage_p->cut_thread = 1;
+    sem_post(&ui_system_usage_p->mutex);
     
     //exit_instances_thread();
     destroy_context();

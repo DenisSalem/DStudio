@@ -23,5 +23,4 @@
 #include "ui.h"
 
 void update_slider(int index, UIElements * context, void * args);
-
 #endif
