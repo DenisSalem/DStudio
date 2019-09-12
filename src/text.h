@@ -38,5 +38,6 @@ typedef struct UITextSettingParams {
 } UITextSettingParams;
 
 void configure_text_element(UIElements * ui_text, void * params);
-void update_text(UIElements * text, char * string_value);
+void update_text(UIElements * text, char * string_value, unsigned int string_size);
+
 #endif

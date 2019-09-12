@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 3.0.2)
 project(DStudio)
 set(PACKAGE_VERSION "0.0.0")
 
+set(CUSTOM_FLAGS    "-Werror \
+                     -Wall \
+                     -Wextra"
+)
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_definitions(-DDSTUDIO_RELY_ON_X11)
     set(DSTUDIO_RELY_ON_X11 1)
@@ -9,16 +14,16 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 if ( (NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE MATCHES Release))
-    message(STATUS "Release mode. ${CMAKE_C_FLAGS_RELEASE} -Werror -Wall -Wextra")
+    message(STATUS "Release mode. ${CMAKE_C_FLAGS_RELEASE} ${CUSTOM_FLAGS}")
     set(CMAKE_BUILD_TYPE "Release")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}s -Werror -Wall -Wextra")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}s ${CUSTOM_FLAGS}")
 
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} -Werror -Wall -Wextra")
+    message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS}")
     add_definitions(-DDSTUDIO_DEBUG)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Werror -Wall -Wextra")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS}")
 endif()
 
 find_package(OpenGL REQUIRED)

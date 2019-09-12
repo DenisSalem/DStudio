@@ -35,11 +35,17 @@ void configure_text_element(UIElements * ui_text, void * params) {
     }
 }
 
-void update_text(UIElements * text, char * string_value) {
+void update_text(UIElements * text, char * string_value, unsigned int string_size) {
         Vec4 * offset_buffer = (Vec4 *) text->instance_offsets_buffer;
         int linear_coordinate = 0;
-        size_t string_size = strlen(string_value);
+        int padding = 0;
         for (unsigned int i = 0; i < string_size; i++) {
+            if (string_value[i] == 0 || padding) {
+                offset_buffer[i].z = 0;
+                offset_buffer[i].w = 0;
+                padding = 1;
+                continue;
+            }
             if (string_value[i] >= 32 && string_value[i] <= 126) {
                 linear_coordinate = string_value[i] - 32;
             }

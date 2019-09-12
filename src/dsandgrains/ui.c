@@ -337,8 +337,8 @@ void * ui_thread(void * arg) {
             // UPDATE AND RENDER TEXT
             sem_wait(&ui_system_usage_p->mutex);
             if (ui_system_usage_p->update && !redraw_all) {
-                update_text(&cpu_usage, ui_system_usage_p->cpu_string_buffer);
-                update_text(&mem_usage, ui_system_usage_p->mem_string_buffer);
+                update_text(&cpu_usage, ui_system_usage_p->cpu_string_buffer, ui_system_usage_p->string_size);
+                update_text(&mem_usage, ui_system_usage_p->mem_string_buffer, ui_system_usage_p->string_size);
                 glScissor(402, 438, 48, 31);
                 render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
                 ui_system_usage_p->update = 0;
