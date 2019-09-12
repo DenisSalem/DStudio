@@ -101,17 +101,6 @@ typedef struct UIArea_t {
     float y;
 } UIArea;
 
-/* Obsolete */
-typedef struct InitUIElementArray_t {
-    GLfloat gl_x;
-    GLfloat gl_y;
-    GLfloat min_area_x;
-    GLfloat max_area_x;
-    GLfloat min_area_y;
-    GLfloat max_area_y;
-    unsigned char ui_element_type;
-} InitUIElementArray;
-
 typedef struct ui_element_setting_t {
     GLfloat gl_x;
     GLfloat gl_y;
@@ -140,5 +129,4 @@ void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y
 void load_shader(GLchar ** shader_buffer, const char * filename);
 void render_ui_elements(UIElements * ui_elements);
 GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix);
- 
 #endif

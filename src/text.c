@@ -29,7 +29,7 @@ void configure_text_element(UIElements * ui_text, void * params) {
     vertex_attributes[3].w /= (GLfloat)DSTUDIO_CHAR_SIZE_DIVISOR;
     
     UITextSettingParams * ui_text_setting_params = (UITextSettingParams *) params;
-    for (int i = 0; i < ui_text_setting_params->string_size; i++) {
+    for (unsigned int i = 0; i < ui_text_setting_params->string_size; i++) {
         ((Vec4 *) ui_text->instance_offsets_buffer)[i].x = ui_text_setting_params->gl_x + i * ui_text_setting_params->scale_matrix[0].x * 2;
         ((Vec4 *) ui_text->instance_offsets_buffer)[i].y = ui_text_setting_params->gl_y;
     }
@@ -37,9 +37,9 @@ void configure_text_element(UIElements * ui_text, void * params) {
 
 void update_text(UIElements * text, char * string_value) {
         Vec4 * offset_buffer = (Vec4 *) text->instance_offsets_buffer;
-        int linear_coordinate, coordinate_x, coordinate_y;
+        int linear_coordinate = 0;
         size_t string_size = strlen(string_value);
-        for (int i = 0; i < string_size; i++) {
+        for (unsigned int i = 0; i < string_size; i++) {
             if (string_value[i] >= 32 && string_value[i] <= 126) {
                 linear_coordinate = string_value[i] - 32;
             }

@@ -67,7 +67,7 @@ unsigned int count_process(const char * process_name) {
                     process_name_match = strncmp(process_name, line_buffer+6, strlen(process_name));
                 }
                 if (strncmp(line_buffer, "Uid:", 4) == 0 ) {
-                    process_uid_match = getuid() == atoi(line_buffer+5);
+                    process_uid_match = getuid() == (unsigned int) atoi(line_buffer+5);
                     break;
                 }
             }
@@ -132,7 +132,7 @@ void recursive_mkdir(char * directory) {
     int index = 0;
     int previous_index = 0;
     while (1) {
-        for(int i = 0; i < strlen(directory); i++) {
+        for(int i = 0; i < (int) strlen(directory); i++) {
             if (directory[i] == '/' && i > index) {
                 strcpy(tmp_str, directory);
                 tmp_str[i] = 0;
@@ -174,4 +174,8 @@ int set_physical_memory() {
             return 0;
         }
     }
+    #ifdef DSTUDIO_DEBUG
+    printf("set_physical_memory(): There no line matching with 'MemTotal:'.\n");
+    #endif
+    return -1;
 }

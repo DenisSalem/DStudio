@@ -28,7 +28,7 @@
 void init_system_usage_ui(UISystemUsage * system_usage, unsigned int string_size) {
     sem_init(&system_usage->mutex, 0, 1);
     system_usage->ready = 1;
-    system_usage->string_size;
+    system_usage->string_size = string_size;
 }
 
 void * update_system_usage(void * args) {

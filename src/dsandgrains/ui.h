@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "../knobs.h"
 #include "../sliders.h"
 #include "../system_usage.h"
@@ -40,7 +41,5 @@ typedef struct UI_t {
     UISystemUsage       system_usage;
     UIInstances         instances;
 } UI;
-
-static void init_background();
 
 void * ui_thread(void * arg);

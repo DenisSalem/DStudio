@@ -22,6 +22,26 @@
 
 #include "sliders.h"
 
+void init_slider_settings(UIElementSetting ** settings_p, unsigned int texture_scale, GLfloat x, GLfloat y, unsigned int offset, unsigned int slide, unsigned int count) {
+    *settings_p = malloc(count * sizeof(UIElementSetting));
+    UIElementSetting * settings = *settings_p;
+    settings->gl_x = (GLfloat) (x - (DSTUDIO_VIEWPORT_WIDTH >> 1) + (texture_scale >>1)) / (GLfloat) (DSTUDIO_VIEWPORT_WIDTH >> 1);
+    settings->gl_y = (GLfloat) ((DSTUDIO_VIEWPORT_HEIGHT >> 1) - y + (texture_scale >> 1)) / (GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1);
+    settings->min_area_x = x - 1.0;
+    settings->max_area_x = x + (float) texture_scale + 1.0;
+    settings->min_area_y = (GLfloat) y - slide -1 - texture_scale;
+    settings->max_area_y = (GLfloat) y + slide + 1;
+    
+    settings->ui_element_type = DSTUDIO_SLIDER_TYPE_1;
+    GLfloat gl_offset = (GLfloat) offset / (GLfloat) (DSTUDIO_VIEWPORT_WIDTH >> 1);
+    for (unsigned int i = 0 ; i < count - 1; i++){
+        memcpy(&settings[i+1], &settings[i], sizeof(UIElementSetting));
+        settings[i+1].gl_x += gl_offset;
+        settings[i+1].min_area_x += offset;
+        settings[i+1].max_area_x += offset;
+    }
+}
+
 void update_slider(int index, UIElements * sliders_p, void * args) {
     float * motion = (float*) args;
     sliders_p->instance_motions_buffer[index] = *motion;

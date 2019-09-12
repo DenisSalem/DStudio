@@ -55,7 +55,6 @@ static Display              *display = NULL;
 static Window               window;
 static XVisualInfo          * visual_info;
 static Colormap             color_map;
-static XWindowAttributes    gwa;
 static XEvent               x_event;
 static XEvent               x_sent_expose_event;
 static GLXContext           opengl_context;
@@ -77,6 +76,8 @@ static int visual_attribs[] = {
 static int glx_major, glx_minor;
 
 static int ctx_error_handler( Display *dpy, XErrorEvent *ev ) {
+    (void) dpy;
+    (void) ev;
     ctx_error_occurred = 1;
     return 0;
 }
@@ -118,7 +119,7 @@ static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
             #ifdef DSTUDIO_DEBUG
                 printf("Matching fbconfig %d, visual ID 0x%2lux: SAMPLE_BUFFERS = %d, SAMPLES = %d\n", i, visual_info->visualid, samp_buf, samples );
             #endif
-            if ( best_frame_buffer_config_index < 0 || samp_buf && samples > best_num_samp ) {
+            if ( best_frame_buffer_config_index < 0 || (samp_buf && samples > best_num_samp)) {
                 best_frame_buffer_config_index = i; 
                 best_num_samp = samples;
             }
@@ -151,7 +152,7 @@ void init_context(const char * window_name, int width, int height) {
     DSTUDIO_EXIT_IF_NULL(display)
     
     DSTUDIO_EXIT_IF_NULL(glXQueryVersion( display, &glx_major, &glx_minor ))
-    DSTUDIO_EXIT_IF_FAILURE( glx_major == 1  &&  glx_minor < 3  )
+    DSTUDIO_EXIT_IF_FAILURE( glx_major == 1  &&  (glx_minor < 3))
     DSTUDIO_EXIT_IF_FAILURE( glx_major < 1 )
 
     GLXFBConfig best_frame_buffer_config;
@@ -255,6 +256,9 @@ void listen_events() {
             }
         }
         else if(x_event.type == MotionNotify) {
+            #ifdef DSTUDIO_DEBUG
+            printf("x_event.xbutton.y: %d\n", x_event.xbutton.y);
+            #endif
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {

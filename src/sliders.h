@@ -22,5 +22,7 @@
 
 #include "ui.h"
 
+void init_slider_settings(UIElementSetting ** sliders, unsigned int texture_width, GLfloat x, GLfloat y, unsigned int offset, unsigned int slide, unsigned int count);
 void update_slider(int index, UIElements * context, void * args);
+
 #endif

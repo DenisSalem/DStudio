@@ -52,7 +52,7 @@ void configure_ui_element(UIElements * ui_elements, void * params) {
     UIArea * ui_areas = ui_element_setting_params->areas;
     UICallback * ui_callbacks = ui_element_setting_params->callbacks;
     unsigned int array_offset = ui_element_setting_params->array_offset;
-    for (int i = 0; i < ui_elements->count; i++) {
+    for (unsigned int i = 0; i < ui_elements->count; i++) {
         configure_ui_element_p = &configure_ui_element_array[i];
         if (ui_elements->interactive) {
             ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;

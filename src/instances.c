@@ -13,7 +13,7 @@
 #include "instances.h"
 #include "ui.h"
 
-static struct stat st = {0};
+//static struct stat st = {0};
 static InstanceContext * current_active_instance = 0; 
 static Instances * instances;
 
@@ -31,6 +31,9 @@ void exit_instances_thread() {
 }
 
 void init_instances_ui(int lines_number, GLfloat pos_x, GLfloat pos_y) {
+    (void) lines_number;
+    (void) pos_x;
+    (void) pos_y;
     //~ instances->ui->lines = malloc(sizeof(UIElements) * lines_number);
     //~ instances->ui->lines_number = lines_number;
     //~ Vec2 * scale_matrix = &instances->ui->scale_matrix[0];
@@ -58,6 +61,9 @@ void init_instances_ui(int lines_number, GLfloat pos_x, GLfloat pos_y) {
 }
 
 void new_instance(const char * given_directory, const char * process_name, Instances * given_instances) {
+    (void) given_directory;
+    (void) process_name;
+    (void) given_instances;
     //~ instances = given_instances;
     //~ unsigned int count = 0;
     //~ unsigned int last_id = 0;
@@ -118,6 +124,7 @@ void new_instance(const char * given_directory, const char * process_name, Insta
 }
 
 void * update_instances(void * args) {
+    (void) args;
     //~ DIR * dr = 0;
     //~ struct dirent *de;
     //~ int fd = 0;
@@ -190,6 +197,7 @@ void * update_instances(void * args) {
             //~ #endif
         //~ }
     //~ }
+    return NULL;
 }
 
 void * update_instances_text() {
@@ -204,4 +212,5 @@ void * update_instances_text() {
             //~ update_text(&instances->ui->lines[i]);
         //~ }
     //~ }
+    return NULL;
 }

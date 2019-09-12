@@ -68,31 +68,23 @@ UIArea ui_areas[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 UICallback ui_callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 
 static useconds_t framerate = 20000;
-static char first_render = 1;
 static char areas_index = -1;
 
 static GLint scissor_x, scissor_y;
 static GLsizei scissor_width, scissor_height;
 
 static GLuint interactive_program_id, non_interactive_program_id;
-static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id, background_element_offset_id;
+static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id;
 static GLuint motion_type_id;
 
-static const GLfloat * ui_system_usage_scale_matrix_p;
-static const GLfloat * ui_text_system_usage_scale_matrix_p;
-static const GLfloat * sample_knobs_scale_matrix_p;
-static const GLfloat * sample_small_knobs_scale_matrix_p;
-static const GLfloat * sliders_dahdsr_scale_matrix_p;
-static const GLfloat * sliders_dahdsr_pitch_scale_matrix_p;
-static const GLfloat * sliders_dahdsr_lfo_scale_matrix_p;
-static const GLfloat * sliders_dahdsr_lfo_pitch_scale_matrix_p;
-static const GLfloat * sliders_equalizer_scale_matrix_p;
-static const GLfloat * voice_knobs_scale_matrix_p;
 static GLfloat motion_type;
 
 #include "../ui_statics.h"
 
 static void init_ui(UI * ui) {
+    /* Will hold every sliders settings */
+    UIElementSetting * sliders_settings_array = 0;
+    
     /* Setup shared memory */
     ui_system_usage_p = &ui->system_usage;
     ui_instances_p = &ui->instances;
@@ -106,7 +98,8 @@ static void init_ui(UI * ui) {
     GLuint charset_texture_id = setup_texture_n_scale_matrix(0, 1, 104, 234, DSTUDIO_CHAR_TABLE_ASSET_PATH, NULL);
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_scale_matrix, 104, 234)
     
-    /* Tell to mouse button callback the height of the current active slider */
+    /* - Tell to mouse button callback the height of the current active slider.
+     * - Help to init slider settings.*/
     slider_texture_scale = 10;
 
     //~ init_instances_ui(
@@ -146,65 +139,20 @@ static void init_ui(UI * ui) {
         { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
     };
 
-    UIElementSetting * sliders_dahdsr_settings_array = malloc(DSANDGRAINS_DAHDSR_SLIDERS_COUNT * sizeof(UIElementSetting));
-    sliders_dahdsr_settings_array->gl_x = -0.14;
-    sliders_dahdsr_settings_array->gl_y = -0.816666;
-    sliders_dahdsr_settings_array->min_area_x = 338.0;
-    sliders_dahdsr_settings_array->max_area_x = 349.0;
-    sliders_dahdsr_settings_array->min_area_y = 413.0;
-    sliders_dahdsr_settings_array->max_area_y = 457.0;
-    for (int i = 0 ; i < DSANDGRAINS_DAHDSR_SLIDERS_COUNT - 1; i++){
-        memcpy(&sliders_dahdsr_settings_array[i+1], &sliders_dahdsr_settings_array[i], sizeof(UIElementSetting));
-        sliders_dahdsr_settings_array[i+1].gl_x += 0.04;
-        sliders_dahdsr_settings_array[i+1].min_area_x += 16;
-        sliders_dahdsr_settings_array[i+1].min_area_y += 16;
-    }
-    //~ UIElementSetting sliders_dahdsr_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
-        //~ {-0.14, -0.816666, 338.0, 349.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
-        //~ {-0.1,  -0.816666, 354.0, 365.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
-        //~ {-0.06, -0.816666, 370.0, 381.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
-        //~ {-0.02, -0.816666, 386.0, 397.0, 413.0, 457.0,  DSTUDIO_SLIDER_TYPE_1},
-        //~ {0.02,  -0.816666,  402.0, 413.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1},
-        //~ {0.06,  -0.816666,  418.0, 429.0, 413.0, 457.0, DSTUDIO_SLIDER_TYPE_1}
-    //~ };
-    
-    UIElementSetting sliders_dahdsr_pitch_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
-        {0.0025, -0.558333, 395.0, 406.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0425, -0.558333, 411.0, 422.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0825, -0.558333, 427.0, 438.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1225, -0.558333, 443.0, 454.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1625, -0.558333, 459.0, 470.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.2025, -0.558333, 475.0, 486.0, 352.0, 396.0, DSTUDIO_SLIDER_TYPE_1}
-    };
-    
-    UIElementSetting sliders_dahdsr_lfo_settings_sarray[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
-        {-0.2625, -0.283333, 289.0, 300.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.2225, -0.283333, 305.0, 316.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1825, -0.283333, 321.0, 332.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1425, -0.283333, 337.0, 348.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.1025, -0.283333, 353.0, 364.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {-0.0625, -0.283333, 369.0, 380.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ UIElementSetting * sliders_dahdsr_settings_array = 0;
+    //~ init_slider_settings(&sliders_dahdsr_settings_array, slider_texture_scale, 339, 441, 16, 16, 6);
 
-    UIElementSetting sliders_dahdsr_lfo_pitch_settings_array[DSANDGRAINS_DAHDSR_SLIDERS_COUNT] = {
-        {0.0025, -0.283333, 395.0, 406.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0425, -0.283333, 411.0, 422.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.0825, -0.283333, 427.0, 438.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1225, -0.283333, 443.0, 454.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.1625, -0.283333, 459.0, 470.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.2025, -0.283333, 475.0, 486.0, 285.0, 329.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ UIElementSetting * sliders_dahdsr_pitch_settings_array = 0;
+    //~ init_slider_settings(&sliders_dahdsr_pitch_settings_array, slider_texture_scale, 396, 379, 16, 16, 6);
+    
+    //~ UIElementSetting * sliders_dahdsr_lfo_settings_array = 0;
+    //~ init_slider_settings(&sliders_dahdsr_lfo_settings_array, slider_texture_scale, 290, 313, 16, 16, 6);
 
-    UIElementSetting sliders_equalizer_settings_array[DSANDGRAINS_EQUALIZER_SLIDERS_COUNT] = {
-        {0.32, -0.475, 522.0, 533.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.36, -0.475, 538.0, 549.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.4,  -0.475, 554.0, 565.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.44, -0.475, 570.0, 581.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.48, -0.475, 586.0, 597.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.52, -0.475, 602.0, 613.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.56, -0.475, 618.0, 629.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1},
-        {0.60, -0.475, 634.0, 645.0, 331.0, 375.0, DSTUDIO_SLIDER_TYPE_1}
-    };
+    //~ UIElementSetting * sliders_dahdsr_lfo_pitch_settings_array = 0;
+    //~ init_slider_settings(&sliders_dahdsr_lfo_pitch_settings_array, slider_texture_scale, 396, 313, 16, 16, 6);
+
+    UIElementSetting * sliders_equalizer_settings_array = 0;
+    init_slider_settings(&sliders_equalizer_settings_array, slider_texture_scale, 523, 359, 16, 16, 8);
 
     /* Inits ui elements */
     UIElementSettingParams params = {0};
@@ -251,24 +199,34 @@ static void init_ui(UI * ui) {
     params.update_callback = update_slider;
     
     params.array_offset += 3;
-    params.settings = sliders_dahdsr_settings_array;
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 339, 441, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
+    params.settings = sliders_settings_array;
     init_ui_elements(1, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    free(sliders_settings_array);
     
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    params.settings = sliders_dahdsr_pitch_settings_array;
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 396, 379, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
+    params.settings = sliders_settings_array;
     init_ui_elements(1, &sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
-    
+    free(sliders_settings_array);
+
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    params.settings = sliders_dahdsr_lfo_settings_sarray;
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 290, 313, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
+    params.settings = sliders_settings_array;
     init_ui_elements(1, &sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    free(sliders_settings_array);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    params.settings = sliders_dahdsr_lfo_pitch_settings_array;
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 396, 313, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
+    params.settings = sliders_settings_array;
     init_ui_elements(1, &sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    free(sliders_settings_array);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    params.settings = sliders_equalizer_settings_array;
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 523, 359, 16, 16, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT);
+    params.settings = sliders_settings_array;
     init_ui_elements(1, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
+    free(sliders_settings_array);
 
     init_system_usage_ui(ui_system_usage_p, 6);   
 
@@ -279,15 +237,6 @@ static void init_ui(UI * ui) {
 
     //~ ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
     //~ ui_text_system_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
-}
-
-static void render_background(void * obj, int type) {
-    //~ if (type == DSANDGRAINS_BACKGROUND_TYPE_BACKGROUND) {
-        //~ render_ui_elements( ((UIElements * ) obj)->texture_id, ((UIElements * ) obj)->vertex_array_object, ((UIElements* ) obj)->index_buffer_object, 1);
-    //~ }
-    //~ else if (type == DSANDGRAINS_BACKGROUND_TYPE_SYSTEM_USAGE){
-        //~ render_ui_elements( ((UISystemUsage * ) obj)->texture_id, ((UISystemUsage * ) obj)->vertex_array_object, ((UISystemUsage * ) obj)->index_buffer_object, 1);
-    //~ }
 }
 
 static void render_viewport(int mask) {
@@ -355,9 +304,6 @@ static void render_viewport(int mask) {
 // Should be splitted
 void * ui_thread(void * arg) {
     int redraw_all = 0;
-    unsigned int instances_count;
-    unsigned int instances_last_id;
-    unsigned long int previous_timestamp = 0;
 
     init_context("DSANDGRAINS", DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
     set_mouse_button_callback(mouse_button_callback);

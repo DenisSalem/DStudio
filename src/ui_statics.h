@@ -60,6 +60,9 @@ static inline float compute_slider_translation(int ypos) {
 }
 
 static void cursor_position_callback(int xpos, int ypos){
+    #ifdef DSTUDIO_DEBUG
+    printf("cursor_position_callback: ypos: %d\n", ypos);
+    #endif
     float motion;
     if (active_ui_element.callback == NULL) {
         return;
@@ -73,6 +76,9 @@ static void cursor_position_callback(int xpos, int ypos){
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
     else if (active_ui_element.type == DSTUDIO_SLIDER_TYPE_1) {
+        #ifdef DSTUDIO_DEBUG
+        printf("Update Slider\n");
+        #endif
         motion = compute_slider_translation(ypos);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
@@ -80,7 +86,7 @@ static void cursor_position_callback(int xpos, int ypos){
     
 static void mouse_button_callback(int xpos, int ypos, int button, int action) {
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
-        for (char i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
+        for (int i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
                 active_ui_element.callback = ui_callbacks[i].callback;
                 active_ui_element.index = ui_callbacks[i].index;
