@@ -13,7 +13,7 @@
 #include "instances.h"
 #include "ui.h"
 
-//static struct stat st = {0};
+static struct stat st = {0};
 static InstanceContext * current_active_instance = 0; 
 static Instances * instances;
 
@@ -30,18 +30,9 @@ void exit_instances_thread() {
     unlink(instance_path);
 }
 
-void init_instances_ui(int lines_number, GLfloat pos_x, GLfloat pos_y) {
-    (void) lines_number;
-    (void) pos_x;
-    (void) pos_y;
-    //~ instances->ui->lines = malloc(sizeof(UIElements) * lines_number);
-    //~ instances->ui->lines_number = lines_number;
-    //~ Vec2 * scale_matrix = &instances->ui->scale_matrix[0];
-    
-    //~ scale_matrix[0].x = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_WIDTH / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR);
-    //~ scale_matrix[0].y = 0;
-    //~ scale_matrix[1].x = 0;
-    //~ scale_matrix[1].y = 0.5 * (((float) DSTUDIO_CHAR_TABLE_ASSET_HEIGHT / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR);
+void init_instances_ui(UIElements * lines, int lines_number) {
+    instances->ui->lines = lines;
+    instances->ui->lines_number = lines_number;
     
     //~ for (int i = 0; i < lines_number; i++) {
         //~ init_text(
@@ -54,73 +45,71 @@ void init_instances_ui(int lines_number, GLfloat pos_x, GLfloat pos_y) {
             //~ scale_matrix
         //~ );
     //~ }
-    //~ instances->ui->update = 1;
-    //~ send_expose_event();
-    //~ sem_init(&instances->ui->mutex, 0, 1);
-    //~ instances->ui->ready = 1;
+    
+    instances->ui->update = 1;
+    send_expose_event();
+    sem_init(&instances->ui->mutex, 0, 1);
+    instances->ui->ready = 1;
 }
 
 void new_instance(const char * given_directory, const char * process_name, Instances * given_instances) {
-    (void) given_directory;
-    (void) process_name;
-    (void) given_instances;
-    //~ instances = given_instances;
-    //~ unsigned int count = 0;
-    //~ unsigned int last_id = 0;
+    instances = given_instances;
+    unsigned int count = 0;
+    unsigned int last_id = 0;
 
-    //~ DIR * dr = 0;
-    //~ struct dirent *de;
+    DIR * dr = 0;
+    struct dirent *de;
 
-    //~ int processes_count = count_process(process_name);
-    //~ expand_user(&instances_directory, given_directory);
-    //~ char * instance_filename_buffer = malloc(sizeof(char) * 128); 
-    //~ explicit_bzero(instance_filename_buffer, sizeof(char) * 128);
-    //~ char string_representation_of_integer[4] = {0};
-    //~ FILE * new_instance = 0;
-    //~ if (stat(instances_directory, &st) == -1) {
-        //~ // Permission error
-        //~ if (errno == EACCES) {
-            //~ printf("%s: %s\n", instances_directory, strerror(errno));
-            //~ exit(-1);
-        //~ }
-        //~ recursive_mkdir(instances_directory);
-    //~ }
-    //~ if (processes_count > 1) {
-        //~ count_instances(instances_directory, &count, &last_id);
-        //~ strcat(instance_filename_buffer, instances_directory);
-        //~ strcat(instance_filename_buffer, "/");
-        //~ sprintf(string_representation_of_integer,"%d", last_id+1);
-        //~ strcat(instance_filename_buffer, string_representation_of_integer);
-        //~ new_instance = fopen(instance_filename_buffer, "w+");
-        //~ fclose(new_instance);
-        //~ exit(0);
-    //~ }
-    //~ else {
-        //~ // Clear instances caches
-        //~ dr = opendir(instances_directory);
-        //~ while ((de = readdir(dr)) != NULL) {
-            //~ strcat(instance_filename_buffer, instances_directory);
-            //~ strcat(instance_filename_buffer, "/");
-            //~ strcat(instance_filename_buffer, de->d_name);
-            //~ if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
-                //~ remove(instance_filename_buffer);
-            //~ }
-            //~ explicit_bzero(instance_filename_buffer, sizeof(char) * 128);
-        //~ }
-        //~ closedir(dr);
-        //~ strcat(instance_filename_buffer, instances_directory);
-        //~ strcat(instance_filename_buffer, "/1");
-        //~ FILE * new_instance = fopen(instance_filename_buffer, "w+");
-        //~ fclose(new_instance);
-        //~ instances->contexts = malloc( sizeof(InstanceContext) );
-        //~ if (instances->contexts) {
-            //~ instances->count +=1;
-            //~ instances->contexts[0].identifier = 1;
-            //~ current_active_instance  = &instances->contexts[0];
-            //~ strcpy(current_active_instance->name, "Instance 1");
-        //~ }
-    //~ }
-    //~ free(instance_filename_buffer);
+    int processes_count = count_process(process_name);
+    expand_user(&instances_directory, given_directory);
+    char * instance_filename_buffer = malloc(sizeof(char) * 128); 
+    explicit_bzero(instance_filename_buffer, sizeof(char) * 128);
+    char string_representation_of_integer[4] = {0};
+    FILE * new_instance = 0;
+    if (stat(instances_directory, &st) == -1) {
+        // Permission error
+        if (errno == EACCES) {
+            printf("%s: %s\n", instances_directory, strerror(errno));
+            exit(-1);
+        }
+        recursive_mkdir(instances_directory);
+    }
+    if (processes_count > 1) {
+        count_instances(instances_directory, &count, &last_id);
+        strcat(instance_filename_buffer, instances_directory);
+        strcat(instance_filename_buffer, "/");
+        sprintf(string_representation_of_integer,"%d", last_id+1);
+        strcat(instance_filename_buffer, string_representation_of_integer);
+        new_instance = fopen(instance_filename_buffer, "w+");
+        fclose(new_instance);
+        exit(0);
+    }
+    else {
+        // Clear instances caches
+        dr = opendir(instances_directory);
+        while ((de = readdir(dr)) != NULL) {
+            strcat(instance_filename_buffer, instances_directory);
+            strcat(instance_filename_buffer, "/");
+            strcat(instance_filename_buffer, de->d_name);
+            if (strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+                remove(instance_filename_buffer);
+            }
+            explicit_bzero(instance_filename_buffer, sizeof(char) * 128);
+        }
+        closedir(dr);
+        strcat(instance_filename_buffer, instances_directory);
+        strcat(instance_filename_buffer, "/1");
+        FILE * new_instance = fopen(instance_filename_buffer, "w+");
+        fclose(new_instance);
+        instances->contexts = malloc( sizeof(InstanceContext) );
+        if (instances->contexts) {
+            instances->count +=1;
+            instances->contexts[0].identifier = 1;
+            current_active_instance  = &instances->contexts[0];
+            strcpy(current_active_instance->name, "Instance 1");
+        }
+    }
+    free(instance_filename_buffer);
 }
 
 void * update_instances(void * args) {

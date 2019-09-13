@@ -40,12 +40,18 @@ static UIInstances * ui_instances_p;
 static UIElements background = {0};
 static Vec2 background_scale_matrix[2] = {0};
 
+/* Charsets */
+static Vec2 charset_scale_matrix[2] = {0};
+static Vec2 charset_small_scale_matrix[2] = {0};
+
+/* Instances */
+static UIElements instances[7] = {0};
+
 /* System Usage */
 static UIElements system_usage = {0};
 static UIElements cpu_usage = {0};
 static UIElements mem_usage = {0};
 static Vec2 system_usage_scale_matrix[2] = {0};
-static Vec2 charset_scale_matrix[2] = {0};
 
 /* Knobs 1 */
 static UIElements sample_knobs = {0};
@@ -97,17 +103,12 @@ static void init_ui(UI * ui) {
     GLuint system_usage_texture_id = setup_texture_n_scale_matrix(0, 1, 30, 23, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, system_usage_scale_matrix);
     GLuint charset_texture_id = setup_texture_n_scale_matrix(0, 1, 104, 234, DSTUDIO_CHAR_TABLE_ASSET_PATH, NULL);
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_scale_matrix, 104, 234)
+    GLuint charset_small_texture_id = setup_texture_n_scale_matrix(0, 1, 52, 117, DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, NULL);
+    DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_small_scale_matrix, 52, 117)
     
     /* - Tell to mouse button callback the height of the current active slider.
      * - Help to init slider settings.*/
     slider_texture_scale = 10;
-
-    //~ init_instances_ui(
-        //~ 7,
-        //~ 0.678,
-        //~ 0.360416
-    //~ );
-
     
     UIElementSetting sample_knobs_settings_array[DSANDGRAINS_SAMPLE_KNOBS] = {
         {-0.8675, 0.25, 20.0,  85.0,  147.0, 212.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: START
@@ -139,18 +140,6 @@ static void init_ui(UI * ui) {
         { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
     };
 
-    //~ UIElementSetting * sliders_dahdsr_settings_array = 0;
-    //~ init_slider_settings(&sliders_dahdsr_settings_array, slider_texture_scale, 339, 441, 16, 16, 6);
-
-    //~ UIElementSetting * sliders_dahdsr_pitch_settings_array = 0;
-    //~ init_slider_settings(&sliders_dahdsr_pitch_settings_array, slider_texture_scale, 396, 379, 16, 16, 6);
-    
-    //~ UIElementSetting * sliders_dahdsr_lfo_settings_array = 0;
-    //~ init_slider_settings(&sliders_dahdsr_lfo_settings_array, slider_texture_scale, 290, 313, 16, 16, 6);
-
-    //~ UIElementSetting * sliders_dahdsr_lfo_pitch_settings_array = 0;
-    //~ init_slider_settings(&sliders_dahdsr_lfo_pitch_settings_array, slider_texture_scale, 396, 313, 16, 16, 6);
-
     UIElementSetting * sliders_equalizer_settings_array = 0;
     init_slider_settings(&sliders_equalizer_settings_array, slider_texture_scale, 523, 359, 16, 16, 8);
 
@@ -179,6 +168,20 @@ static void init_ui(UI * ui) {
     text_params.gl_y = 0.862499;
     text_params.string_size = 6;
     init_ui_elements(0, &mem_usage, charset_texture_id, 6, configure_text_element, &text_params);
+    
+    /* Instances */
+    text_params.scale_matrix = charset_small_scale_matrix;   
+    text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
+    text_params.string_size = 7;
+    for (int i = 0; i < 7; i++) {
+        text_params.gl_y = 0.916666 -i * (11.0/240.0);
+        init_ui_elements(0, &instances[i], charset_small_texture_id, 29, configure_text_element, &text_params);
+    }
+    
+    init_instances_ui(
+        &instances[0],
+        7
+    );
     
     /* Knobs */
     params.update_callback = update_knob;
@@ -234,9 +237,6 @@ static void init_ui(UI * ui) {
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
     interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
-
-    //~ ui_system_usage_scale_matrix_p = &ui_system_usage_p->scale_matrix[0].x;
-    //~ ui_text_system_usage_scale_matrix_p = &ui_system_usage_p->ui_text_cpu.scale_matrix[0].x;
 }
 
 static void render_viewport(int mask) {

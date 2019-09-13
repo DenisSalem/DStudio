@@ -30,7 +30,7 @@ typedef struct Instances_t {
 } Instances;
 
 void exit_instances_thread();
-void init_instances_ui(int lines_number, GLfloat pos_x, GLfloat pos_y);
+void init_instances_ui(UIElements * lines, int lines_number);
 void new_instance(const char * given_directory, const char * process_name, Instances * instances);
 
 // Periodically check if new instances were added
