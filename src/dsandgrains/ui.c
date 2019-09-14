@@ -171,17 +171,15 @@ static void init_ui(UI * ui) {
     
     /* Instances */
     text_params.scale_matrix = charset_small_scale_matrix;   
-    text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
-    text_params.string_size = 7;
+    text_params.gl_x = 0.678;
+    text_params.string_size = 29;
+        
     for (int i = 0; i < 7; i++) {
-        text_params.gl_y = 0.916666 -i * (11.0/240.0);
+        text_params.gl_y = 0.360416 - i * (11.0/((GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1)));
         init_ui_elements(0, &instances[i], charset_small_texture_id, 29, configure_text_element, &text_params);
     }
     
-    init_instances_ui(
-        &instances[0],
-        7
-    );
+    init_instances_ui(&instances[0], 7, 29);
     
     /* Knobs */
     params.update_callback = update_knob;
@@ -257,13 +255,14 @@ static void render_viewport(int mask) {
             render_ui_elements(&cpu_usage);
             render_ui_elements(&mem_usage);
         }
-        //~ // INSTANCES
-        //~ if (mask & DSTUDIO_RENDER_INSTANCES) {
-            //~ glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, &ui_instances_p->lines[0].scale_matrix[0].x);
-            //~ for (int i = 0; i < ui_instances_p->lines_number; i++) {
-                //~ render_text(&ui_instances_p->lines[i]);
-            //~ }
-        //~ }
+        // INSTANCES
+        if (mask & DSTUDIO_RENDER_INSTANCES) {
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
+            for (unsigned int i = 0; i < ui_instances_p->lines_number; i++) {
+                render_ui_elements(&ui_instances_p->lines[i]);
+            }
+        }
+
 
     glUseProgram(interactive_program_id);
         // KNOBS
@@ -345,14 +344,14 @@ void * ui_thread(void * arg) {
             }
             sem_post(&ui_system_usage_p->mutex);
 
-            //~ sem_wait(&ui_instances_p->mutex);
-            //~ if (ui_instances_p->update && !redraw_all) {
-                //~ update_instances_text();
-                //~ glScissor(669, 254, 117, 79);
-                //~ render_viewport(DSTUDIO_RENDER_INSTANCES);
-                //~ ui_instances_p->update = 0;
-            //~ }
-            //~ sem_post(&ui_instances_p->mutex);
+            sem_wait(&ui_instances_p->mutex);
+            if ((ui_instances_p->update && !redraw_all)) {
+                update_instances_text();
+                glScissor(669, 254, 117, 79);
+                render_viewport(DSTUDIO_RENDER_INSTANCES);
+                ui_instances_p->update = 0;
+            }
+            sem_post(&ui_instances_p->mutex);
         }
         swap_window_buffer();
         listen_events();
@@ -362,7 +361,7 @@ void * ui_thread(void * arg) {
     ui_system_usage_p->cut_thread = 1;
     sem_post(&ui_system_usage_p->mutex);
     
-    //exit_instances_thread();
+    exit_instances_thread();
     destroy_context();
     return NULL;
 }

@@ -30,22 +30,10 @@ void exit_instances_thread() {
     unlink(instance_path);
 }
 
-void init_instances_ui(UIElements * lines, int lines_number) {
+void init_instances_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size) {
     instances->ui->lines = lines;
     instances->ui->lines_number = lines_number;
-    
-    //~ for (int i = 0; i < lines_number; i++) {
-        //~ init_text(
-            //~ &instances->ui->lines[i],
-            //~ 0,
-            //~ 29,
-            //~ DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH,
-            //~ pos_x,
-            //~ pos_y-i*(11.0/240.0),
-            //~ scale_matrix
-        //~ );
-    //~ }
-    
+    instances->ui->string_size = string_size;
     instances->ui->update = 1;
     send_expose_event();
     sem_init(&instances->ui->mutex, 0, 1);
@@ -114,92 +102,88 @@ void new_instance(const char * given_directory, const char * process_name, Insta
 
 void * update_instances(void * args) {
     (void) args;
-    //~ DIR * dr = 0;
-    //~ struct dirent *de;
-    //~ int fd = 0;
-    //~ int wd = 0;
-    //~ InstanceContext * saved_contexts = 0;
-    //~ while(!instances->ui->ready) {
-        //~ usleep(1000);
-    //~ }
+    int fd = 0;
+    int wd = 0;
+    InstanceContext * saved_contexts = 0;
+    while(!instances->ui->ready) {
+        usleep(1000);
+    }
     
-    //~ fd = inotify_init();
-    //~ if (errno != 0 && fd == -1) {
-        //~ printf("inotify_init(): failed\n");
-        //~ exit(-1);
-    //~ }
-    //~ wd = inotify_add_watch(fd, instances_directory, IN_CREATE | IN_DELETE);
-    //~ if (errno != 0 && wd == 0) {
-        //~ printf("inotify_add_watch(): failed\n");
-        //~ exit(-1);
-    //~ }
+    fd = inotify_init();
+    if (errno != 0 && fd == -1) {
+        printf("inotify_init(): failed\n");
+        exit(-1);
+    }
+    wd = inotify_add_watch(fd, instances_directory, IN_CREATE | IN_DELETE);
+    if (errno != 0 && wd == 0) {
+        printf("inotify_add_watch(): failed\n");
+        exit(-1);
+    }
 
-	//~ struct inotify_event  * event = malloc(sizeof(struct inotify_event) + 16 + 1);
+	struct inotify_event  * event = malloc(sizeof(struct inotify_event) + 16 + 1);
 
-    //~ while(1) {
-        //~ if(read(fd, event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
-            //~ continue;
-        //~ }
+    while(1) {
+        if(read(fd, event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
+            continue;
+        }
         
-        //~ sem_wait(&instances->ui->mutex);
-        //~ if (instances->ui->cut_thread) {
-            //~ sem_post(&instances->ui->mutex);
-            //~ break;
-        //~ }
-        //~ sem_post(&instances->ui->mutex);
+        sem_wait(&instances->ui->mutex);
+        if (instances->ui->cut_thread) {
+            sem_post(&instances->ui->mutex);
+            break;
+        }
+        sem_post(&instances->ui->mutex);
         
-		//~ if (event->mask == IN_CREATE) {
-            //~ instances->count++;
-            //~ saved_contexts = instances->contexts;
-            //~ instances->contexts = realloc(instances->contexts, sizeof(InstanceContext) * instances->count);
+		if (event->mask == IN_CREATE) {
+            instances->count++;
+            saved_contexts = instances->contexts;
+            instances->contexts = realloc(instances->contexts, sizeof(InstanceContext) * instances->count);
             
-            //~ if (instances->contexts == NULL) {
-                //~ instances->contexts = saved_contexts;
-                //~ instances->count--;
-                //~ continue;
-            //~ }
+            if (instances->contexts == NULL) {
+                instances->contexts = saved_contexts;
+                instances->count--;
+                continue;
+            }
             
-            //~ explicit_bzero(&instances->contexts[instances->count-1], sizeof(InstanceContext));
-            //~ current_active_instance = &instances->contexts[instances->count-1];
-            //~ current_active_instance->identifier = 1;
-            //~ strcat(current_active_instance->name, "Instance ");
-            //~ strcat(current_active_instance->name, event->name);
-            //~ if (instances->count > instances->ui->lines_number) {
-                //~ instances->ui->window_offset++;
-            //~ }
-            //~ instances->ui->update = 1;
+            explicit_bzero(&instances->contexts[instances->count-1], sizeof(InstanceContext));
+            current_active_instance = &instances->contexts[instances->count-1];
+            current_active_instance->identifier = 1;
+            strcat(current_active_instance->name, "Instance ");
+            strcat(current_active_instance->name, event->name);
+            if (instances->count > instances->ui->lines_number) {
+                instances->ui->window_offset++;
+            }
+            instances->ui->update = 1;
 
-            //~ #ifdef DSTUDIO_DEBUG
-			//~ printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * instances->count);
-            //~ printf("Currents instances:\n");
-            //~ for(int i = 0; i < instances->count; i++) {
-                //~ printf("\t%s\n", instances->contexts[i].name);
-            //~ }
-            //~ #endif
-        //~ }
+            #ifdef DSTUDIO_DEBUG
+			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * instances->count);
+            printf("Currents instances:\n");
+            for(int i = 0; i < instances->count; i++) {
+                printf("\t%s\n", instances->contexts[i].name);
+            }
+            #endif
+        }
 		
-		//~ else if (event->mask == IN_DELETE) {
-            //~ instances->count--;
-            //~ // Move context data in memory and then realloc
-            //~ #ifdef DSTUDIO_DEBUG
-			//~ printf("Remove instance with id=%s\n", event->name);
-            //~ #endif
-        //~ }
-    //~ }
+		else if (event->mask == IN_DELETE) {
+            instances->count--;
+            // Move context data in memory and then realloc
+            #ifdef DSTUDIO_DEBUG
+			printf("Remove instance with id=%s\n", event->name);
+            #endif
+        }
+    }
     return NULL;
 }
 
 void * update_instances_text() {
-    //~ int offset = instances->ui->window_offset;
-    //~ for(int i = 0; i < instances->ui->lines_number; i++) {
-        //~ if (i + offset < instances->count) {
-            //~ //strcpy(instances->ui->lines[i].string_buffer, instances->contexts[i+offset].name);
-            //~ update_text(&instances->ui->lines[i]);
-        //~ }
-        //~ else {
-            //~ //strcpy(instances->ui->lines[i].string_buffer, "");
-            //~ update_text(&instances->ui->lines[i]);
-        //~ }
-    //~ }
+    int offset = instances->ui->window_offset;
+    for(unsigned int i = 0; i < instances->ui->lines_number; i++) {
+        if (i + offset < instances->count) {
+            update_text(&instances->ui->lines[i], instances->contexts[i+offset].name, instances->ui->string_size);
+        }
+        else {
+            update_text(&instances->ui->lines[i], "", instances->ui->string_size);
+        }
+    }
     return NULL;
 }

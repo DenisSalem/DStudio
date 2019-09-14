@@ -14,13 +14,13 @@ typedef struct InstanceContext_t {
 
 typedef struct UIInstances_t {
     UIElements * lines;
-    int lines_number;
+    unsigned int lines_number;
+    unsigned int string_size;
     int window_offset;
     sem_t mutex;
     int cut_thread;
     int ready;
     int update;
-    Vec2 scale_matrix[2];
 } UIInstances;
 
 typedef struct Instances_t {
@@ -30,7 +30,7 @@ typedef struct Instances_t {
 } Instances;
 
 void exit_instances_thread();
-void init_instances_ui(UIElements * lines, int lines_number);
+void init_instances_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size);
 void new_instance(const char * given_directory, const char * process_name, Instances * instances);
 
 // Periodically check if new instances were added
