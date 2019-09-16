@@ -16,14 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+#include <stdio.h>
 
 #include "extensions.h"
-#include "knobs.h"
+#include "buttons.h"
 
-void update_knob(int index, UIElements * knobs_p, void * args) {
-    float * motion = (float*) args;
-    knobs_p->instance_motions_buffer[index] = *motion;
-    glBindBuffer(GL_ARRAY_BUFFER, knobs_p->instance_motions);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * knobs_p->count, knobs_p->instance_motions_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+void update_button(int index, UIElements * buttons_p, void * args) {
+    (void) index;
+    (void) buttons_p;
+    (void) args;
+    
+    printf("Update button texture\n");
 }
+

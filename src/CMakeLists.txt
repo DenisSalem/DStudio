@@ -47,6 +47,7 @@ add_executable(
     text.c
     ui.c
     window_management.c
+    buttons.c
 )
 
 target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})

@@ -35,6 +35,7 @@
 #define DSANDGRAINS_SLIDER1_ASSET_PATH              "../assets/slider1.png"
 #define DSTUDIO_CHAR_TABLE_ASSET_PATH               "../assets/char_table.png"
 #define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
+#define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_CHAR_TABLE_ASSET_WIDTH              104
 #define DSTUDIO_CHAR_TABLE_ASSET_HEIGHT             234
 #define DSTUDIO_RENDER_ALL              0xfffffff
@@ -42,6 +43,8 @@
 #define DSTUDIO_RENDER_SLIDERS          2
 #define DSTUDIO_RENDER_SYSTEM_USAGE     4
 #define DSTUDIO_RENDER_INSTANCES        8
+#define DSTUDIO_FLAG_ANIMATED   1
+#define DSTUDIO_FLAG_FLIP_Y     2
 
 extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
 extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
@@ -49,6 +52,7 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 #define DSTUDIO_KNOB_TYPE_1 1
 #define DSTUDIO_KNOB_TYPE_2 2
 #define DSTUDIO_SLIDER_TYPE_1 4
+#define DSTUDIO_BUTTON_TYPE_1 8
 
 typedef struct Vec4_t {
     GLfloat x;
@@ -75,7 +79,7 @@ typedef struct UIElement_t {
     GLfloat *                   instance_offsets_buffer; /* May be allocated either as array of Vec2 or Vec4 */
     GLuint                      instance_motions;
     GLfloat  *                  instance_motions_buffer;
-    unsigned int                interactive;
+    unsigned int                animated;
     Vec2                        scale_matrix[2];
     unsigned char *             texture;
     GLuint                      texture_id;

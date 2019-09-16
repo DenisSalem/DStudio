@@ -25,6 +25,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "../buttons.h"
 #include "../common.h"
 #include "../fileutils.h"
 #include "../instances.h"
@@ -43,6 +44,11 @@ static Vec2 background_scale_matrix[2] = {0};
 /* Charsets */
 static Vec2 charset_scale_matrix[2] = {0};
 static Vec2 charset_small_scale_matrix[2] = {0};
+
+/* Arrows */
+static UIElements arrow_instances_top = {0};
+static UIElements arrow_instances_bottom = {0};
+static Vec2 arrow_instances_scale_matrix[2] = {0};
 
 /* Instances */
 static UIElements instances[7] = {0};
@@ -105,6 +111,8 @@ static void init_ui(UI * ui) {
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_scale_matrix, 104, 234)
     GLuint charset_small_texture_id = setup_texture_n_scale_matrix(0, 1, 52, 117, DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, NULL);
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_small_scale_matrix, 52, 117)
+    GLuint arrow_instances_texture_id = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix);
+
     
     /* - Tell to mouse button callback the height of the current active slider.
      * - Help to init slider settings.*/
@@ -183,18 +191,17 @@ static void init_ui(UI * ui) {
     
     /* Knobs */
     params.update_callback = update_knob;
-    
     params.settings = sample_knobs_settings_array;
     params.array_offset = 0;
-    init_ui_elements(1, &sample_knobs, knob1_texture_id, 8, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_knobs, knob1_texture_id, 8, configure_ui_element, &params);
     
     params.settings = sample_small_knobs_settings_array;
     params.array_offset += 8;
-    init_ui_elements(1, &sample_small_knobs, knob2_texture_id, 10, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_small_knobs, knob2_texture_id, 10, configure_ui_element, &params);
     
     params.settings = voice_knobs_settings_array;
     params.array_offset += 10;
-    init_ui_elements(1, &voice_knobs, knob1_texture_id, 3, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &voice_knobs, knob1_texture_id, 3, configure_ui_element, &params);
     
     /* Sliders */
     params.update_callback = update_slider;
@@ -202,32 +209,45 @@ static void init_ui(UI * ui) {
     params.array_offset += 3;
     init_slider_settings(&sliders_settings_array, slider_texture_scale, 339, 441, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
-    init_ui_elements(1, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
     
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     init_slider_settings(&sliders_settings_array, slider_texture_scale, 396, 379, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
-    init_ui_elements(1, &sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     init_slider_settings(&sliders_settings_array, slider_texture_scale, 290, 313, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
-    init_ui_elements(1, &sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     init_slider_settings(&sliders_settings_array, slider_texture_scale, 396, 313, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
-    init_ui_elements(1, &sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     init_slider_settings(&sliders_settings_array, slider_texture_scale, 523, 359, 16, 16, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
-    init_ui_elements(1, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
+    
+    /* Instance arrows */
+    offsets.x = 0.81875;
+    offsets.y = 0.404166;
+    
+    UIElementSetting buttons_settings_array[1] = {{0.81875, 0.404166, 669.0,  787.0,  139.0, 148.0, DSTUDIO_BUTTON_TYPE_1}};
+    params.update_callback = update_button;
+    params.settings = buttons_settings_array;
+    params.array_offset +=1;
+    
+    init_ui_elements(0, &arrow_instances_top, arrow_instances_texture_id, 1, configure_ui_element, &params);
+    offsets.y = 0.04166;
+    init_ui_elements(DSTUDIO_FLAG_FLIP_Y, &arrow_instances_bottom, arrow_instances_texture_id, 1, NULL, &offsets);
 
     init_system_usage_ui(ui_system_usage_p, 6);   
 
@@ -249,6 +269,11 @@ static void render_viewport(int mask) {
         // SYSTEM USAGE
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_scale_matrix);
         render_ui_elements(&cpu_usage);
+        
+        // INSTANCES ARROWS
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
+        render_ui_elements(&arrow_instances_bottom);
+        render_ui_elements(&arrow_instances_top);
         
         if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_scale_matrix);

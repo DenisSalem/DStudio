@@ -54,7 +54,7 @@ void configure_ui_element(UIElements * ui_elements, void * params) {
     unsigned int array_offset = ui_element_setting_params->array_offset;
     for (unsigned int i = 0; i < ui_elements->count; i++) {
         configure_ui_element_p = &configure_ui_element_array[i];
-        if (ui_elements->interactive) {
+        if (ui_elements->animated) {
             ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
             ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
         }
@@ -153,9 +153,12 @@ int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format)
     exit(-1);
 }
 
-void init_ui_elements(int interactive, UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params) {
+void init_ui_elements(int flags, UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params) {
+    int animated = flags & DSTUDIO_FLAG_ANIMATED;
+    int flip_y =  (flags & DSTUDIO_FLAG_FLIP_Y) >> 1;
+    
     Vec4 * offsets; 
-    ui_elements->interactive = interactive;
+    ui_elements->animated = animated;
     /* How many elements this group holds? */
     ui_elements->count = count;
     
@@ -183,27 +186,28 @@ void init_ui_elements(int interactive, UIElements * ui_elements, GLuint texture_
     
     /* Setting default texture coordinates */
     
-    
-    //~ vertex_attributes[0].z = 0.0f;
-    //~ vertex_attributes[0].w = 0.0f;
-    //~ vertex_attributes[1].z = 0.0f;
-    vertex_attributes[1].w = 1.0;
     vertex_attributes[2].z = 1.0;
-    //~ vertex_attributes[2].w = 0.0f;
     vertex_attributes[3].z = 1.0;
-    vertex_attributes[3].w = 1.0;
 
+    if (flip_y) {
+        vertex_attributes[0].w = 1.0f;
+        vertex_attributes[2].w = 1.0;
+    }
+    else {
+        vertex_attributes[1].w = 1.0;
+        vertex_attributes[3].w = 1.0;
+    }
     
     /* Setting instance buffers */
-    ui_elements->instance_offsets_buffer = malloc(count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
-    explicit_bzero(ui_elements->instance_offsets_buffer, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
+    ui_elements->instance_offsets_buffer = malloc(count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
+    explicit_bzero(ui_elements->instance_offsets_buffer, count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
     
     if (configure_ui_element != NULL && params != NULL) {
         ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
         configure_ui_element(ui_elements, params);
     }
     
-    if (params != NULL && !interactive && configure_ui_element == NULL) {
+    if (params != NULL && !animated && configure_ui_element == NULL) {
         offsets = (Vec4 *) &ui_elements->instance_offsets_buffer[0];
         offsets->x = ((Vec4 *) params)->x;
         offsets->y = ((Vec4 *) params)->y;
@@ -212,7 +216,7 @@ void init_ui_elements(int interactive, UIElements * ui_elements, GLuint texture_
     }
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
-    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (interactive ? sizeof(Vec2) : sizeof(Vec4)));
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
 
     /* Setting vertex array */
     glGenVertexArrays(1, &ui_elements->vertex_array_object);
@@ -226,10 +230,10 @@ void init_ui_elements(int interactive, UIElements * ui_elements, GLuint texture_
             glVertexAttribDivisor(1, 0);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
             // If there is no motions required, it means that we might want to offset texture coordinates instead */
-            glVertexAttribPointer(2, interactive ? 2 : 4, GL_FLOAT, GL_FALSE, interactive ? sizeof(Vec2) : sizeof(Vec4), (GLvoid *) 0 );
+            glVertexAttribPointer(2, animated ? 2 : 4, GL_FLOAT, GL_FALSE, animated ? sizeof(Vec2) : sizeof(Vec4), (GLvoid *) 0 );
             glEnableVertexAttribArray(2);
             glVertexAttribDivisor(2, 1);
-            if (interactive) {
+            if (animated) {
                 glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_motions);
                     glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
                     glEnableVertexAttribArray(3);

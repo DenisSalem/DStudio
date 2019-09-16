@@ -82,6 +82,9 @@ static void cursor_position_callback(int xpos, int ypos){
         motion = compute_slider_translation(ypos);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
+    else if (active_ui_element.type == DSTUDIO_BUTTON_TYPE_1) {
+        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
+    }
 }
     
 static void mouse_button_callback(int xpos, int ypos, int button, int action) {
@@ -112,7 +115,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
             }
         }
     }
-    if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
+    else if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
         active_ui_element.callback = NULL;
         areas_index = -1;
         render_mask = 0;
