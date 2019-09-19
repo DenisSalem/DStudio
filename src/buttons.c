@@ -23,9 +23,7 @@
 
 void update_button(int index, UIElements * buttons_p, void * args) {
     (void) index;
-    (void) buttons_p;
-    (void) args;
-    
-    printf("Update button texture\n");
+    buttons_p->texture_id = *((GLuint *) args);    
+    printf("Update button texture at index %d with texture id %d.\n", index, *((GLuint *) args));
 }
 

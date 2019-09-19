@@ -82,12 +82,10 @@ static void cursor_position_callback(int xpos, int ypos){
         motion = compute_slider_translation(ypos);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
-    else if (active_ui_element.type == DSTUDIO_BUTTON_TYPE_1) {
-        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
-    }
 }
     
 static void mouse_button_callback(int xpos, int ypos, int button, int action) {
+    int ui_element_index = 0;
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         for (int i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
@@ -111,13 +109,24 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                     active_slider_range.x = ui_areas[i].min_y + slider_texture_scale / 2;
                     active_slider_range.y = ui_areas[i].max_y - slider_texture_scale / 2;
                 }
+                if (active_ui_element.type == DSTUDIO_BUTTON_TYPE_1) {
+                    active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &texture_button_id_pair_array[i].active);
+                    render_mask = DSTUDIO_RENDER_INSTANCES_BUTTONS;
+                }
+                ui_element_index = i;
                 break;
             }
         }
     }
     else if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
-        active_ui_element.callback = NULL;
-        areas_index = -1;
-        render_mask = 0;
+        if (active_ui_element.type == DSTUDIO_BUTTON_TYPE_1) {
+            active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &texture_button_id_pair_array[ui_element_index].release);
+            send_expose_event();
+        }
+        else {
+            active_ui_element.callback = NULL;
+            areas_index = -1;
+            render_mask = 0;
+        }
     }
 }

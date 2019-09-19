@@ -91,6 +91,8 @@ static GLuint motion_type_id;
 
 static GLfloat motion_type;
 
+static TextureButtonIDPair texture_button_id_pair_array[DSANDGRAINS_BUTTONS_COUNT] = {0};
+
 #include "../ui_statics.h"
 
 static void init_ui(UI * ui) {
@@ -111,9 +113,10 @@ static void init_ui(UI * ui) {
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_scale_matrix, 104, 234)
     GLuint charset_small_texture_id = setup_texture_n_scale_matrix(0, 1, 52, 117, DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, NULL);
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_small_scale_matrix, 52, 117)
-    GLuint arrow_instances_texture_id = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix);
-
-    
+    texture_button_id_pair_array[0].release = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix);
+    texture_button_id_pair_array[0].active = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH, NULL);
+    texture_button_id_pair_array[1].release = texture_button_id_pair_array[0].release;
+    texture_button_id_pair_array[1].active = texture_button_id_pair_array[0].active;
     /* - Tell to mouse button callback the height of the current active slider.
      * - Help to init slider settings.*/
     slider_texture_scale = 10;
@@ -147,14 +150,6 @@ static void init_ui(UI * ui) {
         { 0.3725, -0.129166, 516,   581.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : VOLUME
         { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
     };
-
-    UIElementSetting * sliders_equalizer_settings_array = 0;
-    init_slider_settings(&sliders_equalizer_settings_array, slider_texture_scale, 523, 359, 16, 16, 8);
-
-    /* Inits ui elements */
-    UIElementSettingParams params = {0};
-    params.callbacks = ui_callbacks;
-    params.areas = ui_areas;
     
     /* Background */
     init_ui_elements(0, &background, background_texture_id, 1, NULL, NULL);
@@ -189,10 +184,28 @@ static void init_ui(UI * ui) {
     
     init_instances_ui(&instances[0], 7, 29);
     
+    /* Inits interactive ui elements */
+    UIElementSettingParams params = {0};
+    params.callbacks = ui_callbacks;
+    params.areas = ui_areas;
+
+    /* Instance arrows */
+    UIElementSetting buttons_settings_array[1] = {{0.81875, 0.404166, 669.0,  787.0,  139.0, 148.0, DSTUDIO_BUTTON_TYPE_1}};
+    params.update_callback = update_button;
+    params.settings = buttons_settings_array;
+
+    init_ui_elements(0, &arrow_instances_top, texture_button_id_pair_array[0].release, 1, configure_ui_element, &params);
+    params.array_offset +=1;
+
+    buttons_settings_array[0].gl_y = 0.04166;
+    buttons_settings_array[0].min_area_y = 226;
+    buttons_settings_array[0].max_area_y = 235;
+    init_ui_elements(DSTUDIO_FLAG_FLIP_Y, &arrow_instances_bottom, texture_button_id_pair_array[0].release, 1, configure_ui_element, &params);
+    params.array_offset +=1;
+
     /* Knobs */
     params.update_callback = update_knob;
     params.settings = sample_knobs_settings_array;
-    params.array_offset = 0;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_knobs, knob1_texture_id, 8, configure_ui_element, &params);
     
     params.settings = sample_small_knobs_settings_array;
@@ -235,19 +248,6 @@ static void init_ui(UI * ui) {
     params.settings = sliders_settings_array;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
-    
-    /* Instance arrows */
-    offsets.x = 0.81875;
-    offsets.y = 0.404166;
-    
-    UIElementSetting buttons_settings_array[1] = {{0.81875, 0.404166, 669.0,  787.0,  139.0, 148.0, DSTUDIO_BUTTON_TYPE_1}};
-    params.update_callback = update_button;
-    params.settings = buttons_settings_array;
-    params.array_offset +=1;
-    
-    init_ui_elements(0, &arrow_instances_top, arrow_instances_texture_id, 1, configure_ui_element, &params);
-    offsets.y = 0.04166;
-    init_ui_elements(DSTUDIO_FLAG_FLIP_Y, &arrow_instances_bottom, arrow_instances_texture_id, 1, NULL, &offsets);
 
     init_system_usage_ui(ui_system_usage_p, 6);   
 
