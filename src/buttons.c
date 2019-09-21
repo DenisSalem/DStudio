@@ -21,9 +21,24 @@
 #include "extensions.h"
 #include "buttons.h"
 
-void update_button(int index, UIElements * buttons_p, void * args) {
-    (void) index;
-    buttons_p->texture_id = *((GLuint *) args);    
-    printf("Update button texture at index %d with texture id %d.\n", index, *((GLuint *) args));
+void check_for_buttons_to_render_n_update(ButtonStates * button_states, int count, void (*render)(int)) {
+    (void) button_states;
+    (void) render;
+    for (int i = 0; i < count; i++) {
+        printf("active button: %ld\n", button_states[i].timestamp);
+    }           
+    printf("\n"); 
 }
 
+void update_button(int index, UIElements * buttons_p, void * args) {
+    (void) index;
+    ButtonStates * button_states = (ButtonStates *) args;
+    button_states->timestamp = clock();
+    if (button_states->active == buttons_p->texture_id) {
+        buttons_p->texture_id = button_states->release;
+    }
+    else {
+        buttons_p->texture_id = button_states->active;
+    }
+    printf("texture id %d\n", buttons_p->texture_id);
+}

@@ -37,12 +37,12 @@
 #define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
-#define DSTUDIO_RENDER_ALL              0xfffffff
+#define DSTUDIO_RENDER_ALL                  0xfffffff
 #define DSTUDIO_RENDER_KNOBS                1
 #define DSTUDIO_RENDER_SLIDERS              2
 #define DSTUDIO_RENDER_SYSTEM_USAGE         4
 #define DSTUDIO_RENDER_INSTANCES            8
-#define DSTUDIO_RENDER_INSTANCES_BUTTONS    16
+#define DSTUDIO_RENDER_BUTTONS_TYPE_1       16
 #define DSTUDIO_FLAG_ANIMATED   1
 #define DSTUDIO_FLAG_FLIP_Y     2
 
@@ -54,10 +54,13 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 #define DSTUDIO_SLIDER_TYPE_1 4
 #define DSTUDIO_BUTTON_TYPE_1 8
 
-typedef struct TextureButtonIDPair_t {
+typedef struct ButtonStates_t {
     GLuint release;
     GLuint active;
-} TextureButtonIDPair;
+    clock_t timestamp;
+    int state;
+    int type;
+} ButtonStates;
 
 typedef struct Vec4_t {
     GLfloat x;

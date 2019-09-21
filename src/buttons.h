@@ -22,6 +22,7 @@
 
 #include "ui.h"
 
+void check_for_buttons_to_render_n_update(ButtonStates * button_states, int count, void (*render)(int));
 void update_button(int index, UIElements * buttons_p, void * args);
 
 #endif

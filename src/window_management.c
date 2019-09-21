@@ -232,9 +232,8 @@ void listen_events() {
             return;
         }
         else if (x_event.type == Expose) {
-            if (x_event.xexpose.send_event == 1) {
-            }
-            else {
+            if (x_event.xexpose.send_event != 1) {
+                printf("refresh all\n");
                 refresh_all = 1;
             }
         }
