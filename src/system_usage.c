@@ -57,7 +57,7 @@ void * update_system_usage(void * args) {
             explicit_bzero(system_usage->mem_string_buffer, 6);
             sprintf(system_usage->mem_string_buffer, "%0.1f%%", mem_usage);
         }
-        
+
         send_expose_event();
         system_usage->update = 1;
         sem_post(&system_usage->mutex);

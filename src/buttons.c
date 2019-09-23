@@ -17,19 +17,37 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdio.h>
+#include <unistd.h>
 
 #include "extensions.h"
 #include "buttons.h"
 
-void check_for_buttons_to_render_n_update(ButtonStates * button_states, int count, void (*render)(int)) {
-    (void) button_states;
-    (void) render;
-    for (int i = 0; i < count; i++) {
-        printf("active button: %ld\n", button_states[i].timestamp);
-    }           
-    printf("\n"); 
+void * buttons_management_thread(void * args) {
+    ButtonsManagement * buttons_management = (ButtonsManagement *) args;
+
+    while(!buttons_management->ready) {
+        usleep(1000);
+        printf("Waiting for ready...\n");
+    }
+    printf("Ready \n");
+    while(!buttons_management->cut_thread) {
+        usleep(10000);
+        printf("send\n");
+        send_expose_event();
+        //for (int i = 0; i < count; i++) {
+            //printf("active button: %ld\n", button_states[i].timestamp);
+        //}  
+    }
+    printf("Exit thread\n");
+    return NULL;
 }
 
+void init_buttons_management(ButtonsManagement * buttons_management, ButtonStates * button_states_array, unsigned int count) {
+    buttons_management->ready = 1;
+    buttons_management->states = button_states_array;
+    buttons_management->count = count;
+}
+ 
 void update_button(int index, UIElements * buttons_p, void * args) {
     (void) index;
     ButtonStates * button_states = (ButtonStates *) args;
@@ -40,5 +58,4 @@ void update_button(int index, UIElements * buttons_p, void * args) {
     else {
         buttons_p->texture_id = button_states->active;
     }
-    printf("texture id %d\n", buttons_p->texture_id);
 }

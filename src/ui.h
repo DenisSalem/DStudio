@@ -54,14 +54,6 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 #define DSTUDIO_SLIDER_TYPE_1 4
 #define DSTUDIO_BUTTON_TYPE_1 8
 
-typedef struct ButtonStates_t {
-    GLuint release;
-    GLuint active;
-    clock_t timestamp;
-    int state;
-    int type;
-} ButtonStates;
-
 typedef struct Vec4_t {
     GLfloat x;
     GLfloat y;

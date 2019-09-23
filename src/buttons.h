@@ -20,9 +20,30 @@
 #ifndef DSTUDIO_BUTTONS_H_INCLUDED
 #define DSTUDIO_BUTTONS_H_INCLUDED
 
+#include <pthread.h>
+#include <semaphore.h>
+
 #include "ui.h"
 
-void check_for_buttons_to_render_n_update(ButtonStates * button_states, int count, void (*render)(int));
+typedef struct ButtonStates_t {
+    GLuint release;
+    GLuint active;
+    clock_t timestamp;
+    int state;
+    int type;
+} ButtonStates;
+
+typedef struct ButtonsManagement_t {
+    ButtonStates * states;
+    int cut_thread;
+    sem_t mutex;
+    pthread_t thread_id;
+    int ready;
+    unsigned int count;
+} ButtonsManagement;
+
+void * buttons_management_thread(void * args);
+void init_buttons_management(ButtonsManagement * buttons_management, ButtonStates * button_states_array, unsigned int count);
 void update_button(int index, UIElements * buttons_p, void * args);
 
 #endif

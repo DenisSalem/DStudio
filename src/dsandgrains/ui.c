@@ -45,6 +45,9 @@ static Vec2 background_scale_matrix[2] = {0};
 static Vec2 charset_scale_matrix[2] = {0};
 static Vec2 charset_small_scale_matrix[2] = {0};
 
+/* Buttons management */
+ButtonsManagement buttons_management = {0};
+
 /* Arrows */
 static UIElements arrow_instances_top = {0};
 static UIElements arrow_instances_bottom = {0};
@@ -114,6 +117,8 @@ static void init_ui(UI * ui) {
     GLuint charset_small_texture_id = setup_texture_n_scale_matrix(0, 1, 52, 117, DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, NULL);
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_small_scale_matrix, 52, 117)
     
+    DSTUDIO_EXIT_IF_FAILURE(pthread_create( &buttons_management.thread_id, NULL, buttons_management_thread, &buttons_management))
+
     /* Setting up button states */
     button_states_array[0].release = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix);
     button_states_array[0].active = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH, NULL);
@@ -256,6 +261,7 @@ static void init_ui(UI * ui) {
     free(sliders_settings_array);
 
     init_system_usage_ui(ui_system_usage_p, 6);   
+    init_buttons_management(&buttons_management, &button_states_array[0], DSANDGRAINS_BUTTONS_COUNT);
 
     /* Setting shader uniform input ID */
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
@@ -333,7 +339,7 @@ static void render_viewport(int mask) {
 
 // Should be splitted
 void * ui_thread(void * arg) {
-    int redraw_all = 0;
+    //int redraw_all = 0;
 
     init_context("DSANDGRAINS", DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
     set_mouse_button_callback(mouse_button_callback);
@@ -350,24 +356,27 @@ void * ui_thread(void * arg) {
     glEnable(GL_SCISSOR_TEST);
     
     while (do_no_exit_loop()) {
+        //check_for_buttons_to_render_n_update(button_states_array, DSANDGRAINS_BUTTONS_COUNT, render_viewport);
+        printf("ITERATE");
         usleep(framerate);
         
         /* RENDER */
-        
+
         if (need_to_redraw_all()) {
             glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
             render_viewport(DSTUDIO_RENDER_ALL);
         }
         else {
+
             // Check for knob or slider to render
             if (areas_index >= 0) {
                 glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
                 render_viewport(render_mask);
             }
             
-            // UPDATE AND RENDER TEXT
+            //~ // UPDATE AND RENDER TEXT
             sem_wait(&ui_system_usage_p->mutex);
-            if (ui_system_usage_p->update && !redraw_all) {
+            if (ui_system_usage_p->update /*&& !redraw_all*/) {
                 update_text(&cpu_usage, ui_system_usage_p->cpu_string_buffer, ui_system_usage_p->string_size);
                 update_text(&mem_usage, ui_system_usage_p->mem_string_buffer, ui_system_usage_p->string_size);
                 glScissor(402, 438, 48, 31);
@@ -377,7 +386,7 @@ void * ui_thread(void * arg) {
             sem_post(&ui_system_usage_p->mutex);
 
             sem_wait(&ui_instances_p->mutex);
-            if ((ui_instances_p->update && !redraw_all)) {
+            if (ui_instances_p->update /*&& !redraw_all*/) {
                 update_instances_text();
                 glScissor(669, 254, 117, 79);
                 render_viewport(DSTUDIO_RENDER_INSTANCES);
@@ -385,9 +394,7 @@ void * ui_thread(void * arg) {
             }
             sem_post(&ui_instances_p->mutex);
         }
-        
-        check_for_buttons_to_render_n_update(button_states_array, DSANDGRAINS_BUTTONS_COUNT, render_viewport);
-        
+                
         swap_window_buffer();
         listen_events();
     }
