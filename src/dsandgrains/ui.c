@@ -51,6 +51,11 @@ ButtonsManagement buttons_management = {0};
 /* Arrows */
 static UIElements arrow_instances_top = {0};
 static UIElements arrow_instances_bottom = {0};
+static UIElements arrow_voices_top = {0};
+static UIElements arrow_voices_bottom = {0};
+static UIElements arrow_samples_top = {0};
+static UIElements arrow_samples_bottom = {0};
+
 static Vec2 arrow_instances_scale_matrix[2] = {0};
 
 /* Instances */
@@ -125,6 +130,22 @@ static void init_ui(UI * ui) {
     button_states_array[1].active = button_states_array[0].active;
     button_states_array[1].type = DSTUDIO_BUTTON_TYPE_1;
 
+    button_states_array[2].release = button_states_array[0].release;
+    button_states_array[2].active = button_states_array[0].active;
+    button_states_array[2].type = DSTUDIO_BUTTON_TYPE_1;
+    
+    button_states_array[3].release = button_states_array[0].release;
+    button_states_array[3].active = button_states_array[0].active;
+    button_states_array[3].type = DSTUDIO_BUTTON_TYPE_1;
+
+    button_states_array[4].release = button_states_array[0].release;
+    button_states_array[4].active = button_states_array[0].active;
+    button_states_array[4].type = DSTUDIO_BUTTON_TYPE_1;
+
+    button_states_array[5].release = button_states_array[0].release;
+    button_states_array[5].active = button_states_array[0].active;
+    button_states_array[5].type = DSTUDIO_BUTTON_TYPE_1;
+    
     /* - Tell to mouse button callback the height of the current active slider.
      * - Help to init slider settings.*/
     slider_texture_scale = 10;
@@ -198,19 +219,43 @@ static void init_ui(UI * ui) {
     params.areas = ui_areas;
 
     /* Instance arrows */
-    UIElementSetting buttons_settings_array[1] = {{0.81875, 0.404166, 669.0,  787.0,  139.0, 148.0, DSTUDIO_BUTTON_TYPE_1}};
+    UIElementSetting buttons_settings_array = {0.81875, 0.404166, 669.0,  787.0,  139.0, 148.0, DSTUDIO_BUTTON_TYPE_1};
     params.update_callback = update_button;
-    params.settings = buttons_settings_array;
+    params.settings = &buttons_settings_array;
 
     init_ui_elements(0, &arrow_instances_top, button_states_array[0].release, 1, configure_ui_element, &params);
     params.array_offset +=1;
 
-    buttons_settings_array[0].gl_y = 0.04166;
-    buttons_settings_array[0].min_area_y = 226;
-    buttons_settings_array[0].max_area_y = 235;
+    buttons_settings_array.gl_y = 0.04166;
+    buttons_settings_array.min_area_y = 226;
+    buttons_settings_array.max_area_y = 235;
     init_ui_elements(DSTUDIO_FLAG_FLIP_Y, &arrow_instances_bottom, button_states_array[1].release, 1, configure_ui_element, &params);
     params.array_offset +=1;
+    
+    buttons_settings_array.gl_y = -0.058333;
+    buttons_settings_array.min_area_y = 250;
+    buttons_settings_array.max_area_y = 259;
+    init_ui_elements(0, &arrow_voices_top, button_states_array[2].release, 1, configure_ui_element, &params);
+    params.array_offset +=1;
+    
+    buttons_settings_array.gl_y = -0.420833;
+    buttons_settings_array.min_area_y = 337;
+    buttons_settings_array.max_area_y = 346;
+    init_ui_elements(DSTUDIO_FLAG_FLIP_Y, &arrow_voices_bottom, button_states_array[3].release, 1, configure_ui_element, &params);
+    params.array_offset +=1;
 
+    buttons_settings_array.gl_y = -0.520833;
+    buttons_settings_array.min_area_y = 361;
+    buttons_settings_array.max_area_y = 370;
+    init_ui_elements(0, &arrow_samples_top, button_states_array[4].release, 1, configure_ui_element, &params);
+    params.array_offset +=1;
+
+    buttons_settings_array.gl_y = -0.883333;
+    buttons_settings_array.min_area_y = 448;
+    buttons_settings_array.max_area_y = 457;
+    init_ui_elements(DSTUDIO_FLAG_FLIP_Y, &arrow_samples_bottom, button_states_array[5].release, 1, configure_ui_element, &params);
+    params.array_offset +=1;
+    
     /* Knobs */
     params.update_callback = update_knob;
     params.settings = sample_knobs_settings_array;
@@ -282,11 +327,15 @@ static void render_viewport(int mask) {
             render_ui_elements(&mem_usage);
         }
         
-        // INSTANCES ARROWS
+        // ARROWS
         if (mask & DSTUDIO_RENDER_BUTTONS_TYPE_1) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
             render_ui_elements(&arrow_instances_bottom);
             render_ui_elements(&arrow_instances_top);
+            render_ui_elements(&arrow_voices_top);
+            render_ui_elements(&arrow_voices_bottom);
+            render_ui_elements(&arrow_samples_top);
+            render_ui_elements(&arrow_samples_bottom);
         }
         
         // INSTANCES
