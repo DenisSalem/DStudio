@@ -38,6 +38,8 @@ add_executable(
 	dsandgrains
 	dsandgrains/main.c
     dsandgrains/ui.c
+    buttons.c
+    common.c
     extensions.c
     fileutils.c
     instances.c
@@ -47,7 +49,6 @@ add_executable(
     text.c
     ui.c
     window_management.c
-    buttons.c
 )
 
 target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
@@ -58,8 +59,11 @@ if(DEFINED DSTUDIO_RELY_ON_X11)
     target_link_libraries(dsandgrains ${X11_LIBRARIES})
 endif()
 
-add_custom_command(
-    TARGET dsandgrains POST_BUILD
-    COMMAND strip --strip-unneeded -s -R .comment -R .gnu.version dsandgrains
-    COMMENT "strip --strip-unneeded -s -R .comment -R .gnu.version dsandgrains"
-)
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    add_custom_command(
+        TARGET dsandgrains POST_BUILD
+        COMMAND strip --strip-unneeded -s -R .comment -R .gnu.version dsandgrains
+        COMMENT "strip --strip-unneeded -s -R .comment -R .gnu.version dsandgrains"
+    )
+endif()
+

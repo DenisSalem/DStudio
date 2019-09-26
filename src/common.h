@@ -18,5 +18,7 @@
         printf("0 == " #value "\n"); \
         exit(-1); \
     }
+
+double get_timestamp();
     
 #endif

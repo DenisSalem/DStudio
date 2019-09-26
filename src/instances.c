@@ -158,7 +158,7 @@ void * update_instances(void * args) {
             #ifdef DSTUDIO_DEBUG
 			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * instances->count);
             printf("Currents instances:\n");
-            for(int i = 0; i < instances->count; i++) {
+            for(unsigned int i = 0; i < instances->count; i++) {
                 printf("\t%s\n", instances->contexts[i].name);
             }
             #endif

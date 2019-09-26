@@ -233,10 +233,8 @@ void listen_events() {
         }
         else if (x_event.type == Expose) {
             if (x_event.xexpose.send_event != 1) {
-                printf("refresh all\n");
                 refresh_all = 1;
             }
-            printf("%lu\n", clock());
         }
         else if (x_event.type == ButtonPress) {
             if (x_event.xbutton.button == Button1) {

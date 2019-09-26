@@ -120,9 +120,9 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
         }
     }
     else if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
-        if (ui_callbacks[ui_element_index].type == DSTUDIO_BUTTON_TYPE_1) {
-            ui_callbacks[ui_element_index].callback(0, ui_callbacks[ui_element_index].context_p, &button_states_array[ui_element_index]);
-        }
+        //~ if (ui_callbacks[ui_element_index].type == DSTUDIO_BUTTON_TYPE_1) {
+            //~ ui_callbacks[ui_element_index].callback(0, ui_callbacks[ui_element_index].context_p, &button_states_array[ui_element_index]);
+        //~ }
         active_ui_element.callback = NULL;
         areas_index = -1;
         render_mask = 0;

@@ -287,6 +287,7 @@ static void render_viewport(int mask) {
         
         // INSTANCES ARROWS
         if (mask & DSTUDIO_RENDER_BUTTONS_TYPE_1) {
+            printf("HERE\n");
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
             render_ui_elements(&arrow_instances_bottom);
             render_ui_elements(&arrow_instances_top);
@@ -356,8 +357,6 @@ void * ui_thread(void * arg) {
     glEnable(GL_SCISSOR_TEST);
     
     while (do_no_exit_loop()) {
-        //check_for_buttons_to_render_n_update(button_states_array, DSANDGRAINS_BUTTONS_COUNT, render_viewport);
-        printf("ITERATE");
         usleep(framerate);
         
         /* RENDER */
@@ -367,6 +366,7 @@ void * ui_thread(void * arg) {
             render_viewport(DSTUDIO_RENDER_ALL);
         }
         else {
+            check_for_buttons_to_render_n_update(&buttons_management, render_viewport);
 
             // Check for knob or slider to render
             if (areas_index >= 0) {
@@ -402,7 +402,12 @@ void * ui_thread(void * arg) {
     sem_wait(&ui_system_usage_p->mutex);
     ui_system_usage_p->cut_thread = 1;
     sem_post(&ui_system_usage_p->mutex);
-    
+
+    sem_wait(&buttons_management.mutex);
+    buttons_management.cut_thread = 1;
+    sem_post(&buttons_management.mutex);
+    DSTUDIO_EXIT_IF_FAILURE(pthread_join(buttons_management.thread_id, NULL))
+
     exit_instances_thread();
     destroy_context();
     return NULL;
