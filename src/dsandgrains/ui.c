@@ -85,9 +85,6 @@ UICallback ui_callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 static useconds_t framerate = 20000;
 static char areas_index = -1;
 
-static GLint scissor_x, scissor_y;
-static GLsizei scissor_width, scissor_height;
-
 static GLuint interactive_program_id, non_interactive_program_id;
 static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id;
 static GLuint motion_type_id;
@@ -287,7 +284,6 @@ static void render_viewport(int mask) {
         
         // INSTANCES ARROWS
         if (mask & DSTUDIO_RENDER_BUTTONS_TYPE_1) {
-            printf("HERE\n");
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
             render_ui_elements(&arrow_instances_bottom);
             render_ui_elements(&arrow_instances_top);
@@ -366,7 +362,13 @@ void * ui_thread(void * arg) {
             render_viewport(DSTUDIO_RENDER_ALL);
         }
         else {
-            check_for_buttons_to_render_n_update(&buttons_management, render_viewport);
+            check_for_buttons_to_render_n_update(
+                &buttons_management,
+                render_viewport,
+                ui_callbacks,
+                mouse_state,
+                ui_areas
+            );
 
             // Check for knob or slider to render
             if (areas_index >= 0) {

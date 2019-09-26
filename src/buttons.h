@@ -42,8 +42,22 @@ typedef struct ButtonsManagement_t {
 } ButtonsManagement;
 
 void * buttons_management_thread(void * args);
-void check_for_buttons_to_render_n_update(ButtonsManagement * buttons_management, void (*render_viewport)(int));
-void init_buttons_management(ButtonsManagement * buttons_management, ButtonStates * button_states_array, unsigned int count);
-void update_button(int index, UIElements * buttons_p, void * args);
+
+void check_for_buttons_to_render_n_update(
+    ButtonsManagement * buttons_management,
+    void (*render_viewport)(int),
+    UICallback * ui_callbacks,
+    int mouse_state,
+    UIArea * ui_areas);
+    
+void init_buttons_management(
+    ButtonsManagement * buttons_management,
+    ButtonStates * button_states_array,
+    unsigned int count);
+
+void update_button(
+    int index,
+    UIElements * buttons_p,
+    void * args);
 
 #endif

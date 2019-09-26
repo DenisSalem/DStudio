@@ -22,6 +22,7 @@ static Vec2 active_ui_element_center = {0};
 static int render_mask = 0;
 static int slider_texture_scale;
 static int ui_element_index = 0;
+static int mouse_state = 0;
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
     render_mask = DSTUDIO_RENDER_KNOBS;
@@ -87,6 +88,7 @@ static void cursor_position_callback(int xpos, int ypos){
     
 static void mouse_button_callback(int xpos, int ypos, int button, int action) {
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
+        mouse_state = 1;
         for (int i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
             ui_element_index = i;
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
@@ -102,10 +104,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                 /* SETUP glScissor params */
                 if (areas_index < 0) {
                     areas_index = i;
-                    scissor_x = (GLint) ui_areas[i].min_x;
-                    scissor_y = (GLint) DSTUDIO_VIEWPORT_HEIGHT - ui_areas[i].max_y;
-                    scissor_width = (GLsizei) ui_areas[i].max_x - ui_areas[i].min_x;
-                    scissor_height = (GLsizei) ui_areas[i].max_y - ui_areas[i].min_y;
+                    SET_SCISSOR
                 }
                 
                 active_ui_element_center.x = ui_areas[i].x;
@@ -120,9 +119,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
         }
     }
     else if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
-        //~ if (ui_callbacks[ui_element_index].type == DSTUDIO_BUTTON_TYPE_1) {
-            //~ ui_callbacks[ui_element_index].callback(0, ui_callbacks[ui_element_index].context_p, &button_states_array[ui_element_index]);
-        //~ }
+        mouse_state = 0;
         active_ui_element.callback = NULL;
         areas_index = -1;
         render_mask = 0;

@@ -2,6 +2,9 @@
 
 #include "common.h"
 
+GLint scissor_x, scissor_y = 0;
+GLsizei scissor_width, scissor_height = 0;
+
 double get_timestamp() {
     struct timespec timestamp;
     clock_gettime(CLOCK_REALTIME, &timestamp);

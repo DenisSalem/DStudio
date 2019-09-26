@@ -42,7 +42,7 @@ void * buttons_management_thread(void * args) {
             }
             elapsed_time = get_timestamp() - buttons_management->states[i].timestamp;
             
-            if (elapsed_time > 1 && buttons_management->states[i].type == DSTUDIO_BUTTON_TYPE_1) {
+            if (elapsed_time > 0.025 && buttons_management->states[i].type == DSTUDIO_BUTTON_TYPE_1) {
                 send_expose_event();
             }
         }
@@ -51,21 +51,40 @@ void * buttons_management_thread(void * args) {
     return NULL;
 }
 
-void check_for_buttons_to_render_n_update(ButtonsManagement * buttons_management, void (*render_viewport)(int)) {
+void check_for_buttons_to_render_n_update(
+    ButtonsManagement * buttons_management,
+    void (*render_viewport)(int),
+    UICallback * ui_callbacks,
+    int mouse_state,
+    UIArea * ui_areas)
+{
     sem_wait(&buttons_management->mutex);
     unsigned int count = buttons_management->count;
     for (unsigned int i=0; i < count; i++) {
         if (buttons_management->states[i].timestamp != 0) {
-            buttons_management->states[i].timestamp = 0;
-            glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
-            render_viewport(DSTUDIO_RENDER_ALL);        }
+            SET_SCISSOR;
+            glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
+            render_viewport(DSTUDIO_RENDER_ALL);
+            if (((UIElements*) ui_callbacks[i].context_p)->texture_id == buttons_management->states[i].active) {
+                if(mouse_state == 0) {
+                    update_button(0, ui_callbacks[i].context_p, &buttons_management->states[i]);
+                    buttons_management->states[i].timestamp = get_timestamp();
+                }
+            }
+            else {
+                buttons_management->states[i].timestamp = 0;
+            }
+        }
     }
     sem_post(&buttons_management->mutex);
 }
 
-void init_buttons_management(ButtonsManagement * buttons_management, ButtonStates * button_states_array, unsigned int count) {
+void init_buttons_management(
+    ButtonsManagement * buttons_management,
+    ButtonStates * button_states_array,
+    unsigned int count)
+{
     buttons_management->states = button_states_array;
-    printf("init count = %d\n", count);
     buttons_management->count = count;
     buttons_management->ready = 1;
     sem_init(&buttons_management->mutex, 0, 1);
