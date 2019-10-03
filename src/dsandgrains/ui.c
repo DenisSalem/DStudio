@@ -78,9 +78,9 @@ static Vec2 knob2_scale_matrix[2] = {0};
 
 /* Sliders */
 static UIElements sliders_dahdsr = {0};
-static UIElements sliders_dahdsr_pitch = {0};
-static UIElements sliders_dahdsr_lfo = {0};
-static UIElements sliders_dahdsr_lfo_pitch = {0};
+//~ static UIElements sliders_dahdsr_pitch = {0};
+//~ static UIElements sliders_dahdsr_lfo = {0};
+//~ static UIElements sliders_dahdsr_lfo_pitch = {0};
 static UIElements sliders_equalizer = {0};
 static Vec2 slider_scale_matrix[2] = {0};
 
@@ -162,16 +162,16 @@ static void init_ui(UI * ui) {
     };
     
     UIElementSetting sample_small_knobs_settings_array[DSANDGRAINS_SAMPLE_SMALL_KNOBS] = {
-        {-0.222499,  0.254166, 286.0, 335.0, 154.0, 203.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO MODULATION TUNE
-        {-0.102500,  0.254166, 334.0, 383.0, 154.0, 203.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO MODULATION PHASE
-        {-0.222499,  0.008333, 286.0, 335.0, 213.0, 261.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO MODULATION DEPTH
-        {-0.102500,  0.008333, 334.0, 383.0, 213.0, 261.0, DSTUDIO_KNOB_TYPE_2}, // SAMPLE: LFO MODULATION SIGNAL
-        { 0.042499,  0.254166, 392.0, 441.0, 154.0, 203.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO PITCH MOD TUNE
-        { 0.162499,  0.254166, 440.0, 489.0, 154.0, 203.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO PITCH MOD PHASE
-        { 0.042499,  0.008333, 392.0, 441.0, 213.0, 261.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO PITCH MOD DEPTH
-        { 0.162499,  0.008333, 440.0, 489.0, 213.0, 261.0, DSTUDIO_KNOB_TYPE_2}, // SAMPLE: LFO PITCH MOD SIGNAL
-        {-0.102500, -0.5375,   334.0, 383.0, 344.0, 393.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: AMOUNT
-        { 0.162499, -0.808333, 440.0, 488.0, 409.0, 458.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: PITCH
+        {-0.222499,  0.25, 286.0, 335.0, 155.0, 204.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO MODULATION TUNE
+        {-0.102500,  0.25, 334.0, 383.0, 155.0, 204.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO MODULATION PHASE
+        {-0.222499,  0.004166,    286.0, 335.0, 214.0, 262.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO MODULATION DEPTH
+        {-0.102500,  0.004166,    334.0, 383.0, 214.0, 262.0, DSTUDIO_KNOB_TYPE_2}, // SAMPLE: LFO MODULATION SIGNAL
+        {-0.2225,   -0.5125,      286.0, 335.0, 338.0, 387.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO PITCH MOD TUNE
+        {-0.1025,   -0.5125,      334.0, 383.0, 338.0, 387.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO PITCH MOD PHASE
+        {-0.2225,   -0.758333,    286.0, 335.0, 397.0, 446.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO PITCH MOD DEPTH
+        {-0.1025,   -0.758333,    334.0, 383.0, 397.0, 446.0, DSTUDIO_KNOB_TYPE_2}, // SAMPLE: LFO PITCH MOD SIGNAL
+        { 0.0375,    0.3,         390.0, 439.0, 143.0, 192.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: AMOUNT
+        { 0, 0.0, 440.0, 488.0, 409.0, 458.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: PITCH
     };
     
     UIElementSetting voice_knobs_settings_array[DSANDGRAINS_VOICE_KNOBS] = {
@@ -277,24 +277,6 @@ static void init_ui(UI * ui) {
     params.settings = sliders_settings_array;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
-    
-    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    init_slider_settings(&sliders_settings_array, slider_texture_scale, 396, 379, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
-    params.settings = sliders_settings_array;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
-    free(sliders_settings_array);
-
-    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    init_slider_settings(&sliders_settings_array, slider_texture_scale, 290, 313, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
-    params.settings = sliders_settings_array;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr_lfo, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
-    free(sliders_settings_array);
-
-    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    init_slider_settings(&sliders_settings_array, slider_texture_scale, 396, 313, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
-    params.settings = sliders_settings_array;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr_lfo_pitch, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
-    free(sliders_settings_array);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
     init_slider_settings(&sliders_settings_array, slider_texture_scale, 523, 359, 16, 16, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT);
@@ -368,17 +350,6 @@ static void render_viewport(int mask) {
             glUniform1f(motion_type_id, motion_type);
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) slider_scale_matrix);
             render_ui_elements(&sliders_dahdsr);
-        
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) slider_scale_matrix);
-            render_ui_elements(&sliders_dahdsr_pitch);
-        
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) slider_scale_matrix);
-            render_ui_elements(&sliders_dahdsr_lfo);
-        
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) slider_scale_matrix);
-            render_ui_elements(&sliders_dahdsr_lfo_pitch);
-        
-            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) slider_scale_matrix);
             render_ui_elements(&sliders_equalizer);
         }
 }
