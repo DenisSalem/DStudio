@@ -257,7 +257,6 @@ void listen_events() {
             #ifdef DSTUDIO_DEBUG
             printf("x_event.xbutton.y: %d\n", x_event.xbutton.y);
             #endif
-            printf("hello\n");
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {

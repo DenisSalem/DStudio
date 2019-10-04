@@ -171,13 +171,13 @@ static void init_ui(UI * ui) {
         {-0.2225,   -0.758333,    286.0, 335.0, 397.0, 446.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: LFO PITCH MOD DEPTH
         {-0.1025,   -0.758333,    334.0, 383.0, 397.0, 446.0, DSTUDIO_KNOB_TYPE_2}, // SAMPLE: LFO PITCH MOD SIGNAL
         { 0.0375,    0.3,         390.0, 439.0, 143.0, 192.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: AMOUNT
-        { 0, 0.0, 440.0, 488.0, 409.0, 458.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: PITCH
+        { 0.1675,    0.3,         442.0, 491.0, 143.0, 192.0, DSTUDIO_KNOB_TYPE_1}, // SAMPLE: PITCH
     };
     
     UIElementSetting voice_knobs_settings_array[DSANDGRAINS_VOICE_KNOBS] = {
-        { 0.5475,  0.270833, 586.0, 651.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : DENSITY
-        { 0.3725, -0.129166, 516,   581.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : VOLUME
-        { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
+        { 0.3725,  0.270833, 516,   581.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : VOLUME
+        { 0.5475,  0.270833, 586.0, 651.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
+        { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1}   // VOICE : DENSITY
     };
     
     /* Background */
@@ -273,7 +273,7 @@ static void init_ui(UI * ui) {
     params.update_callback = update_slider;
     
     params.array_offset += 3;
-    init_slider_settings(&sliders_settings_array, slider_texture_scale, 339, 441, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 395, 359, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
