@@ -65,8 +65,6 @@ static UIElements voices[7] = {0};
 
 /* System Usage */
 static UIElements system_usage = {0};
-static UIElements cpu_usage = {0};
-static UIElements mem_usage = {0};
 static Vec2 system_usage_scale_matrix[2] = {0};
 
 /* Knobs 1 */
@@ -193,11 +191,11 @@ static void init_ui() {
     text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
     text_params.gl_y = 0.916666;
     text_params.string_size = 6;
-    init_ui_elements(0, &cpu_usage, charset_texture_id, 6, configure_text_element, &text_params);
+    init_ui_elements(0, &g_cpu_usage, charset_texture_id, 6, configure_text_element, &text_params);
 
     text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
     text_params.gl_y = 0.862499;
-    init_ui_elements(0, &mem_usage, charset_texture_id, 6, configure_text_element, &text_params);
+    init_ui_elements(0, &g_mem_usage, charset_texture_id, 6, configure_text_element, &text_params);
     
     /* Instances */
     text_params.scale_matrix = charset_small_scale_matrix;   
@@ -210,8 +208,10 @@ static void init_ui() {
     }
     
     init_instances_ui(&instances[0], 7, 29);
+    
+    /* Voices */
     for (int i = 0; i < 7; i++) {
-        text_params.gl_y = 0.360416 - i * (11.0/((GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1)));
+        text_params.gl_y = -0.104166 - i * (11.0/((GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1)));
         init_ui_elements(0, &voices[i], charset_small_texture_id, 29, configure_text_element, &text_params);
     }
     
@@ -297,7 +297,7 @@ static void init_ui() {
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
 }
 
-static void render_viewport(int mask) {
+void render_viewport(int mask) {
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) background_scale_matrix);
         render_ui_elements(&background);
@@ -309,8 +309,8 @@ static void render_viewport(int mask) {
         // CPU & MEM USAGE
         if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_scale_matrix);
-            render_ui_elements(&cpu_usage);
-            render_ui_elements(&mem_usage);
+            render_ui_elements(&g_cpu_usage);
+            render_ui_elements(&g_mem_usage);
         }
         
         // ARROWS
@@ -329,6 +329,16 @@ static void render_viewport(int mask) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
             for (unsigned int i = 0; i < g_ui_instances.lines_number; i++) {
                 render_ui_elements(&g_ui_instances.lines[i]);
+            }
+        }
+        
+        // VOICES
+        if (mask & DSTUDIO_RENDER_VOICES) {
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
+            for (unsigned int i = 0; i < g_ui_voices.lines_number; i++) {
+                printf("VOICE HERE\n");
+                render_ui_elements(&g_ui_voices.lines[i]);
+                printf("glGetError(): %d\n", glGetError());
             }
         }
 
@@ -358,7 +368,6 @@ static void render_viewport(int mask) {
         }
 }
 
-// Should be splitted
 void * ui_thread(void * arg) {
     (void) arg;
     init_context("DSANDGRAINS", DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
@@ -387,7 +396,6 @@ void * ui_thread(void * arg) {
         else {
             check_for_buttons_to_render_n_update(
                 &g_buttons_management,
-                render_viewport,
                 ui_callbacks,
                 mouse_state,
                 ui_areas
@@ -399,25 +407,30 @@ void * ui_thread(void * arg) {
                 render_viewport(render_mask);
             }
             
-            //~ // UPDATE AND RENDER TEXT
-            sem_wait(&g_ui_system_usage.mutex);
-            if (g_ui_system_usage.update) {
-                update_text(&cpu_usage, g_ui_system_usage.cpu_string_buffer, g_ui_system_usage.string_size);
-                update_text(&mem_usage, g_ui_system_usage.mem_string_buffer, g_ui_system_usage.string_size);
-                glScissor(402, 438, 48, 31);
-                render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
-                g_ui_system_usage.update = 0;
-            }
-            sem_post(&g_ui_system_usage.mutex);
-
-            sem_wait(&g_ui_instances.mutex);
-            if (g_ui_instances.update) {
-                update_instances_text();
-                glScissor(669, 254, 117, 79);
-                render_viewport(DSTUDIO_RENDER_INSTANCES);
-                g_ui_instances.update = 0;
-            }
-            sem_post(&g_ui_instances.mutex);
+            // UPDATE AND RENDER TEXT            
+            update_and_render(
+                &g_ui_system_usage.mutex,
+                &g_ui_system_usage.update,
+                update_ui_system_usage,
+                402, 438, 48, 31,
+                DSTUDIO_RENDER_SYSTEM_USAGE
+            );
+            
+            update_and_render(
+                &g_ui_instances.mutex,
+                &g_ui_instances.update,
+                update_instances_text,
+                669, 254, 117, 79,
+                DSTUDIO_RENDER_INSTANCES
+            );
+            
+            update_and_render(
+                &g_ui_voices.mutex,
+                &g_ui_voices.update,
+                update_voices_text,
+                669, 143, 117, 79,
+                DSTUDIO_RENDER_VOICES
+            );
         }
                 
         swap_window_buffer();

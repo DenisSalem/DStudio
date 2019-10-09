@@ -23,9 +23,13 @@
 #include "extensions.h"
 #include "fileutils.h"
 #include "system_usage.h"
+#include "text.h"
 #include "window_management.h"
 
 UISystemUsage g_ui_system_usage = {0};
+
+UIElements g_cpu_usage = {0};
+UIElements g_mem_usage = {0};
 
 void init_system_usage_ui(unsigned int string_size) {
     sem_init(&g_ui_system_usage.mutex, 0, 1);
@@ -68,4 +72,9 @@ void * update_system_usage(void * args) {
     }
     
     return NULL;
+}
+
+void update_ui_system_usage() {
+    update_text(&g_cpu_usage, g_ui_system_usage.cpu_string_buffer, g_ui_system_usage.string_size);
+    update_text(&g_mem_usage, g_ui_system_usage.mem_string_buffer, g_ui_system_usage.string_size);
 }

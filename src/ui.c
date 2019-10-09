@@ -277,7 +277,14 @@ void render_ui_elements(UIElements * ui_elements) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix) {
+GLuint setup_texture_n_scale_matrix(
+    int enable_aa,
+    int alpha,
+    GLuint texture_width,
+    GLuint texture_height,
+    const char * texture_filename,
+    Vec2 * scale_matrix
+) {
     GLuint texture_id = 0;
     unsigned char * texture_data = 0;
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
@@ -302,4 +309,24 @@ GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_wid
     }
     
     return texture_id;
+}
+
+void update_and_render(
+    sem_t * mutex,
+    int * update,
+    void (*update_callback)(),
+    GLuint scissor_x,
+    GLuint scissor_y,
+    GLuint scissor_width,
+    GLuint scissor_height,
+    int render_flag
+) {
+    sem_wait(mutex);
+    if (*update) {
+        update_callback();
+        glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
+        render_viewport(render_flag);
+        *update = 0;
+    }
+    sem_post(mutex);
 }

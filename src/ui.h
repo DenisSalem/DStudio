@@ -22,6 +22,7 @@
 
 #include <math.h>
 #include <png.h>
+#include <semaphore.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -43,6 +44,7 @@
 #define DSTUDIO_RENDER_SYSTEM_USAGE         4
 #define DSTUDIO_RENDER_INSTANCES            8
 #define DSTUDIO_RENDER_BUTTONS_TYPE_1       16
+#define DSTUDIO_RENDER_VOICES               32
 #define DSTUDIO_FLAG_ANIMATED   1
 #define DSTUDIO_FLAG_FLIP_Y     2
 #define DSTUDIO_CONTEXT_INSTANCES   1
@@ -126,14 +128,81 @@ typedef struct ui_element_setting_params_t {
     void (*update_callback) (int index, UIElements * context, void * args);
 } UIElementSettingParams;
 
-void compile_shader(GLuint shader_id, GLchar ** source_pointer);
-void configure_ui_element(UIElements * ui_elements, void * params);
-void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id);
-void gen_gl_buffer(GLenum type, GLuint * vertex_buffer_object_p,  void * vertex_attributes, GLenum mode, unsigned int data_size);
-int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format); // png_bytep is basically unsigned char
-void init_ui_elements(int interactive, UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params);
-void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer);
-void load_shader(GLchar ** shader_buffer, const char * filename);
-void render_ui_elements(UIElements * ui_elements);
-GLuint setup_texture_n_scale_matrix(int enable_aa, int alpha, GLuint texture_width, GLuint texture_height, const char * texture_filename, Vec2 * scale_matrix);
+void compile_shader(
+    GLuint shader_id,
+    GLchar ** source_pointer
+);
+
+void configure_ui_element(
+    UIElements * ui_elements,
+    void * params
+);
+
+void create_shader_program(
+    GLuint * interactive_program_id,
+    GLuint * non_interactive_program_id
+);
+
+void gen_gl_buffer(
+    GLenum type,
+    GLuint * vertex_buffer_object_p,
+    void * vertex_attributes,
+    GLenum mode,
+    unsigned int data_size
+);
+
+int get_png_pixel(
+    const char * filename,
+    png_bytep * buffer,
+    png_uint_32 format // png_bytep is basically unsigned char
+); 
+
+void init_ui_elements(
+    int interactive,
+    UIElements * ui_elements,
+    GLuint texture_id,
+    unsigned int count,
+    void (*configure_ui_element)(UIElements * ui_elements, void * params),
+    void * params
+);
+
+void init_ui_element(
+    GLfloat * instance_offset_p,
+    float offset_x,
+    float offset_y,
+    GLfloat * motion_buffer
+);
+
+void load_shader(
+    GLchar ** shader_buffer,
+    const char * filename
+);
+
+void render_ui_elements(
+    UIElements * ui_elements
+);
+
+// This one is not defined in the generic ui.c source file.
+// Instead, it is defined for every tools from DStudio.
+void render_viewport(int mask);
+
+GLuint setup_texture_n_scale_matrix(
+    int enable_aa,
+    int alpha,
+    GLuint texture_width,
+    GLuint texture_height,
+    const char * texture_filename,
+    Vec2 * scale_matrix
+);
+
+void update_and_render(
+    sem_t * mutex,
+    int * update,
+    void (*update_callback)(),
+    GLuint scissor_x,
+    GLuint scissor_y,
+    GLuint scissor_width,
+    GLuint scissor_height,
+    int render_flag
+);
 #endif

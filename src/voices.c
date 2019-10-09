@@ -41,7 +41,10 @@ int new_voice() {
     explicit_bzero(g_current_active_voice, sizeof(VoiceContext));
     g_current_active_instance->voices.count++;
     sprintf(g_current_active_voice->name, "Voice %d", g_current_active_instance->voices.count);
+    #ifdef DSTUDIO_DEBUG
     printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
+    #endif
+    g_ui_voices.update = 1;
     return 1;
 }
 

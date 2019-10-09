@@ -35,9 +35,12 @@ typedef struct UISystemUsage_t {
 } UISystemUsage;
 
 extern UISystemUsage g_ui_system_usage;
+extern UIElements g_cpu_usage;
+extern UIElements g_mem_usage;
 
 void init_system_usage_ui(unsigned int string_size);
 
 void * update_system_usage(void * args);
 
+void update_ui_system_usage();
 #endif
