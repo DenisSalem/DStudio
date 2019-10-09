@@ -26,7 +26,7 @@
 
 #define DSANDGRAINS_SAMPLE_KNOBS 8
 #define DSANDGRAINS_SAMPLE_SMALL_KNOBS 10
-#define DSANDGRAINS_VOICE_KNOBS 3
+#define DSANDGRAINS_VOICE_KNOBS 4
 #define DSANDGRAINS_KNOBS_COUNT DSANDGRAINS_SAMPLE_KNOBS + DSANDGRAINS_SAMPLE_SMALL_KNOBS+DSANDGRAINS_VOICE_KNOBS
 
 #define DSANDGRAINS_DAHDSR_SLIDERS_COUNT 6
@@ -44,10 +44,5 @@
     
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH   "../assets/dsandgrains_background.png"
 #define DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH "../assets/system_usage.png"
-
-typedef struct UI_t {
-    UISystemUsage       system_usage;
-    UIInstances         instances;
-} UI;
 
 void * ui_thread(void * arg);

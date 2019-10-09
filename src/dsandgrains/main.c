@@ -35,16 +35,11 @@ int main(int argc, char ** argv) {
     (void) argv;
     DSTUDIO_EXIT_IF_FAILURE(set_physical_memory());
 
-    Instances instances = {0};
-
-    new_instance(INSTANCES_DIRECTORY, "dsandgrains", &instances);
+    new_instance(INSTANCES_DIRECTORY, "dsandgrains");
     
-    UI ui = {0};
-    instances.ui = &ui.instances;
-
     pthread_t ui_thread_id, system_usage_thread_id, instances_thread_id;
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, &ui))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, &ui.system_usage))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, NULL))
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_thread_id, NULL))

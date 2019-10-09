@@ -17,8 +17,8 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYSTEM_USAGE_INCLUDED
-#define SYSTEM_USAGE_INCLUDED
+#ifndef DSTUDIO_SYSTEM_USAGE_H_INCLUDED
+#define DSTUDIO_SYSTEM_USAGE_H_INCLUDED
 
 #include <semaphore.h>
 #include "ui.h"
@@ -34,7 +34,9 @@ typedef struct UISystemUsage_t {
     int             cut_thread;
 } UISystemUsage;
 
-void init_system_usage_ui(UISystemUsage * system_usage, unsigned int string_size);
+extern UISystemUsage g_ui_system_usage;
+
+void init_system_usage_ui(unsigned int string_size);
 
 void * update_system_usage(void * args);
 

@@ -43,11 +43,13 @@ add_executable(
     extensions.c
     fileutils.c
     instances.c
+    interactive_list.c
     knobs.c
     sliders.c
     system_usage.c
     text.c
     ui.c
+    voices.c
     window_management.c
 )
 

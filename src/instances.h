@@ -1,39 +1,39 @@
 #ifndef DSTUDIO_INSTANCES_H_INCLUDED
 #define DSTUDIO_INSTANCES_H_INCLUDED
 
-#include <semaphore.h>
-
+#include "interactive_list.h"
 #include "text.h"
-
-char * instances_directory;
+#include "voices.h"
 
 typedef struct InstanceContext_t {
     char name[33];
     int identifier;
+    Voices voices;
 } InstanceContext;
-
-typedef struct UIInstances_t {
-    UIElements * lines;
-    unsigned int lines_number;
-    unsigned int string_size;
-    int window_offset;
-    sem_t mutex;
-    int cut_thread;
-    int ready;
-    int update;
-} UIInstances;
 
 typedef struct Instances_t {
     InstanceContext * contexts;
     unsigned int count;
-    UIInstances * ui;
 } Instances;
 
+extern Instances g_instances;
+extern InstanceContext * g_current_active_instance;
+extern UIInteractiveList g_ui_instances;
+
 void exit_instances_thread();
-void init_instances_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size);
-void new_instance(const char * given_directory, const char * process_name, Instances * instances);
+
+void init_instances_ui(
+    UIElements * lines,
+    unsigned int lines_number,
+    unsigned int string_size
+);
+
+void new_instance(
+    const char * given_directory,
+    const char * process_name
+);
 
 // Periodically check if new instances were added
 void * update_instances(void * args);
-void * update_instances_text();
+void update_instances_text();
 #endif

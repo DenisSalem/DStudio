@@ -45,6 +45,9 @@
 #define DSTUDIO_RENDER_BUTTONS_TYPE_1       16
 #define DSTUDIO_FLAG_ANIMATED   1
 #define DSTUDIO_FLAG_FLIP_Y     2
+#define DSTUDIO_CONTEXT_INSTANCES   1
+#define DSTUDIO_CONTEXT_VOICES      2
+#define DSTUDIO_CONTEXT_SAMPLES     3
 
 extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
 extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;

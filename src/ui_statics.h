@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
 static Vec2 active_slider_range = {0};
 static UICallback active_ui_element = {0};
 static Vec2 active_ui_element_center = {0};

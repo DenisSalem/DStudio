@@ -29,13 +29,12 @@
 #include "../common.h"
 #include "../fileutils.h"
 #include "../instances.h"
+#include "../interactive_list.h"
 #include "../knobs.h"
 #include "../text.h"
+#include "../voices.h"
 #include "instances.h"
 #include "ui.h"
-
-static UISystemUsage * ui_system_usage_p;
-static UIInstances * ui_instances_p;
 
 /* Background */
 static UIElements background = {0};
@@ -46,7 +45,7 @@ static Vec2 charset_scale_matrix[2] = {0};
 static Vec2 charset_small_scale_matrix[2] = {0};
 
 /* Buttons management */
-ButtonsManagement buttons_management = {0};
+ButtonsManagement g_buttons_management = {0};
 
 /* Arrows */
 static UIElements arrow_instances_top = {0};
@@ -60,6 +59,9 @@ static Vec2 arrow_instances_scale_matrix[2] = {0};
 
 /* Instances */
 static UIElements instances[7] = {0};
+
+/* Voices */
+static UIElements voices[7] = {0};
 
 /* System Usage */
 static UIElements system_usage = {0};
@@ -100,13 +102,9 @@ static ButtonStates button_states_array[DSANDGRAINS_BUTTONS_COUNT] = {0};
 
 #include "../ui_statics.h"
 
-static void init_ui(UI * ui) {
+static void init_ui() {
     /* Will hold every sliders settings */
     UIElementSetting * sliders_settings_array = 0;
-    
-    /* Setup shared memory */
-    ui_system_usage_p = &ui->system_usage;
-    ui_instances_p = &ui->instances;
     
     /* Load shared texture and prepare shared scale matrices */
     GLuint background_texture_id = setup_texture_n_scale_matrix(0, 0, 800, 480, DSANDGRAINS_BACKGROUND_ASSET_PATH, background_scale_matrix);
@@ -119,7 +117,7 @@ static void init_ui(UI * ui) {
     GLuint charset_small_texture_id = setup_texture_n_scale_matrix(0, 1, 52, 117, DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, NULL);
     DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_small_scale_matrix, 52, 117)
     
-    DSTUDIO_EXIT_IF_FAILURE(pthread_create( &buttons_management.thread_id, NULL, buttons_management_thread, &buttons_management))
+    DSTUDIO_EXIT_IF_FAILURE(pthread_create( &g_buttons_management.thread_id, NULL, buttons_management_thread, &g_buttons_management))
 
     /* Setting up button states */
     button_states_array[0].release = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix);
@@ -177,7 +175,8 @@ static void init_ui(UI * ui) {
     UIElementSetting voice_knobs_settings_array[DSANDGRAINS_VOICE_KNOBS] = {
         { 0.3725,  0.270833, 516,   581.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : VOLUME
         { 0.5475,  0.270833, 586.0, 651.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
-        { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1}   // VOICE : DENSITY
+        { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : DENSITY
+        { 0.3725, -0.129166, 516,   581.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1}   // VOICE : INFLUENCE
     };
     
     /* Background */
@@ -198,7 +197,6 @@ static void init_ui(UI * ui) {
 
     text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
     text_params.gl_y = 0.862499;
-    text_params.string_size = 6;
     init_ui_elements(0, &mem_usage, charset_texture_id, 6, configure_text_element, &text_params);
     
     /* Instances */
@@ -212,6 +210,12 @@ static void init_ui(UI * ui) {
     }
     
     init_instances_ui(&instances[0], 7, 29);
+    for (int i = 0; i < 7; i++) {
+        text_params.gl_y = 0.360416 - i * (11.0/((GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1)));
+        init_ui_elements(0, &voices[i], charset_small_texture_id, 29, configure_text_element, &text_params);
+    }
+    
+    init_voices_ui(&voices[0], 7, 29);
     
     /* Inits interactive ui elements */
     UIElementSettingParams params = {0};
@@ -259,20 +263,20 @@ static void init_ui(UI * ui) {
     /* Knobs */
     params.update_callback = update_knob;
     params.settings = sample_knobs_settings_array;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_knobs, knob1_texture_id, 8, configure_ui_element, &params);
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_knobs, knob1_texture_id, DSANDGRAINS_SAMPLE_KNOBS, configure_ui_element, &params);
     
     params.settings = sample_small_knobs_settings_array;
-    params.array_offset += 8;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_small_knobs, knob2_texture_id, 10, configure_ui_element, &params);
+    params.array_offset += DSANDGRAINS_SAMPLE_KNOBS;
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_small_knobs, knob2_texture_id, DSANDGRAINS_SAMPLE_SMALL_KNOBS, configure_ui_element, &params);
     
     params.settings = voice_knobs_settings_array;
-    params.array_offset += 10;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &voice_knobs, knob1_texture_id, 3, configure_ui_element, &params);
+    params.array_offset += DSANDGRAINS_SAMPLE_SMALL_KNOBS;
+    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &voice_knobs, knob1_texture_id, DSANDGRAINS_VOICE_KNOBS, configure_ui_element, &params);
     
     /* Sliders */
     params.update_callback = update_slider;
     
-    params.array_offset += 3;
+    params.array_offset += DSANDGRAINS_VOICE_KNOBS;
     init_slider_settings(&sliders_settings_array, slider_texture_scale, 395, 359, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
@@ -284,8 +288,8 @@ static void init_ui(UI * ui) {
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
 
-    init_system_usage_ui(ui_system_usage_p, 6);   
-    init_buttons_management(&buttons_management, &button_states_array[0], DSANDGRAINS_BUTTONS_COUNT);
+    init_system_usage_ui(6);   
+    init_buttons_management(&g_buttons_management, &button_states_array[0], DSANDGRAINS_BUTTONS_COUNT);
 
     /* Setting shader uniform input ID */
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
@@ -323,8 +327,8 @@ static void render_viewport(int mask) {
         // INSTANCES
         if (mask & DSTUDIO_RENDER_INSTANCES) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
-            for (unsigned int i = 0; i < ui_instances_p->lines_number; i++) {
-                render_ui_elements(&ui_instances_p->lines[i]);
+            for (unsigned int i = 0; i < g_ui_instances.lines_number; i++) {
+                render_ui_elements(&g_ui_instances.lines[i]);
             }
         }
 
@@ -356,8 +360,7 @@ static void render_viewport(int mask) {
 
 // Should be splitted
 void * ui_thread(void * arg) {
-    //int redraw_all = 0;
-
+    (void) arg;
     init_context("DSANDGRAINS", DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
     set_mouse_button_callback(mouse_button_callback);
     set_cursor_position_callback(cursor_position_callback);
@@ -366,7 +369,7 @@ void * ui_thread(void * arg) {
     
     create_shader_program(&interactive_program_id, &non_interactive_program_id);
     
-    init_ui( (UI *) arg);
+    init_ui();
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -383,7 +386,7 @@ void * ui_thread(void * arg) {
         }
         else {
             check_for_buttons_to_render_n_update(
-                &buttons_management,
+                &g_buttons_management,
                 render_viewport,
                 ui_callbacks,
                 mouse_state,
@@ -397,38 +400,38 @@ void * ui_thread(void * arg) {
             }
             
             //~ // UPDATE AND RENDER TEXT
-            sem_wait(&ui_system_usage_p->mutex);
-            if (ui_system_usage_p->update /*&& !redraw_all*/) {
-                update_text(&cpu_usage, ui_system_usage_p->cpu_string_buffer, ui_system_usage_p->string_size);
-                update_text(&mem_usage, ui_system_usage_p->mem_string_buffer, ui_system_usage_p->string_size);
+            sem_wait(&g_ui_system_usage.mutex);
+            if (g_ui_system_usage.update) {
+                update_text(&cpu_usage, g_ui_system_usage.cpu_string_buffer, g_ui_system_usage.string_size);
+                update_text(&mem_usage, g_ui_system_usage.mem_string_buffer, g_ui_system_usage.string_size);
                 glScissor(402, 438, 48, 31);
                 render_viewport(DSTUDIO_RENDER_SYSTEM_USAGE);
-                ui_system_usage_p->update = 0;
+                g_ui_system_usage.update = 0;
             }
-            sem_post(&ui_system_usage_p->mutex);
+            sem_post(&g_ui_system_usage.mutex);
 
-            sem_wait(&ui_instances_p->mutex);
-            if (ui_instances_p->update /*&& !redraw_all*/) {
+            sem_wait(&g_ui_instances.mutex);
+            if (g_ui_instances.update) {
                 update_instances_text();
                 glScissor(669, 254, 117, 79);
                 render_viewport(DSTUDIO_RENDER_INSTANCES);
-                ui_instances_p->update = 0;
+                g_ui_instances.update = 0;
             }
-            sem_post(&ui_instances_p->mutex);
+            sem_post(&g_ui_instances.mutex);
         }
                 
         swap_window_buffer();
         listen_events();
     }
     
-    sem_wait(&ui_system_usage_p->mutex);
-    ui_system_usage_p->cut_thread = 1;
-    sem_post(&ui_system_usage_p->mutex);
+    sem_wait(&g_ui_system_usage.mutex);
+    g_ui_system_usage.cut_thread = 1;
+    sem_post(&g_ui_system_usage.mutex);
 
-    sem_wait(&buttons_management.mutex);
-    buttons_management.cut_thread = 1;
-    sem_post(&buttons_management.mutex);
-    DSTUDIO_EXIT_IF_FAILURE(pthread_join(buttons_management.thread_id, NULL))
+    sem_wait(&g_buttons_management.mutex);
+    g_buttons_management.cut_thread = 1;
+    sem_post(&g_buttons_management.mutex);
+    DSTUDIO_EXIT_IF_FAILURE(pthread_join(g_buttons_management.thread_id, NULL))
 
     exit_instances_thread();
     destroy_context();
