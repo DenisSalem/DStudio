@@ -17,8 +17,16 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef DSTUDIO_EXTENSIONS_H_INCLUDED
+#define DSTUDIO_EXTENSIONS_H_INCLUDED
+
 #include <dlfcn.h>
 #include <GL/gl.h>
+
+typedef struct Binder_t {
+    void * function_pointer;
+    const char name[32];
+} Binder;
 
 #define DSTUDIO_DEF_GL_FUN(ret, name, ...) typedef ret name##proc(__VA_ARGS__); name##proc * gl##name;
 
@@ -28,7 +36,9 @@
         printf("gl" #name " couldn't be loaded from libGL.so\n"); \
         return -1;                                                \
     }
-    
+
+#define DSTUDIO_SET_BINDER_ELEMENT(name) {&name, #name}
+
 DSTUDIO_DEF_GL_FUN(void,            AttachShader,               GLuint program, GLuint shader)
 DSTUDIO_DEF_GL_FUN(void,            BindBuffer,                 GLenum target, GLuint buffer)
 DSTUDIO_DEF_GL_FUN(void,            BindVertexArray,            GLuint array)
@@ -63,3 +73,5 @@ DSTUDIO_DEF_GL_FUN(const GLubyte *, GetStringi,                 GLenum name, GLu
 
 int is_extension_supported(const char * list, const char * extension);
 int load_extensions();
+
+#endif

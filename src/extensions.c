@@ -63,37 +63,56 @@ int load_extensions() {
         return -1;
     }
     
-    DSTUDIO_BIND_GL_FUN(AttachShader)
-    DSTUDIO_BIND_GL_FUN(BindBuffer)
-    DSTUDIO_BIND_GL_FUN(BindVertexArray)
-    DSTUDIO_BIND_GL_FUN(BufferData)
-    DSTUDIO_BIND_GL_FUN(BufferSubData)
-    DSTUDIO_BIND_GL_FUN(CompileShader)
-    DSTUDIO_BIND_GL_FUN(CreateProgram)
-    DSTUDIO_BIND_GL_FUN(CreateShader)
-    DSTUDIO_BIND_GL_FUN(DeleteProgram)
-    DSTUDIO_BIND_GL_FUN(DeleteShader)
-    DSTUDIO_BIND_GL_FUN(DrawElementsInstanced)
-    DSTUDIO_BIND_GL_FUN(EnableVertexAttribArray)
-    DSTUDIO_BIND_GL_FUN(GenBuffers)
-    DSTUDIO_BIND_GL_FUN(GenerateMipmap)
-    DSTUDIO_BIND_GL_FUN(GenVertexArrays)
-    DSTUDIO_BIND_GL_FUN(GetUniformLocation)
-    DSTUDIO_BIND_GL_FUN(LinkProgram)
-    DSTUDIO_BIND_GL_FUN(VertexAttribDivisor)
-    DSTUDIO_BIND_GL_FUN(VertexAttribPointer)
-    DSTUDIO_BIND_GL_FUN(ShaderSource)
-    DSTUDIO_BIND_GL_FUN(UniformMatrix2fv)
-    DSTUDIO_BIND_GL_FUN(Uniform1f)
-    DSTUDIO_BIND_GL_FUN(Uniform2fv)
-    DSTUDIO_BIND_GL_FUN(UseProgram)
-
-    #ifdef DSTUDIO_DEBUG
-    DSTUDIO_BIND_GL_FUN(GetProgramInfoLog)
-    DSTUDIO_BIND_GL_FUN(GetProgramiv)
-    DSTUDIO_BIND_GL_FUN(GetShaderInfoLog)
-    DSTUDIO_BIND_GL_FUN(GetStringi)
+    Binder binder[] = {
+        DSTUDIO_SET_BINDER_ELEMENT(glAttachShader),
+        DSTUDIO_SET_BINDER_ELEMENT(glBindBuffer),
+        DSTUDIO_SET_BINDER_ELEMENT(glBindVertexArray),
+        DSTUDIO_SET_BINDER_ELEMENT(glBufferData),
+        DSTUDIO_SET_BINDER_ELEMENT(glBufferSubData),
+        DSTUDIO_SET_BINDER_ELEMENT(glCompileShader),
+        DSTUDIO_SET_BINDER_ELEMENT(glCreateProgram),
+        DSTUDIO_SET_BINDER_ELEMENT(glCreateShader),
+        DSTUDIO_SET_BINDER_ELEMENT(glDeleteProgram),
+        DSTUDIO_SET_BINDER_ELEMENT(glDeleteShader),
+        DSTUDIO_SET_BINDER_ELEMENT(glDrawElementsInstanced),
+        DSTUDIO_SET_BINDER_ELEMENT(glEnableVertexAttribArray),
+        DSTUDIO_SET_BINDER_ELEMENT(glGenBuffers),
+        DSTUDIO_SET_BINDER_ELEMENT(glGenerateMipmap),
+        DSTUDIO_SET_BINDER_ELEMENT(glGenVertexArrays),
+        DSTUDIO_SET_BINDER_ELEMENT(glGetUniformLocation),
+        DSTUDIO_SET_BINDER_ELEMENT(glLinkProgram),
+        DSTUDIO_SET_BINDER_ELEMENT(glVertexAttribDivisor),
+        DSTUDIO_SET_BINDER_ELEMENT(glVertexAttribPointer),
+        DSTUDIO_SET_BINDER_ELEMENT(glShaderSource),
+        DSTUDIO_SET_BINDER_ELEMENT(glUniformMatrix2fv),
+        DSTUDIO_SET_BINDER_ELEMENT(glUniform1f),
+        DSTUDIO_SET_BINDER_ELEMENT(glUniform2fv),
+        DSTUDIO_SET_BINDER_ELEMENT(glUseProgram),
+        #ifdef DSTUDIO_DEBUG
+        DSTUDIO_SET_BINDER_ELEMENT(glGetProgramInfoLog),
+        DSTUDIO_SET_BINDER_ELEMENT(glGetProgramiv),
+        DSTUDIO_SET_BINDER_ELEMENT(glGetShaderInfoLog),
+        DSTUDIO_SET_BINDER_ELEMENT(glGetStringi),
+        #endif
+        {0} // Sentinel
+    };
     
+    int i = 0;
+    while (binder[i].function_pointer != 0) {
+        /* 
+         * Dirty trick to save binary size: We assume that size of
+         * void* equal size of long int. Since we can't dereference
+         * void *, we're tricking the compiler to store function pointer.
+         */
+        *(long unsigned int*)(binder[i].function_pointer) = (long unsigned int) dlsym(libGL, binder[i].name);
+        if (*(long unsigned int*) binder[i].function_pointer == 0) {
+            printf("%s couldn't be loaded from libGL.so\n", binder[i].name);
+            return -1;
+        }
+        i++;
+    }
+
+    #ifdef DSTUDIO_DEBUG   
     GLint extensions_count;
     glGetIntegerv(GL_NUM_EXTENSIONS, &extensions_count);
     printf("Extensions count: %d.\n", extensions_count);

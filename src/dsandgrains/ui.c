@@ -336,9 +336,7 @@ void render_viewport(int mask) {
         if (mask & DSTUDIO_RENDER_VOICES) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
             for (unsigned int i = 0; i < g_ui_voices.lines_number; i++) {
-                printf("VOICE HERE\n");
                 render_ui_elements(&g_ui_voices.lines[i]);
-                printf("glGetError(): %d\n", glGetError());
             }
         }
 
@@ -350,12 +348,11 @@ void render_viewport(int mask) {
             glUniform1f(motion_type_id, motion_type);
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) knob1_scale_matrix);
             render_ui_elements(&sample_knobs);
+            render_ui_elements(&voice_knobs);
 
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) knob2_scale_matrix);
             render_ui_elements(&sample_small_knobs);
         
-            glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) knob1_scale_matrix);
-            render_ui_elements(&voice_knobs);
         }
 
         // SLIDERS
