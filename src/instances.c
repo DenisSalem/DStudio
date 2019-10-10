@@ -24,13 +24,13 @@ char * instances_directory = 0;
 
 void exit_instances_thread() {
     sem_wait(&g_ui_instances.mutex);
-    g_ui_instances.cut_thread = 1;
-    sem_post(&g_ui_instances.mutex);
-    
+    g_ui_instances.cut_thread = 1;    
     char * instance_path = malloc(sizeof(char) * 128);
     explicit_bzero(instance_path, sizeof(char) * 128);
     sprintf(instance_path, "%s/%d", instances_directory, g_current_active_instance->identifier);
     unlink(instance_path);
+    sem_post(&g_ui_instances.mutex);
+
 }
 
 void init_instances_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size) {
@@ -170,7 +170,9 @@ void * update_instances(void * args) {
             }
             new_voice();
             g_ui_instances.update = 1;
-            send_expose_event();
+            
+            send_expose_events();
+            
             #ifdef DSTUDIO_DEBUG
 			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * g_instances.count);
             printf("Currents instances:\n");
