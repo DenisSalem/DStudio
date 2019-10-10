@@ -30,13 +30,6 @@ typedef struct Binder_t {
 
 #define DSTUDIO_DEF_GL_FUN(ret, name, ...) typedef ret name##proc(__VA_ARGS__); name##proc * gl##name;
 
-#define DSTUDIO_BIND_GL_FUN(name)                                 \
-    gl##name = (name##proc *) dlsym(libGL, "gl" #name);           \
-    if (!gl##name) {                                              \
-        printf("gl" #name " couldn't be loaded from libGL.so\n"); \
-        return -1;                                                \
-    }
-
 #define DSTUDIO_SET_BINDER_ELEMENT(name) {&name, #name}
 
 DSTUDIO_DEF_GL_FUN(void,            AttachShader,               GLuint program, GLuint shader)

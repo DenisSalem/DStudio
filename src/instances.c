@@ -99,6 +99,19 @@ void new_instance(const char * given_directory, const char * process_name) {
     free(instance_filename_buffer);
 }
 
+void switch_instance(unsigned int flags) {
+    sem_wait(&g_ui_instances.mutex);
+    if (g_ui_instances.window_offset > 0 && flags && DSTUDIO_BUTTON_ACTION_LIST_BACKWARD) {
+        g_ui_instances.window_offset--;
+        g_ui_instances.update = 1;
+    }
+    else if (g_ui_instances.window_offset + g_ui_instances.lines_number < g_instances.count && !(flags & DSTUDIO_BUTTON_ACTION_LIST_BACKWARD)) {
+        g_ui_instances.window_offset++;
+        g_ui_instances.update = 1;
+    }
+    sem_post(&g_ui_instances.mutex);
+}
+
 void * update_instances(void * args) {
     (void) args;
     int fd = 0;
@@ -119,7 +132,7 @@ void * update_instances(void * args) {
         exit(-1);
     }
 
-	struct inotify_event  * event = malloc(sizeof(struct inotify_event) + 16 + 1);
+	struct inotify_event * event = malloc(sizeof(struct inotify_event) + 16 + 1);
 
     while(1) {
         if(read(fd, event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
@@ -131,7 +144,6 @@ void * update_instances(void * args) {
             sem_post(&g_ui_instances.mutex);
             break;
         }
-        sem_post(&g_ui_instances.mutex);
         
 		if (event->mask == IN_CREATE) {
             g_instances.count++;
@@ -141,6 +153,7 @@ void * update_instances(void * args) {
             if (g_instances.contexts == NULL) {
                 g_instances.contexts = saved_contexts;
                 g_instances.count--;
+                sem_post(&g_ui_instances.mutex);
                 // TODO SEND LOG TO GUI
                 printf("New instance creation has failed.\n");
                 continue;
@@ -148,6 +161,7 @@ void * update_instances(void * args) {
             
             explicit_bzero(&g_instances.contexts[g_instances.count-1], sizeof(InstanceContext));
             g_current_active_instance = &g_instances.contexts[g_instances.count-1];
+            g_instances.index = g_instances.count - 1;
             g_current_active_instance->identifier = 1;
             strcat(g_current_active_instance->name, "Instance ");
             strcat(g_current_active_instance->name, event->name);
@@ -156,7 +170,7 @@ void * update_instances(void * args) {
             }
             new_voice();
             g_ui_instances.update = 1;
-
+            send_expose_event();
             #ifdef DSTUDIO_DEBUG
 			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * g_instances.count);
             printf("Currents instances:\n");
@@ -168,11 +182,13 @@ void * update_instances(void * args) {
 		
 		else if (event->mask == IN_DELETE) {
             g_instances.count--;
-            // Move context data in memory and then realloc
+            g_instances.index--;
+            // TODO: Move context data in memory and then realloc
             #ifdef DSTUDIO_DEBUG
 			printf("Remove instance with id=%s\n", event->name);
             #endif
         }
+        sem_post(&g_ui_instances.mutex);
     }
     return NULL;
 }

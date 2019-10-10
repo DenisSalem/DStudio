@@ -30,6 +30,8 @@ typedef struct ButtonStates_t {
     GLuint active;
     double timestamp;
     int type;
+    void (*application_callback)(unsigned int flags);
+    unsigned int flags;
 } ButtonStates;
 
 typedef struct ButtonsManagement_t {

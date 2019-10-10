@@ -13,6 +13,7 @@ typedef struct InstanceContext_t {
 
 typedef struct Instances_t {
     InstanceContext * contexts;
+    unsigned int index;
     unsigned int count;
 } Instances;
 
@@ -32,6 +33,8 @@ void new_instance(
     const char * given_directory,
     const char * process_name
 );
+
+void switch_instance(unsigned int flags);
 
 // Periodically check if new instances were added
 void * update_instances(void * args);

@@ -94,6 +94,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
             ui_element_index = i;
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
                 if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_1) {
+                    button_states_array[i].application_callback(button_states_array[i].flags);
                     ui_callbacks[i].callback(0, ui_callbacks[i].context_p, &button_states_array[i]);
                     break;
                 }

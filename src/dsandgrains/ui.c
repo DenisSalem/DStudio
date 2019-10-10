@@ -78,9 +78,6 @@ static Vec2 knob2_scale_matrix[2] = {0};
 
 /* Sliders */
 static UIElements sliders_dahdsr = {0};
-//~ static UIElements sliders_dahdsr_pitch = {0};
-//~ static UIElements sliders_dahdsr_lfo = {0};
-//~ static UIElements sliders_dahdsr_lfo_pitch = {0};
 static UIElements sliders_equalizer = {0};
 static Vec2 slider_scale_matrix[2] = {0};
 
@@ -121,10 +118,13 @@ static void init_ui() {
     button_states_array[0].release = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix);
     button_states_array[0].active = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH, NULL);
     button_states_array[0].type = DSTUDIO_BUTTON_TYPE_1;
+    button_states_array[0].application_callback = switch_instance;
+    button_states_array[0].flags = DSTUDIO_BUTTON_ACTION_LIST_BACKWARD;
     
     button_states_array[1].release = button_states_array[0].release;
     button_states_array[1].active = button_states_array[0].active;
     button_states_array[1].type = DSTUDIO_BUTTON_TYPE_1;
+    button_states_array[1].application_callback = switch_instance;
 
     button_states_array[2].release = button_states_array[0].release;
     button_states_array[2].active = button_states_array[0].active;

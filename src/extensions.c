@@ -96,7 +96,7 @@ int load_extensions() {
         #endif
         {0} // Sentinel
     };
-    
+        
     int i = 0;
     while (binder[i].function_pointer != 0) {
         /* 
@@ -120,7 +120,6 @@ int load_extensions() {
         const char* extension = (const char*) glGetStringi(GL_EXTENSIONS, i);
         printf("Extention\t%d : %s\n", i, extension);
     }
-    
     #endif
     
     return 0;
