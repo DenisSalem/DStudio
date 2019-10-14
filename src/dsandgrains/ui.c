@@ -118,30 +118,36 @@ static void init_ui() {
     button_states_array[0].release = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix);
     button_states_array[0].active = setup_texture_n_scale_matrix(0, 1, 117, 8, DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH, NULL);
     button_states_array[0].type = DSTUDIO_BUTTON_TYPE_1;
-    button_states_array[0].application_callback = switch_instance;
+    button_states_array[0].application_callback = scroll_instances;
     button_states_array[0].flags = DSTUDIO_BUTTON_ACTION_LIST_BACKWARD;
     
     button_states_array[1].release = button_states_array[0].release;
     button_states_array[1].active = button_states_array[0].active;
     button_states_array[1].type = DSTUDIO_BUTTON_TYPE_1;
-    button_states_array[1].application_callback = switch_instance;
+    button_states_array[1].application_callback = scroll_instances;
 
     button_states_array[2].release = button_states_array[0].release;
     button_states_array[2].active = button_states_array[0].active;
     button_states_array[2].type = DSTUDIO_BUTTON_TYPE_1;
-    
+    button_states_array[2].application_callback = scroll_voices;
+    button_states_array[2].flags = DSTUDIO_BUTTON_ACTION_LIST_BACKWARD;
+        
     button_states_array[3].release = button_states_array[0].release;
     button_states_array[3].active = button_states_array[0].active;
     button_states_array[3].type = DSTUDIO_BUTTON_TYPE_1;
+    button_states_array[3].application_callback = scroll_voices;
 
     button_states_array[4].release = button_states_array[0].release;
     button_states_array[4].active = button_states_array[0].active;
     button_states_array[4].type = DSTUDIO_BUTTON_TYPE_1;
-
+    button_states_array[4].application_callback = scroll_voices;
+    button_states_array[4].flags = DSTUDIO_BUTTON_ACTION_LIST_BACKWARD;
+    
     button_states_array[5].release = button_states_array[0].release;
     button_states_array[5].active = button_states_array[0].active;
     button_states_array[5].type = DSTUDIO_BUTTON_TYPE_1;
-    
+    button_states_array[5].application_callback = scroll_voices;
+
     /* - Tell to mouse button callback the height of the current active slider.
      * - Help to init slider settings.*/
     slider_texture_scale = 10;
@@ -173,8 +179,8 @@ static void init_ui() {
     UIElementSetting voice_knobs_settings_array[DSANDGRAINS_VOICE_KNOBS] = {
         { 0.3725,  0.270833, 516,   581.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : VOLUME
         { 0.5475,  0.270833, 586.0, 651.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : PAN
-        { 0.5475, -0.129166, 586.0, 651.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : DENSITY
-        { 0.3725, -0.129166, 516,   581.0, 238,   303.0, DSTUDIO_KNOB_TYPE_1}   // VOICE : INFLUENCE
+        { 0.5475, -0.070833, 586.0, 651.0, 224,   289.0, DSTUDIO_KNOB_TYPE_1},  // VOICE : DENSITY
+        { 0.3725, -0.070833, 516,   581.0, 224,   289.0, DSTUDIO_KNOB_TYPE_1}   // VOICE : INFLUENCE
     };
     
     /* Background */
@@ -277,13 +283,13 @@ static void init_ui() {
     params.update_callback = update_slider;
     
     params.array_offset += DSANDGRAINS_VOICE_KNOBS;
-    init_slider_settings(&sliders_settings_array, slider_texture_scale, 395, 359, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 406, 358, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);
 
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    init_slider_settings(&sliders_settings_array, slider_texture_scale, 523, 359, 16, 16, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT);
+    init_slider_settings(&sliders_settings_array, slider_texture_scale, 523, 347, 16, 16, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT);
     params.settings = sliders_settings_array;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
     free(sliders_settings_array);

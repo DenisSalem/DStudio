@@ -99,7 +99,7 @@ void new_instance(const char * given_directory, const char * process_name) {
     free(instance_filename_buffer);
 }
 
-void switch_instance(unsigned int flags) {
+void scroll_instances(unsigned int flags) {
     sem_wait(&g_ui_instances.mutex);
     if (g_ui_instances.window_offset > 0 && flags && DSTUDIO_BUTTON_ACTION_LIST_BACKWARD) {
         g_ui_instances.window_offset--;
@@ -171,7 +171,7 @@ void * update_instances(void * args) {
             new_voice();
             g_ui_instances.update = 1;
             
-            send_expose_events();
+            send_expose_event();
             
             #ifdef DSTUDIO_DEBUG
 			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * g_instances.count);

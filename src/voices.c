@@ -48,6 +48,10 @@ int new_voice() {
     return 1;
 }
 
+void scroll_voices(unsigned int flags) {
+    (void) flags;
+}
+
 void update_voices_text() {
     update_insteractive_list(
         DSTUDIO_CONTEXT_INSTANCES,
