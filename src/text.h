@@ -24,12 +24,6 @@
 
 #define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
 
-#define DSTUDIO_SET_TEXT_SCALE_MATRIX(matrix, width, height) \
-    matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR; \
-    matrix[0].y = 0; \
-    matrix[1].x = 0; \
-    matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
-
 typedef struct UITextSettingParams {
     unsigned int string_size;
     Vec2 * scale_matrix;

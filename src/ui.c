@@ -50,31 +50,37 @@ void configure_ui_element(UIElements * ui_elements, void * params) {
     UIElementSetting * configure_ui_element_p;
     UIElementSetting * configure_ui_element_array = ui_element_setting_params->settings;
     UIArea * ui_areas = ui_element_setting_params->areas;
+    UIArea * ui_area = 0;
     UICallback * ui_callbacks = ui_element_setting_params->callbacks;
+    UICallback * ui_callback = 0;
+    
     unsigned int array_offset = ui_element_setting_params->array_offset;
+    
     for (unsigned int i = 0; i < ui_elements->count; i++) {
         configure_ui_element_p = &configure_ui_element_array[i];
         if (ui_elements->animated) {
             ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
             ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
+            ui_elements->instance_motions_buffer[i] = 0;
         }
         else {
             ( (Vec4 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
             ( (Vec4 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
         }
-        ui_elements->instance_motions_buffer[i] = 0;
         
-        ui_areas[array_offset+i].min_x = configure_ui_element_p->min_area_x;
-        ui_areas[array_offset+i].max_x = configure_ui_element_p->max_area_x;
-        ui_areas[array_offset+i].min_y = configure_ui_element_p->min_area_y;
-        ui_areas[array_offset+i].max_y = configure_ui_element_p->max_area_y;
-        ui_areas[array_offset+i].x     = (configure_ui_element_p->min_area_x + configure_ui_element_p->max_area_x ) / 2;
-        ui_areas[array_offset+i].y     = (configure_ui_element_p->min_area_y + configure_ui_element_p->max_area_y ) / 2;
+        ui_area = &ui_areas[array_offset+i];
+        ui_area->min_x = configure_ui_element_p->min_area_x;
+        ui_area->max_x = configure_ui_element_p->max_area_x;
+        ui_area->min_y = configure_ui_element_p->min_area_y;
+        ui_area->max_y = configure_ui_element_p->max_area_y;
+        ui_area->x     = (configure_ui_element_p->min_area_x + configure_ui_element_p->max_area_x ) / 2;
+        ui_area->y     = (configure_ui_element_p->min_area_y + configure_ui_element_p->max_area_y ) / 2;
     
-        ui_callbacks[array_offset+i].callback = ui_element_setting_params->update_callback;
-        ui_callbacks[array_offset+i].index = i;
-        ui_callbacks[array_offset+i].context_p = ui_elements;
-        ui_callbacks[array_offset+i].type = configure_ui_element_p->ui_element_type;
+        ui_callback = &ui_callbacks[array_offset+i];
+        ui_callback->callback = ui_element_setting_params->update_callback;
+        ui_callback->index = i;
+        ui_callback->context_p = ui_elements;
+        ui_callback->type = configure_ui_element_p->ui_element_type;
     }
 }
 
@@ -201,9 +207,11 @@ void init_ui_elements(int flags, UIElements * ui_elements, GLuint texture_id, un
     /* Setting instance buffers */
     ui_elements->instance_offsets_buffer = malloc(count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
     explicit_bzero(ui_elements->instance_offsets_buffer, count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
-    
+
     if (configure_ui_element != NULL && params != NULL) {
-        ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
+        if (animated) {
+            ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
+        }
         configure_ui_element(ui_elements, params);
     }
     
@@ -215,7 +223,9 @@ void init_ui_elements(int flags, UIElements * ui_elements, GLuint texture_id, un
         offsets->w = ((Vec4 *) params)->w;
     }
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
-    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
+    if (animated) {
+        gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
+    }
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
 
     /* Setting vertex array */
@@ -229,16 +239,19 @@ void init_ui_elements(int flags, UIElements * ui_elements, GLuint texture_id, un
             glEnableVertexAttribArray(1);
             glVertexAttribDivisor(1, 0);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
+
             // If there is no motions required, it means that we might want to offset texture coordinates instead */
             glVertexAttribPointer(2, animated ? 2 : 4, GL_FLOAT, GL_FALSE, animated ? sizeof(Vec2) : sizeof(Vec4), (GLvoid *) 0 );
             glEnableVertexAttribArray(2);
             glVertexAttribDivisor(2, 1);
+
             if (animated) {
                 glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_motions);
                     glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
                     glEnableVertexAttribArray(3);
                     glVertexAttribDivisor(3, 1);
             }
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
@@ -278,8 +291,7 @@ void render_ui_elements(UIElements * ui_elements) {
 }
 
 GLuint setup_texture_n_scale_matrix(
-    int enable_aa,
-    int alpha,
+    unsigned int flags,
     GLuint texture_width,
     GLuint texture_height,
     const char * texture_filename,
@@ -287,6 +299,8 @@ GLuint setup_texture_n_scale_matrix(
 ) {
     GLuint texture_id = 0;
     unsigned char * texture_data = 0;
+    int alpha = flag & DSTUDIO_FLAG_USE_ALPHA;
+    int enable_aa = flag & DSTUDIO_FLAG_USE_ANTI_ALIASING;
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
     glGenTextures(1, &texture_id);

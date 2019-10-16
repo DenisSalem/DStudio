@@ -59,6 +59,7 @@ static Vec2 arrow_instances_scale_matrix[2] = {0};
 
 /* Instances */
 static UIElements instances[7] = {0};
+static UIElements instances_shadow = {0};
 
 /* Voices */
 static UIElements voices[7] = {0};
@@ -98,19 +99,14 @@ static ButtonStates button_states_array[DSANDGRAINS_BUTTONS_COUNT] = {0};
 #include "../ui_statics.h"
 
 static void init_ui() {
-    /* Will hold every sliders settings */
+    // Will hold every sliders settings
     UIElementSetting * sliders_settings_array = 0;
     
-    /* Load shared texture and prepare shared scale matrices */
-    GLuint background_texture_id = setup_texture_n_scale_matrix(0, 0, 800, 480, DSANDGRAINS_BACKGROUND_ASSET_PATH, background_scale_matrix);
-    GLuint knob1_texture_id = setup_texture_n_scale_matrix(1, 1, 64, 64, DSANDGRAINS_KNOB1_ASSET_PATH, knob1_scale_matrix);
-    GLuint knob2_texture_id = setup_texture_n_scale_matrix(1, 1, 48, 48, DSANDGRAINS_KNOB2_ASSET_PATH, knob2_scale_matrix);
-    GLuint slider_texture_id = setup_texture_n_scale_matrix(0, 1, 10, 10, DSANDGRAINS_SLIDER1_ASSET_PATH, slider_scale_matrix);
-    GLuint system_usage_texture_id = setup_texture_n_scale_matrix(0, 1, 30, 23, DSANDGRAINS_SYSTEM_USAGE_ASSET_PATH, system_usage_scale_matrix);
-    GLuint charset_texture_id = setup_texture_n_scale_matrix(0, 1, 104, 234, DSTUDIO_CHAR_TABLE_ASSET_PATH, NULL);
-    DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_scale_matrix, 104, 234)
-    GLuint charset_small_texture_id = setup_texture_n_scale_matrix(0, 1, 52, 117, DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, NULL);
-    DSTUDIO_SET_TEXT_SCALE_MATRIX(charset_small_scale_matrix, 52, 117)
+    /*
+     * There is way too much initialization calls, for readability
+     * most of them has been put in initialization_macros.h
+     */
+    LOAD_SHARED_TEXTURE_AND_PREPARE_SHARED_SCALE_MATRICES
     
     DSTUDIO_EXIT_IF_FAILURE(pthread_create( &g_buttons_management.thread_id, NULL, buttons_management_thread, &g_buttons_management))
 
@@ -183,45 +179,75 @@ static void init_ui() {
         { 0.3725, -0.070833, 516,   581.0, 224,   289.0, DSTUDIO_KNOB_TYPE_1}   // VOICE : INFLUENCE
     };
     
+    UIElementSetting instance_shadows_settings_array[DSANDGRAINS_SCROLLABLE_LIST_SIZE] = {0};
+
     /* Background */
     init_ui_elements(0, &background, background_texture_id, 1, NULL, NULL);
 
     /* System Usage */
-    Vec4 offsets = {-0.035, 0.889583, 0, 0};
+    Vec4 offsets = {
+        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_X_POS,
+        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_Y_POS,
+        0, 0
+    };
     init_ui_elements(0, &system_usage, system_usage_texture_id, 1, NULL, &offsets);
 
     /* CPU & MEM Usage */
     UITextSettingParams text_params;
     text_params.scale_matrix = charset_scale_matrix;   
     
-    text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
-    text_params.gl_y = 0.916666;
-    text_params.string_size = 6;
-    init_ui_elements(0, &g_cpu_usage, charset_texture_id, 6, configure_text_element, &text_params);
+    text_params.gl_x = DSANDGRAINS_CPU_N_MEM_USAGE_X_POS;
+    text_params.gl_y = DSANDGRAINS_CPU_USAGE_Y_POS;
+    text_params.string_size = DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE;
+    
+    init_ui_elements(
+        DSTUDIO_FLAG_NONE,
+        &g_cpu_usage,
+        charset_texture_id,
+        DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE,
+        configure_text_element,
+        &text_params
+    );
 
-    text_params.gl_x = -0.035 + ((GLfloat) (30+10) / ((GLfloat) DSTUDIO_VIEWPORT_WIDTH));
-    text_params.gl_y = 0.862499;
-    init_ui_elements(0, &g_mem_usage, charset_texture_id, 6, configure_text_element, &text_params);
+    text_params.gl_y = DSANDGRAINS_MEM_USAGE_Y_POS;
+    
+    init_ui_elements(
+        DSTUDIO_FLAG_NONE,
+        &g_mem_usage,
+        charset_texture_id,
+        DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE,
+        configure_text_element,
+        &text_params
+    );
     
     /* Instances */
     text_params.scale_matrix = charset_small_scale_matrix;   
     text_params.gl_x = 0.678;
     text_params.string_size = 29;
         
-    for (int i = 0; i < 7; i++) {
-        text_params.gl_y = 0.360416 - i * (11.0/((GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1)));
-        init_ui_elements(0, &instances[i], charset_small_texture_id, 29, configure_text_element, &text_params);
+    for (int i = 0; i < DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) {
+        text_params.gl_y = 0.35625 - i * (11.0/((GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1)));
+        init_ui_elements(
+            DSTUDIO_FLAG_NONE,
+            &instances[i],
+            charset_small_texture_id,
+            DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE, 
+            configure_text_element,
+            &text_params
+        );
     }
     
-    init_instances_ui(&instances[0], 7, 29);
-    
     /* Voices */
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) {
         text_params.gl_y = -0.104166 - i * (11.0/((GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1)));
         init_ui_elements(0, &voices[i], charset_small_texture_id, 29, configure_text_element, &text_params);
     }
     
-    init_voices_ui(&voices[0], 7, 29);
+    init_voices_ui(
+        &voices[0],
+        DSANDGRAINS_SCROLLABLE_LIST_SIZE,
+        29
+    );
     
     /* Inits interactive ui elements */
     UIElementSettingParams params = {0};
@@ -265,7 +291,15 @@ static void init_ui() {
     buttons_settings_array.max_area_y = 457;
     init_ui_elements(DSTUDIO_FLAG_FLIP_Y, &arrow_samples_bottom, button_states_array[5].release, 1, configure_ui_element, &params);
     params.array_offset +=1;
+
+    /* Instances Shadow */
+    params.update_callback = 0;
+    params.settings = &instance_shadows_settings_array[0];
+    init_ui_elements(0, &instances_shadow, 0, 7, configure_ui_element, &params);
+    params.array_offset += DSANDGRAINS_SCROLLABLE_LIST_SIZE;
     
+    init_instances_ui(&instances[0], 7, 29);
+
     /* Knobs */
     params.update_callback = update_knob;
     params.settings = sample_knobs_settings_array;
@@ -278,7 +312,7 @@ static void init_ui() {
     params.settings = voice_knobs_settings_array;
     params.array_offset += DSANDGRAINS_SAMPLE_SMALL_KNOBS;
     init_ui_elements(DSTUDIO_FLAG_ANIMATED, &voice_knobs, knob1_texture_id, DSANDGRAINS_VOICE_KNOBS, configure_ui_element, &params);
-    
+
     /* Sliders */
     params.update_callback = update_slider;
     

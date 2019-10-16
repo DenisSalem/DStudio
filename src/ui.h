@@ -28,16 +28,15 @@
 
 #include "window_management.h"
 
+// TODO : MOVE THE FOLLOWING INTO dsandgrains/ui.h ?
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
 #define DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH      "../assets/interactive_vertex.shader"
 #define DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH  "../assets/non_interactive_vertex.shader"
-#define DSANDGRAINS_KNOB1_ASSET_PATH                "../assets/knob1.png"
-#define DSANDGRAINS_KNOB2_ASSET_PATH                "../assets/knob2.png"
-#define DSANDGRAINS_SLIDER1_ASSET_PATH              "../assets/slider1.png"
 #define DSTUDIO_CHAR_TABLE_ASSET_PATH               "../assets/char_table.png"
 #define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
+
 #define DSTUDIO_RENDER_ALL                  0xfffffff
 #define DSTUDIO_RENDER_KNOBS                1
 #define DSTUDIO_RENDER_SLIDERS              2
@@ -45,8 +44,13 @@
 #define DSTUDIO_RENDER_INSTANCES            8
 #define DSTUDIO_RENDER_BUTTONS_TYPE_1       16
 #define DSTUDIO_RENDER_VOICES               32
-#define DSTUDIO_FLAG_ANIMATED   1
-#define DSTUDIO_FLAG_FLIP_Y     2
+#define DSTUDIO_FLAG_NONE               0
+#define DSTUDIO_FLAG_ANIMATED           1
+#define DSTUDIO_FLAG_FLIP_Y             2
+#define DSTUDIO_FLAG_USE_ALPHA          4
+#define DSTUDIO_FLAG_USE_ANTI_ALIASING  8;
+
+
 #define DSTUDIO_CONTEXT_INSTANCES   1
 #define DSTUDIO_CONTEXT_VOICES      2
 #define DSTUDIO_CONTEXT_SAMPLES     3
@@ -59,6 +63,13 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 #define DSTUDIO_KNOB_TYPE_2 2
 #define DSTUDIO_SLIDER_TYPE_1 4
 #define DSTUDIO_BUTTON_TYPE_1 8
+#define DSTUDIO_BUTTON_TYPE_2 16
+
+#define DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX(matrix, width, height) \
+    matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR; \
+    matrix[0].y = 0; \
+    matrix[1].x = 0; \
+    matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
 
 typedef struct Vec4_t {
     GLfloat x;
@@ -188,8 +199,7 @@ void render_ui_elements(
 void render_viewport(int mask);
 
 GLuint setup_texture_n_scale_matrix(
-    int enable_aa,
-    int alpha,
+    unsigned int flags,
     GLuint texture_width,
     GLuint texture_height,
     const char * texture_filename,
