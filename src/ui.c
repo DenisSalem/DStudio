@@ -26,7 +26,10 @@
 #include "extensions.h"
 #include "ui.h"
 
-void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
+void compile_shader(
+    GLuint shader_id, 
+    GLchar ** source_pointer
+) {
     glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
     #ifdef DSTUDIO_DEBUG 
     printf("glShaderSource : %d\n", glGetError()); 
@@ -45,7 +48,10 @@ void compile_shader(GLuint shader_id, GLchar ** source_pointer) {
     #endif
 }
 
-void configure_ui_element(UIElements * ui_elements, void * params) {
+void configure_ui_element(
+    UIElements * ui_elements,
+    void * params
+) {
     UIElementSettingParams * ui_element_setting_params = (UIElementSettingParams *) params;
     UIElementSetting * configure_ui_element_p;
     UIElementSetting * configure_ui_element_array = ui_element_setting_params->settings;
@@ -84,7 +90,10 @@ void configure_ui_element(UIElements * ui_elements, void * params) {
     }
 }
 
-void create_shader_program(GLuint * interactive_program_id, GLuint * non_interactive_program_id) {
+void create_shader_program(
+    GLuint * interactive_program_id,
+    GLuint * non_interactive_program_id
+) {
     GLchar * shader_buffer = NULL;
     // NON INTERACTIVE VERTEX SHADER
     GLuint non_interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -132,7 +141,13 @@ void create_shader_program(GLuint * interactive_program_id, GLuint * non_interac
     #endif
 }
 
-void gen_gl_buffer(GLenum type, GLuint * buffer_object_p, void * data, GLenum mode, unsigned int data_size) {
+void gen_gl_buffer(
+    GLenum type,
+    GLuint * buffer_object_p,
+    void * data,
+    GLenum mode,
+    unsigned int data_size
+) {
     *buffer_object_p = 0;
     glGenBuffers(1, buffer_object_p);
     glBindBuffer(type, *buffer_object_p);
@@ -140,7 +155,11 @@ void gen_gl_buffer(GLenum type, GLuint * buffer_object_p, void * data, GLenum mo
     glBindBuffer(type, 0);
 }
 
-int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format) {
+int get_png_pixel(
+    const char * filename,
+    png_bytep * buffer,
+    png_uint_32 format
+) {
     png_image image;
     memset(&image, 0, sizeof(image));
     image.version = PNG_IMAGE_VERSION;
@@ -159,7 +178,14 @@ int get_png_pixel(const char * filename, png_bytep * buffer, png_uint_32 format)
     exit(-1);
 }
 
-void init_ui_elements(int flags, UIElements * ui_elements, GLuint texture_id, unsigned int count, void (*configure_ui_element)(UIElements * ui_elements, void * params), void * params) {
+void init_ui_elements(
+    int flags,
+    UIElements * ui_elements,
+    GLuint texture_id,
+    unsigned int count,
+    void (*configure_ui_element)(UIElements * ui_elements, void * params),
+    void * params
+) {
     int animated = flags & DSTUDIO_FLAG_ANIMATED;
     int flip_y =  (flags & DSTUDIO_FLAG_FLIP_Y) >> 1;
     
@@ -256,13 +282,21 @@ void init_ui_elements(int flags, UIElements * ui_elements, GLuint texture_id, un
     glBindVertexArray(0);
 }
 
-void init_ui_element(GLfloat * instance_offset_p, float offset_x, float offset_y, GLfloat * motion_buffer) {
+void init_ui_element(
+    GLfloat * instance_offset_p,
+    float offset_x,
+    float offset_y,
+    GLfloat * motion_buffer
+) {
     instance_offset_p[0] = offset_x;
     instance_offset_p[1] = offset_y;
     *motion_buffer = 0;
 }
 
-void load_shader(GLchar ** shader_buffer, const char * filename) {
+void load_shader(
+    GLchar ** shader_buffer,
+    const char * filename
+) {
     FILE * shader = fopen (filename, "r");
     if (shader == NULL) {
         printf("Failed to open \"%s\" with errno: %d.\n", filename, errno);
@@ -299,8 +333,8 @@ GLuint setup_texture_n_scale_matrix(
 ) {
     GLuint texture_id = 0;
     unsigned char * texture_data = 0;
-    int alpha = flag & DSTUDIO_FLAG_USE_ALPHA;
-    int enable_aa = flag & DSTUDIO_FLAG_USE_ANTI_ALIASING;
+    int alpha = flags & DSTUDIO_FLAG_USE_ALPHA;
+    int enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
     glGenTextures(1, &texture_id);

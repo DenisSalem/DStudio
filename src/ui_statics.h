@@ -21,7 +21,6 @@ static Vec2 active_slider_range = {0};
 static UICallback active_ui_element = {0};
 static Vec2 active_ui_element_center = {0};
 static int render_mask = 0;
-static int slider_texture_scale;
 static int ui_element_index = 0;
 static int mouse_state = 0;
 
@@ -94,8 +93,8 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
             ui_element_index = i;
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
                 if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_1) {
-                    button_states_array[i].application_callback(button_states_array[i].flags);
-                    ui_callbacks[i].callback(0, ui_callbacks[i].context_p, &button_states_array[i]);
+                    button_settings_array[i].application_callback(button_settings_array[i].flags);
+                    ui_callbacks[i].callback(0, ui_callbacks[i].context_p, &button_settings_array[i]);
                     break;
                 }
                 
@@ -113,8 +112,8 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                 active_ui_element_center.y = ui_areas[i].y;
                 
                 if (active_ui_element.type & 4) { /* IF DSTUDIO_SLIDER_TYPE_1 */
-                    active_slider_range.x = ui_areas[i].min_y + slider_texture_scale / 2;
-                    active_slider_range.y = ui_areas[i].max_y - slider_texture_scale / 2;
+                    active_slider_range.x = ui_areas[i].min_y + DSANDGRAINS_SLIDER1_SCALE / 2;
+                    active_slider_range.y = ui_areas[i].max_y - DSANDGRAINS_SLIDER1_SCALE / 2;
                 }
                 break;
             }
