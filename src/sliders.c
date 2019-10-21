@@ -22,7 +22,15 @@
 
 #include "sliders.h"
 
-void init_slider_settings(UIElementSetting ** settings_p, unsigned int texture_scale, GLfloat x, GLfloat y, unsigned int offset, unsigned int slide, unsigned int count) {
+void init_slider_settings(
+    UIElementSetting ** settings_p,
+    unsigned int texture_scale,
+    GLfloat x,
+    GLfloat y,
+    unsigned int offset,
+    unsigned int slide,
+    unsigned int count
+) {
     *settings_p = malloc(count * sizeof(UIElementSetting));
     UIElementSetting * settings = *settings_p;
     settings->gl_x = (GLfloat) (x - (DSTUDIO_VIEWPORT_WIDTH >> 1) + (texture_scale >>1)) / (GLfloat) (DSTUDIO_VIEWPORT_WIDTH >> 1);

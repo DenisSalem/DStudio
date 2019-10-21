@@ -50,7 +50,6 @@
 #define DSTUDIO_FLAG_USE_ALPHA          4
 #define DSTUDIO_FLAG_USE_ANTI_ALIASING  8
 
-
 #define DSTUDIO_CONTEXT_INSTANCES   1
 #define DSTUDIO_CONTEXT_VOICES      2
 #define DSTUDIO_CONTEXT_SAMPLES     3
@@ -66,11 +65,17 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 #define DSTUDIO_BUTTON_TYPE_2 16
 
 #define DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX(matrix, width, height) \
+    matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH); \
+    matrix[0].y = 0; \
+    matrix[1].x = 0; \
+    matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT);
+
+#define DSTUDIO_SET_UI_TEXT_SCALE_MATRIX(matrix, width, height) \
     matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR; \
     matrix[0].y = 0; \
     matrix[1].x = 0; \
     matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
-
+    
 typedef struct Vec4_t {
     GLfloat x;
     GLfloat y;
@@ -170,7 +175,7 @@ int get_png_pixel(
 ); 
 
 void init_ui_elements(
-    int interactive,
+    int flags,
     UIElements * ui_elements,
     GLuint texture_id,
     unsigned int count,

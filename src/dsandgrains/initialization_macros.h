@@ -67,20 +67,37 @@
         DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, \
         NULL \
     ); \
-    DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX( \
+    DSTUDIO_SET_UI_TEXT_SCALE_MATRIX( \
         charset_scale_matrix, \
         DSANDGRAINS_CHARSET_WIDTH, \
         DSANDGRAINS_CHARSET_HEIGHT \
     ) \
-    DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX( \
+    DSTUDIO_SET_UI_TEXT_SCALE_MATRIX( \
         charset_small_scale_matrix, \
         DSANDGRAINS_CHARSET_SMALL_WIDTH, \
         DSANDGRAINS_CHARSET_SMALL_HEIGHT \
+    ) \
+    DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX( \
+        scrollable_list_shadow_scale_matrix, \
+        DSANDGRAINS_SCROLLABLE_LIST_SHADOW_WIDTH, \
+        DSANDGRAINS_SCROLLABLE_LIST_SHADOW_HEIGHT \
     )
 
 #define SETUP_BUTTONS_SETTING_ARRAYS \
-    button_settings_array[0].release = setup_texture_n_scale_matrix(DSTUDIO_FLAG_USE_ALPHA, 117, 8, DSTUDIO_ARROW_INSTANCES_ASSET_PATH, arrow_instances_scale_matrix); \
-    button_settings_array[0].active = setup_texture_n_scale_matrix(DSTUDIO_FLAG_USE_ALPHA, 117, 8, DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH, NULL); \
+    button_settings_array[0].release = setup_texture_n_scale_matrix( \
+        DSTUDIO_FLAG_USE_ALPHA, \
+        DSANDGRAINS_ARROW_BUTTON_WIDTH, \
+        DSANDGRAINS_ARROW_BUTTON_HEIGHT, \
+        DSTUDIO_ARROW_INSTANCES_ASSET_PATH, \
+        arrow_instances_scale_matrix \
+    ); \
+    button_settings_array[0].active = setup_texture_n_scale_matrix( \
+        DSTUDIO_FLAG_USE_ALPHA, \
+        DSANDGRAINS_ARROW_BUTTON_WIDTH, \
+        DSANDGRAINS_ARROW_BUTTON_HEIGHT, \
+        DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH, \
+        NULL \
+    ); \
     button_settings_array[0].type = DSTUDIO_BUTTON_TYPE_1; \
     button_settings_array[0].application_callback = scroll_instances; \
     button_settings_array[0].flags = DSTUDIO_BUTTON_ACTION_LIST_BACKWARD; \
@@ -178,7 +195,9 @@
         DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE, \
         configure_text_element, \
         &text_params \
-    );
+    ); \
+    init_system_usage_ui(DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE);   
+
 
 #define INIT_INSTANCE_SCROLLABLE_LIST \
     text_params.scale_matrix = charset_small_scale_matrix; \
@@ -197,7 +216,13 @@
             configure_text_element, \
             &text_params \
         ); \
-    }
+    } \
+    init_instances_ui( \
+        &instances[0], \
+        DSANDGRAINS_SCROLLABLE_LIST_SIZE, \
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE \
+    );
+
 
 #define INIT_VOICE_SCROLLABLE_LIST \
     text_params.gl_y = DSANDGRAINS_VOICE_SCROLLABLE_LIST_Y_POS; \
@@ -221,12 +246,12 @@
     );
 
 #define INIT_SCROLLABLE_LIST_ARROWS \
-    buttons_settings_array.gl_x = 0.81875; \
-    buttons_settings_array.gl_y = 0.404166; \
-    buttons_settings_array.min_area_x = 669.0; \
-    buttons_settings_array.max_area_x = 787.0; \
-    buttons_settings_array.min_area_y = 139.0; \
-    buttons_settings_array.max_area_y = 148.0; \
+    buttons_settings_array.gl_x = DSANDGRAINS_INSTANCES_ARROW_UP_X_POS; \
+    buttons_settings_array.gl_y = DSANDGRAINS_INSTANCES_ARROW_UP_Y_POS; \
+    buttons_settings_array.min_area_x = DSANDGRAINS_INSTANCES_ARROW_UP_MIN_AREA_X; \
+    buttons_settings_array.max_area_x = DSANDGRAINS_INSTANCES_ARROW_UP_MAX_AREA_X; \
+    buttons_settings_array.min_area_y = DSANDGRAINS_INSTANCES_ARROW_UP_MIN_AREA_Y; \
+    buttons_settings_array.max_area_y = DSANDGRAINS_INSTANCES_ARROW_UP_MAX_AREA_Y; \
     buttons_settings_array.ui_element_type = DSTUDIO_BUTTON_TYPE_1; \
     params.update_callback = update_button; \
     params.settings = &buttons_settings_array; \
@@ -239,9 +264,9 @@
         &params \
     ); \
     params.array_offset +=1; \
-    buttons_settings_array.gl_y = 0.04166; \
-    buttons_settings_array.min_area_y = 226; \
-    buttons_settings_array.max_area_y = 235; \
+    buttons_settings_array.gl_y = DSANDGRAINS_INSTANCES_ARROW_DOWN_Y_POS; \
+    buttons_settings_array.min_area_y = DSANDGRAINS_INSTANCES_ARROW_DOWN_MIN_AREA_Y; \
+    buttons_settings_array.max_area_y = DSANDGRAINS_INSTANCES_ARROW_DOWN_MAX_AREA_Y; \
     init_ui_elements( \
         DSTUDIO_FLAG_FLIP_Y, \
         &arrow_instances_bottom, \
@@ -251,9 +276,9 @@
         &params \
     ); \
     params.array_offset +=1; \
-    buttons_settings_array.gl_y = -0.058333; \
-    buttons_settings_array.min_area_y = 250; \
-    buttons_settings_array.max_area_y = 259; \
+    buttons_settings_array.gl_y = DSANDGRAINS_VOICES_ARROW_UP_Y_POS; \
+    buttons_settings_array.min_area_y = DSANDGRAINS_VOICES_ARROW_UP_MIN_AREA_Y; \
+    buttons_settings_array.max_area_y = DSANDGRAINS_VOICES_ARROW_UP_MAX_AREA_Y; \
     init_ui_elements( \
         0, \
         &arrow_voices_top, \
@@ -263,9 +288,9 @@
         &params \
     ); \
     params.array_offset +=1; \
-    buttons_settings_array.gl_y = -0.420833; \
-    buttons_settings_array.min_area_y = 337; \
-    buttons_settings_array.max_area_y = 346; \
+    buttons_settings_array.gl_y = DSANDGRAINS_VOICES_ARROW_DOWN_Y_POS; \
+    buttons_settings_array.min_area_y = DSANDGRAINS_VOICES_ARROW_DOWN_MIN_AREA_Y; \
+    buttons_settings_array.max_area_y = DSANDGRAINS_VOICES_ARROW_DOWN_MAX_AREA_Y; \
     init_ui_elements( \
         DSTUDIO_FLAG_FLIP_Y, \
         &arrow_voices_bottom, \
@@ -275,9 +300,9 @@
         &params \
     ); \
     params.array_offset +=1; \
-    buttons_settings_array.gl_y = -0.520833; \
-    buttons_settings_array.min_area_y = 361; \
-    buttons_settings_array.max_area_y = 370; \
+    buttons_settings_array.gl_y = DSANDGRAINS_SAMPLES_ARROW_UP_Y_POS; \
+    buttons_settings_array.min_area_y = DSANDGRAINS_SAMPLES_ARROW_UP_MIN_AREA_Y; \
+    buttons_settings_array.max_area_y = DSANDGRAINS_SAMPLES_ARROW_UP_MAX_AREA_Y; \
     init_ui_elements( \
         0, \
         &arrow_samples_top, \
@@ -287,9 +312,9 @@
         &params \
     ); \
     params.array_offset +=1; \
-    buttons_settings_array.gl_y = -0.883333; \
-    buttons_settings_array.min_area_y = 448; \
-    buttons_settings_array.max_area_y = 457; \
+    buttons_settings_array.gl_y = DSANDGRAINS_SAMPLES_ARROW_DOWN_Y_POS; \
+    buttons_settings_array.min_area_y = DSANDGRAINS_SAMPLES_ARROW_DOWN_MIN_AREA_Y; \
+    buttons_settings_array.max_area_y = DSANDGRAINS_SAMPLES_ARROW_DOWN_MAX_AREA_Y; \
     init_ui_elements( \
         DSTUDIO_FLAG_FLIP_Y, \
         &arrow_samples_bottom, \
@@ -299,3 +324,78 @@
         &params \
     ); \
     params.array_offset +=1;
+
+#define INIT_KNOBS \
+    params.update_callback = update_knob; \
+    params.settings = sample_knobs_settings_array; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_ANIMATED, \
+        &sample_knobs, \
+        knob1_texture_id, \
+        DSANDGRAINS_SAMPLE_KNOBS, \
+        configure_ui_element, \
+        &params \
+    ); \
+    params.settings = sample_small_knobs_settings_array; \
+    params.array_offset += DSANDGRAINS_SAMPLE_KNOBS; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_ANIMATED, \
+        &sample_small_knobs, \
+        knob2_texture_id, \
+        DSANDGRAINS_SAMPLE_SMALL_KNOBS, \
+        configure_ui_element, \
+        &params \
+    ); \
+    params.settings = voice_knobs_settings_array; \
+    params.array_offset += DSANDGRAINS_SAMPLE_SMALL_KNOBS; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_ANIMATED, \
+        &voice_knobs, \
+        knob1_texture_id, \
+        DSANDGRAINS_VOICE_KNOBS, \
+        configure_ui_element, \
+        &params \
+    );
+
+#define INIT_SLIDERS \
+    params.update_callback = update_slider; \
+    params.array_offset += DSANDGRAINS_VOICE_KNOBS; \
+    init_slider_settings( \
+        &sliders_settings_array, \
+        DSANDGRAINS_SLIDER1_SCALE, \
+        DSANDGRAINS_DAHDDSR_POS_X, \
+        DSANDGRAINS_DAHDDSR_POS_Y, \
+        DSANDGRAINS_SLIDERS_OFFSET, \
+        DSANDGRAINS_SLIDERS_SLIDE, \
+        DSANDGRAINS_DAHDSR_SLIDERS_COUNT \
+    ); \
+    params.settings = sliders_settings_array; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_ANIMATED, \
+        &sliders_dahdsr, \
+        slider_texture_id, \
+        DSANDGRAINS_DAHDSR_SLIDERS_COUNT, \
+        configure_ui_element, \
+        &params \
+    ); \
+    free(sliders_settings_array); \
+    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT; \
+    init_slider_settings( \
+        &sliders_settings_array, \
+        DSANDGRAINS_SLIDER1_SCALE, \
+        DSANDGRAINS_EQUALIZER_POS_X, \
+        DSANDGRAINS_EQUALIZER_POS_Y, \
+        DSANDGRAINS_SLIDERS_OFFSET, \
+        DSANDGRAINS_SLIDERS_SLIDE, \
+        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT \
+    ); \
+    params.settings = sliders_settings_array; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_ANIMATED, \
+        &sliders_equalizer, \
+        slider_texture_id, \
+        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, \
+        configure_ui_element, \
+        &params \
+    ); \
+    free(sliders_settings_array);

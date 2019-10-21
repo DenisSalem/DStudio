@@ -27,7 +27,7 @@ out vec4 color;
 
 void main (void) {
     if (no_texture != 0) {
-        color = vec4(0,0,0,fragment_texture_coordinates.x);
+        color = vec4(0, 0, 0, fragment_texture_coordinates.x);
     }
     else {
         color = texture(texture_knob, fragment_texture_coordinates);

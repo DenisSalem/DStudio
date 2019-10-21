@@ -55,8 +55,9 @@ static UIElements arrow_voices_top = {0};
 static UIElements arrow_voices_bottom = {0};
 static UIElements arrow_samples_top = {0};
 static UIElements arrow_samples_bottom = {0};
-
 static Vec2 arrow_instances_scale_matrix[2] = {0};
+
+static Vec2 scrollable_list_shadow_scale_matrix[2] = {0};
 
 /* Instances */
 static UIElements instances[7] = {0};
@@ -146,49 +147,40 @@ static void init_ui() {
     INIT_SYSTEM_USAGE
     INIT_INSTANCE_SCROLLABLE_LIST
     INIT_VOICE_SCROLLABLE_LIST
-
     INIT_SCROLLABLE_LIST_ARROWS
 
     /* Instances Shadow */
+    instance_shadows_settings_array[0].gl_x = 0;//DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_X_POS;
+    instance_shadows_settings_array[0].gl_y = 0;//DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_Y_POS;
     params.update_callback = 0;
     params.settings = &instance_shadows_settings_array[0];
-    init_ui_elements(0, &instances_shadow, 0, 7, configure_ui_element, &params);
+    init_ui_elements(
+        DSTUDIO_FLAG_NONE,
+        &instances_shadow,
+        0, // There is no texture id: we're rendering solid quad
+        DSANDGRAINS_SCROLLABLE_LIST_SIZE,
+        configure_ui_element,
+        &params
+    );
     params.array_offset += DSANDGRAINS_SCROLLABLE_LIST_SIZE;
     
-    init_instances_ui(&instances[0], 7, 29);
+    INIT_KNOBS
+    INIT_SLIDERS
 
-    /* Knobs */
-    params.update_callback = update_knob;
-    params.settings = sample_knobs_settings_array;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_knobs, knob1_texture_id, DSANDGRAINS_SAMPLE_KNOBS, configure_ui_element, &params);
+    init_buttons_management(
+        &g_buttons_management,
+        &button_settings_array[0],
+        DSANDGRAINS_BUTTONS_COUNT
+    );
     
-    params.settings = sample_small_knobs_settings_array;
-    params.array_offset += DSANDGRAINS_SAMPLE_KNOBS;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sample_small_knobs, knob2_texture_id, DSANDGRAINS_SAMPLE_SMALL_KNOBS, configure_ui_element, &params);
-    
-    params.settings = voice_knobs_settings_array;
-    params.array_offset += DSANDGRAINS_SAMPLE_SMALL_KNOBS;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &voice_knobs, knob1_texture_id, DSANDGRAINS_VOICE_KNOBS, configure_ui_element, &params);
-
-    /* Sliders */
-    params.update_callback = update_slider;
-    
-    params.array_offset += DSANDGRAINS_VOICE_KNOBS;
-    init_slider_settings(&sliders_settings_array, DSANDGRAINS_SLIDER1_SCALE, 406, 358, 16, 16, DSANDGRAINS_DAHDSR_SLIDERS_COUNT);
-    params.settings = sliders_settings_array;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_dahdsr, slider_texture_id, DSANDGRAINS_DAHDSR_SLIDERS_COUNT, configure_ui_element, &params);
-    free(sliders_settings_array);
-
-    params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT;
-    init_slider_settings(&sliders_settings_array, DSANDGRAINS_SLIDER1_SCALE, 523, 347, 16, 16, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT);
-    params.settings = sliders_settings_array;
-    init_ui_elements(DSTUDIO_FLAG_ANIMATED, &sliders_equalizer, slider_texture_id, DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, configure_ui_element, &params);
-    free(sliders_settings_array);
-
-    init_system_usage_ui(6);   
-    init_buttons_management(&g_buttons_management, &button_settings_array[0], DSANDGRAINS_BUTTONS_COUNT);
-    
-    DSTUDIO_EXIT_IF_FAILURE(pthread_create( &g_buttons_management.thread_id, NULL, buttons_management_thread, &g_buttons_management))
+    DSTUDIO_EXIT_IF_FAILURE(
+        pthread_create(
+            &g_buttons_management.thread_id,
+            NULL,
+            buttons_management_thread,
+            &g_buttons_management
+        )
+    )
 }
 
 void render_viewport(int mask) {
@@ -199,6 +191,9 @@ void render_viewport(int mask) {
         // SYSTEM USAGE
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) system_usage_scale_matrix);
         render_ui_elements(&system_usage);
+        
+        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
+        render_ui_elements(&instances_shadow);
         
         // CPU & MEM USAGE
         if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
