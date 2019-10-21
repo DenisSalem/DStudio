@@ -35,6 +35,11 @@ typedef struct UIInteractiveList_t {
     int update;
 } UIInteractiveList;
 
+void configure_ui_interactive_list(
+    UIElements * ui_elements,
+    void * params
+);
+
 void init_interactive_list(
     UIInteractiveList * interactive_list,
     UIElements * lines,

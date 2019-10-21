@@ -93,6 +93,7 @@ static char areas_index = -1;
 static GLuint interactive_program_id, non_interactive_program_id;
 static GLuint interactive_scale_matrix_id, non_interactive_scale_matrix_id;
 static GLuint motion_type_id;
+static GLuint no_texture_id;
 
 static GLfloat motion_type;
 
@@ -132,6 +133,7 @@ static void init_ui() {
     
     // Setting shader uniform input ID 
     non_interactive_scale_matrix_id = glGetUniformLocation(non_interactive_program_id, "scale_matrix");
+    no_texture_id = glGetUniformLocation(non_interactive_program_id, "no_id");
     interactive_scale_matrix_id = glGetUniformLocation(interactive_program_id, "scale_matrix");
     motion_type_id = glGetUniformLocation(interactive_program_id, "motion_type");
     
@@ -150,8 +152,8 @@ static void init_ui() {
     INIT_SCROLLABLE_LIST_ARROWS
 
     /* Instances Shadow */
-    instance_shadows_settings_array[0].gl_x = 0;//DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_X_POS;
-    instance_shadows_settings_array[0].gl_y = 0;//DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_Y_POS;
+    instance_shadows_settings_array[0].gl_x = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SHADOW_X_POS;
+    instance_shadows_settings_array[0].gl_y = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SHADOW_Y_POS;
     params.update_callback = 0;
     params.settings = &instance_shadows_settings_array[0];
     init_ui_elements(
@@ -159,9 +161,10 @@ static void init_ui() {
         &instances_shadow,
         0, // There is no texture id: we're rendering solid quad
         DSANDGRAINS_SCROLLABLE_LIST_SIZE,
-        configure_ui_element,
+        configure_ui_interactive_list,
         &params
     );
+
     params.array_offset += DSANDGRAINS_SCROLLABLE_LIST_SIZE;
     
     INIT_KNOBS
@@ -184,6 +187,7 @@ static void init_ui() {
 }
 
 void render_viewport(int mask) {
+    GLfloat no_texture = 0.0;
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) background_scale_matrix);
         render_ui_elements(&background);
@@ -191,9 +195,6 @@ void render_viewport(int mask) {
         // SYSTEM USAGE
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) system_usage_scale_matrix);
         render_ui_elements(&system_usage);
-        
-        glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
-        render_ui_elements(&instances_shadow);
         
         // CPU & MEM USAGE
         if (mask & DSTUDIO_RENDER_SYSTEM_USAGE) {
@@ -215,7 +216,15 @@ void render_viewport(int mask) {
         
         // INSTANCES
         if (mask & DSTUDIO_RENDER_INSTANCES) {
+            no_texture = 1.0;
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
+            glUniformMatrix2fv(no_texture_id, 1, GL_FALSE, (float *) &no_texture);
+            render_ui_elements(&instances_shadow);
+            
+            no_texture = 0.0;
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
+            glUniformMatrix2fv(no_texture_id, 1, GL_FALSE, (float *) &no_texture);
+
             for (unsigned int i = 0; i < g_ui_instances.lines_number; i++) {
                 render_ui_elements(&g_ui_instances.lines[i]);
             }

@@ -20,6 +20,17 @@
 #include "interactive_list.h"
 #include "instances.h"
 
+void configure_ui_interactive_list(
+    UIElements * ui_elements,
+    void * params
+) {
+    ((Vec4 *) ui_elements->instance_offsets_buffer)[0].z = 0.5;
+    for (unsigned int i = 1; i < ui_elements->count; i++ ){
+        ((Vec4 *) ui_elements->instance_offsets_buffer)[i].z = 0.5;
+    }
+    configure_ui_element(ui_elements, params);
+}
+
 void init_interactive_list(
     UIInteractiveList * interactive_list,
     UIElements * lines,

@@ -20,16 +20,17 @@
 #version 330
 
 uniform sampler2D texture_knob;
-uniform int no_texture;
+flat in vec2 no_texture_args;
 
 in vec2 fragment_texture_coordinates;
 out vec4 color;
 
 void main (void) {
-    if (no_texture != 0) {
-        color = vec4(0, 0, 0, fragment_texture_coordinates.x);
+    if (no_texture_args.x == 1.0) {
+        color = vec4(1.0, no_texture_args.x, 0, 1.0);
     }
     else {
         color = texture(texture_knob, fragment_texture_coordinates);
+        color.w = 0.5;
     }
 } 

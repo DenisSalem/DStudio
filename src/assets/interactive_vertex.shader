@@ -26,10 +26,11 @@ layout(location = 3) in float motion;
 
 uniform mat2 scale_matrix;
 uniform float motion_type;
-
+flat out vec2 no_texture_args;
 out vec2 fragment_texture_coordinates;
 
 void main() {
+    no_texture_args = vec2(0,0);
     if (motion_type == 0.0) {
         vec2 applied_rotation; 
         float c = cos(motion);
