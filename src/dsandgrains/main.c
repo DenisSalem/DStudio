@@ -35,7 +35,7 @@ int main(int argc, char ** argv) {
     (void) argv;
     DSTUDIO_EXIT_IF_FAILURE(set_physical_memory());
 
-    new_instance(INSTANCES_DIRECTORY, "dsandgrains");
+    new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     
     pthread_t ui_thread_id, system_usage_thread_id, instances_thread_id;
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))

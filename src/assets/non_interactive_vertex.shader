@@ -30,12 +30,12 @@ uniform mat2 scale_matrix;
 uniform float no_texture;
 
 void main() {
-    gl_Position = vec4(scale_matrix * vertex_position + offset.xy - offset.zw, 0, 1.0);
-    
+    gl_Position = vec4(scale_matrix * vertex_position + offset.xy, 0, 1.0);
     if (no_texture == 1.0) {
-        no_texture_args = vec2(1.0, 1.0); // zw is used as buffer for storing alpha
+        no_texture_args = vec2(1.0, offset.z);
     }
     else {
+        no_texture_args = vec2(0.0);
         fragment_texture_coordinates = texture_coordinates + offset.zw;
     }
 } 

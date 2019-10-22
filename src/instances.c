@@ -109,6 +109,7 @@ void scroll_instances(unsigned int flags) {
         g_ui_instances.window_offset++;
         g_ui_instances.update = 1;
     }
+    printf("instance index = %d, window_offset = %d\n", g_instances.index, g_ui_instances.window_offset);
     sem_post(&g_ui_instances.mutex);
 }
 

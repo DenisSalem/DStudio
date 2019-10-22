@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #version 330
 
@@ -27,10 +27,9 @@ out vec4 color;
 
 void main (void) {
     if (no_texture_args.x == 1.0) {
-        color = vec4(1.0, no_texture_args.x, 0, 1.0);
+        color = vec4(0,0,0,no_texture_args.y);
     }
     else {
         color = texture(texture_knob, fragment_texture_coordinates);
-        color.w = 0.5;
     }
 } 

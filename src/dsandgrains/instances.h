@@ -1,1 +1,1 @@
-#define INSTANCES_DIRECTORY "~/.local/share/DStudio/instances/dsandgrains"
+#define DSANDGRAINS_INSTANCES_DIRECTORY "~/.local/share/DStudio/instances/dsandgrains"
