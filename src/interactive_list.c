@@ -25,7 +25,7 @@ void configure_ui_interactive_list(
     void * params
 ) {
     ((Vec4 *) ui_elements->instance_offsets_buffer)[0].z = 0.0;
-    for (unsigned int i = 1; i < ui_elements->count; i++ ){
+    for (unsigned int i = 1; i < ui_elements->count; i++ ) {
         ((Vec4 *) ui_elements->instance_offsets_buffer)[i].z = 0.25;
     }
     configure_ui_element(ui_elements, params);
@@ -41,12 +41,32 @@ void init_interactive_list(
     interactive_list->lines_number = lines_number;
     interactive_list->string_size = string_size;
     interactive_list->update = 1;
-    send_expose_event();
+    interactive_list->shadows = malloc(sizeof(UIElements) * lines_number);
     sem_init(&interactive_list->mutex, 0, 1);
     interactive_list->ready = 1;
 }
 
-void * update_insteractive_list(
+
+void update_insteractive_list_shadow(
+        int context_type,
+        UIInteractiveList * interactive_list
+) {
+    int window_offset = interactive_list->window_offset;
+    unsigned int instances_index = 0;
+    
+    switch(context_type) {
+        case DSTUDIO_CONTEXT_INSTANCES:
+            instances_index = g_instances.index;
+            break;
+    }
+    
+    int highlight = (int) instances_index >= window_offset && (int) instances_index < window_offset + (int) interactive_list->lines_number;
+    int highlight_index = instances_index - window_offset;
+    (void) highlight;
+    (void) highlight_index;
+}
+
+void update_insteractive_list(
     int context_type,
     int offset,
     unsigned int max_lines_number,
@@ -69,5 +89,4 @@ void * update_insteractive_list(
             update_text(&lines[i], "", string_size);
         }
     }
-    return NULL;
 }

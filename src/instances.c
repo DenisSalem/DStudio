@@ -33,8 +33,44 @@ void exit_instances_thread() {
 
 }
 
-void init_instances_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size) {
-    init_interactive_list(&g_ui_instances, lines, lines_number, string_size);
+void init_instances_ui(
+    UIElements * lines,
+    unsigned int lines_number,
+    unsigned int string_size,
+    GLfloat shadow_pos_x,
+    GLfloat shadow_pos_y,
+    GLfloat shadow_offset,
+    UIElementSettingParams * params
+) {        
+    init_interactive_list(
+        &g_ui_instances,
+        lines,
+        lines_number,
+        string_size
+    );
+    // TODO: GENERALIZE BELOW
+    UIElementSetting * shadow_settings = malloc(sizeof(UIElementSetting) * lines_number);
+    explicit_bzero(shadow_settings, sizeof(UIElementSetting) * lines_number);
+    
+    shadow_settings[0].gl_x = shadow_pos_x;
+    shadow_settings[0].gl_y = shadow_pos_y;
+    
+    for (unsigned int i = 1; i < lines_number; i++) {
+        shadow_settings[i].gl_x = shadow_pos_x;
+        shadow_settings[i].gl_y = shadow_pos_y - i * shadow_offset;
+    }
+    params->update_callback = 0;
+    params->settings = &shadow_settings[0];
+    
+    init_ui_elements(
+        DSTUDIO_FLAG_NONE,
+        g_ui_instances.shadows,
+        0, // There is no texture id: we're rendering solid quad
+        lines_number,
+        configure_ui_interactive_list,
+        params
+    );
+    free(shadow_settings);
 }
 
 void new_instance(const char * given_directory, const char * process_name) {
@@ -197,6 +233,10 @@ void * update_instances(void * args) {
 }
 
 void update_instances_text() {
+    update_insteractive_list_shadow(
+        DSTUDIO_CONTEXT_INSTANCES,
+        &g_ui_instances
+    );
     update_insteractive_list(
         DSTUDIO_CONTEXT_INSTANCES,
         g_ui_instances.window_offset,

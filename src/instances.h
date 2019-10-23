@@ -26,8 +26,11 @@ void exit_instances_thread();
 void init_instances_ui(
     UIElements * lines,
     unsigned int lines_number,
-    unsigned int string_size
-);
+    unsigned int string_size,
+    GLfloat shadow_pos_x,
+    GLfloat shadow_pos_y,
+    GLfloat shadow_offset,
+    UIElementSettingParams * params);
 
 void new_instance(
     const char * given_directory,

@@ -61,7 +61,6 @@ static Vec2 scrollable_list_shadow_scale_matrix[2] = {0};
 
 /* Instances */
 static UIElements instances[7] = {0};
-static UIElements instances_shadow = {0};
 
 /* Voices */
 static UIElements voices[7] = {0};
@@ -106,7 +105,6 @@ static void init_ui() {
     
     // Setting arrays and configuration parameters
     UIElementSetting * sliders_settings_array = 0;
-    UIElementSetting instance_shadows_settings_array[DSANDGRAINS_SCROLLABLE_LIST_SIZE] = {0};
  ///// Declared and initialized in SETUP_KNOBS_SETTING_ARRAYS macro ////
  // UIElementSetting sample_knobs_settings_array[DSANDGRAINS_SAMPLE_KNOBS];
  // UIElementSetting sample_small_knobs_settings_array[DSANDGRAINS_SAMPLE_SMALL_KNOBS];
@@ -144,33 +142,13 @@ static void init_ui() {
      
     LOAD_SHARED_TEXTURE_AND_PREPARE_SHARED_SCALE_MATRICES
     SETUP_BUTTONS_SETTING_ARRAYS
-    SETUP_KNOBS_SETTING_ARRAYS
-    INIT_BACKGROUND
-    INIT_SYSTEM_USAGE
+    INIT_SCROLLABLE_LIST_ARROWS
     INIT_INSTANCE_SCROLLABLE_LIST
     INIT_VOICE_SCROLLABLE_LIST
-    INIT_SCROLLABLE_LIST_ARROWS
 
-    /* Instances Shadow */
-    instance_shadows_settings_array[0].gl_x = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SHADOW_X_POS;
-    instance_shadows_settings_array[0].gl_y = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SHADOW_Y_POS;
-    for (unsigned int i = 1; i < DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) {
-        instance_shadows_settings_array[i].gl_x = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SHADOW_X_POS;
-        instance_shadows_settings_array[i].gl_y = instance_shadows_settings_array[i-1].gl_y - DSANDGRAINS_SCROLLABLE_LIST_SHADOW_OFFSET;
-    }
-    params.update_callback = 0;
-    params.settings = &instance_shadows_settings_array[0];
-    init_ui_elements(
-        DSTUDIO_FLAG_NONE,
-        &instances_shadow,
-        0, // There is no texture id: we're rendering solid quad
-        DSANDGRAINS_SCROLLABLE_LIST_SIZE,
-        configure_ui_interactive_list,
-        &params
-    );
-
-    params.array_offset += DSANDGRAINS_SCROLLABLE_LIST_SIZE;
-    
+    INIT_BACKGROUND
+    INIT_SYSTEM_USAGE
+    SETUP_KNOBS_SETTING_ARRAYS
     INIT_KNOBS
     INIT_SLIDERS
 
@@ -219,12 +197,12 @@ void render_viewport(int mask) {
         
         // INSTANCES
         if (mask & DSTUDIO_RENDER_INSTANCES) {
-            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
-            glUniform1f(no_texture_id, (GLfloat) 1.0);
-            render_ui_elements(&instances_shadow);
-            
+            //glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
+            //~ glUniform1f(no_texture_id, (GLfloat) 1.0);
+            //~ render_ui_elements(g_ui_instances.shadows);
+            //~ glUniform1f(no_texture_id, 0);
+
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
-            glUniform1f(no_texture_id, 0);
 
             for (unsigned int i = 0; i < g_ui_instances.lines_number; i++) {
                 render_ui_elements(&g_ui_instances.lines[i]);
@@ -311,6 +289,7 @@ void * ui_thread(void * arg) {
                 402, 438, 48, 31,
                 DSTUDIO_RENDER_SYSTEM_USAGE
             );
+            
             
             update_and_render(
                 &g_ui_instances.mutex,

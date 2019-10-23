@@ -97,7 +97,6 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                     ui_callbacks[i].callback(0, ui_callbacks[i].context_p, &button_settings_array[i]);
                     break;
                 }
-                
                 active_ui_element.callback = ui_callbacks[i].callback;
                 active_ui_element.index = ui_callbacks[i].index;
                 active_ui_element.context_p = ui_callbacks[i].context_p;

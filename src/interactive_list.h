@@ -26,6 +26,7 @@
 
 typedef struct UIInteractiveList_t {
     UIElements * lines;
+    UIElements * shadows;
     unsigned int lines_number;
     unsigned int string_size;
     int window_offset;
@@ -47,7 +48,7 @@ void init_interactive_list(
     unsigned int string_size
 );
 
-void * update_insteractive_list(
+void update_insteractive_list(
     int context_type,
     int offset,
     unsigned int max_lines_number,
@@ -55,5 +56,10 @@ void * update_insteractive_list(
     UIElements * lines,
     unsigned int string_size,
     void * contexts
+);
+
+void update_insteractive_list_shadow(
+    int context_type,
+    UIInteractiveList * interactive_list
 );
 #endif
