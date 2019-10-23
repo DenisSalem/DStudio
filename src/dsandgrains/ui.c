@@ -85,6 +85,7 @@ static Vec2 slider_scale_matrix[2] = {0};
 
 UIArea ui_areas[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 UICallback ui_callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
+static ButtonStates button_settings_array[DSANDGRAINS_BUTTONS_COUNT] = {0};
 
 static useconds_t framerate = 20000;
 static char areas_index = -1;
@@ -96,11 +97,9 @@ static GLuint no_texture_id;
 
 static GLfloat motion_type;
 
-static ButtonStates button_settings_array[DSANDGRAINS_BUTTONS_COUNT] = {0};
-
 #include "../ui_statics.h"
 
-static void init_ui() {
+static void init_ui() {   
     //--- Local variables ---------------------------------------------/
     
     // Setting arrays and configuration parameters
@@ -197,10 +196,10 @@ void render_viewport(int mask) {
         
         // INSTANCES
         if (mask & DSTUDIO_RENDER_INSTANCES) {
-            //glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
-            //~ glUniform1f(no_texture_id, (GLfloat) 1.0);
-            //~ render_ui_elements(g_ui_instances.shadows);
-            //~ glUniform1f(no_texture_id, 0);
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
+            glUniform1f(no_texture_id, (GLfloat) 1.0);
+            render_ui_elements(g_ui_instances.shadows);
+            glUniform1f(no_texture_id, 0);
 
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
 
@@ -216,7 +215,6 @@ void render_viewport(int mask) {
                 render_ui_elements(&g_ui_voices.lines[i]);
             }
         }
-
 
     glUseProgram(interactive_program_id);
         // KNOBS

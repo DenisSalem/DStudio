@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include "extensions.h"
 #include "interactive_list.h"
 #include "instances.h"
 
@@ -60,10 +60,20 @@ void update_insteractive_list_shadow(
             break;
     }
     
-    int highlight = (int) instances_index >= window_offset && (int) instances_index < window_offset + (int) interactive_list->lines_number;
+    int highlight = (int) instances_index >= window_offset && instances_index < window_offset + interactive_list->lines_number;
     int highlight_index = instances_index - window_offset;
-    (void) highlight;
-    (void) highlight_index;
+    
+    for (unsigned int i = 0; i < interactive_list->lines_number; i++) {
+        if (highlight_index == (int) i && highlight) {
+            ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].z = 0;
+        }
+        else {
+            ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].z = 0.25;
+        }
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, interactive_list->shadows->instance_offsets);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->shadows->count, interactive_list->shadows->instance_offsets_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void update_insteractive_list(

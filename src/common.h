@@ -26,6 +26,10 @@
     scissor_y = (GLint) DSTUDIO_VIEWPORT_HEIGHT - ui_areas[i].max_y; \
     scissor_width = (GLsizei) ui_areas[i].max_x - ui_areas[i].min_x; \
     scissor_height = (GLsizei) ui_areas[i].max_y - ui_areas[i].min_y;
+
+#define DSTUDIO_DYNAMIC_ALLOCATION(dest, size) \
+    dest = malloc(size); \
+    explicit_bzero(dest, size);
     
 extern GLint scissor_x, scissor_y;
 extern GLsizei scissor_width, scissor_height;
