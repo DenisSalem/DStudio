@@ -69,15 +69,15 @@ static void cursor_position_callback(int xpos, int ypos){
     if (active_ui_element.callback == NULL) {
         return;
     }
-    if (active_ui_element.type == DSTUDIO_KNOB_TYPE_1) {
+    if (active_ui_element.type == DSTUDIO_KNOB_TYPE_CONTINUE) {
         motion = compute_knob_rotation(xpos, ypos);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
-    else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_2) {
+    else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_DISCRETE) {
         motion = compute_knob_rotation(xpos, ypos);
         active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
     }
-    else if (active_ui_element.type == DSTUDIO_SLIDER_TYPE_1) {
+    else if (active_ui_element.type == DSTUDIO_SLIDER_TYPE_VERTICAL) {
         #ifdef DSTUDIO_DEBUG
         printf("Update Slider\n");
         #endif
@@ -92,9 +92,13 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
         for (int i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
             ui_element_index = i;
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
-                if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_1) {
+                if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_REBOUNCE) {
                     button_settings_array[i].application_callback(button_settings_array[i].flags);
                     ui_callbacks[i].callback(0, ui_callbacks[i].context_p, &button_settings_array[i]);
+                    break;
+                }
+                if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_LIST) {
+                    printf("BUTTON LIST\n");
                     break;
                 }
                 active_ui_element.callback = ui_callbacks[i].callback;

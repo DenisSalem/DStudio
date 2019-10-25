@@ -37,9 +37,6 @@ void init_instances_ui(
     UIElements * lines,
     unsigned int lines_number,
     unsigned int string_size,
-    GLfloat shadow_pos_x,
-    GLfloat shadow_pos_y,
-    GLfloat shadow_offset,
     UIElementSettingParams * params
 ) {        
     init_interactive_list(
@@ -51,13 +48,19 @@ void init_instances_ui(
     // TODO: GENERALIZE BELOW
     UIElementSetting * shadow_settings = malloc(sizeof(UIElementSetting) * lines_number);
     explicit_bzero(shadow_settings, sizeof(UIElementSetting) * lines_number);
-    
-    shadow_settings[0].gl_x = shadow_pos_x;
-    shadow_settings[0].gl_y = shadow_pos_y;
-    
-    for (unsigned int i = 1; i < lines_number; i++) {
-        shadow_settings[i].gl_x = shadow_pos_x;
-        shadow_settings[i].gl_y = shadow_pos_y - i * shadow_offset;
+    UIInteractiveListSetting * interactive_list_setting = params->settings;
+    GLfloat offset = interactive_list_setting->offset;
+    GLfloat area_offset = interactive_list_setting->area_offset;
+    for (unsigned int i = 0; i < lines_number; i++) {
+        GLfloat computed_area_offet = i * area_offset;
+        shadow_settings[i].gl_x = interactive_list_setting->gl_x;
+        shadow_settings[i].gl_y = interactive_list_setting->gl_y - i * offset;
+        shadow_settings[i].min_area_x = interactive_list_setting->min_area_x;
+        shadow_settings[i].max_area_x = interactive_list_setting->max_area_x;
+        shadow_settings[i].min_area_y = interactive_list_setting->min_area_y + computed_area_offet;
+        shadow_settings[i].max_area_y = interactive_list_setting->max_area_y + computed_area_offet;
+        shadow_settings[i].ui_element_type = DSTUDIO_BUTTON_TYPE_LIST;
+
     }
     params->update_callback = 0;
     params->settings = &shadow_settings[0];

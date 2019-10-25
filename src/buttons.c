@@ -42,7 +42,7 @@ void * buttons_management_thread(void * args) {
             }
             elapsed_time = get_timestamp() - buttons_management->states[i].timestamp;
             
-            if (elapsed_time > 0.025 && buttons_management->states[i].type == DSTUDIO_BUTTON_TYPE_1) {
+            if (elapsed_time > 0.025 && buttons_management->states[i].type == DSTUDIO_BUTTON_TYPE_REBOUNCE) {
                 send_expose_event();
             }
         }

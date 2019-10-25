@@ -36,6 +36,17 @@ typedef struct UIInteractiveList_t {
     int update;
 } UIInteractiveList;
 
+typedef struct UIInteractiveListSetting_t {
+    GLfloat gl_x;
+    GLfloat gl_y;
+    GLfloat min_area_x;
+    GLfloat max_area_x;
+    GLfloat min_area_y;
+    GLfloat max_area_y;
+    GLfloat offset;
+    GLfloat area_offset;
+} UIInteractiveListSetting;
+
 void configure_ui_interactive_list(
     UIElements * ui_elements,
     void * params

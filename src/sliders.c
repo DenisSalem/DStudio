@@ -40,7 +40,7 @@ void init_slider_settings(
     settings->min_area_y = (GLfloat) y - slide -1 - texture_scale;
     settings->max_area_y = (GLfloat) y + slide + 1;
     
-    settings->ui_element_type = DSTUDIO_SLIDER_TYPE_1;
+    settings->ui_element_type = DSTUDIO_SLIDER_TYPE_VERTICAL;
     GLfloat gl_offset = (GLfloat) offset / (GLfloat) (DSTUDIO_VIEWPORT_WIDTH >> 1);
     for (unsigned int i = 0 ; i < count - 1; i++){
         memcpy(&settings[i+1], &settings[i], sizeof(UIElementSetting));

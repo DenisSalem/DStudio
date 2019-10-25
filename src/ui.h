@@ -37,13 +37,13 @@
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
 
-#define DSTUDIO_RENDER_ALL                  0xfffffff
-#define DSTUDIO_RENDER_KNOBS                1
-#define DSTUDIO_RENDER_SLIDERS              2
-#define DSTUDIO_RENDER_SYSTEM_USAGE         4
-#define DSTUDIO_RENDER_INSTANCES            8
-#define DSTUDIO_RENDER_BUTTONS_TYPE_1       16
-#define DSTUDIO_RENDER_VOICES               32
+#define DSTUDIO_RENDER_ALL                   0xfffffff
+#define DSTUDIO_RENDER_KNOBS                 1
+#define DSTUDIO_RENDER_SLIDERS               2
+#define DSTUDIO_RENDER_SYSTEM_USAGE          4
+#define DSTUDIO_RENDER_INSTANCES             8
+#define DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE 16
+#define DSTUDIO_RENDER_VOICES                32
 #define DSTUDIO_FLAG_NONE               0
 #define DSTUDIO_FLAG_ANIMATED           1
 #define DSTUDIO_FLAG_FLIP_Y             2
@@ -58,11 +58,11 @@
 extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
 extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 
-#define DSTUDIO_KNOB_TYPE_1 1
-#define DSTUDIO_KNOB_TYPE_2 2
-#define DSTUDIO_SLIDER_TYPE_1 4
-#define DSTUDIO_BUTTON_TYPE_1 8
-#define DSTUDIO_BUTTON_TYPE_2 16
+#define DSTUDIO_KNOB_TYPE_CONTINUE   1
+#define DSTUDIO_KNOB_TYPE_DISCRETE   2
+#define DSTUDIO_SLIDER_TYPE_VERTICAL 4
+#define DSTUDIO_BUTTON_TYPE_REBOUNCE 8
+#define DSTUDIO_BUTTON_TYPE_LIST     16
 
 #define DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX(matrix, width, height) \
     matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH); \
@@ -127,7 +127,7 @@ typedef struct UIArea_t {
     float y;
 } UIArea;
 
-typedef struct ui_element_setting_t {
+typedef struct UIElementSetting_t {
     GLfloat gl_x;
     GLfloat gl_y;
     GLfloat min_area_x;
@@ -139,7 +139,12 @@ typedef struct ui_element_setting_t {
 
 typedef struct ui_element_setting_params_t {
     unsigned int        array_offset;
-    UIElementSetting *  settings;
+    /*
+     * May be one of the following type
+     * - UIElementSetting
+     * - UIInteractiveListSetting
+     */
+    void *  settings;
     UIArea *            areas;
     UICallback *        callbacks;
     void (*update_callback) (int index, UIElements * context, void * args);

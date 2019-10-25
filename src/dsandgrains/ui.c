@@ -184,7 +184,7 @@ void render_viewport(int mask) {
         }
         
         // ARROWS
-        if (mask & DSTUDIO_RENDER_BUTTONS_TYPE_1) {
+        if (mask & DSTUDIO_KNOB_TYPE_CONTINUE) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
             render_ui_elements(&arrow_instances_bottom);
             render_ui_elements(&arrow_instances_top);
