@@ -141,11 +141,6 @@ static void init_ui() {
      
     LOAD_SHARED_TEXTURE_AND_PREPARE_SHARED_SCALE_MATRICES
     SETUP_BUTTONS_SETTING_ARRAYS
-    
-    for(int i = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; i < 6+DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) {
-        button_settings_array[i].application_callback = select_instance_from_list;
-        button_settings_array[i].flags = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET;
-    }
     INIT_SCROLLABLE_LIST_ARROWS
     INIT_INSTANCE_SCROLLABLE_LIST
     INIT_VOICE_SCROLLABLE_LIST

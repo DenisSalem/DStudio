@@ -116,7 +116,11 @@
     button_settings_array[4].flags = DSTUDIO_BUTTON_ACTION_LIST_BACKWARD; \
     button_settings_array[5].release = button_settings_array[0].release; \
     button_settings_array[5].active = button_settings_array[0].active; \
-    button_settings_array[5].application_callback = scroll_voices;
+    button_settings_array[5].application_callback = scroll_voices; \
+    for(int i = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; i < 6+DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) { \
+        button_settings_array[i].application_callback = select_instance_from_list; \
+        button_settings_array[i].flags = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; \
+    }
 
 #define SETUP_KNOBS_SETTING_ARRAYS \
     UIElementSetting sample_knobs_settings_array[DSANDGRAINS_SAMPLE_KNOBS] = { \
