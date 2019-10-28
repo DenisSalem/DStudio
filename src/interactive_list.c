@@ -19,6 +19,7 @@
 #include "extensions.h"
 #include "interactive_list.h"
 #include "instances.h"
+#include "buttons.h"
 
 void configure_ui_interactive_list(
     UIElements * ui_elements,
@@ -46,22 +47,23 @@ void init_interactive_list(
     interactive_list->ready = 1;
 }
 
-
 void update_insteractive_list_shadow(
         int context_type,
         UIInteractiveList * interactive_list
 ) {
     int window_offset = interactive_list->window_offset;
-    unsigned int instances_index = 0;
+    unsigned int context_index = 0;
+    int * update_p = 0;
     
     switch(context_type) {
         case DSTUDIO_CONTEXT_INSTANCES:
-            instances_index = g_instances.index;
+            context_index = g_instances.index;
+            update_p = &g_ui_instances.update;
             break;
     }
     
-    int highlight = (int) instances_index >= window_offset && instances_index < window_offset + interactive_list->lines_number;
-    int highlight_index = instances_index - window_offset;
+    int highlight = (int) context_index >= window_offset && context_index < window_offset + interactive_list->lines_number;
+    int highlight_index = context_index - window_offset;
     
     for (unsigned int i = 0; i < interactive_list->lines_number; i++) {
         if (highlight_index == (int) i && highlight) {
@@ -74,6 +76,8 @@ void update_insteractive_list_shadow(
     glBindBuffer(GL_ARRAY_BUFFER, interactive_list->shadows->instance_offsets);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->shadows->count, interactive_list->shadows->instance_offsets_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    *update_p = 1;
+    send_expose_event();
 }
 
 void update_insteractive_list(

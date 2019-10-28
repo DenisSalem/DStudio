@@ -141,6 +141,11 @@ static void init_ui() {
      
     LOAD_SHARED_TEXTURE_AND_PREPARE_SHARED_SCALE_MATRICES
     SETUP_BUTTONS_SETTING_ARRAYS
+    
+    for(int i = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; i < 6+DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) {
+        button_settings_array[i].application_callback = select_instance_from_list;
+        button_settings_array[i].flags = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET;
+    }
     INIT_SCROLLABLE_LIST_ARROWS
     INIT_INSTANCE_SCROLLABLE_LIST
     INIT_VOICE_SCROLLABLE_LIST
@@ -154,6 +159,7 @@ static void init_ui() {
     init_buttons_management(
         &g_buttons_management,
         &button_settings_array[0],
+        &ui_callbacks[0],
         DSANDGRAINS_BUTTONS_COUNT
     );
     
@@ -242,7 +248,11 @@ void render_viewport(int mask) {
 
 void * ui_thread(void * arg) {
     (void) arg;
-    init_context("DSANDGRAINS", DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
+    init_context(
+        APPLICATION_NAME,
+        DSTUDIO_VIEWPORT_WIDTH,
+        DSTUDIO_VIEWPORT_HEIGHT
+    );
     set_mouse_button_callback(mouse_button_callback);
     set_cursor_position_callback(cursor_position_callback);
     	
@@ -259,7 +269,7 @@ void * ui_thread(void * arg) {
     while (do_no_exit_loop()) {
         usleep(framerate);
         
-        /* RENDER */
+        // RENDER
 
         if (need_to_redraw_all()) {
             glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);

@@ -14,6 +14,7 @@
 #include "instances.h"
 #include "ui.h"
 #include "voices.h"
+#include "buttons.h"
 
 static struct stat st = {0};
 InstanceContext * g_current_active_instance = 0; 
@@ -30,7 +31,6 @@ void exit_instances_thread() {
     sprintf(instance_path, "%s/%d", instances_directory, g_current_active_instance->identifier);
     unlink(instance_path);
     sem_post(&g_ui_instances.mutex);
-
 }
 
 void init_instances_ui(
@@ -138,7 +138,8 @@ void new_instance(const char * given_directory, const char * process_name) {
     free(instance_filename_buffer);
 }
 
-void scroll_instances(unsigned int flags) {
+void scroll_instances(void * args) {
+    unsigned int flags = *((unsigned int *) args);
     sem_wait(&g_ui_instances.mutex);
     if (g_ui_instances.window_offset > 0 && flags && DSTUDIO_BUTTON_ACTION_LIST_BACKWARD) {
         g_ui_instances.window_offset--;
@@ -148,6 +149,28 @@ void scroll_instances(unsigned int flags) {
         g_ui_instances.window_offset++;
         g_ui_instances.update = 1;
     }
+    sem_post(&g_ui_instances.mutex);
+}
+
+void select_instance_from_list(
+    void * args
+) {
+    ButtonStates * states = ((ButtonStates *) args);
+    // Extracting payload from flags
+    unsigned int index = states->flags + g_ui_instances.window_offset; 
+    if (index != g_instances.index && index < g_instances.count) {
+    update_current_instance(index);
+        update_insteractive_list_shadow(
+            DSTUDIO_CONTEXT_INSTANCES,
+            &g_ui_instances
+        );
+    }
+}
+
+void update_current_instance(unsigned int index) {
+    sem_wait(&g_ui_instances.mutex);
+    g_instances.index = index;
+    g_current_active_instance = &g_instances.contexts[index];
     sem_post(&g_ui_instances.mutex);
 }
 

@@ -42,7 +42,7 @@ void * buttons_management_thread(void * args) {
             }
             elapsed_time = get_timestamp() - buttons_management->states[i].timestamp;
             
-            if (elapsed_time > 0.025 && buttons_management->states[i].type == DSTUDIO_BUTTON_TYPE_REBOUNCE) {
+            if (elapsed_time > 0.025 && buttons_management->callbacks[i].type == DSTUDIO_BUTTON_TYPE_REBOUNCE) {
                 send_expose_event();
             }
         }
@@ -81,8 +81,10 @@ void check_for_buttons_to_render_n_update(
 void init_buttons_management(
     ButtonsManagement * buttons_management,
     ButtonStates * button_states_array,
+    UICallback * callbacks,
     unsigned int count)
 {
+    buttons_management->callbacks = callbacks;
     buttons_management->states = button_states_array;
     buttons_management->count = count;
     buttons_management->ready = 1;

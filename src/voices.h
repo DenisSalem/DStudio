@@ -36,7 +36,7 @@ extern UIInteractiveList g_ui_voices;
 
 void init_voices_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size);
 int new_voice();
-void scroll_voices(unsigned int flags);
+void scroll_voices(void * args);
 void update_voices_text();
 
 #endif

@@ -59,6 +59,10 @@ void init_interactive_list(
     unsigned int string_size
 );
 
+void select_element_from_list(
+    void * args
+);
+
 void update_insteractive_list(
     int context_type,
     int offset,

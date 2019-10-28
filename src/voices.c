@@ -48,8 +48,8 @@ int new_voice() {
     return 1;
 }
 
-void scroll_voices(unsigned int flags) {
-    (void) flags;
+void scroll_voices(void * args) {
+    (void) args;
 }
 
 void update_voices_text() {

@@ -26,16 +26,16 @@
 #include "ui.h"
 
 typedef struct ButtonStates_t {
-    GLuint release;
     GLuint active;
+    GLuint release;
     double timestamp;
-    int type;
-    void (*application_callback)(unsigned int flags);
+    void (*application_callback)(void * args);
     unsigned int flags;
 } ButtonStates;
 
 typedef struct ButtonsManagement_t {
     ButtonStates * states;
+    UICallback * callbacks;
     int cut_thread;
     sem_t mutex;
     pthread_t thread_id;
@@ -54,6 +54,7 @@ void check_for_buttons_to_render_n_update(
 void init_buttons_management(
     ButtonsManagement * buttons_management,
     ButtonStates * button_states_array,
+    UICallback * callbacks,
     unsigned int count);
 
 void update_button(

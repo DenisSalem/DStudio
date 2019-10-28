@@ -35,9 +35,11 @@ void new_instance(
     const char * process_name
 );
 
-void scroll_instances(unsigned int flags);
+void scroll_instances(void * args);
+void select_instance_from_list(void * args);
 
 // Periodically check if new instances were added
+void update_current_instance(unsigned int index);
 void * update_instances(void * args);
 void update_instances_text();
 #endif
