@@ -25,9 +25,9 @@ void configure_ui_interactive_list(
     UIElements * ui_elements,
     void * params
 ) {
-    ((Vec4 *) ui_elements->instance_offsets_buffer)[0].z = 0.0;
+    ((Vec4 *) ui_elements->instance_offsets_buffer)[0].opacity = 0.0;
     for (unsigned int i = 1; i < ui_elements->count; i++ ) {
-        ((Vec4 *) ui_elements->instance_offsets_buffer)[i].z = 0.25;
+        ((Vec4 *) ui_elements->instance_offsets_buffer)[i].opacity = 0.25;
     }
     configure_ui_element(ui_elements, params);
 }
@@ -67,10 +67,10 @@ void update_insteractive_list_shadow(
     
     for (unsigned int i = 0; i < interactive_list->lines_number; i++) {
         if (highlight_index == (int) i && highlight) {
-            ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].z = 0;
+            ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].opacity = 0;
         }
         else {
-            ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].z = 0.25;
+            ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].opacity = 0.25;
         }
     }
     glBindBuffer(GL_ARRAY_BUFFER, interactive_list->shadows->instance_offsets);

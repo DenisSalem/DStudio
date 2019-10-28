@@ -75,11 +75,20 @@ extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
     matrix[0].y = 0; \
     matrix[1].x = 0; \
     matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
-    
+
+/*
+ * This structure may be used to store opacity in
+ * interactive_list usage case. For readability, the
+ * third field is renamed.
+ */
+ 
 typedef struct Vec4_t {
     GLfloat x;
     GLfloat y;
-    GLfloat z;
+    union {
+        GLfloat z;
+        GLfloat opacity;
+    };
     GLfloat w;
 } Vec4;
 

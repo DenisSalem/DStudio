@@ -147,6 +147,35 @@ static void init_ui() {
 
     INIT_BACKGROUND
     INIT_SYSTEM_USAGE
+
+    UIElementSetting * sample_knobs_settings_array = malloc(DSANDGRAINS_SAMPLE_KNOBS * sizeof(UIElementSetting));
+    sample_knobs_settings_array->gl_x = -0.8675;
+    sample_knobs_settings_array->gl_y = 0.25;
+    sample_knobs_settings_array->min_area_x = 20.0;
+    sample_knobs_settings_array->max_area_x = 85.0;
+    sample_knobs_settings_array->min_area_y = 147.0;
+    sample_knobs_settings_array->max_area_y = 212.0;
+    sample_knobs_settings_array->ui_element_type = DSTUDIO_KNOB_TYPE_CONTINUE;
+    for (int i = 1; i < DSANDGRAINS_SAMPLE_KNOBS; i++) {
+        if (i < (DSANDGRAINS_SAMPLE_KNOBS >> 1)) {
+            sample_knobs_settings_array[i].gl_x = sample_knobs_settings_array[i-1].gl_x + 0.16;
+            sample_knobs_settings_array[i].gl_y = 0.25;
+            sample_knobs_settings_array[i].min_area_x = sample_knobs_settings_array[i-1].min_area_x + 64.0;
+            sample_knobs_settings_array[i].max_area_x = sample_knobs_settings_array[i-1].max_area_x + 64.0;
+            sample_knobs_settings_array[i].min_area_y = 147.0;
+            sample_knobs_settings_array[i].max_area_y = 212.0;
+        }
+        else {
+            sample_knobs_settings_array[i].gl_x = sample_knobs_settings_array[i - (DSANDGRAINS_SAMPLE_KNOBS >> 1)].gl_x;
+            sample_knobs_settings_array[i].gl_y = -.15;
+            sample_knobs_settings_array[i].min_area_x = sample_knobs_settings_array[i - (DSANDGRAINS_SAMPLE_KNOBS >> 1)].min_area_x;
+            sample_knobs_settings_array[i].max_area_x = sample_knobs_settings_array[i - (DSANDGRAINS_SAMPLE_KNOBS >> 1)].max_area_x;
+            sample_knobs_settings_array[i].min_area_y = 243.0;
+            sample_knobs_settings_array[i].max_area_y = 308.0;
+        }
+        sample_knobs_settings_array[i].ui_element_type = DSTUDIO_KNOB_TYPE_CONTINUE;
+    }
+
     SETUP_KNOBS_SETTING_ARRAYS
     INIT_KNOBS
     INIT_SLIDERS

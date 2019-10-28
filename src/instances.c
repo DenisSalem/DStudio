@@ -156,8 +156,7 @@ void select_instance_from_list(
     void * args
 ) {
     ButtonStates * states = ((ButtonStates *) args);
-    // Extracting payload from flags
-    unsigned int index = states->flags + g_ui_instances.window_offset; 
+    unsigned int index = states->index + g_ui_instances.window_offset; 
     if (index != g_instances.index && index < g_instances.count) {
     update_current_instance(index);
         update_insteractive_list_shadow(

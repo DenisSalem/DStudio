@@ -25,12 +25,20 @@
 
 #include "ui.h"
 
+/*
+ * There is many usages of a button. To save memory
+ * we're reusing and renaming some fields for different
+ * use cases.
+ */
 typedef struct ButtonStates_t {
     GLuint active;
     GLuint release;
     double timestamp;
     void (*application_callback)(void * args);
-    unsigned int flags;
+    union {
+        unsigned int flags;
+        unsigned int index;
+    };
 } ButtonStates;
 
 typedef struct ButtonsManagement_t {
