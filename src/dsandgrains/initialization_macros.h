@@ -122,26 +122,6 @@
         button_settings_array[i].flags = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; \
     }
 
-#define SETUP_KNOBS_SETTING_ARRAYS \
-    UIElementSetting sample_small_knobs_settings_array[DSANDGRAINS_SAMPLE_SMALL_KNOBS] = { \
-        {-0.222499,  0.25, 286.0, 335.0, 155.0, 204.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: LFO MODULATION TUNE */ \
-        {-0.102500,  0.25, 334.0, 383.0, 155.0, 204.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: LFO MODULATION PHASE */ \
-        {-0.222499,  0.004166,    286.0, 335.0, 214.0, 262.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: LFO MODULATION DEPTH */ \
-        {-0.102500,  0.004166,    334.0, 383.0, 214.0, 262.0, DSTUDIO_KNOB_TYPE_DISCRETE}, /* SAMPLE: LFO MODULATION SIGNAL */ \
-        {-0.2225,   -0.5125,      286.0, 335.0, 338.0, 387.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: LFO PITCH MOD TUNE */ \
-        {-0.1025,   -0.5125,      334.0, 383.0, 338.0, 387.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: LFO PITCH MOD PHASE */ \
-        {-0.2225,   -0.758333,    286.0, 335.0, 397.0, 446.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: LFO PITCH MOD DEPTH */ \
-        {-0.1025,   -0.758333,    334.0, 383.0, 397.0, 446.0, DSTUDIO_KNOB_TYPE_DISCRETE}, /* SAMPLE: LFO PITCH MOD SIGNAL */ \
-        { 0.0375,    0.3,         390.0, 439.0, 143.0, 192.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: AMOUNT */ \
-        { 0.1675,    0.3,         442.0, 491.0, 143.0, 192.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* SAMPLE: PITCH */ \
-    }; \
-    UIElementSetting voice_knobs_settings_array[DSANDGRAINS_VOICE_KNOBS] = { \
-        { 0.3725,  0.270833, 516,   581.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* VOICE : VOLUME */ \
-        { 0.5475,  0.270833, 586.0, 651.0, 142.0, 207.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* VOICE : PAN */ \
-        { 0.5475, -0.070833, 586.0, 651.0, 224,   289.0, DSTUDIO_KNOB_TYPE_CONTINUE}, /* VOICE : DENSITY */ \
-        { 0.3725, -0.070833, 516,   581.0, 224,   289.0, DSTUDIO_KNOB_TYPE_CONTINUE}  /* VOICE : INFLUENCE */ \
-    };
-
 #define INIT_BACKGROUND \
     init_ui_elements( \
         DSTUDIO_FLAG_NONE, \
@@ -327,9 +307,21 @@
     ); \
     params.array_offset +=1;
 
-#define INIT_KNOBS \
+#define INIT_SAMPLE_KNOBS \
+    init_ui_elements_settings( \
+        &knobs_settings_array, \
+        -0.8675, \
+        0.25, \
+        64.0, \
+        64.0, \
+        0.16, \
+        -0.4, \
+        4, \
+        DSANDGRAINS_SAMPLE_KNOBS, \
+        DSTUDIO_KNOB_TYPE_CONTINUE \
+    ); \
     params.update_callback = update_knob; \
-    params.settings = sample_knobs_settings_array; \
+    params.settings = knobs_settings_array; \
     init_ui_elements( \
         DSTUDIO_FLAG_ANIMATED, \
         &sample_knobs, \
@@ -338,18 +330,98 @@
         configure_ui_element, \
         &params \
     ); \
-    params.settings = sample_small_knobs_settings_array; \
-    params.array_offset += DSANDGRAINS_SAMPLE_KNOBS; \
+    free(knobs_settings_array); \
+    params.array_offset += DSANDGRAINS_SAMPLE_KNOBS;
+
+#define INIT_SAMPLE_LFO_KNOBS \
+    init_ui_elements_settings( \
+        &knobs_settings_array, \
+        -0.2225, \
+        0.25, \
+        48.0, \
+        48.0, \
+        0.12, \
+        -0.2483, \
+        2, \
+        DSANDGRAINS_SAMPLE_LFO_KNOBS, \
+        DSTUDIO_KNOB_TYPE_CONTINUE \
+    ); \
+    params.settings = knobs_settings_array; \
     init_ui_elements( \
         DSTUDIO_FLAG_ANIMATED, \
-        &sample_small_knobs, \
+        &sample_lfo_knobs, \
         knob2_texture_id, \
-        DSANDGRAINS_SAMPLE_SMALL_KNOBS, \
+        DSANDGRAINS_SAMPLE_LFO_KNOBS, \
         configure_ui_element, \
         &params \
     ); \
-    params.settings = voice_knobs_settings_array; \
-    params.array_offset += DSANDGRAINS_SAMPLE_SMALL_KNOBS; \
+    free(knobs_settings_array); \
+    params.array_offset += DSANDGRAINS_SAMPLE_LFO_KNOBS;
+    
+#define INIT_SAMPLE_LFO_PITCH_KNOBS \
+    init_ui_elements_settings( \
+        &knobs_settings_array, \
+        -0.2225, \
+        -0.5125, \
+        48.0, \
+        48.0, \
+        0.12, \
+        -0.2483, \
+        2, \
+        DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS, \
+        DSTUDIO_KNOB_TYPE_CONTINUE \
+    ); \
+    params.settings = knobs_settings_array; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_ANIMATED, \
+        &sample_lfo_pitch_knobs, \
+        knob2_texture_id, \
+        DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS, \
+        configure_ui_element, \
+        &params \
+    ); \
+    free(knobs_settings_array); \
+    params.array_offset += DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS;
+
+#define INIT_AMOUNT_PITCH_KNOBS \
+    init_ui_elements_settings( \
+        &knobs_settings_array, \
+        0.0375, \
+        0.3, \
+        48.0, \
+        48.0, \
+        0.13, \
+        0, \
+        2, \
+        2, \
+        DSTUDIO_KNOB_TYPE_CONTINUE \
+    );\
+    params.settings = knobs_settings_array; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_ANIMATED, \
+        &sample_amount_pitch_knobs, \
+        knob1_texture_id, \
+        DSANDGRAINS_SAMPLE_AMOUNT_PITCH_KNOBS, \
+        configure_ui_element, \
+        &params \
+    );\
+    free(knobs_settings_array); \
+    params.array_offset += DSANDGRAINS_SAMPLE_AMOUNT_PITCH_KNOBS;
+
+#define INIT_VOICE_KNOBS \
+    init_ui_elements_settings( \
+        &knobs_settings_array, \
+        0.3725, \
+        0.2708, \
+        64.0, \
+        64.0, \
+        0.175, \
+        -0.3416, \
+        2, \
+        DSANDGRAINS_VOICE_KNOBS, \
+        DSTUDIO_KNOB_TYPE_CONTINUE \
+    );\
+    params.settings = knobs_settings_array; \
     init_ui_elements( \
         DSTUDIO_FLAG_ANIMATED, \
         &voice_knobs, \
@@ -357,11 +429,12 @@
         DSANDGRAINS_VOICE_KNOBS, \
         configure_ui_element, \
         &params \
-    );
+    );\
+    free(knobs_settings_array); \
+    params.array_offset += DSANDGRAINS_VOICE_KNOBS;
 
 #define INIT_SLIDERS \
     params.update_callback = update_slider; \
-    params.array_offset += DSANDGRAINS_VOICE_KNOBS; \
     init_slider_settings( \
         &sliders_settings_array, \
         DSANDGRAINS_SLIDER1_SCALE, \

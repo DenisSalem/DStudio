@@ -75,7 +75,9 @@ static UIElements voice_knobs = {0};
 static Vec2 knob1_scale_matrix[2] = {0};
 
 /* Knobs 2 */
-static UIElements sample_small_knobs = {0};
+static UIElements sample_lfo_knobs = {0};
+static UIElements sample_lfo_pitch_knobs = {0};
+static UIElements sample_amount_pitch_knobs = {0};
 static Vec2 knob2_scale_matrix[2] = {0};
 
 /* Sliders */
@@ -103,6 +105,7 @@ static void init_ui() {
     //--- Local variables ---------------------------------------------/
     
     // Setting arrays and configuration parameters
+    UIElementSetting * knobs_settings_array = 0;
     UIElementSetting * sliders_settings_array = 0;
  ///// Declared and initialized in SETUP_KNOBS_SETTING_ARRAYS macro ////
  // UIElementSetting sample_knobs_settings_array[DSANDGRAINS_SAMPLE_KNOBS];
@@ -110,7 +113,6 @@ static void init_ui() {
  // UIElementSetting voice_knobs_settings_array[DSANDGRAINS_VOICE_KNOBS];
  ///////////////////////////////////////////////////////////////////////
     UIElementSetting buttons_settings_array = {0};
-
     UITextSettingParams text_params;
     UIElementSettingParams params = {0};
     params.callbacks = ui_callbacks;
@@ -144,40 +146,14 @@ static void init_ui() {
     INIT_SCROLLABLE_LIST_ARROWS
     INIT_INSTANCE_SCROLLABLE_LIST
     INIT_VOICE_SCROLLABLE_LIST
-
     INIT_BACKGROUND
     INIT_SYSTEM_USAGE
 
-    UIElementSetting * sample_knobs_settings_array = malloc(DSANDGRAINS_SAMPLE_KNOBS * sizeof(UIElementSetting));
-    sample_knobs_settings_array->gl_x = -0.8675;
-    sample_knobs_settings_array->gl_y = 0.25;
-    sample_knobs_settings_array->min_area_x = 20.0;
-    sample_knobs_settings_array->max_area_x = 85.0;
-    sample_knobs_settings_array->min_area_y = 147.0;
-    sample_knobs_settings_array->max_area_y = 212.0;
-    sample_knobs_settings_array->ui_element_type = DSTUDIO_KNOB_TYPE_CONTINUE;
-    for (int i = 1; i < DSANDGRAINS_SAMPLE_KNOBS; i++) {
-        if (i < (DSANDGRAINS_SAMPLE_KNOBS >> 1)) {
-            sample_knobs_settings_array[i].gl_x = sample_knobs_settings_array[i-1].gl_x + 0.16;
-            sample_knobs_settings_array[i].gl_y = 0.25;
-            sample_knobs_settings_array[i].min_area_x = sample_knobs_settings_array[i-1].min_area_x + 64.0;
-            sample_knobs_settings_array[i].max_area_x = sample_knobs_settings_array[i-1].max_area_x + 64.0;
-            sample_knobs_settings_array[i].min_area_y = 147.0;
-            sample_knobs_settings_array[i].max_area_y = 212.0;
-        }
-        else {
-            sample_knobs_settings_array[i].gl_x = sample_knobs_settings_array[i - (DSANDGRAINS_SAMPLE_KNOBS >> 1)].gl_x;
-            sample_knobs_settings_array[i].gl_y = -.15;
-            sample_knobs_settings_array[i].min_area_x = sample_knobs_settings_array[i - (DSANDGRAINS_SAMPLE_KNOBS >> 1)].min_area_x;
-            sample_knobs_settings_array[i].max_area_x = sample_knobs_settings_array[i - (DSANDGRAINS_SAMPLE_KNOBS >> 1)].max_area_x;
-            sample_knobs_settings_array[i].min_area_y = 243.0;
-            sample_knobs_settings_array[i].max_area_y = 308.0;
-        }
-        sample_knobs_settings_array[i].ui_element_type = DSTUDIO_KNOB_TYPE_CONTINUE;
-    }
-
-    SETUP_KNOBS_SETTING_ARRAYS
-    INIT_KNOBS
+    INIT_SAMPLE_KNOBS
+    INIT_SAMPLE_LFO_KNOBS
+    INIT_SAMPLE_LFO_PITCH_KNOBS
+    INIT_AMOUNT_PITCH_KNOBS
+    INIT_VOICE_KNOBS
     INIT_SLIDERS
 
     init_buttons_management(
@@ -256,8 +232,9 @@ void render_viewport(int mask) {
             render_ui_elements(&voice_knobs);
 
             glUniformMatrix2fv(interactive_scale_matrix_id, 1, GL_FALSE, (float *) knob2_scale_matrix);
-            render_ui_elements(&sample_small_knobs);
-        
+            render_ui_elements(&sample_lfo_knobs);
+            render_ui_elements(&sample_lfo_pitch_knobs);
+            render_ui_elements(&sample_amount_pitch_knobs);
         }
 
         // SLIDERS

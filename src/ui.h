@@ -55,9 +55,6 @@
 #define DSTUDIO_CONTEXT_SAMPLES     3
 #define DSTUDIO_BUTTON_ACTION_LIST_BACKWARD   1
 
-extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
-extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
-
 #define DSTUDIO_KNOB_TYPE_CONTINUE   1
 #define DSTUDIO_KNOB_TYPE_DISCRETE   2
 #define DSTUDIO_SLIDER_TYPE_VERTICAL 4
@@ -188,6 +185,13 @@ int get_png_pixel(
     png_uint_32 format // png_bytep is basically unsigned char
 ); 
 
+void init_ui_element(
+    GLfloat * instance_offset_p,
+    float offset_x,
+    float offset_y,
+    GLfloat * motion_buffer
+);
+
 void init_ui_elements(
     int flags,
     UIElements * ui_elements,
@@ -197,11 +201,17 @@ void init_ui_elements(
     void * params
 );
 
-void init_ui_element(
-    GLfloat * instance_offset_p,
-    float offset_x,
-    float offset_y,
-    GLfloat * motion_buffer
+void init_ui_elements_settings(
+    UIElementSetting ** settings_p,
+    GLfloat gl_x,
+    GLfloat gl_y,
+    GLfloat scale_area_x,
+    GLfloat scale_area_y,
+    GLfloat offset_x,
+    GLfloat offset_y,
+    unsigned int rows,
+    unsigned int count,
+    unsigned int ui_element_type
 );
 
 void load_shader(
@@ -236,3 +246,6 @@ void update_and_render(
     int render_flag
 );
 #endif
+
+extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
+extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;

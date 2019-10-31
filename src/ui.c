@@ -178,6 +178,17 @@ int get_png_pixel(
     exit(-1);
 }
 
+void init_ui_element(
+    GLfloat * instance_offset_p,
+    float offset_x,
+    float offset_y,
+    GLfloat * motion_buffer
+) {
+    instance_offset_p[0] = offset_x;
+    instance_offset_p[1] = offset_y;
+    *motion_buffer = 0;
+}
+
 void init_ui_elements(
     int flags,
     UIElements * ui_elements,
@@ -282,15 +293,55 @@ void init_ui_elements(
     glBindVertexArray(0);
 }
 
-void init_ui_element(
-    GLfloat * instance_offset_p,
-    float offset_x,
-    float offset_y,
-    GLfloat * motion_buffer
+void init_ui_elements_settings(
+    UIElementSetting ** settings_p,
+    GLfloat gl_x,
+    GLfloat gl_y,
+    GLfloat scale_area_x,
+    GLfloat scale_area_y,
+    GLfloat offset_x,
+    GLfloat offset_y,
+    unsigned int rows,
+    unsigned int count,
+    unsigned int ui_element_type
 ) {
-    instance_offset_p[0] = offset_x;
-    instance_offset_p[1] = offset_y;
-    *motion_buffer = 0;
+    *settings_p = malloc(count * sizeof(UIElementSetting));
+    UIElementSetting * settings = *settings_p;
+    GLfloat min_area_x = (1 + gl_x) * (DSTUDIO_VIEWPORT_WIDTH >> 1) - (scale_area_x / 2);
+    GLfloat max_area_x = min_area_x + scale_area_x;
+    GLfloat min_area_y = (1 - gl_y) * (DSTUDIO_VIEWPORT_HEIGHT >> 1) - (scale_area_y / 2);
+    GLfloat max_area_y = min_area_y + scale_area_y;
+    
+    GLfloat area_offset_x = offset_x * (GLfloat)(DSTUDIO_VIEWPORT_WIDTH >> 1);
+    GLfloat area_offset_y = offset_y * (GLfloat)(DSTUDIO_VIEWPORT_HEIGHT >> 1);
+        
+    for (unsigned int i = 0; i < count; i++) {
+        unsigned int x = (i % rows);
+        unsigned int y = (i / rows);
+        GLfloat computed_area_offset_x = x * area_offset_x;
+        GLfloat computed_area_offset_y = y * -area_offset_y;
+
+        settings[i].gl_x = gl_x + x * offset_x;
+        settings[i].gl_y = gl_y + y * offset_y;
+        settings[i].min_area_x = min_area_x + computed_area_offset_x;
+        settings[i].max_area_x = max_area_x + computed_area_offset_x;
+        settings[i].min_area_y = min_area_y + computed_area_offset_y;
+        settings[i].max_area_y = max_area_y + computed_area_offset_y;
+        settings[i].ui_element_type = ui_element_type;
+        
+        #ifdef DSTUDIO_DEBUG
+        printf("%lf %lf %lf %lf %f %lf %lf\n",
+            area_offset_y,
+            settings[i].gl_x,
+            settings[i].gl_y,
+            settings[i].min_area_x,
+            settings[i].max_area_x,
+            settings[i].min_area_y,
+            settings[i].max_area_y
+        );
+        #endif
+
+    }
 }
 
 void load_shader(
