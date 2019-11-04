@@ -30,7 +30,6 @@
 #include "../fileutils.h"
 #include "../instances.h"
 #include "../interactive_list.h"
-#include "../knobs.h"
 #include "../text.h"
 #include "../voices.h"
 #include "instances.h"

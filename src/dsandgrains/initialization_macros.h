@@ -310,14 +310,14 @@
 #define INIT_SAMPLE_KNOBS \
     init_ui_elements_settings( \
         &knobs_settings_array, \
-        -0.8675, \
-        0.25, \
-        64.0, \
-        64.0, \
-        0.16, \
-        -0.4, \
-        4, \
-        DSANDGRAINS_SAMPLE_KNOBS, \
+        DSANDGRAINS_SAMPLE_KNOBS_POS_X, \
+        DSANDGRAINS_SAMPLE_KNOBS_POS_Y, \
+        DSANDGRAINS_KNOB1_SCALE, \
+        DSANDGRAINS_KNOB1_SCALE, \
+        DSANDGRAINS_SAMPLE_KNOBS_OFFSET_X, \
+        DSANDGRAINS_SAMPLE_KNOBS_OFFSET_Y, \
+        DSANDGRAINS_SAMPLE_KNOBS_ROWS, \
+        DSANDGRAINS_SAMPLE_KNOBS_COUNT, \
         DSTUDIO_KNOB_TYPE_CONTINUE \
     ); \
     params.update_callback = update_ui_element_motion; \
@@ -326,24 +326,24 @@
         DSTUDIO_FLAG_ANIMATED, \
         &sample_knobs, \
         knob1_texture_id, \
-        DSANDGRAINS_SAMPLE_KNOBS, \
+        DSANDGRAINS_SAMPLE_KNOBS_COUNT, \
         configure_ui_element, \
         &params \
     ); \
     free(knobs_settings_array); \
-    params.array_offset += DSANDGRAINS_SAMPLE_KNOBS;
+    params.array_offset += DSANDGRAINS_SAMPLE_KNOBS_COUNT;
 
 #define INIT_SAMPLE_LFO_KNOBS \
     init_ui_elements_settings( \
         &knobs_settings_array, \
-        -0.2225, \
-        0.25, \
-        48.0, \
-        48.0, \
-        0.12, \
-        -0.2483, \
-        2, \
-        DSANDGRAINS_SAMPLE_LFO_KNOBS, \
+        DSANDGRAINS_LFO_KNOBS_POS_X, \
+        DSANDGRAINS_LFO_KNOBS_POS_Y, \
+        DSANDGRAINS_KNOB2_SCALE, \
+        DSANDGRAINS_KNOB2_SCALE, \
+        DSANDGRAINS_LFO_KNOBS_OFFSET_X, \
+        DSANDGRAINS_LFO_KNOBS_OFFSET_Y, \
+        DSANDGRAINS_LFO_KNOBS_ROWS, \
+        DSANDGRAINS_SAMPLE_LFO_KNOBS_COUNT, \
         DSTUDIO_KNOB_TYPE_CONTINUE \
     ); \
     params.settings = knobs_settings_array; \
@@ -351,24 +351,24 @@
         DSTUDIO_FLAG_ANIMATED, \
         &sample_lfo_knobs, \
         knob2_texture_id, \
-        DSANDGRAINS_SAMPLE_LFO_KNOBS, \
+        DSANDGRAINS_SAMPLE_LFO_KNOBS_COUNT, \
         configure_ui_element, \
         &params \
     ); \
     free(knobs_settings_array); \
-    params.array_offset += DSANDGRAINS_SAMPLE_LFO_KNOBS;
+    params.array_offset += DSANDGRAINS_SAMPLE_LFO_KNOBS_COUNT;
     
 #define INIT_SAMPLE_LFO_PITCH_KNOBS \
     init_ui_elements_settings( \
         &knobs_settings_array, \
-        -0.2225, \
-        -0.5125, \
-        48.0, \
-        48.0, \
-        0.12, \
-        -0.2483, \
-        2, \
-        DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS, \
+        DSANDGRAINS_LFO_PITCH_KNOBS_POS_X, \
+        DSANDGRAINS_LFO_PITCH_KNOBS_POS_Y, \
+        DSANDGRAINS_KNOB2_SCALE, \
+        DSANDGRAINS_KNOB2_SCALE, \
+        DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_X, \
+        DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_Y, \
+        DSANDGRAINS_LFO_PITCH_KNOBS_ROWS, \
+        DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS_COUNT, \
         DSTUDIO_KNOB_TYPE_CONTINUE \
     ); \
     params.settings = knobs_settings_array; \
@@ -376,24 +376,24 @@
         DSTUDIO_FLAG_ANIMATED, \
         &sample_lfo_pitch_knobs, \
         knob2_texture_id, \
-        DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS, \
+        DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS_COUNT, \
         configure_ui_element, \
         &params \
     ); \
     free(knobs_settings_array); \
-    params.array_offset += DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS;
+    params.array_offset += DSANDGRAINS_SAMPLE_LFO_PITCH_KNOBS_COUNT;
 
 #define INIT_AMOUNT_PITCH_KNOBS \
     init_ui_elements_settings( \
         &knobs_settings_array, \
-        0.0375, \
-        0.3, \
-        48.0, \
-        48.0, \
-        0.13, \
-        0, \
-        2, \
-        2, \
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X, \
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_Y, \
+        DSANDGRAINS_KNOB2_SCALE, \
+        DSANDGRAINS_KNOB2_SCALE, \
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_X, \
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_Y, \
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_ROWS, \
+        DSANDGRAINS_SAMPLE_AMOUNT_PITCH_KNOBS_COUNT, \
         DSTUDIO_KNOB_TYPE_CONTINUE \
     );\
     params.settings = knobs_settings_array; \
@@ -401,24 +401,24 @@
         DSTUDIO_FLAG_ANIMATED, \
         &sample_amount_pitch_knobs, \
         knob1_texture_id, \
-        DSANDGRAINS_SAMPLE_AMOUNT_PITCH_KNOBS, \
+        DSANDGRAINS_SAMPLE_AMOUNT_PITCH_KNOBS_COUNT, \
         configure_ui_element, \
         &params \
     );\
     free(knobs_settings_array); \
-    params.array_offset += DSANDGRAINS_SAMPLE_AMOUNT_PITCH_KNOBS;
+    params.array_offset += DSANDGRAINS_SAMPLE_AMOUNT_PITCH_KNOBS_COUNT;
 
 #define INIT_VOICE_KNOBS \
     init_ui_elements_settings( \
         &knobs_settings_array, \
-        0.3725, \
-        0.2708, \
-        64.0, \
-        64.0, \
-        0.175, \
-        -0.3416, \
-        2, \
-        DSANDGRAINS_VOICE_KNOBS, \
+        DSANDGRAINS_VOICE_KNOBS_POS_X, \
+        DSANDGRAINS_VOICE_KNOBS_POS_Y, \
+        DSANDGRAINS_KNOB1_SCALE, \
+        DSANDGRAINS_KNOB1_SCALE, \
+        DSANDGRAINS_VOICE_KNOBS_OFFSET_X, \
+        DSANDGRAINS_VOICE_KNOBS_OFFSET_Y, \
+        DSANDGRAINS_VOICE_KNOBS_ROWS, \
+        DSANDGRAINS_VOICE_KNOBS_COUNT, \
         DSTUDIO_KNOB_TYPE_CONTINUE \
     );\
     params.settings = knobs_settings_array; \
@@ -426,12 +426,12 @@
         DSTUDIO_FLAG_ANIMATED, \
         &voice_knobs, \
         knob1_texture_id, \
-        DSANDGRAINS_VOICE_KNOBS, \
+        DSANDGRAINS_VOICE_KNOBS_COUNT, \
         configure_ui_element, \
         &params \
     );\
     free(knobs_settings_array); \
-    params.array_offset += DSANDGRAINS_VOICE_KNOBS;
+    params.array_offset += DSANDGRAINS_VOICE_KNOBS_COUNT;
 
 #define INIT_SLIDERS \
     params.update_callback = update_ui_element_motion; \
