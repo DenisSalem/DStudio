@@ -44,8 +44,6 @@ add_executable(
     fileutils.c
     instances.c
     interactive_list.c
-    knobs.c
-    sliders.c
     system_usage.c
     text.c
     ui.c

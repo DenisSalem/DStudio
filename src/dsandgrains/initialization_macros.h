@@ -320,7 +320,7 @@
         DSANDGRAINS_SAMPLE_KNOBS, \
         DSTUDIO_KNOB_TYPE_CONTINUE \
     ); \
-    params.update_callback = update_knob; \
+    params.update_callback = update_ui_element_motion; \
     params.settings = knobs_settings_array; \
     init_ui_elements( \
         DSTUDIO_FLAG_ANIMATED, \
@@ -434,16 +434,19 @@
     params.array_offset += DSANDGRAINS_VOICE_KNOBS;
 
 #define INIT_SLIDERS \
-    params.update_callback = update_slider; \
-    init_slider_settings( \
+    params.update_callback = update_ui_element_motion; \
+    init_ui_elements_settings( \
         &sliders_settings_array, \
-        DSANDGRAINS_SLIDER1_SCALE, \
         DSANDGRAINS_DAHDDSR_POS_X, \
         DSANDGRAINS_DAHDDSR_POS_Y, \
-        DSANDGRAINS_SLIDERS_OFFSET, \
+        DSANDGRAINS_SLIDER1_SCALE, \
         DSANDGRAINS_SLIDERS_SLIDE, \
-        DSANDGRAINS_DAHDSR_SLIDERS_COUNT \
-    ); \
+        DSANDGRAINS_SLIDERS_OFFSET, \
+        0, \
+        DSANDGRAINS_DAHDSR_SLIDERS_COUNT, \
+        DSANDGRAINS_DAHDSR_SLIDERS_COUNT, \
+        DSTUDIO_SLIDER_TYPE_VERTICAL \
+    );\
     params.settings = sliders_settings_array; \
     init_ui_elements( \
         DSTUDIO_FLAG_ANIMATED, \
@@ -455,15 +458,18 @@
     ); \
     free(sliders_settings_array); \
     params.array_offset += DSANDGRAINS_DAHDSR_SLIDERS_COUNT; \
-    init_slider_settings( \
+    init_ui_elements_settings( \
         &sliders_settings_array, \
-        DSANDGRAINS_SLIDER1_SCALE, \
         DSANDGRAINS_EQUALIZER_POS_X, \
         DSANDGRAINS_EQUALIZER_POS_Y, \
-        DSANDGRAINS_SLIDERS_OFFSET, \
+        DSANDGRAINS_SLIDER1_SCALE, \
         DSANDGRAINS_SLIDERS_SLIDE, \
-        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT \
-    ); \
+        DSANDGRAINS_SLIDERS_OFFSET, \
+        0, \
+        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, \
+        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT, \
+        DSTUDIO_SLIDER_TYPE_VERTICAL \
+    );\
     params.settings = sliders_settings_array; \
     init_ui_elements( \
         DSTUDIO_FLAG_ANIMATED, \

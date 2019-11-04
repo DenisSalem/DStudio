@@ -245,7 +245,14 @@ void update_and_render(
     GLuint scissor_height,
     int render_flag
 );
-#endif
+
+void update_ui_element_motion(
+    int index,
+    UIElements * knobs_p,
+    void * args
+);
 
 extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
 extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
+
+#endif
