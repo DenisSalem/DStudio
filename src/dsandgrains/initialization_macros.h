@@ -17,7 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define LOAD_SHARED_TEXTURE_AND_PREPARE_SHARED_SCALE_MATRICES \
+#define LOAD_SHARED_TEXTURE \
     background_texture_id = setup_texture_n_scale_matrix( \
         DSTUDIO_FLAG_NONE, \
         DSTUDIO_VIEWPORT_WIDTH, \
@@ -66,7 +66,9 @@
         DSANDGRAINS_CHARSET_SMALL_HEIGHT, \
         DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, \
         NULL \
-    ); \
+    );
+
+#define PREPARE_SHARED_SCALE_MATRICES \
     DSTUDIO_SET_UI_TEXT_SCALE_MATRIX( \
         charset_scale_matrix, \
         DSANDGRAINS_CHARSET_WIDTH, \
@@ -81,6 +83,11 @@
         scrollable_list_shadow_scale_matrix, \
         DSANDGRAINS_SCROLLABLE_LIST_SHADOW_WIDTH, \
         DSANDGRAINS_SCROLLABLE_LIST_SHADOW_HEIGHT \
+    ) \
+    DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX( \
+        text_pointer_scale_matrix, \
+        DSANDGRAINS_TEXT_POINTER_WIDTH, \
+        DSANDGRAINS_SMALL_TEXT_POINTER_HEIGHT \
     )
 
 #define SETUP_BUTTONS_SETTING_ARRAYS \
@@ -118,8 +125,8 @@
     button_settings_array[5].active = button_settings_array[0].active; \
     button_settings_array[5].application_callback = scroll_voices; \
     for(int i = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; i < 6+DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) { \
-        button_settings_array[i].application_callback = select_instance_from_list; \
-        button_settings_array[i].flags = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; \
+        button_settings_array[i].context = &g_instances_list_context; \
+        button_settings_array[i].index = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; \
     }
 
 #define INIT_BACKGROUND \

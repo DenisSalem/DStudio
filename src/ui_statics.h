@@ -23,6 +23,7 @@ static Vec2 active_ui_element_center = {0};
 static int render_mask = 0;
 static int ui_element_index = 0;
 static int mouse_state = 0;
+static double list_item_click_timestamp = 0;
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
     render_mask = DSTUDIO_RENDER_KNOBS;
@@ -62,9 +63,6 @@ static inline float compute_slider_translation(int ypos) {
 }
 
 static void cursor_position_callback(int xpos, int ypos){
-    #ifdef DSTUDIO_DEBUG
-    printf("cursor_position_callback: ypos: %d\n", ypos);
-    #endif
     float motion;
     if (active_ui_element.callback == NULL) {
         return;
@@ -87,6 +85,7 @@ static void cursor_position_callback(int xpos, int ypos){
 }
     
 static void mouse_button_callback(int xpos, int ypos, int button, int action) {
+    double timestamp = 0;
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         mouse_state = 1;
         for (int i = 0; i < DSANDGRAINS_UI_ELEMENTS_COUNT; i++) {
@@ -97,8 +96,18 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                     ui_callbacks[i].callback(0, ui_callbacks[i].context_p, &button_settings_array[i]);
                     break;
                 }
-                if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_LIST) {
-                    button_settings_array[i].application_callback(&button_settings_array[i]);
+                if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_LIST_ITEM) {
+                    timestamp = get_timestamp();
+                    if (timestamp - list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                        //update_text_pointer(
+                        //);
+                    }
+                    else {
+                        button_settings_array[i].context->application_callback(
+                            button_settings_array[i].index
+                        );
+                    }
+                    list_item_click_timestamp = timestamp;
                     break;
                 }
                 active_ui_element.callback = ui_callbacks[i].callback;

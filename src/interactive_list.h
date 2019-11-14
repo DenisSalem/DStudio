@@ -47,6 +47,11 @@ typedef struct UIInteractiveListSetting_t {
     GLfloat area_offset;
 } UIInteractiveListSetting;
 
+typedef struct InteractiveListContext_t {
+        void (*application_callback)(unsigned int index);
+        UIInteractiveList * related_list;
+} InteractiveListContext;
+
 void configure_ui_interactive_list(
     UIElements * ui_elements,
     void * params

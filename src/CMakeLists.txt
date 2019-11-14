@@ -46,6 +46,7 @@ add_executable(
     interactive_list.c
     system_usage.c
     text.c
+    text_pointer.c
     ui.c
     voices.c
     window_management.c

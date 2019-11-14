@@ -20,6 +20,10 @@ static struct stat st = {0};
 InstanceContext * g_current_active_instance = 0; 
 Instances g_instances = {0};
 UIInteractiveList g_ui_instances = {0};
+InteractiveListContext g_instances_list_context = {
+    select_instance_from_list,
+    &g_ui_instances,
+};
 
 char * instances_directory = 0;
 
@@ -31,6 +35,10 @@ void exit_instances_thread() {
     sprintf(instance_path, "%s/%d", instances_directory, g_current_active_instance->identifier);
     unlink(instance_path);
     sem_post(&g_ui_instances.mutex);
+}
+
+char * get_instance_target_name(unsigned int index) {
+    return g_instances.contexts[index].name;
 }
 
 void init_instances_ui(
@@ -59,7 +67,7 @@ void init_instances_ui(
         shadow_settings[i].max_area_x = interactive_list_setting->max_area_x;
         shadow_settings[i].min_area_y = interactive_list_setting->min_area_y + computed_area_offet;
         shadow_settings[i].max_area_y = interactive_list_setting->max_area_y + computed_area_offet;
-        shadow_settings[i].ui_element_type = DSTUDIO_BUTTON_TYPE_LIST;
+        shadow_settings[i].ui_element_type = DSTUDIO_BUTTON_TYPE_LIST_ITEM;
 
     }
     params->update_callback = 0;
@@ -153,10 +161,9 @@ void scroll_instances(void * args) {
 }
 
 void select_instance_from_list(
-    void * args
+    unsigned int index
 ) {
-    ButtonStates * states = ((ButtonStates *) args);
-    unsigned int index = states->index + g_ui_instances.window_offset; 
+    index += g_ui_instances.window_offset; 
     if (index != g_instances.index && index < g_instances.count) {
     update_current_instance(index);
         update_insteractive_list_shadow(

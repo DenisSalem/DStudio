@@ -63,7 +63,19 @@ void check_for_buttons_to_render_n_update(
         if (buttons_management->states[i].timestamp != 0) {
             SET_SCISSOR;
             glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
-            render_viewport(DSTUDIO_RENDER_ALL);
+            switch (ui_callbacks[i].type) {
+                case DSTUDIO_BUTTON_TYPE_REBOUNCE:
+                    render_viewport(DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE);
+                    break;
+                case DSTUDIO_BUTTON_TYPE_LIST_ITEM:
+                    render_viewport(DSTUDIO_RENDER_BUTTONS_TYPE_LIST_ITEM);
+                    break;
+                    
+                #ifdef DSTUDIO_DEBUG
+                default:
+                    DSTUDIO_EXIT_IF_NULL( callbacks[i].type & (DSTUDIO_BUTTON_TYPES))
+                #endif
+            }
             if (((UIElements*) ui_callbacks[i].context_p)->texture_id == buttons_management->states[i].active) {
                 if(mouse_state == 0) {
                     update_button(0, ui_callbacks[i].context_p, &buttons_management->states[i]);

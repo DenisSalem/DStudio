@@ -28,6 +28,7 @@
 
 #include "common.h"
 #include "extensions.h"
+#include "text_pointer.h"
 #include "window_management.h"
 
 static void (*cursor_position_callback)(int xpos, int ypos) = 0;
@@ -206,19 +207,19 @@ void init_context(const char * window_name, int width, int height) {
         };
 
         opengl_context = glXCreateContextAttribsARB(display, best_frame_buffer_config, 0, 1, context_attribs);
-
-        // Sync to ensure any errors generated are processed.
     }
+    
+    // Sync to ensure any errors generated are processed.
     XSync(display, 0);
     DSTUDIO_EXIT_IF_FAILURE( ctx_error_occurred && opengl_context == 0)
     XSetErrorHandler(old_handler);
     
     #ifdef DSTUDIO_DEBUG
-        if ( ! glXIsDirect ( display, opengl_context ) ) {
-            printf( "Indirect GLX rendering context obtained\n" );
+        if (!glXIsDirect(display, opengl_context)) {
+            printf("Indirect GLX rendering context obtained\n");
         }
         else {
-            printf( "Direct GLX rendering context obtained\n" );
+            printf("Direct GLX rendering context obtained\n");
         }
     #endif
     glXMakeCurrent( display, window, opengl_context );
@@ -254,13 +255,12 @@ void listen_events() {
             }
         }
         else if(x_event.type == MotionNotify) {
-            #ifdef DSTUDIO_DEBUG
-            printf("x_event.xbutton.y: %d\n", x_event.xbutton.y);
-            #endif
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {
-            //printf("KeyPress\n");
+            if(DSTUDIO_KEY_CODE_ESC == DSTUDIO_KEY_CODE_ESC) {
+                g_text_pointer_context.ui_text = 0;
+            }
         }
         else if(x_event.type == KeyRelease) {
             //printf("KeyRelease\n");

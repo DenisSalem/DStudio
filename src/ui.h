@@ -37,13 +37,16 @@
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
 
-#define DSTUDIO_RENDER_ALL                   0xfffffff
-#define DSTUDIO_RENDER_KNOBS                 1
-#define DSTUDIO_RENDER_SLIDERS               2
-#define DSTUDIO_RENDER_SYSTEM_USAGE          4
-#define DSTUDIO_RENDER_INSTANCES             8
-#define DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE 16
-#define DSTUDIO_RENDER_VOICES                32
+#define DSTUDIO_RENDER_ALL                    0xffffffff
+#define DSTUDIO_RENDER_KNOBS                  1
+#define DSTUDIO_RENDER_SLIDERS                2
+#define DSTUDIO_RENDER_SYSTEM_USAGE           4
+#define DSTUDIO_RENDER_INSTANCES              8
+#define DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE  16
+#define DSTUDIO_RENDER_BUTTONS_TYPE_LIST_ITEM 32
+#define DSTUDIO_RENDER_VOICES                 64
+#define DSTUDIO_RENDER_TEXT_POINTER           128
+
 #define DSTUDIO_FLAG_NONE               0
 #define DSTUDIO_FLAG_ANIMATED           1
 #define DSTUDIO_FLAG_FLIP_Y             2
@@ -55,22 +58,23 @@
 #define DSTUDIO_CONTEXT_SAMPLES     3
 #define DSTUDIO_BUTTON_ACTION_LIST_BACKWARD   1
 
-#define DSTUDIO_KNOB_TYPE_CONTINUE   1
-#define DSTUDIO_KNOB_TYPE_DISCRETE   2
-#define DSTUDIO_SLIDER_TYPE_VERTICAL 4
-#define DSTUDIO_BUTTON_TYPE_REBOUNCE 8
-#define DSTUDIO_BUTTON_TYPE_LIST     16
+#define DSTUDIO_KNOB_TYPE_CONTINUE      1
+#define DSTUDIO_KNOB_TYPE_DISCRETE      2
+#define DSTUDIO_SLIDER_TYPE_VERTICAL    4
+#define DSTUDIO_BUTTON_TYPE_REBOUNCE    8
+#define DSTUDIO_BUTTON_TYPE_LIST_ITEM   16
+#define DSTUDIO_BUTTON_TYPES \
+    DSTUDIO_BUTTON_TYPE_LIST | \
+    DSTUDIO_BUTTON_TYPE_REBOUNCE
+    
+#define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
 
 #define DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX(matrix, width, height) \
     matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH); \
-    matrix[0].y = 0; \
-    matrix[1].x = 0; \
     matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT);
 
 #define DSTUDIO_SET_UI_TEXT_SCALE_MATRIX(matrix, width, height) \
     matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH) / DSTUDIO_CHAR_SIZE_DIVISOR; \
-    matrix[0].y = 0; \
-    matrix[1].x = 0; \
     matrix[1].y = ((float) height / (float) DSTUDIO_VIEWPORT_HEIGHT) / DSTUDIO_CHAR_SIZE_DIVISOR;
 
 /*
@@ -100,7 +104,7 @@ typedef struct UITexture_t {
     GLuint height;
 } UITexture;
 
-typedef struct UIElement_t {
+typedef struct UIElements_t {
     unsigned                    count;
     GLuint                      index_buffer_object;
     GLuint                      instance_offsets;
@@ -155,6 +159,10 @@ typedef struct ui_element_setting_params_t {
     UICallback *        callbacks;
     void (*update_callback) (int index, UIElements * context, void * args);
 } UIElementSettingParams;
+
+typedef union TextFieldContext_t {
+    
+} UITextFieldContext;
 
 void compile_shader(
     GLuint shader_id,
@@ -225,7 +233,7 @@ void render_ui_elements(
 
 // This one is not defined in the generic ui.c source file.
 // Instead, it is defined for every tools from DStudio.
-void render_viewport(int mask);
+void render_viewport(unsigned int mask);
 
 GLuint setup_texture_n_scale_matrix(
     unsigned int flags,

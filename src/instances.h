@@ -20,8 +20,11 @@ typedef struct Instances_t {
 extern Instances g_instances;
 extern InstanceContext * g_current_active_instance;
 extern UIInteractiveList g_ui_instances;
+extern InteractiveListContext g_instances_list_context;
 
 void exit_instances_thread();
+
+char * get_instance_target_name(unsigned int index);
 
 void init_instances_ui(
     UIElements * lines,
@@ -36,7 +39,7 @@ void new_instance(
 );
 
 void scroll_instances(void * args);
-void select_instance_from_list(void * args);
+void select_instance_from_list(unsigned int index);
 
 // Periodically check if new instances were added
 void update_current_instance(unsigned int index);

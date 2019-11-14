@@ -31,23 +31,24 @@
 #include "../instances.h"
 #include "../interactive_list.h"
 #include "../text.h"
+#include "../text_pointer.h"
 #include "../voices.h"
 #include "instances.h"
 #include "ui.h"
 #include "initialization_macros.h"
 
-/* Background */
+// Background
 static UIElements background = {0};
 static Vec2 background_scale_matrix[2] = {0};
 
-/* Charsets */
+// Charsets
 static Vec2 charset_scale_matrix[2] = {0};
 static Vec2 charset_small_scale_matrix[2] = {0};
 
-/* Buttons management */
+// Buttons management
 ButtonsManagement g_buttons_management = {0};
 
-/* Arrows */
+// Arrows
 static UIElements arrow_instances_top = {0};
 static UIElements arrow_instances_bottom = {0};
 static UIElements arrow_voices_top = {0};
@@ -58,31 +59,33 @@ static Vec2 arrow_instances_scale_matrix[2] = {0};
 
 static Vec2 scrollable_list_shadow_scale_matrix[2] = {0};
 
-/* Instances */
+// Instances
 static UIElements instances[7] = {0};
 
-/* Voices */
+// Voices
 static UIElements voices[7] = {0};
 
-/* System Usage */
+// System Usage
 static UIElements system_usage = {0};
 static Vec2 system_usage_scale_matrix[2] = {0};
 
-/* Knobs 1 */
+// Knobs 1
 static UIElements sample_knobs = {0};
 static UIElements voice_knobs = {0};
 static Vec2 knob1_scale_matrix[2] = {0};
 
-/* Knobs 2 */
+// Knobs 2
 static UIElements sample_lfo_knobs = {0};
 static UIElements sample_lfo_pitch_knobs = {0};
 static UIElements sample_amount_pitch_knobs = {0};
 static Vec2 knob2_scale_matrix[2] = {0};
 
-/* Sliders */
+// Sliders
 static UIElements sliders_dahdsr = {0};
 static UIElements sliders_equalizer = {0};
 static Vec2 slider_scale_matrix[2] = {0};
+
+static Vec2 text_pointer_scale_matrix[2] = {0};
 
 UIArea ui_areas[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 UICallback ui_callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
@@ -106,11 +109,6 @@ static void init_ui() {
     // Setting arrays and configuration parameters
     UIElementSetting * knobs_settings_array = 0;
     UIElementSetting * sliders_settings_array = 0;
- ///// Declared and initialized in SETUP_KNOBS_SETTING_ARRAYS macro ////
- // UIElementSetting sample_knobs_settings_array[DSANDGRAINS_SAMPLE_KNOBS];
- // UIElementSetting sample_small_knobs_settings_array[DSANDGRAINS_SAMPLE_SMALL_KNOBS];
- // UIElementSetting voice_knobs_settings_array[DSANDGRAINS_VOICE_KNOBS];
- ///////////////////////////////////////////////////////////////////////
     UIElementSetting buttons_settings_array = {0};
     UITextSettingParams text_params;
     UIElementSettingParams params = {0};
@@ -140,9 +138,20 @@ static void init_ui() {
      * most of them has been put in initialization_macros.h
      */
      
-    LOAD_SHARED_TEXTURE_AND_PREPARE_SHARED_SCALE_MATRICES
+    LOAD_SHARED_TEXTURE
+    PREPARE_SHARED_SCALE_MATRICES
     SETUP_BUTTONS_SETTING_ARRAYS
     INIT_SCROLLABLE_LIST_ARROWS
+    
+    init_ui_elements( \
+        DSTUDIO_FLAG_NONE, \
+        &g_text_pointer, \
+        0, \
+        1,      /* Because there only one gl instance */ \
+        NULL,   /* There is no configuration callback */ \
+        NULL    /* There is no configuration parameters */ \
+    );
+    
     INIT_INSTANCE_SCROLLABLE_LIST
     INIT_VOICE_SCROLLABLE_LIST
     INIT_BACKGROUND
@@ -172,7 +181,7 @@ static void init_ui() {
     )
 }
 
-void render_viewport(int mask) {
+void render_viewport(unsigned int mask) {
     glUseProgram(non_interactive_program_id);
         glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) background_scale_matrix);
         render_ui_elements(&background);
@@ -188,8 +197,18 @@ void render_viewport(int mask) {
             render_ui_elements(&g_mem_usage);
         }
         
+        // TEXT POINTER
+        if (mask & DSTUDIO_RENDER_TEXT_POINTER) {
+            printf("HELLO\n");
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) text_pointer_scale_matrix);
+            glUniform1f(no_texture_id, (GLfloat) 1.0);
+            render_ui_elements(&g_text_pointer);
+            glUniform1f(no_texture_id, 0);
+            printf("glGetError() = %d\n", glGetError());
+        }
+        
         // ARROWS
-        if (mask & DSTUDIO_KNOB_TYPE_CONTINUE) {
+        if (mask & DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
             render_ui_elements(&arrow_instances_bottom);
             render_ui_elements(&arrow_instances_top);
@@ -198,7 +217,7 @@ void render_viewport(int mask) {
             render_ui_elements(&arrow_samples_top);
             render_ui_elements(&arrow_samples_bottom);
         }
-        
+
         // INSTANCES
         if (mask & DSTUDIO_RENDER_INSTANCES) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
@@ -289,6 +308,13 @@ void * ui_thread(void * arg) {
                 render_viewport(render_mask);
             }
             
+            // Check for text pointer
+            if (g_text_pointer_context.update) {
+                glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
+                render_viewport(DSTUDIO_RENDER_TEXT_POINTER);
+                g_text_pointer_context.update = 0;
+            }
+            
             // UPDATE AND RENDER TEXT  
             update_and_render(
                 &g_ui_system_usage.mutex,
@@ -297,7 +323,6 @@ void * ui_thread(void * arg) {
                 402, 438, 48, 31,
                 DSTUDIO_RENDER_SYSTEM_USAGE
             );
-            
             
             update_and_render(
                 &g_ui_instances.mutex,

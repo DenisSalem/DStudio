@@ -17,24 +17,26 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include<GL/gl.h>
-#include<GL/glx.h>
+#ifndef DSTUDIO_TEXT_POINTER_H_INCLUDED
+#define DSTUDIO_TEXT_POINTER_H_INCLUDED
 
-#ifndef WINDOW_MANAGEMENT_INCLUDED
-#define WINDOW_MANAGEMENT_INCLUDED
+#include "ui.h"
+#include "interactive_list.h"
 
-#define DSTUDIO_MOUSE_BUTTON_LEFT       1
-#define DSTUDIO_MOUSE_BUTTON_RIGHT      2
-#define DSTUDIO_MOUSE_BUTTON_PRESS      4
-#define DSTUDIO_MOUSE_BUTTON_RELEASE    8
-#define DSTUDIO_KEY_CODE_ESC            9
-void destroy_context();
-int do_no_exit_loop();
-void init_context(const char * window_name, int width, int height);
-void listen_events();
-int need_to_redraw_all();
-void send_expose_event();
-void set_cursor_position_callback(void (*callback)(int xpos, int ypos));
-void set_mouse_button_callback(void (*callback)(int xpos, int ypos, int button, int action));
-void swap_window_buffer();
+typedef struct UITextPointerContext_t {
+    UIElements * ui_text;
+    char * string_buffer;
+    unsigned int buffer_size;
+    int update;
+} UITextPointerContext;
+
+typedef union TextPointerContextPayload_t {
+    InteractiveListContext * interactive_list;
+} TextPointerContextPayload;
+
+void update_text_pointer_context(unsigned int type, unsigned int index, TextPointerContextPayload * context);
+
+extern UIElements g_text_pointer;
+extern UITextPointerContext g_text_pointer_context; 
+
 #endif

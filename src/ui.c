@@ -228,17 +228,17 @@ void init_ui_elements(
     vertex_attributes[3].y = -1.0;
     
     /* Setting default texture coordinates */
-    
-    vertex_attributes[2].z = 1.0;
-    vertex_attributes[3].z = 1.0;
-
-    if (flip_y) {
-        vertex_attributes[0].w = 1.0f;
-        vertex_attributes[2].w = 1.0;
-    }
-    else {
-        vertex_attributes[1].w = 1.0;
-        vertex_attributes[3].w = 1.0;
+    if (texture_id) {
+        vertex_attributes[2].z = 1.0;
+        vertex_attributes[3].z = 1.0;
+        if (flip_y) {
+            vertex_attributes[0].w = 1.0f;
+            vertex_attributes[2].w = 1.0;
+        }
+        else {
+            vertex_attributes[1].w = 1.0;
+            vertex_attributes[3].w = 1.0;
+        }
     }
     
     /* Setting instance buffers */
@@ -410,6 +410,8 @@ GLuint setup_texture_n_scale_matrix(
     return texture_id;
 }
 
+render
+
 void update_and_render(
     sem_t * mutex,
     int * update,
@@ -432,12 +434,12 @@ void update_and_render(
 
 void update_ui_element_motion(
     int index,
-    UIElements * knobs_p,
+    UIElements * ui_elements_p,
     void * args
 ) {
     float * motion = (float*) args;
-    knobs_p->instance_motions_buffer[index] = *motion;
-    glBindBuffer(GL_ARRAY_BUFFER, knobs_p->instance_motions);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * knobs_p->count, knobs_p->instance_motions_buffer);
+    ui_elements_p->instance_motions_buffer[index] = *motion;
+    glBindBuffer(GL_ARRAY_BUFFER, ui_elements_p->instance_motions);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_elements_p->count, ui_elements_p->instance_motions_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
