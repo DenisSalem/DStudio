@@ -20,21 +20,30 @@
 #ifndef DSTUDIO_TEXT_POINTER_H_INCLUDED
 #define DSTUDIO_TEXT_POINTER_H_INCLUDED
 
+#include <semaphore.h>
+
 #include "ui.h"
 #include "interactive_list.h"
 
 typedef struct UITextPointerContext_t {
-    UIElements * ui_text;
-    char * string_buffer;
-    unsigned int buffer_size;
-    int update;
+    UIElements *    ui_text;
+    char *          string_buffer;
+    unsigned int    buffer_size;
+    int             update;
+    sem_t           mutex;
 } UITextPointerContext;
 
 typedef union TextPointerContextPayload_t {
     InteractiveListContext * interactive_list;
 } TextPointerContextPayload;
 
-void update_text_pointer_context(unsigned int type, unsigned int index, TextPointerContextPayload * context);
+void update_text_pointer();
+
+void update_text_pointer_context(
+    unsigned int type,
+    unsigned int index,
+    TextPointerContextPayload context
+);
 
 extern UIElements g_text_pointer;
 extern UITextPointerContext g_text_pointer_context; 

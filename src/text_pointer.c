@@ -23,14 +23,17 @@
 UITextPointerContext g_text_pointer_context = {0}; 
 UIElements g_text_pointer = {0};
 
-void update_text_pointer_context(unsigned int type, unsigned int index, TextPointerContextPayload * context) {
-    //~ g_text_pointer_context.ui_text = ui_text;
-    //~ g_text_pointer_context.string_buffer = string_buffer;
-    //~ g_text_pointer_context.buffer_size = buffer_size;
+void update_text_pointer_context(unsigned int type, unsigned int index, TextPointerContextPayload context) {
+    if (type == DSTUDIO_BUTTON_TYPE_LIST_ITEM) {
+        g_text_pointer_context.ui_text = &context.interactive_list->related_list->lines[index];
+        g_text_pointer_context.string_buffer = context.interactive_list->get_item_name_callback(index);
+        g_text_pointer_context.buffer_size = g_text_pointer_context.ui_text->count;
+    }
+    printf("lines: %d, text: %s\n", index, g_text_pointer_context.string_buffer);
     ((Vec4 *) g_text_pointer.instance_offsets_buffer)->z = 1.0;
 }
 
-void update_text_pointer_callback() {
+void update_text_pointer() {
     glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer.instance_offsets);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4), g_text_pointer.instance_offsets_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

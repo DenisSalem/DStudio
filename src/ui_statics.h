@@ -99,11 +99,14 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                 if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_LIST_ITEM) {
                     timestamp = get_timestamp();
                     if (timestamp - list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
-                        //update_text_pointer(
-                        //);
+                        update_text_pointer_context(
+                            DSTUDIO_BUTTON_TYPE_LIST_ITEM,
+                            button_settings_array[i].index,
+                            button_settings_array[i].context
+                        );
                     }
                     else {
-                        button_settings_array[i].context->application_callback(
+                        button_settings_array[i].context.interactive_list->application_callback(
                             button_settings_array[i].index
                         );
                     }

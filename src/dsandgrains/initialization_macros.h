@@ -125,7 +125,7 @@
     button_settings_array[5].active = button_settings_array[0].active; \
     button_settings_array[5].application_callback = scroll_voices; \
     for(int i = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; i < 6+DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) { \
-        button_settings_array[i].context = &g_instances_list_context; \
+        button_settings_array[i].context.interactive_list = &g_instances_list_context; \
         button_settings_array[i].index = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; \
     }
 

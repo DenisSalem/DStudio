@@ -179,6 +179,8 @@ static void init_ui() {
             &g_buttons_management
         )
     )
+    
+    sem_init(&g_text_pointer_context.mutex, 0, 1);
 }
 
 void render_viewport(unsigned int mask) {
@@ -199,12 +201,11 @@ void render_viewport(unsigned int mask) {
         
         // TEXT POINTER
         if (mask & DSTUDIO_RENDER_TEXT_POINTER) {
-            printf("HELLO\n");
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) text_pointer_scale_matrix);
             glUniform1f(no_texture_id, (GLfloat) 1.0);
             render_ui_elements(&g_text_pointer);
             glUniform1f(no_texture_id, 0);
-            printf("glGetError() = %d\n", glGetError());
+            printf("HELLO TEXT POINTER %d\n", glGetError());
         }
         
         // ARROWS
@@ -309,11 +310,13 @@ void * ui_thread(void * arg) {
             }
             
             // Check for text pointer
-            if (g_text_pointer_context.update) {
-                glScissor(0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT);
-                render_viewport(DSTUDIO_RENDER_TEXT_POINTER);
-                g_text_pointer_context.update = 0;
-            }
+            update_and_render(
+                &g_text_pointer_context.mutex,
+                &g_text_pointer_context.update,
+                update_text_pointer,
+                0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT,
+                DSTUDIO_RENDER_TEXT_POINTER
+            );
             
             // UPDATE AND RENDER TEXT  
             update_and_render(

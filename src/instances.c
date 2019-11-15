@@ -22,6 +22,7 @@ Instances g_instances = {0};
 UIInteractiveList g_ui_instances = {0};
 InteractiveListContext g_instances_list_context = {
     select_instance_from_list,
+    get_instance_target_name,
     &g_ui_instances,
 };
 
@@ -38,7 +39,7 @@ void exit_instances_thread() {
 }
 
 char * get_instance_target_name(unsigned int index) {
-    return g_instances.contexts[index].name;
+    return g_instances.contexts[g_ui_instances.window_offset+index].name;
 }
 
 void init_instances_ui(
@@ -165,7 +166,7 @@ void select_instance_from_list(
 ) {
     index += g_ui_instances.window_offset; 
     if (index != g_instances.index && index < g_instances.count) {
-    update_current_instance(index);
+        update_current_instance(index);
         update_insteractive_list_shadow(
             DSTUDIO_CONTEXT_INSTANCES,
             &g_ui_instances

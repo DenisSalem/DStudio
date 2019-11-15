@@ -24,6 +24,7 @@
 #include <semaphore.h>
 
 #include "ui.h"
+#include "text_pointer.h"
 #include "interactive_list.h"
 
 /*
@@ -38,7 +39,7 @@ typedef struct ButtonStates_t {
     double timestamp;
     union {
         void (*application_callback)(void * args);
-        InteractiveListContext * context;
+        TextPointerContextPayload context;
     };
     union {
         unsigned int flags;

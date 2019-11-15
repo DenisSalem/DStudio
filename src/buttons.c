@@ -73,7 +73,7 @@ void check_for_buttons_to_render_n_update(
                     
                 #ifdef DSTUDIO_DEBUG
                 default:
-                    DSTUDIO_EXIT_IF_NULL( callbacks[i].type & (DSTUDIO_BUTTON_TYPES))
+                    DSTUDIO_EXIT_IF_NULL( ui_callbacks[i].type & DSTUDIO_BUTTON_TYPES)
                 #endif
             }
             if (((UIElements*) ui_callbacks[i].context_p)->texture_id == buttons_management->states[i].active) {

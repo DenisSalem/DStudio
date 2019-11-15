@@ -410,8 +410,6 @@ GLuint setup_texture_n_scale_matrix(
     return texture_id;
 }
 
-render
-
 void update_and_render(
     sem_t * mutex,
     int * update,
