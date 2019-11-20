@@ -29,6 +29,10 @@ typedef struct UITextPointerContext_t {
     UIElements *    ui_text;
     char *          string_buffer;
     unsigned int    buffer_size;
+    GLint           scissor_x;
+    GLint           scissor_y;
+    GLsizei         scissor_width;
+    GLsizei         scissor_height;
     int             update;
     sem_t           mutex;
 } UITextPointerContext;
@@ -42,7 +46,8 @@ void update_text_pointer();
 void update_text_pointer_context(
     unsigned int type,
     unsigned int index,
-    TextPointerContextPayload context
+    TextPointerContextPayload context,
+    UIArea * ui_area
 );
 
 extern UIElements g_text_pointer;

@@ -23,14 +23,33 @@
 UITextPointerContext g_text_pointer_context = {0}; 
 UIElements g_text_pointer = {0};
 
-void update_text_pointer_context(unsigned int type, unsigned int index, TextPointerContextPayload context) {
-    if (type == DSTUDIO_BUTTON_TYPE_LIST_ITEM) {
-        g_text_pointer_context.ui_text = &context.interactive_list->related_list->lines[index];
-        g_text_pointer_context.string_buffer = context.interactive_list->get_item_name_callback(index);
-        g_text_pointer_context.buffer_size = g_text_pointer_context.ui_text->count;
+void update_text_pointer_context(
+    unsigned int type,
+    unsigned int index,
+    TextPointerContextPayload context,
+    UIArea * ui_area
+) {
+    sem_wait(&g_text_pointer_context.mutex);
+    switch(type) {
+        case DSTUDIO_BUTTON_TYPE_LIST_ITEM:
+            g_text_pointer_context.ui_text = &context.interactive_list->related_list->lines[index];
+            g_text_pointer_context.string_buffer = context.interactive_list->get_item_name_callback(index);
+            g_text_pointer_context.buffer_size = g_text_pointer_context.ui_text->count;
+            break;
+        #ifdef DSTUDIO_DEBUG
+        default:
+            // TODO: Set something more helpful
+            exit(-1);
+        #endif
     }
-    printf("lines: %d, text: %s\n", index, g_text_pointer_context.string_buffer);
+    g_text_pointer_context.update = 1;
     ((Vec4 *) g_text_pointer.instance_offsets_buffer)->z = 1.0;
+    // We compute the exact amount of pixel to render.
+    g_text_pointer_context.scissor_x = 
+    g_text_pointer_context.scissor_y = 
+    g_text_pointer_context.scissor_width = 
+    g_text_pointer_context.scissor_height = 
+    sem_post(&g_text_pointer_context.mutex);
 }
 
 void update_text_pointer() {

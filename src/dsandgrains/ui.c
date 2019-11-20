@@ -205,7 +205,6 @@ void render_viewport(unsigned int mask) {
             glUniform1f(no_texture_id, (GLfloat) 1.0);
             render_ui_elements(&g_text_pointer);
             glUniform1f(no_texture_id, 0);
-            printf("HELLO TEXT POINTER %d\n", glGetError());
         }
         
         // ARROWS
@@ -309,15 +308,6 @@ void * ui_thread(void * arg) {
                 render_viewport(render_mask);
             }
             
-            // Check for text pointer
-            update_and_render(
-                &g_text_pointer_context.mutex,
-                &g_text_pointer_context.update,
-                update_text_pointer,
-                0, 0, DSTUDIO_VIEWPORT_WIDTH, DSTUDIO_VIEWPORT_HEIGHT,
-                DSTUDIO_RENDER_TEXT_POINTER
-            );
-            
             // UPDATE AND RENDER TEXT  
             update_and_render(
                 &g_ui_system_usage.mutex,
@@ -341,6 +331,18 @@ void * ui_thread(void * arg) {
                 update_voices_text,
                 669, 143, 117, 79,
                 DSTUDIO_RENDER_VOICES
+            );
+            
+            // Check for text pointer
+            update_and_render(
+                &g_text_pointer_context.mutex,
+                &g_text_pointer_context.update,
+                update_text_pointer,
+                g_text_pointer_context.scissor_x,
+                g_text_pointer_context.scissor_y,
+                g_text_pointer_context.scissor_width,
+                g_text_pointer_context.scissor_height,
+                DSTUDIO_RENDER_TEXT_POINTER
             );
         }
                 
