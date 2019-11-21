@@ -46,11 +46,11 @@ void update_text_pointer();
 void update_text_pointer_context(
     unsigned int type,
     unsigned int index,
-    TextPointerContextPayload context,
-    UIArea * ui_area
+    TextPointerContextPayload context
 );
 
 extern UIElements g_text_pointer;
 extern UITextPointerContext g_text_pointer_context; 
-
+extern unsigned int g_text_pointer_height;
+extern unsigned int g_text_pointer_char_width;
 #endif

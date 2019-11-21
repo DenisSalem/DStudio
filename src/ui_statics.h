@@ -102,8 +102,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                         update_text_pointer_context(
                             DSTUDIO_BUTTON_TYPE_LIST_ITEM,
                             button_settings_array[i].index,
-                            button_settings_array[i].context,
-                            &ui_areas[i]
+                            button_settings_array[i].context
                         );
                     }
                     else {

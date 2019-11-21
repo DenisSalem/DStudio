@@ -140,7 +140,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.count +=1;
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
-        strcpy(g_current_active_instance->name, "Instance 1");
+        strcpy(g_current_active_instance->name, "Instanop 1");
         
         new_voice();
     }

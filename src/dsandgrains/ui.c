@@ -152,6 +152,10 @@ static void init_ui() {
         NULL    /* There is no configuration parameters */ \
     );
     
+    // TODO: For reusage, macro should be put in general ui.h
+    g_text_pointer_height = DSANDGRAINS_SMALL_TEXT_POINTER_HEIGHT;
+    g_text_pointer_char_width = DSANDGRAINS_CHARSET_SMALL_WIDTH / 13;
+    
     INIT_INSTANCE_SCROLLABLE_LIST
     INIT_VOICE_SCROLLABLE_LIST
     INIT_BACKGROUND
