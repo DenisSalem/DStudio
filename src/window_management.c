@@ -57,7 +57,7 @@ static Window               window;
 static XVisualInfo          * visual_info;
 static Colormap             color_map;
 static XEvent               x_event;
-static XEvent         x_sent_expose_event;
+static XEvent               x_sent_expose_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
       GLX_X_RENDERABLE    , True,

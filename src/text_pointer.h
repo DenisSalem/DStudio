@@ -34,12 +34,21 @@ typedef struct UITextPointerContext_t {
     GLsizei         scissor_width;
     GLsizei         scissor_height;
     int             update;
+    int             active;
+    int             render_flag;
+    // Optional, only required for interactive list
+    int             index;
+    pthread_t       blink_thread_id;
     sem_t           mutex;
 } UITextPointerContext;
 
 typedef union TextPointerContextPayload_t {
     InteractiveListContext * interactive_list;
 } TextPointerContextPayload;
+
+void clear_text_pointer();
+
+void * text_pointer_blink_thread(void * args);
 
 void update_text_pointer();
 
@@ -50,7 +59,7 @@ void update_text_pointer_context(
 );
 
 extern UIElements g_text_pointer;
-extern UITextPointerContext g_text_pointer_context; 
+extern UITextPointerContext g_text_pointer_context;
 extern unsigned int g_text_pointer_height;
 extern unsigned int g_text_pointer_char_width;
 #endif

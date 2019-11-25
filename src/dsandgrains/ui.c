@@ -203,14 +203,6 @@ void render_viewport(unsigned int mask) {
             render_ui_elements(&g_mem_usage);
         }
         
-        // TEXT POINTER
-        if (mask & DSTUDIO_RENDER_TEXT_POINTER) {
-            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) text_pointer_scale_matrix);
-            glUniform1f(no_texture_id, (GLfloat) 1.0);
-            render_ui_elements(&g_text_pointer);
-            glUniform1f(no_texture_id, 0);
-        }
-        
         // ARROWS
         if (mask & DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
@@ -223,6 +215,7 @@ void render_viewport(unsigned int mask) {
         }
 
         // INSTANCES
+        
         if (mask & DSTUDIO_RENDER_INSTANCES) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) scrollable_list_shadow_scale_matrix);
             glUniform1f(no_texture_id, (GLfloat) 1.0);
@@ -230,10 +223,15 @@ void render_viewport(unsigned int mask) {
             glUniform1f(no_texture_id, 0);
 
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
-
-            for (unsigned int i = 0; i < g_ui_instances.lines_number; i++) {
-                render_ui_elements(&g_ui_instances.lines[i]);
+            if (g_text_pointer_context.update && (mask & DSTUDIO_RENDER_TEXT_POINTER)) {
+                render_ui_elements(&g_ui_instances.lines[g_text_pointer_context.index]);
             }
+            else {
+                for (unsigned int i = 0; i < g_ui_instances.lines_number; i++) {
+                    render_ui_elements(&g_ui_instances.lines[i]);
+                }
+            }
+
         }
         
         // VOICES
@@ -243,7 +241,15 @@ void render_viewport(unsigned int mask) {
                 render_ui_elements(&g_ui_voices.lines[i]);
             }
         }
-
+        
+        // TEXT POINTER
+        if (mask & DSTUDIO_RENDER_TEXT_POINTER) {
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) text_pointer_scale_matrix);
+            glUniform1f(no_texture_id, (GLfloat) 1.0);
+            render_ui_elements(&g_text_pointer);
+            glUniform1f(no_texture_id, 0);
+        }
+        
     glUseProgram(interactive_program_id);
         // KNOBS
         if (mask & DSTUDIO_RENDER_KNOBS) {
@@ -346,7 +352,7 @@ void * ui_thread(void * arg) {
                 g_text_pointer_context.scissor_y,
                 g_text_pointer_context.scissor_width,
                 g_text_pointer_context.scissor_height,
-                DSTUDIO_RENDER_TEXT_POINTER
+                g_text_pointer_context.render_flag
             );
         }
                 
@@ -361,7 +367,14 @@ void * ui_thread(void * arg) {
     sem_wait(&g_buttons_management.mutex);
     g_buttons_management.cut_thread = 1;
     sem_post(&g_buttons_management.mutex);
+    
+    sem_wait(&g_text_pointer_context.mutex);
+    g_text_pointer_context.active = 0;
+    sem_post(&g_text_pointer_context.mutex);
     DSTUDIO_EXIT_IF_FAILURE(pthread_join(g_buttons_management.thread_id, NULL))
+    if (g_text_pointer_context.blink_thread_id != 0) {
+        DSTUDIO_EXIT_IF_FAILURE(pthread_join(g_text_pointer_context.blink_thread_id, NULL))
+    }
 
     exit_instances_thread();
     destroy_context();

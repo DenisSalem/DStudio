@@ -38,6 +38,8 @@ int main(int argc, char ** argv) {
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     
     pthread_t ui_thread_id, system_usage_thread_id, instances_thread_id;
+    
+    // TODO: Investigate thread priority.
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, NULL))

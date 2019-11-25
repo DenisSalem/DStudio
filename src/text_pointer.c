@@ -17,6 +17,10 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <pthread.h>
+#include <signal.h>
+#include <unistd.h>
+
 #include "extensions.h"
 #include "text_pointer.h"
 
@@ -25,6 +29,16 @@ UIElements g_text_pointer = {0};
 
 unsigned int g_text_pointer_height = 0;
 unsigned int g_text_pointer_char_width = 0;
+static unsigned int render_flag = 0;
+
+void clear_text_pointer() {
+    sem_wait(&g_text_pointer_context.mutex);
+    g_text_pointer_context.active = 0;
+    g_text_pointer_context.render_flag = render_flag;
+    ((Vec4 *) g_text_pointer.instance_offsets_buffer)->opacity = 0.0;
+    g_text_pointer_context.update = 1;
+    sem_post(&g_text_pointer_context.mutex);
+}
 
 void update_text_pointer_context(
     unsigned int type,
@@ -32,12 +46,20 @@ void update_text_pointer_context(
     TextPointerContextPayload context
 ) {
     sem_wait(&g_text_pointer_context.mutex);
+    g_text_pointer_context.active = 0;
+    sem_post(&g_text_pointer_context.mutex);
+    if (g_text_pointer_context.blink_thread_id != 0) {
+        pthread_join(g_text_pointer_context.blink_thread_id, NULL);
+    }
+
+    sem_wait(&g_text_pointer_context.mutex);
     switch(type) {
         case DSTUDIO_BUTTON_TYPE_LIST_ITEM:
             g_text_pointer_context.ui_text = &context.interactive_list->related_list->lines[index];
             g_text_pointer_context.string_buffer = context.interactive_list->get_item_name_callback(index);
             g_text_pointer_context.buffer_size = g_text_pointer_context.ui_text->count;
-            
+            g_text_pointer_context.index = index;
+            g_text_pointer_context.render_flag = context.interactive_list->render_flag;
             break;
         #ifdef DSTUDIO_DEBUG
         default:
@@ -54,7 +76,7 @@ void update_text_pointer_context(
     GLfloat y_inc = 1.0 / (GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1);
     int x_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[last_char_index].x / x_inc;
     int y_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[last_char_index].y / y_inc;
-    text_pointer_offsets_buffer->x = (x_multiplier * x_inc) + ((g_text_pointer_char_width >> 1) * x_inc) + x_inc;
+    text_pointer_offsets_buffer->x = (x_multiplier * x_inc) + ((g_text_pointer_char_width >> 1) * x_inc) + x_inc - (4 * g_text_pointer_char_width * x_inc);
         
     text_pointer_offsets_buffer->y = y_multiplier * y_inc;
     text_pointer_offsets_buffer->y += 2 * y_inc; // offset of three pixels to the to
@@ -65,7 +87,39 @@ void update_text_pointer_context(
     g_text_pointer_context.scissor_width = 1;
     g_text_pointer_context.scissor_height = g_text_pointer_height;
     g_text_pointer_context.update = 1;
+    if (!g_text_pointer_context.active) {
+        g_text_pointer_context.active = 1;
+        pthread_create( &g_text_pointer_context.blink_thread_id, NULL, text_pointer_blink_thread, NULL);
+    }
     sem_post(&g_text_pointer_context.mutex);
+}
+
+void * text_pointer_blink_thread(void * args) {
+    (void) args;
+    Vec4 * text_pointer_offsets_buffer = ((Vec4 *) g_text_pointer.instance_offsets_buffer);
+    render_flag = g_text_pointer_context.render_flag | DSTUDIO_RENDER_TEXT_POINTER;
+    while (1) {
+        usleep(200000);
+        sem_wait(&g_text_pointer_context.mutex);
+        if (text_pointer_offsets_buffer->opacity == 1.0) {
+            text_pointer_offsets_buffer->opacity = 0.0;
+            g_text_pointer_context.render_flag = render_flag;
+        }
+        else {
+            if (!g_text_pointer_context.active) {
+                g_text_pointer_context.update = 1;
+                send_expose_event();
+                break;
+            }
+            text_pointer_offsets_buffer->opacity = 1.0;
+            g_text_pointer_context.render_flag = DSTUDIO_RENDER_TEXT_POINTER;
+        }
+        g_text_pointer_context.update = 1;
+        send_expose_event();
+        sem_post(&g_text_pointer_context.mutex);
+    }
+    sem_post(&g_text_pointer_context.mutex);
+    return NULL;
 }
 
 void update_text_pointer() {

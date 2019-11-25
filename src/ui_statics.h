@@ -106,6 +106,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                         );
                     }
                     else {
+                        clear_text_pointer();
                         button_settings_array[i].context.interactive_list->application_callback(
                             button_settings_array[i].index
                         );
