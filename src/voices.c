@@ -24,10 +24,15 @@
 VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
 
-void init_voices_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size) {
-    init_interactive_list(&g_ui_voices, lines, lines_number, string_size);
+void init_voices_ui(UIElements * lines, unsigned int max_lines_number, unsigned int string_size) {
+    init_interactive_list(
+        &g_ui_voices,
+        lines,
+        max_lines_number,
+        &g_current_active_instance->voices.count,
+        string_size
+    );
 }
-
 
 int new_voice() {
     VoiceContext * new_voice_context = realloc(
@@ -57,7 +62,7 @@ void update_voices_text() {
     update_insteractive_list(
         DSTUDIO_CONTEXT_INSTANCES,
         g_ui_voices.window_offset,
-        g_ui_voices.lines_number,
+        g_ui_voices.max_lines_number,
         g_current_active_instance->voices.count,
         g_ui_voices.lines,
         g_ui_voices.string_size, 

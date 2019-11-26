@@ -196,13 +196,13 @@ GLuint setup_texture_n_scale_matrix(
 
 void update_and_render(
     sem_t * mutex,
-    int * update,
+    unsigned int * update,
     void (*update_callback)(),
     GLuint scissor_x,
     GLuint scissor_y,
     GLuint scissor_width,
     GLuint scissor_height,
-    int render_flag
+    unsigned int render_flag
 );
 
 void update_ui_element_motion(

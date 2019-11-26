@@ -41,6 +41,28 @@ void clear_text_pointer() {
     sem_post(&g_text_pointer_context.mutex);
 }
 
+void compute_text_pointer_coordinates(unsigned int index, int offset) {
+    Vec4 * text_pointer_offsets_buffer = ((Vec4 *) g_text_pointer.instance_offsets_buffer);
+    text_pointer_offsets_buffer->opacity = 1.0;
+    
+    // We need to compute coordinates in such way that the pointer will be perfectly aligned with pixels.
+    GLfloat x_inc = 1.0 / (GLfloat) (DSTUDIO_VIEWPORT_WIDTH >> 1);
+    GLfloat y_inc = 1.0 / (GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1);
+    int x_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[index].x / x_inc;
+    int y_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[index].y / y_inc;
+    text_pointer_offsets_buffer->x = (x_multiplier * x_inc) - ((g_text_pointer_char_width >> 1) * x_inc) + x_inc + offset * g_text_pointer_char_width * x_inc;
+        
+    text_pointer_offsets_buffer->y = y_multiplier * y_inc;
+    text_pointer_offsets_buffer->y += 2 * y_inc;
+    
+    // We compute the exact amount of pixel to render.
+    g_text_pointer_context.scissor_x = 400 + 400 * ((Vec4 *) g_text_pointer.instance_offsets_buffer)->x - 1;
+    g_text_pointer_context.scissor_y = 240 + 240 * ((Vec4 *) g_text_pointer.instance_offsets_buffer)->y - (g_text_pointer_height >> 1) - 1;
+    g_text_pointer_context.scissor_width = 1;
+    g_text_pointer_context.scissor_height = g_text_pointer_height;
+    g_text_pointer_context.update = 1;
+}
+
 void update_text_pointer_context(
     unsigned int type,
     unsigned int index,
@@ -56,6 +78,10 @@ void update_text_pointer_context(
     sem_wait(&g_text_pointer_context.mutex);
     switch(type) {
         case DSTUDIO_BUTTON_TYPE_LIST_ITEM:
+            if (index >= *context.interactive_list->related_list->lines_number) {
+                sem_post(&g_text_pointer_context.mutex);
+                return;
+            }
             g_text_pointer_context.ui_text = &context.interactive_list->related_list->lines[index];
             g_text_pointer_context.string_buffer = context.interactive_list->get_item_name_callback(index);
             g_text_pointer_context.buffer_size = g_text_pointer_context.ui_text->count;
@@ -69,25 +95,10 @@ void update_text_pointer_context(
         #endif
     }
     unsigned int last_char_index = strlen(g_text_pointer_context.string_buffer) - 1;
-    Vec4 * text_pointer_offsets_buffer = ((Vec4 *) g_text_pointer.instance_offsets_buffer);
-    text_pointer_offsets_buffer->opacity = 1.0;
-    
-    // We need to compute coordinates in such way that the pointer will be perfectly aligned with pixels.
-    GLfloat x_inc = 1.0 / (GLfloat) (DSTUDIO_VIEWPORT_WIDTH >> 1);
-    GLfloat y_inc = 1.0 / (GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1);
-    int x_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[last_char_index].x / x_inc;
-    int y_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[last_char_index].y / y_inc;
-    text_pointer_offsets_buffer->x = (x_multiplier * x_inc) + ((g_text_pointer_char_width >> 1) * x_inc) + x_inc - (4 * g_text_pointer_char_width * x_inc);
-        
-    text_pointer_offsets_buffer->y = y_multiplier * y_inc;
-    text_pointer_offsets_buffer->y += 2 * y_inc; // offset of three pixels to the to
+    g_text_pointer_context.insert_char_index = last_char_index + 1;
 
-    // We compute the exact amount of pixel to render.
-    g_text_pointer_context.scissor_x = 400 + 400 * ((Vec4 *) g_text_pointer.instance_offsets_buffer)->x - 1;
-    g_text_pointer_context.scissor_y = 240 + 240 * ((Vec4 *) g_text_pointer.instance_offsets_buffer)->y - (g_text_pointer_height >> 1) - 1;
-    g_text_pointer_context.scissor_width = 1;
-    g_text_pointer_context.scissor_height = g_text_pointer_height;
-    g_text_pointer_context.update = 1;
+    compute_text_pointer_coordinates(last_char_index, 1);
+    
     if (!g_text_pointer_context.active) {
         g_text_pointer_context.active = 1;
         pthread_create( &g_text_pointer_context.blink_thread_id, NULL, text_pointer_blink_thread, NULL);
@@ -123,7 +134,10 @@ void * text_pointer_blink_thread(void * args) {
     return NULL;
 }
 
-void update_text_box() {
+void update_text_box(unsigned int keycode) {
+    if (keycode == DSTUDIO_KEY_CODE_ERASEBACK) {
+        
+    }
 }
 
 void update_text_pointer() {

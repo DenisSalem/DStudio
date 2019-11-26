@@ -29,7 +29,7 @@ typedef struct UISystemUsage_t {
     char            cpu_string_buffer[7];
     char            mem_string_buffer[7];
     int             ready;
-    int             update;
+    unsigned int    update;
     sem_t           mutex;
     int             cut_thread;
 } UISystemUsage;

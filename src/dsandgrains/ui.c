@@ -227,7 +227,7 @@ void render_viewport(unsigned int mask) {
                 render_ui_elements(&g_ui_instances.lines[g_text_pointer_context.index]);
             }
             else {
-                for (unsigned int i = 0; i < g_ui_instances.lines_number; i++) {
+                for (unsigned int i = 0; i < g_ui_instances.max_lines_number; i++) {
                     render_ui_elements(&g_ui_instances.lines[i]);
                 }
             }
@@ -237,7 +237,7 @@ void render_viewport(unsigned int mask) {
         // VOICES
         if (mask & DSTUDIO_RENDER_VOICES) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) charset_small_scale_matrix);
-            for (unsigned int i = 0; i < g_ui_voices.lines_number; i++) {
+            for (unsigned int i = 0; i < g_ui_voices.max_lines_number; i++) {
                 render_ui_elements(&g_ui_voices.lines[i]);
             }
         }

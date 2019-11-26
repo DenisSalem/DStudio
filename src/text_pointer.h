@@ -33,11 +33,13 @@ typedef struct UITextPointerContext_t {
     GLint           scissor_y;
     GLsizei         scissor_width;
     GLsizei         scissor_height;
-    int             update;
-    int             active;
-    int             render_flag;
+    unsigned int    update;
+    unsigned int    active;
+    unsigned int    render_flag;
     // Optional, only required for interactive list
-    int             index;
+    unsigned int    index;
+    unsigned int *  lines_count;
+    unsigned int    insert_char_index;
     pthread_t       blink_thread_id;
     sem_t           mutex;
 } UITextPointerContext;
@@ -48,9 +50,13 @@ typedef union TextPointerContextPayload_t {
 
 void clear_text_pointer();
 
+void compute_text_pointer_coordinates(unsigned int index, int offset);
+
 void * text_pointer_blink_thread(void * args);
 
 void update_text_pointer();
+
+void update_text_box(unsigned int keycode);
 
 void update_text_pointer_context(
     unsigned int type,

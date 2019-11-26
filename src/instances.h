@@ -28,7 +28,7 @@ char * get_instance_target_name(unsigned int index);
 
 void init_instances_ui(
     UIElements * lines,
-    unsigned int lines_number,
+    unsigned int max_lines_number,
     unsigned int string_size,
     UIElementSettingParams * params
 );

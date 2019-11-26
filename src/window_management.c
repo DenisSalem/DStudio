@@ -261,8 +261,8 @@ void listen_events() {
             if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC) {
                 g_text_pointer_context.active = 0;
             }
-            else {
-                printf("%d\n", x_event.xkey.keycode);
+            else if(g_text_pointer_context.active) {
+                update_text_box(x_event.xkey.keycode);
             }
         }
         else if(x_event.type == KeyRelease) {

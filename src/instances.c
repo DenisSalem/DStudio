@@ -45,23 +45,24 @@ char * get_instance_target_name(unsigned int index) {
 
 void init_instances_ui(
     UIElements * lines,
-    unsigned int lines_number,
+    unsigned int max_lines_number,
     unsigned int string_size,
     UIElementSettingParams * params
 ) {        
     init_interactive_list(
         &g_ui_instances,
         lines,
-        lines_number,
+        max_lines_number,
+        &g_instances.count,
         string_size
     );
     // TODO: GENERALIZE BELOW
-    UIElementSetting * shadow_settings = malloc(sizeof(UIElementSetting) * lines_number);
-    explicit_bzero(shadow_settings, sizeof(UIElementSetting) * lines_number);
+    UIElementSetting * shadow_settings = malloc(sizeof(UIElementSetting) * max_lines_number);
+    explicit_bzero(shadow_settings, sizeof(UIElementSetting) * max_lines_number);
     UIInteractiveListSetting * interactive_list_setting = params->settings;
     GLfloat offset = interactive_list_setting->offset;
     GLfloat area_offset = interactive_list_setting->area_offset;
-    for (unsigned int i = 0; i < lines_number; i++) {
+    for (unsigned int i = 0; i < max_lines_number; i++) {
         GLfloat computed_area_offet = i * area_offset;
         shadow_settings[i].gl_x = interactive_list_setting->gl_x;
         shadow_settings[i].gl_y = interactive_list_setting->gl_y - i * offset;
@@ -79,7 +80,7 @@ void init_instances_ui(
         DSTUDIO_FLAG_NONE,
         g_ui_instances.shadows,
         0, // There is no texture id: we're rendering solid quad
-        lines_number,
+        max_lines_number,
         configure_ui_interactive_list,
         params
     );
@@ -155,7 +156,7 @@ void scroll_instances(void * args) {
         g_ui_instances.window_offset--;
         g_ui_instances.update = 1;
     }
-    else if (g_ui_instances.window_offset + g_ui_instances.lines_number < g_instances.count && !(flags & DSTUDIO_BUTTON_ACTION_LIST_BACKWARD)) {
+    else if (g_ui_instances.window_offset + g_ui_instances.max_lines_number < g_instances.count && !(flags & DSTUDIO_BUTTON_ACTION_LIST_BACKWARD)) {
         g_ui_instances.window_offset++;
         g_ui_instances.update = 1;
     }
@@ -235,7 +236,7 @@ void * update_instances(void * args) {
             g_current_active_instance->identifier = 1;
             strcat(g_current_active_instance->name, "Instance ");
             strcat(g_current_active_instance->name, event->name);
-            if (g_instances.count > g_ui_instances.lines_number) {
+            if (g_instances.count > g_ui_instances.max_lines_number) {
                 g_ui_instances.window_offset++;
             }
             new_voice();
@@ -273,7 +274,7 @@ void update_instances_text() {
     update_insteractive_list(
         DSTUDIO_CONTEXT_INSTANCES,
         g_ui_instances.window_offset,
-        g_ui_instances.lines_number,
+        g_ui_instances.max_lines_number,
         g_instances.count,
         g_ui_instances.lines,
         g_ui_instances.string_size, 

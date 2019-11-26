@@ -35,14 +35,16 @@ void configure_ui_interactive_list(
 void init_interactive_list(
     UIInteractiveList * interactive_list,
     UIElements * lines,
-    unsigned int lines_number,
+    unsigned int max_lines_number,
+    unsigned int * lines_number,
     unsigned int string_size
 ) {
     interactive_list->lines = lines;
+    interactive_list->max_lines_number = max_lines_number;
     interactive_list->lines_number = lines_number;
     interactive_list->string_size = string_size;
     interactive_list->update = 1;
-    interactive_list->shadows = malloc(sizeof(UIElements) * lines_number);
+    interactive_list->shadows = malloc(sizeof(UIElements) * max_lines_number);
     sem_init(&interactive_list->mutex, 0, 1);
     interactive_list->ready = 1;
 }
@@ -53,7 +55,7 @@ void update_insteractive_list_shadow(
 ) {
     int window_offset = interactive_list->window_offset;
     unsigned int context_index = 0;
-    int * update_p = 0;
+    unsigned int * update_p = 0;
     
     switch(context_type) {
         case DSTUDIO_CONTEXT_INSTANCES:
@@ -62,10 +64,10 @@ void update_insteractive_list_shadow(
             break;
     }
     
-    int highlight = (int) context_index >= window_offset && context_index < window_offset + interactive_list->lines_number;
+    int highlight = (int) context_index >= window_offset && context_index < window_offset + interactive_list->max_lines_number;
     int highlight_index = context_index - window_offset;
     
-    for (unsigned int i = 0; i < interactive_list->lines_number; i++) {
+    for (unsigned int i = 0; i < interactive_list->max_lines_number; i++) {
         if (highlight_index == (int) i && highlight) {
             ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].opacity = 0.125;
         }
