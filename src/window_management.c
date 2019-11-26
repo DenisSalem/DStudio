@@ -57,7 +57,7 @@ static Window               window;
 static XVisualInfo          * visual_info;
 static Colormap             color_map;
 static XEvent               x_event;
-static XEvent               x_sent_expose_event;
+static XEvent                x_sent_expose_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
       GLX_X_RENDERABLE    , True,
@@ -258,8 +258,11 @@ void listen_events() {
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {
-            if(DSTUDIO_KEY_CODE_ESC == DSTUDIO_KEY_CODE_ESC) {
-                g_text_pointer_context.ui_text = 0;
+            if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC) {
+                g_text_pointer_context.active = 0;
+            }
+            else {
+                printf("%d\n", x_event.xkey.keycode);
             }
         }
         else if(x_event.type == KeyRelease) {

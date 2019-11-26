@@ -21,6 +21,7 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include "common.h"
 #include "extensions.h"
 #include "text_pointer.h"
 
@@ -99,7 +100,7 @@ void * text_pointer_blink_thread(void * args) {
     Vec4 * text_pointer_offsets_buffer = ((Vec4 *) g_text_pointer.instance_offsets_buffer);
     render_flag = g_text_pointer_context.render_flag | DSTUDIO_RENDER_TEXT_POINTER;
     while (1) {
-        usleep(200000);
+        usleep(125000);
         sem_wait(&g_text_pointer_context.mutex);
         if (text_pointer_offsets_buffer->opacity == 1.0) {
             text_pointer_offsets_buffer->opacity = 0.0;
@@ -120,6 +121,9 @@ void * text_pointer_blink_thread(void * args) {
     }
     sem_post(&g_text_pointer_context.mutex);
     return NULL;
+}
+
+void update_text_box() {
 }
 
 void update_text_pointer() {

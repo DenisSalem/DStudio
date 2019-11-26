@@ -17,6 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "common.h"
 #include "instances.h"
 #include "voices.h"
 

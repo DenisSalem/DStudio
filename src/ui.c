@@ -23,6 +23,7 @@
     #include <stdio.h>
 #endif
 
+#include "common.h"
 #include "extensions.h"
 #include "ui.h"
 

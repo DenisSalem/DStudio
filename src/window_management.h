@@ -28,6 +28,8 @@
 #define DSTUDIO_MOUSE_BUTTON_PRESS      4
 #define DSTUDIO_MOUSE_BUTTON_RELEASE    8
 #define DSTUDIO_KEY_CODE_ESC            9
+#define DSTUDIO_KEY_CODE_ERASEBACK      22
+
 void destroy_context();
 int do_no_exit_loop();
 void init_context(const char * window_name, int width, int height);
