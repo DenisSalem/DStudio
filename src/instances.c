@@ -23,6 +23,7 @@ UIInteractiveList g_ui_instances = {0};
 InteractiveListContext g_instances_list_context = {
     select_instance_from_list,
     get_instance_target_name,
+    update_instances_text,
     &g_ui_instances,
     DSTUDIO_RENDER_INSTANCES
 };

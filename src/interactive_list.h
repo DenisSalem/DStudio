@@ -51,6 +51,7 @@ typedef struct UIInteractiveListSetting_t {
 typedef struct InteractiveListContext_t {
         void (*application_callback)(unsigned int index);
         char * (*get_item_name_callback) (unsigned int index);
+        void (*sub_ui_element_update_callback)();
         UIInteractiveList * related_list;
         int render_flag;
 } InteractiveListContext;

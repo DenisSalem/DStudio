@@ -41,7 +41,7 @@ void clear_text_pointer() {
     sem_post(&g_text_pointer_context.mutex);
 }
 
-void compute_text_pointer_coordinates(unsigned int index, int offset) {
+void compute_text_pointer_coordinates(unsigned int index) {
     Vec4 * text_pointer_offsets_buffer = ((Vec4 *) g_text_pointer.instance_offsets_buffer);
     text_pointer_offsets_buffer->opacity = 1.0;
     
@@ -50,7 +50,7 @@ void compute_text_pointer_coordinates(unsigned int index, int offset) {
     GLfloat y_inc = 1.0 / (GLfloat) (DSTUDIO_VIEWPORT_HEIGHT >> 1);
     int x_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[index].x / x_inc;
     int y_multiplier = ((Vec4 *) g_text_pointer_context.ui_text->instance_offsets_buffer)[index].y / y_inc;
-    text_pointer_offsets_buffer->x = (x_multiplier * x_inc) - ((g_text_pointer_char_width >> 1) * x_inc) + x_inc + offset * g_text_pointer_char_width * x_inc;
+    text_pointer_offsets_buffer->x = (x_multiplier * x_inc) - ((g_text_pointer_char_width >> 1) * x_inc) + x_inc;
         
     text_pointer_offsets_buffer->y = y_multiplier * y_inc;
     text_pointer_offsets_buffer->y += 2 * y_inc;
@@ -87,6 +87,7 @@ void update_text_pointer_context(
             g_text_pointer_context.buffer_size = g_text_pointer_context.ui_text->count;
             g_text_pointer_context.index = index;
             g_text_pointer_context.render_flag = context.interactive_list->render_flag;
+            g_text_pointer_context.sub_ui_element_update_callback = context.interactive_list->sub_ui_element_update_callback;
             break;
         #ifdef DSTUDIO_DEBUG
         default:
@@ -94,11 +95,12 @@ void update_text_pointer_context(
             exit(-1);
         #endif
     }
-    unsigned int last_char_index = strlen(g_text_pointer_context.string_buffer) - 1;
-    g_text_pointer_context.insert_char_index = last_char_index + 1;
+    unsigned int last_char_index = strlen(g_text_pointer_context.string_buffer);
+    g_text_pointer_context.insert_char_index = last_char_index;
 
-    compute_text_pointer_coordinates(last_char_index, 1);
-    
+    compute_text_pointer_coordinates(last_char_index);
+    render_flag = g_text_pointer_context.render_flag | DSTUDIO_RENDER_TEXT_POINTER;
+
     if (!g_text_pointer_context.active) {
         g_text_pointer_context.active = 1;
         pthread_create( &g_text_pointer_context.blink_thread_id, NULL, text_pointer_blink_thread, NULL);
@@ -109,7 +111,6 @@ void update_text_pointer_context(
 void * text_pointer_blink_thread(void * args) {
     (void) args;
     Vec4 * text_pointer_offsets_buffer = ((Vec4 *) g_text_pointer.instance_offsets_buffer);
-    render_flag = g_text_pointer_context.render_flag | DSTUDIO_RENDER_TEXT_POINTER;
     while (1) {
         usleep(125000);
         sem_wait(&g_text_pointer_context.mutex);
@@ -135,9 +136,39 @@ void * text_pointer_blink_thread(void * args) {
 }
 
 void update_text_box(unsigned int keycode) {
+    unsigned int string_size = strlen(g_text_pointer_context.string_buffer);
+    char * string_buffer = g_text_pointer_context.string_buffer;
+    
     if (keycode == DSTUDIO_KEY_CODE_ERASEBACK) {
+        if (g_text_pointer_context.insert_char_index == 0) {
+            return;
+        }
         
+        if (g_text_pointer_context.insert_char_index == string_size) {
+            string_buffer[--g_text_pointer_context.insert_char_index] = 0;
+        }
+        else {
+            for (unsigned int i = g_text_pointer_context.insert_char_index; i < string_size; i++) {
+                string_buffer[i-1] = string_buffer[i];
+            }
+        }
     }
+    else if (keycode >= 32 && keycode <= 126) {
+        if (string_size + 1 > g_text_pointer_context.buffer_size) {
+            return;
+        }
+        if (string_size > 0) {
+            for (unsigned int i = string_size; i >= g_text_pointer_context.insert_char_index; i--) {
+                string_buffer[i] = string_buffer[i-1];
+            }
+        }
+        string_buffer[g_text_pointer_context.insert_char_index++] = (char) keycode;
+    }
+    else {
+        return;
+    }
+    compute_text_pointer_coordinates(g_text_pointer_context.insert_char_index);
+    g_text_pointer_context.sub_ui_element_update_callback();
 }
 
 void update_text_pointer() {

@@ -36,12 +36,14 @@ typedef struct UITextPointerContext_t {
     unsigned int    update;
     unsigned int    active;
     unsigned int    render_flag;
-    // Optional, only required for interactive list
-    unsigned int    index;
-    unsigned int *  lines_count;
     unsigned int    insert_char_index;
     pthread_t       blink_thread_id;
     sem_t           mutex;
+    void (*sub_ui_element_update_callback)();
+    // Optional, only required for interactive list
+    unsigned int    index;
+    unsigned int *  lines_count;
+
 } UITextPointerContext;
 
 typedef union TextPointerContextPayload_t {
@@ -50,7 +52,7 @@ typedef union TextPointerContextPayload_t {
 
 void clear_text_pointer();
 
-void compute_text_pointer_coordinates(unsigned int index, int offset);
+void compute_text_pointer_coordinates(unsigned int index);
 
 void * text_pointer_blink_thread(void * args);
 

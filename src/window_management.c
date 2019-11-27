@@ -75,6 +75,7 @@ static int visual_attribs[] = {
 };
 
 static int glx_major, glx_minor;
+static unsigned int keyboard_chars_map_mode = 0;
 
 static int ctx_error_handler( Display *dpy, XErrorEvent *ev ) {
     (void) dpy;
@@ -258,15 +259,28 @@ void listen_events() {
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {
-            if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC) {
+            if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
                 g_text_pointer_context.active = 0;
             }
+            else if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT || x_event.xkey.keycode == DSTUDIO_KEY_CAPS_LOCK) {
+                keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
+            }
             else if(g_text_pointer_context.active) {
-                update_text_box(x_event.xkey.keycode);
+                printf(
+                    "input: %d %c %lu\n", 
+                    x_event.xkey.keycode,
+                    (char) XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode),
+                    XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
+                );
+                update_text_box(
+                    XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
+                );
             }
         }
-        else if(x_event.type == KeyRelease) {
-            //printf("KeyRelease\n");
+        else if(x_event.type == KeyRelease)  {
+            if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT) {
+                keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
+            }
         }
         else if(x_event.type == VisibilityNotify) {
             //printf("Should freeze render if obscured.\n");
