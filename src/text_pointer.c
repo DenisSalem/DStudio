@@ -151,10 +151,24 @@ void update_text_box(unsigned int keycode) {
             for (unsigned int i = g_text_pointer_context.insert_char_index; i < string_size; i++) {
                 string_buffer[i-1] = string_buffer[i];
             }
+            string_buffer[string_size-1] = 0;
+            g_text_pointer_context.insert_char_index--;
         }
     }
+    else if (keycode == DSTUDIO_KEY_LEFT_ARROW){
+        if (g_text_pointer_context.insert_char_index == 0) {
+            return;
+        }
+        g_text_pointer_context.insert_char_index--;
+    }
+    else if (keycode == DSTUDIO_KEY_RIGHT_ARROW){
+        if (g_text_pointer_context.insert_char_index == string_size) {
+            return;
+        }
+        g_text_pointer_context.insert_char_index++;
+    }
     else if (keycode >= 32 && keycode <= 126) {
-        if (string_size + 1 > g_text_pointer_context.buffer_size) {
+        if (string_size + 1 >= g_text_pointer_context.buffer_size) {
             return;
         }
         if (string_size > 0) {

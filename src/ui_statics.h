@@ -112,7 +112,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                         );
                     }
                     list_item_click_timestamp = timestamp;
-                    break;
+                    return;
                 }
                 active_ui_element.callback = ui_callbacks[i].callback;
                 active_ui_element.index = ui_callbacks[i].index;
@@ -134,6 +134,8 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
                 break;
             }
         }
+        // If no element has been triggered
+        clear_text_pointer();
     }
     else if (action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
         mouse_state = 0;

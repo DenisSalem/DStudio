@@ -15,6 +15,7 @@
 #include "ui.h"
 #include "voices.h"
 #include "buttons.h"
+#include "text_pointer.h"
 
 static struct stat st = {0};
 InstanceContext * g_current_active_instance = 0; 
@@ -218,6 +219,7 @@ void * update_instances(void * args) {
         }
         
 		if (event->mask == IN_CREATE) {
+            clear_text_pointer();
             g_instances.count++;
             saved_contexts = g_instances.contexts;
             g_instances.contexts = realloc(g_instances.contexts, sizeof(InstanceContext) * g_instances.count);
