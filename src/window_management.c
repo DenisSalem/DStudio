@@ -266,12 +266,6 @@ void listen_events() {
                 keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
             }
             else if(g_text_pointer_context.active) {
-                printf(
-                    "input: %d %c %lu\n", 
-                    x_event.xkey.keycode,
-                    (char) XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode),
-                    XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
-                );
                 update_text_box(
                     XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
                 );
