@@ -35,6 +35,7 @@
 #define DSTUDIO_KEY_CODE_SHIFT          50
 #define DSTUDIO_KEY_CAPS_LOCK           66           
 #define DSTUDIO_KEY_MAJ_BIT             1
+
 void destroy_context();
 int do_no_exit_loop();
 void init_context(const char * window_name, int width, int height);

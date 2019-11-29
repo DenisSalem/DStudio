@@ -45,6 +45,7 @@ typedef struct ButtonStates_t {
         unsigned int flags;
         unsigned int index;
     };
+    unsigned int update;
 } ButtonStates;
 
 typedef struct ButtonsManagement_t {

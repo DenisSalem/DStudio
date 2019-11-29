@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include <stdio.h>
 #include <unistd.h>
 
@@ -59,31 +60,38 @@ void check_for_buttons_to_render_n_update(
 {
     sem_wait(&buttons_management->mutex);
     unsigned int count = buttons_management->count;
+    ButtonStates * button_states = 0;
     for (unsigned int i=0; i < count; i++) {
-        if (buttons_management->states[i].timestamp != 0) {
-            SET_SCISSOR;
-            glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
-            switch (ui_callbacks[i].type) {
-                case DSTUDIO_BUTTON_TYPE_REBOUNCE:
-                    render_viewport(DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE);
-                    break;
-                case DSTUDIO_BUTTON_TYPE_LIST_ITEM:
-                    render_viewport(DSTUDIO_RENDER_BUTTONS_TYPE_LIST_ITEM);
-                    break;
+        button_states = &buttons_management->states[i];
+        if (button_states->timestamp != 0) {
+            if (button_states->update) {
+                SET_SCISSOR;
+                glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
+                switch (ui_callbacks[i].type) {
+                    case DSTUDIO_BUTTON_TYPE_REBOUNCE:
+                        render_viewport(DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE);
+                        break;
+                    case DSTUDIO_BUTTON_TYPE_LIST_ITEM:
+                        render_viewport(DSTUDIO_RENDER_BUTTONS_TYPE_LIST_ITEM);
+                        break;
                     
-                #ifdef DSTUDIO_DEBUG
-                default:
-                    DSTUDIO_EXIT_IF_NULL( ui_callbacks[i].type & DSTUDIO_BUTTON_TYPES)
-                #endif
+                    #ifdef DSTUDIO_DEBUG
+                    default:
+                        DSTUDIO_EXIT_IF_NULL( ui_callbacks[i].type & DSTUDIO_BUTTON_TYPES)
+                    #endif
+                }
+                button_states->update = 0;
+
             }
-            if (((UIElements*) ui_callbacks[i].context_p)->texture_id == buttons_management->states[i].active) {
+            if (((UIElements*) ui_callbacks[i].context_p)->texture_id == button_states->active) {
                 if(mouse_state == 0) {
-                    update_button(0, ui_callbacks[i].context_p, &buttons_management->states[i]);
-                    buttons_management->states[i].timestamp = get_timestamp();
+                    update_button(0, ui_callbacks[i].context_p, button_states);
+                    button_states->timestamp = get_timestamp();
+                    button_states->update = 1;
                 }
             }
             else {
-                buttons_management->states[i].timestamp = 0;
+                button_states->timestamp = 0;
             }
         }
     }

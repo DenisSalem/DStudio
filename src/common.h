@@ -11,6 +11,8 @@
 #define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
+#define DSTUDIO_BUTTON_ADD_ASSET_PATH               "../assets/button_add.png"
+#define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
 
 #define DSTUDIO_RENDER_ALL                    0xffffffff
 #define DSTUDIO_RENDER_KNOBS                  1

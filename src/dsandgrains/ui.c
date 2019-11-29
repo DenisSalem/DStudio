@@ -25,6 +25,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include "../add.h"
 #include "../buttons.h"
 #include "../common.h"
 #include "../fileutils.h"
@@ -85,7 +86,12 @@ static UIElements sliders_dahdsr = {0};
 static UIElements sliders_equalizer = {0};
 static Vec2 slider_scale_matrix[2] = {0};
 
+// Tiny buttons
+static UIElements tiny_button_add = {0};
+static Vec2 tiny_button_scale_matrix[2] = {0};
+
 static Vec2 text_pointer_scale_matrix[2] = {0};
+
 
 UIArea ui_areas[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 UICallback ui_callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
@@ -123,6 +129,7 @@ static void init_ui() {
     GLuint system_usage_texture_id;
     GLuint charset_texture_id;
     GLuint charset_small_texture_id;
+    GLuint add_button_texture_id;
     
     Vec4 offsets = {0};
     //--- End local variables -----------------------------------------/
@@ -142,7 +149,8 @@ static void init_ui() {
     PREPARE_SHARED_SCALE_MATRICES
     SETUP_BUTTONS_SETTING_ARRAYS
     INIT_SCROLLABLE_LIST_ARROWS
-    
+    INIT_TINY_BUTTON_ADD
+
     init_ui_elements( \
         DSTUDIO_FLAG_NONE, \
         &g_text_pointer, \
@@ -203,7 +211,8 @@ void render_viewport(unsigned int mask) {
             render_ui_elements(&g_mem_usage);
         }
         
-        // ARROWS
+        // REBOUNCE BUTTONS
+        // TODO: MIGHT BE OPTIMIZED
         if (mask & DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE) {
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) arrow_instances_scale_matrix);
             render_ui_elements(&arrow_instances_bottom);
@@ -212,6 +221,9 @@ void render_viewport(unsigned int mask) {
             render_ui_elements(&arrow_voices_bottom);
             render_ui_elements(&arrow_samples_top);
             render_ui_elements(&arrow_samples_bottom);
+            
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) tiny_button_scale_matrix);
+            render_ui_elements(&tiny_button_add);
         }
 
         // INSTANCES

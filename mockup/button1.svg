@@ -103,11 +103,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="9.7565261"
-     inkscape:cx="46.032567"
+     inkscape:zoom="6.8989058"
+     inkscape:cx="56.589603"
      inkscape:cy="58.729922"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:snap-bbox="true"
      inkscape:bbox-paths="true"
@@ -134,7 +134,7 @@
      inkscape:snap-others="true"
      inkscape:snap-page="true"
      inkscape:snap-grids="true"
-     inkscape:snap-global="false"
+     inkscape:snap-global="true"
      inkscape:object-nodes="true">
     <inkscape:grid
        type="xygrid"
@@ -155,10 +155,10 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Knob"
+     inkscape:label="Button"
      inkscape:groupmode="layer"
      id="layer1"
-     style="opacity:1"
+     style="display:inline;opacity:1"
      transform="translate(-84.666679,-70.781334)">
     <rect
        style="display:none;opacity:1;fill:#c2c2c2;fill-opacity:1;stroke:none;stroke-width:0.45742911;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -272,7 +272,7 @@
        inkscape:groupmode="layer"
        id="layer3"
        inkscape:label="gear"
-       style="display:inline;opacity:0.75146119">
+       style="display:none;opacity:0">
       <path
          style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.70631951;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:7.14241457;stroke-opacity:1;paint-order:normal"
          d="m 97.591263,80.139971 v 0.865782 a 3.7810485,3.7810485 0 0 0 -1.937424,0.803731 l -0.613201,-0.613201 -0.594222,0.594221 0.611377,0.611011 a 3.7810485,3.7810485 0 0 0 -0.799352,1.939614 h -0.868336 v 0.840231 h 0.865781 a 3.7810485,3.7810485 0 0 0 0.804096,1.937059 l -0.613566,0.613566 0.594222,0.594222 0.611376,-0.611377 a 3.7810485,3.7810485 0 0 0 1.939249,0.799352 v 0.868337 h 0.840236 v -0.865782 a 3.7810485,3.7810485 0 0 0 1.937051,-0.804097 l 0.61357,0.613567 0.59421,-0.594222 -0.61136,-0.611376 a 3.7810485,3.7810485 0 0 0 0.79934,-1.939249 h 0.86833 v -0.840231 h -0.86578 a 3.7810485,3.7810485 0 0 0 -0.80372,-1.937424 l 0.61319,-0.613201 -0.59421,-0.594221 -0.61101,0.611011 a 3.7810485,3.7810485 0 0 0 -1.939611,-0.798987 v -0.868336 z m 0.420116,3.360926 a 1.2603495,1.2603495 0 0 1 1.26035,1.260348 1.2603495,1.2603495 0 0 1 -1.26035,1.260347 1.2603495,1.2603495 0 0 1 -1.260348,-1.260347 1.2603495,1.2603495 0 0 1 1.260348,-1.260348 z"
@@ -391,5 +391,19 @@
        id="path927-6"
        inkscape:connector-curvature="0"
        inkscape:label="load" />
+    <path
+       style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 99.21876,90.625034 h 1.32292 v -3.96875 h 3.96875 v -1.322916 h -3.96875 v -3.96875 h -1.32292 v 3.96875 h -3.96875 v 1.322916 h 3.96875 v 3.96875"
+       id="path1029"
+       inkscape:connector-curvature="0" />
+    <path
+       style="display:inline;opacity:0.25;fill:#ffffff;fill-rule:evenodd;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 99.21876,91.154201 h 1.32292 v -3.96875 h 3.96875 v -1.322916 h -3.96875 v -3.96875 h -1.32292 v 3.96875 h -3.96875 v 1.322916 h 3.96875 v 3.96875"
+       id="path1029-3"
+       inkscape:connector-curvature="0" />
+    <g
+       inkscape:groupmode="layer"
+       id="layer6"
+       inkscape:label="Add" />
   </g>
 </svg>

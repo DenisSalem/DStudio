@@ -93,6 +93,7 @@ static void mouse_button_callback(int xpos, int ypos, int button, int action) {
             if (xpos > ui_areas[i].min_x && xpos < ui_areas[i].max_x && ypos > ui_areas[i].min_y && ypos < ui_areas[i].max_y) {
                 if (ui_callbacks[i].type == DSTUDIO_BUTTON_TYPE_REBOUNCE) {
                     button_settings_array[i].application_callback(&button_settings_array[i].flags);
+                    button_settings_array[i].update = 1;
                     ui_callbacks[i].callback(0, ui_callbacks[i].context_p, &button_settings_array[i]);
                     break;
                 }
