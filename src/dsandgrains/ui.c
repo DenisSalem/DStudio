@@ -90,6 +90,9 @@ static Vec2 slider_scale_matrix[2] = {0};
 static UIElements tiny_button_add = {0};
 static Vec2 tiny_button_scale_matrix[2] = {0};
 
+// ADD Instance, Voice and Sample buttons
+static Vec2 button_add_scale_matrix[2] = {0};
+
 static Vec2 text_pointer_scale_matrix[2] = {0};
 
 
@@ -109,7 +112,7 @@ static GLfloat motion_type;
 
 #include "../ui_statics.h"
 
-static void init_ui() {   
+static void init_ui() {
     //--- Local variables ---------------------------------------------/
     
     // Setting arrays and configuration parameters
@@ -129,7 +132,6 @@ static void init_ui() {
     GLuint system_usage_texture_id;
     GLuint charset_texture_id;
     GLuint charset_small_texture_id;
-    GLuint add_button_texture_id;
     
     Vec4 offsets = {0};
     //--- End local variables -----------------------------------------/
@@ -150,7 +152,8 @@ static void init_ui() {
     SETUP_BUTTONS_SETTING_ARRAYS
     INIT_SCROLLABLE_LIST_ARROWS
     INIT_TINY_BUTTON_ADD
-
+    INIT_BUTTONS_ADD
+    
     init_ui_elements( \
         DSTUDIO_FLAG_NONE, \
         &g_text_pointer, \

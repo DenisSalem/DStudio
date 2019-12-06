@@ -66,15 +66,7 @@
         DSANDGRAINS_CHARSET_SMALL_HEIGHT, \
         DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH, \
         NULL \
-    ); \
-    add_button_texture_id = setup_texture_n_scale_matrix( \
-        DSTUDIO_FLAG_USE_ALPHA, \
-        DSANDGRAINS_TINY_BUTTON_SCALE, \
-        DSANDGRAINS_TINY_BUTTON_SCALE, \
-        DSTUDIO_BUTTON_ADD_ASSET_PATH, \
-        NULL \
-    ); \
-    (void) add_button_texture_id;
+    );
 
 #define PREPARE_SHARED_SCALE_MATRICES \
     DSTUDIO_SET_UI_TEXT_SCALE_MATRIX( \
@@ -101,6 +93,11 @@
         tiny_button_scale_matrix, \
         DSANDGRAINS_TINY_BUTTON_SCALE, \
         DSANDGRAINS_TINY_BUTTON_SCALE \
+    ) \
+    DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX( \
+        button_add_scale_matrix, \
+        DSANDGRAINS_BUTTON_ADD_WIDTH, \
+        DSANDGRAINS_BUTTON_ADD_HEIGHT \
     )
 
 #define SETUP_BUTTONS_SETTING_ARRAYS \
@@ -154,6 +151,23 @@
     ); \
     button_settings_array[6].application_callback = add_application_callback; \
     button_settings_array[6].flags = DSTUDIO_FLAG_NONE; \
+    /* ADD BUTTONS */ \
+    button_settings_array[7].release = setup_texture_n_scale_matrix( \
+        DSTUDIO_FLAG_USE_ALPHA, \
+        DSANDGRAINS_BUTTON_ADD_WIDTH, \
+        DSANDGRAINS_BUTTON_ADD_HEIGHT, \
+        DSANDGRAINS_BUTTON_ADD_INSTANCE_ASSET_PATH, \
+        button_add_scale_matrix \
+    ); \
+    button_settings_array[7].active = setup_texture_n_scale_matrix( \
+        DSTUDIO_FLAG_USE_ALPHA, \
+        DSANDGRAINS_BUTTON_ADD_WIDTH, \
+        DSANDGRAINS_BUTTON_ADD_HEIGHT, \
+        DSANDGRAINS_ACTIVE_BUTTON_ADD_INSTANCE_ASSET_PATH, \
+        NULL \
+    ); \
+    button_settings_array[7].application_callback = add_application_callback; \
+    button_settings_array[7].flags = DSTUDIO_FLAG_NONE; \
     for(int i = DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; i < DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET+DSANDGRAINS_SCROLLABLE_LIST_SIZE; i++) { \
         button_settings_array[i].context.interactive_list = &g_instances_list_context; \
         button_settings_array[i].index = i - DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_INDEX_OFFSET; \
@@ -179,7 +193,26 @@
     ); \
     params.array_offset +=1;
 
-
+#define INIT_BUTTONS_ADD \
+    buttons_settings_array.ui_element_type = DSTUDIO_BUTTON_TYPE_REBOUNCE; \
+    buttons_settings_array.gl_x = 0.2175; \
+    buttons_settings_array.gl_y = -0.6625; \
+    buttons_settings_array.min_area_x = 470; \
+    buttons_settings_array.max_area_x = 503; \
+    buttons_settings_array.min_area_y = 382; \
+    buttons_settings_array.max_area_y = 415; \
+    params.update_callback = update_button; \
+    params.settings = &buttons_settings_array; \
+    init_ui_elements( \
+        DSTUDIO_FLAG_NONE, \
+        &tiny_button_add, \
+        button_settings_array[6].release, \
+        1, \
+        configure_ui_element, \
+        &params \
+    ); \
+    params.array_offset +=1;
+    
 #define INIT_BACKGROUND \
     init_ui_elements( \
         DSTUDIO_FLAG_NONE, \
