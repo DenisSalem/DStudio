@@ -21,9 +21,9 @@ if ( (NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE MATCHES Release))
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS}")
+    message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address")
     add_definitions(-DDSTUDIO_DEBUG)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS}")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address")
 endif()
 
 find_package(OpenGL REQUIRED)

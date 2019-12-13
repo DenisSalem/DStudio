@@ -371,7 +371,7 @@ void * ui_thread(void * arg) {
             );
         }
         printf("Blow...\n");
-        swap_window_buffer();
+        //swap_window_buffer();
         printf("There!\n");
 
         listen_events();

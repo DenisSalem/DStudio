@@ -112,6 +112,7 @@ void create_shader_program(
     GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     load_shader(&shader_buffer, DSTUDIO_FRAGMENT_SHADER_PATH);
     compile_shader(fragment_shader, &shader_buffer);
+    free(shader_buffer);
 
     // Linking Shader
     *non_interactive_program_id = glCreateProgram();

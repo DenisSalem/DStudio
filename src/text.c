@@ -40,7 +40,7 @@ void update_text(UIElements * text, char * string_value, unsigned int string_siz
         int linear_coordinate = 0;
         int padding = 0;
         for (unsigned int i = 0; i < string_size; i++) {
-            if (string_value[i] == 0 || padding) {
+            if (padding || string_value[i] == 0) {
                 offset_buffer[i].z = 0;
                 offset_buffer[i].w = 0;
                 padding = 1;

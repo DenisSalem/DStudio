@@ -164,6 +164,7 @@ void init_context(const char * window_name, int width, int height) {
     root_window = RootWindow(display, visual_info->screen);
     creating_color_map(visual_info, &root_window, &swa);
 
+    printf("%s:%d Depth:%d\n", __FILE__, __LINE__, visual_info->depth);
     window = XCreateWindow(display, root_window, 0, 0, width, height, 0, visual_info->depth, InputOutput, visual_info->visual, CWBorderPixel|CWColormap|CWEventMask, &swa);
     
     DSTUDIO_EXIT_IF_NULL(window)
