@@ -57,7 +57,7 @@ static Window               window;
 static XVisualInfo          * visual_info;
 static Colormap             color_map;
 static XEvent               x_event;
-static XEvent                x_sent_expose_event;
+static XEvent               x_sent_expose_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
       GLX_X_RENDERABLE    , True,
@@ -166,6 +166,8 @@ void init_context(const char * window_name, int width, int height) {
 
     window = XCreateWindow(display, root_window, 0, 0, width, height, 0, visual_info->depth, InputOutput, visual_info->visual, CWBorderPixel|CWColormap|CWEventMask, &swa);
     
+    DSTUDIO_EXIT_IF_NULL(window)
+
     size_hints = XAllocSizeHints();
     size_hints->flags = PMinSize | PMaxSize;
     size_hints->min_width = width;
@@ -180,8 +182,6 @@ void init_context(const char * window_name, int width, int height) {
     XSelectInput(display, window, DSTUDIO_X11_INPUT_MASKS | ButtonMotionMask);
     XkbSetDetectableAutoRepeat (display, 1, NULL);
 
-    DSTUDIO_EXIT_IF_NULL(window)
-    
     XFree(visual_info);
     XMapWindow(display, window);
     XStoreName(display, window, window_name);

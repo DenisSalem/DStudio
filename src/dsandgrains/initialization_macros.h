@@ -206,7 +206,7 @@
     init_ui_elements( \
         DSTUDIO_FLAG_NONE, \
         &tiny_button_add, \
-        button_settings_array[6].release, \
+        button_settings_array[7].release, \
         1, \
         configure_ui_element, \
         &params \

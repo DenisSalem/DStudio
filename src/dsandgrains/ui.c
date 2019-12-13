@@ -370,8 +370,10 @@ void * ui_thread(void * arg) {
                 g_text_pointer_context.render_flag
             );
         }
-                
+        printf("Blow...\n");
         swap_window_buffer();
+        printf("There!\n");
+
         listen_events();
     }
     
