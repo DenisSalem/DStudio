@@ -49,31 +49,37 @@ typedef struct vec2_t {
     GLfloat y;
 } Vec2;
 
-typedef struct UITexture_t {
-    GLuint id;
-    GLuint width;
-    GLuint height;
-} UITexture;
 
+/*
+ * UIElements describe any UI elements rendered.
+ * 
+ * If UI element has type DSTUDIO_UI_ELEMENT_TYPE_TEXT then
+ * instance_offsets is allocated as an array of Vec4. In this case the
+ * member z and w describe UV offsets. It's also the only case when
+ * count is greater than 1.
+ */
+ 
 typedef struct UIElements_t {
-    unsigned                    count;
-    GLuint                      index_buffer_object;
-    GLuint                      instance_offsets;
-    GLfloat *                   instance_offsets_buffer; /* May be allocated either as array of Vec2 or Vec4 */
-    GLuint                      instance_motions;
-    GLfloat  *                  instance_motions_buffer;
-    unsigned int                animated;
-    Vec2                        scale_matrix[2];
-    unsigned char *             texture;
-    GLuint                      texture_id;
+    unsigned int                count;
+    unsigned int                type;
+    unsigned char *             default_texture;
+    GLuint                      default_texture_id;
     GLuint                      vertex_array_object;
-    Vec4                        vertex_attributes[4];  
     GLuint                      vertex_buffer_object;
+    GLuint                      index_buffer_object;
+    GLuint                      instance_alphas;
+    GLuint                      instance_motions;
+    GLuint                      instance_offsets;
+    GLfloat *                   instance_alphas_buffer; 
+    GLfloat *                   instance_motions_buffer;
+    GLfloat *                   instance_offsets_buffer; 
     GLchar                      vertex_indexes[4];
+    Vec2                        scale_matrix[2];
+    Vec4                        vertex_attributes[4];
 } UIElements;
 
 typedef struct UICallback_t {
-    void (*callback)(int index, UIElements * context, void * args);
+    void (*callback)(unsigned int instance_index, UIElements * context, void * args);
     int index;
     void * context_p;
     int type;
