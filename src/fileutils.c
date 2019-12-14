@@ -37,10 +37,10 @@ void count_instances(const char * directory, unsigned int * count, unsigned int 
 unsigned int count_process(const char * process_name) {
     DIR * dr = 0;
     struct dirent *de;
-    char * processus_status_path = malloc(sizeof(char) * 64);
+    char * processus_status_path = malloc(sizeof(char) * 128);
     char * line_buffer = 0;
     size_t line_buffer_size = 0;
-    explicit_bzero(processus_status_path, sizeof(char) * 64);
+    explicit_bzero(processus_status_path, sizeof(char) * 128);
     int count = 0;
     long long int process_id;
     dr = opendir("/proc");

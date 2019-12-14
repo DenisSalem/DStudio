@@ -95,7 +95,6 @@ static Vec2 button_add_scale_matrix[2] = {0};
 
 static Vec2 text_pointer_scale_matrix[2] = {0};
 
-
 UIArea ui_areas[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 UICallback ui_callbacks[DSANDGRAINS_UI_ELEMENTS_COUNT] = {0};
 static ButtonStates button_settings_array[DSANDGRAINS_BUTTONS_COUNT] = {0};
@@ -151,7 +150,7 @@ static void init_ui() {
     PREPARE_SHARED_SCALE_MATRICES
     SETUP_BUTTONS_SETTING_ARRAYS
     INIT_SCROLLABLE_LIST_ARROWS
-    INIT_TINY_BUTTON_ADD
+    //INIT_TINY_BUTTON_ADD
     INIT_BUTTONS_ADD
     
     init_ui_elements( \
@@ -370,13 +369,9 @@ void * ui_thread(void * arg) {
                 g_text_pointer_context.render_flag
             );
         }
-        printf("Blow...\n");
-        //swap_window_buffer();
-        printf("There!\n");
-
+        swap_window_buffer();
         listen_events();
     }
-    
     sem_wait(&g_ui_system_usage.mutex);
     g_ui_system_usage.cut_thread = 1;
     sem_post(&g_ui_system_usage.mutex);

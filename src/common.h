@@ -84,7 +84,7 @@
     
 extern GLint scissor_x, scissor_y;
 extern GLsizei scissor_width, scissor_height;
-
+extern const char APPLICATION_NAME[];
 double get_timestamp();
-    
+
 #endif

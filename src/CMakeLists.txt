@@ -23,7 +23,7 @@ endif()
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address")
     add_definitions(-DDSTUDIO_DEBUG)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined")
 endif()
 
 find_package(OpenGL REQUIRED)

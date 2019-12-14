@@ -38,6 +38,7 @@ void exit_instances_thread() {
     explicit_bzero(instance_path, sizeof(char) * 128);
     sprintf(instance_path, "%s/%d", instances_directory, g_current_active_instance->identifier);
     unlink(instance_path);
+    free(instance_path);
     sem_post(&g_ui_instances.mutex);
 }
 
@@ -255,7 +256,6 @@ void * update_instances(void * args) {
             }
             #endif
         }
-		
 		else if (event->mask == IN_DELETE) {
             g_instances.count--;
             g_instances.index--;
@@ -266,6 +266,7 @@ void * update_instances(void * args) {
         }
         sem_post(&g_ui_instances.mutex);
     }
+    free(event);
     return NULL;
 }
 

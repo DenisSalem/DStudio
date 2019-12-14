@@ -29,6 +29,7 @@
 
 const unsigned int DSTUDIO_VIEWPORT_WIDTH = 800;
 const unsigned int DSTUDIO_VIEWPORT_HEIGHT = 480;
+const char APPLICATION_NAME[] = "D S A N D G R A I N S";
 
 int main(int argc, char ** argv) {
     (void) argc;

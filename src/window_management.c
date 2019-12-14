@@ -76,11 +76,17 @@ static int visual_attribs[] = {
 
 static int glx_major, glx_minor;
 static unsigned int keyboard_chars_map_mode = 0;
+int (*default_error_handler)(Display*, XErrorEvent*);
 
 static int ctx_error_handler( Display *dpy, XErrorEvent *ev ) {
     (void) dpy;
     (void) ev;
     ctx_error_occurred = 1;
+    return 0;
+}
+
+static int runtime_error_handler( Display *dpy, XErrorEvent *ev ) {
+    default_error_handler(dpy, ev);
     return 0;
 }
 
@@ -145,7 +151,8 @@ static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
 
 void init_context(const char * window_name, int width, int height) {
     DSTUDIO_EXIT_IF_NULL(XInitThreads());
-    int (*old_handler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctx_error_handler);
+    default_error_handler = XSetErrorHandler(runtime_error_handler);
+    int (*old_handler)(Display*, XErrorEvent*) = XSetErrorHandler(ctx_error_handler);
     Window root_window;
     XSetWindowAttributes swa;
     XSizeHints * size_hints;
@@ -164,7 +171,6 @@ void init_context(const char * window_name, int width, int height) {
     root_window = RootWindow(display, visual_info->screen);
     creating_color_map(visual_info, &root_window, &swa);
 
-    printf("%s:%d Depth:%d\n", __FILE__, __LINE__, visual_info->depth);
     window = XCreateWindow(display, root_window, 0, 0, width, height, 0, visual_info->depth, InputOutput, visual_info->visual, CWBorderPixel|CWColormap|CWEventMask, &swa);
     
     DSTUDIO_EXIT_IF_NULL(window)
@@ -184,6 +190,7 @@ void init_context(const char * window_name, int width, int height) {
     XkbSetDetectableAutoRepeat (display, 1, NULL);
 
     XFree(visual_info);
+    XFree(size_hints);
     XMapWindow(display, window);
     XStoreName(display, window, window_name);
     
