@@ -46,7 +46,6 @@ typedef struct ButtonStates_t {
         unsigned int index;
     };
     unsigned int update;
-    unsigned int disabled;
 } ButtonStates;
 
 typedef struct ButtonsManagement_t {

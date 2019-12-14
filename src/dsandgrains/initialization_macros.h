@@ -95,7 +95,7 @@
         DSANDGRAINS_TINY_BUTTON_SCALE \
     ) \
     DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX( \
-        button_add_scale_matrix, \
+        buttons_add_scale_matrix, \
         DSANDGRAINS_BUTTON_ADD_WIDTH, \
         DSANDGRAINS_BUTTON_ADD_HEIGHT \
     )
@@ -157,7 +157,7 @@
         DSANDGRAINS_BUTTON_ADD_WIDTH, \
         DSANDGRAINS_BUTTON_ADD_HEIGHT, \
         DSANDGRAINS_BUTTON_ADD_INSTANCE_ASSET_PATH, \
-        button_add_scale_matrix \
+        buttons_add_scale_matrix \
     ); \
     button_settings_array[7].active = setup_texture_n_scale_matrix( \
         DSTUDIO_FLAG_USE_ALPHA, \
@@ -195,8 +195,8 @@
 
 #define INIT_BUTTONS_ADD \
     buttons_settings_array.ui_element_type = DSTUDIO_BUTTON_TYPE_REBOUNCE; \
-    buttons_settings_array.gl_x = 0.2175; \
-    buttons_settings_array.gl_y = -0.6625; \
+    buttons_settings_array.gl_x = -0.5; \
+    buttons_settings_array.gl_y = 0.622916; \
     buttons_settings_array.min_area_x = 470; \
     buttons_settings_array.max_area_x = 503; \
     buttons_settings_array.min_area_y = 382; \
@@ -205,7 +205,7 @@
     params.settings = &buttons_settings_array; \
     init_ui_elements( \
         DSTUDIO_FLAG_NONE, \
-        &tiny_button_add, \
+        &button_add_instance, \
         button_settings_array[7].release, \
         1, \
         configure_ui_element, \

@@ -90,8 +90,9 @@ static Vec2 slider_scale_matrix[2] = {0};
 static UIElements tiny_button_add = {0};
 static Vec2 tiny_button_scale_matrix[2] = {0};
 
-// ADD Instance, Voice and Sample buttons
-static Vec2 button_add_scale_matrix[2] = {0};
+// Add Instance, Voice and Sample buttons
+static UIElements button_add_instance = {0};
+static Vec2 buttons_add_scale_matrix[2] = {0};
 
 static Vec2 text_pointer_scale_matrix[2] = {0};
 
@@ -150,7 +151,7 @@ static void init_ui() {
     PREPARE_SHARED_SCALE_MATRICES
     SETUP_BUTTONS_SETTING_ARRAYS
     INIT_SCROLLABLE_LIST_ARROWS
-    //INIT_TINY_BUTTON_ADD
+    INIT_TINY_BUTTON_ADD
     INIT_BUTTONS_ADD
     
     init_ui_elements( \
@@ -226,6 +227,9 @@ void render_viewport(unsigned int mask) {
             
             glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) tiny_button_scale_matrix);
             render_ui_elements(&tiny_button_add);
+            
+            glUniformMatrix2fv(non_interactive_scale_matrix_id, 1, GL_FALSE, (float *) buttons_add_scale_matrix);
+            render_ui_elements(&button_add_instance);
         }
 
         // INSTANCES
