@@ -28,42 +28,78 @@
 
 #include "window_management.h"
 
-/*
- * This structure may be used to store opacity in
- * interactive_list usage case. For readability, the
- * third field is renamed.
- */
- 
-typedef struct Vec4_t {
-    GLfloat x;
-    GLfloat y;
-    union {
-        GLfloat z;
-        GLfloat opacity;
-    };
-    GLfloat w;
-} Vec4;
-
 typedef struct vec2_t {
     GLfloat x;
     GLfloat y;
 } Vec2;
 
-
 /*
- * UIElements describe any UI elements rendered.
- * 
- * If UI element has type DSTUDIO_UI_ELEMENT_TYPE_TEXT then
- * instance_offsets is allocated as an array of Vec4. In this case the
- * member z and w describe UV offsets. It's also the only case when
- * count is greater than 1.
+ * This structure may be used to store offsets or areas.
  */
  
+typedef struct Vec4_t {
+    union {
+        GLfloat x;
+        GLfloat top_left_x;
+    };
+    union {
+        GLfloat top_left_y;
+        GLfloat y;
+    };
+    union {
+        GLfloat bottom_right_x;
+        GLfloat z;
+    };
+    union {
+        GLfloat bottom_right_y;
+        GLfloat w;
+    };
+} Vec4;
+
+typedef struct Scissor_t {
+    GLint x;
+  	GLint y;
+  	GLsizei width;
+  	GLsizei height;
+} Scissor;
+
+typedef enum UIElementType_t {
+    DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND = 1,
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT = 2,
+    DSTUDIO_UI_ELEMENT_TYPE_SLIDERS = 4,
+    DSTUDIO_UI_ELEMENT_TYPE_KNOBS = 8
+} UIElementType;
+
+/*
+ * UIElements describe any rendered elements. It holds both application
+ * logic information and OpenGL buffers.
+ * 
+ * - count:             specify the number of instance. Should be set
+ *                      to 1 by default except for text.
+ * - render:            is a boolean allowing ui_element to be rendered
+ *                      if set to 1.
+ * - enabled:           is a boolean allowing element to be interactive.
+ * - texture_index:     Point to the current texture id in textures_ids.
+ * - groupe_identifier: Some elements are part of meta element, like
+ *                      list or sliders group.
+ * - texture_ids:       Array of texture id. Allow switching texture for
+ *                      rebounce buttons or disabled ui elements like
+ *                      knobs or sliders.   
+ * - type:              specify the kind of ui element.
+ * - vertex_attributes: Holds initial position of each vertex of the 
+ *                      element as well as its initial UV coordinates.
+ */
+ 
+typedef struct UIElements_t UIElements;
+
 typedef struct UIElements_t {
     unsigned int                count;
-    unsigned int                type;
-    unsigned char *             default_texture;
-    GLuint                      default_texture_id;
+    unsigned int                render;
+    unsigned int                enabled;
+    unsigned int                texture_index;
+    unsigned int                group_identifier;
+    GLchar                      vertex_indexes[4];
+    GLuint                      texture_ids[2];
     GLuint                      vertex_array_object;
     GLuint                      vertex_buffer_object;
     GLuint                      index_buffer_object;
@@ -72,19 +108,70 @@ typedef struct UIElements_t {
     GLuint                      instance_offsets;
     GLfloat *                   instance_alphas_buffer; 
     GLfloat *                   instance_motions_buffer;
-    GLfloat *                   instance_offsets_buffer; 
-    GLchar                      vertex_indexes[4];
-    Vec2                        scale_matrix[2];
+    Vec4 *                      instance_offsets_buffer; 
     Vec4                        vertex_attributes[4];
+    Vec4                        areas;
+    Scissor                     scissor;
+    Vec2 *                      scale_matrix;
+    UIElementType               type;
+    void (*application_callback)(UIElements * self, void * args);
 } UIElements;
 
-typedef struct UICallback_t {
-    void (*callback)(unsigned int instance_index, UIElements * context, void * args);
-    int index;
-    void * context_p;
-    int type;
-} UICallback;
+void compile_shader(
+    GLuint shader_id,
+    GLchar ** source_pointer
+);
 
+void create_shader_program(
+    GLuint * shader_program_id
+);
+
+void init_ui_elements(
+    int flags,
+    UIElements * ui_elements
+);
+
+int get_png_pixel(
+    const char * filename,
+    png_bytep * buffer,
+    png_uint_32 format // png_bytep is basically unsigned char
+); 
+
+void load_shader(
+    GLchar ** shader_buffer,
+    const char * filename
+);
+
+void manage_cursor_position(
+    int xpos,
+    int ypos
+);
+
+void manage_mouse_button(
+    int xpos,
+    int ypos,
+    int button,
+    int action
+);
+
+GLuint setup_texture_n_scale_matrix(
+    unsigned int flags,
+    GLuint texture_width,
+    GLuint texture_height,
+    const char * texture_filename,
+    Vec2 * scale_matrix
+);
+
+// Must be defined by consumer
+typedef struct UIElementsArray_t UIElementsArray;
+extern UIElementsArray g_ui_elements_array;
+
+extern GLint scissor_x, scissor_y;
+extern GLsizei scissor_width, scissor_height;
+extern const unsigned int g_dstudio_viewport_width;
+extern const unsigned int g_dstudio_viewport_height;
+
+/*
 typedef struct UIArea_t {
     float min_x;
     float min_y;
@@ -106,11 +193,11 @@ typedef struct UIElementSetting_t {
 
 typedef struct ui_element_setting_params_t {
     unsigned int        array_offset;
-    /*
-     * May be one of the following type
-     * - UIElementSetting
-     * - UIInteractiveListSetting
-     */
+    
+     //May be one of the following type
+     //- UIElementSetting
+     //- UIInteractiveListSetting
+     //
     void *  settings;
     UIArea *            areas;
     UICallback *        callbacks;
@@ -121,19 +208,9 @@ typedef union TextFieldContext_t {
     
 } UITextFieldContext;
 
-void compile_shader(
-    GLuint shader_id,
-    GLchar ** source_pointer
-);
-
 void configure_ui_element(
     UIElements * ui_elements,
     void * params
-);
-
-void create_shader_program(
-    GLuint * interactive_program_id,
-    GLuint * non_interactive_program_id
 );
 
 void gen_gl_buffer(
@@ -144,26 +221,11 @@ void gen_gl_buffer(
     unsigned int data_size
 );
 
-int get_png_pixel(
-    const char * filename,
-    png_bytep * buffer,
-    png_uint_32 format // png_bytep is basically unsigned char
-); 
-
 void init_ui_element(
     GLfloat * instance_offset_p,
     float offset_x,
     float offset_y,
     GLfloat * motion_buffer
-);
-
-void init_ui_elements(
-    int flags,
-    UIElements * ui_elements,
-    GLuint texture_id,
-    unsigned int count,
-    void (*configure_ui_element)(UIElements * ui_elements, void * params),
-    void * params
 );
 
 void init_ui_elements_settings(
@@ -178,27 +240,16 @@ void init_ui_elements_settings(
     unsigned int count,
     unsigned int ui_element_type
 );
-
-void load_shader(
-    GLchar ** shader_buffer,
-    const char * filename
-);
+*/
 
 void render_ui_elements(
     UIElements * ui_elements
 );
 
+/*
 // This one is not defined in the generic ui.c source file.
 // Instead, it is defined for every tools from DStudio.
 void render_viewport(unsigned int mask);
-
-GLuint setup_texture_n_scale_matrix(
-    unsigned int flags,
-    GLuint texture_width,
-    GLuint texture_height,
-    const char * texture_filename,
-    Vec2 * scale_matrix
-);
 
 void update_and_render(
     sem_t * mutex,
@@ -216,8 +267,25 @@ void update_ui_element_motion(
     UIElements * knobs_p,
     void * args
 );
+*/
 
-extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
-extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
+#define DEFINE_RENDER_VIEWPORT \
+    void render_viewport() { \
+        unsigned int ui_elements_count = sizeof(UIElementsArray) / sizeof(UIElements); \
+        UIElements * ui_elements_array = (UIElements *) &g_ui_elements_array; \
+        for (unsigned int i = 0; i < ui_elements_count; i++) { \
+            if (ui_elements_array[i].render) { \
+                glUniformMatrix2fv(g_scale_matrix_id, 1, GL_FALSE, (float *) ui_elements_array[i].scale_matrix); \
+                glScissor( \
+                    ui_elements_array[i].scissor.x, \
+                    ui_elements_array[i].scissor.y, \
+                    ui_elements_array[i].scissor.width, \
+                    ui_elements_array[i].scissor.height \
+                ); \
+                render_ui_elements(&ui_elements_array[i]); \
+                ui_elements_array[i].render = 0; \
+            }\
+        } \
+    }
 
 #endif

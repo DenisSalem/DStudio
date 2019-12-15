@@ -21,32 +21,36 @@
 #include <semaphore.h>
 
 #include "../common.h"
-#include "../fileutils.h"
-#include "../instances.h"
-#include "../system_usage.h"
-#include "instances.h"
+//#include "../fileutils.h"
+//#include "../instances.h"
+//#include "../system_usage.h"
+//#include "instances.h"
 #include "ui.h"
 
-const unsigned int DSTUDIO_VIEWPORT_WIDTH = 800;
-const unsigned int DSTUDIO_VIEWPORT_HEIGHT = 480;
-const char APPLICATION_NAME[] = "D S A N D G R A I N S";
+const unsigned int g_dstudio_viewport_width = 800;
+const unsigned int g_dstudio_viewport_height = 480;
+const char g_application_name[] = "D S A N D G R A I N S";
 
 int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
-    DSTUDIO_EXIT_IF_FAILURE(set_physical_memory());
+    sem_init(&g_alloc_register_mutex, 0, 1);
 
-    new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
+    //DSTUDIO_EXIT_IF_FAILURE(set_physical_memory());
+
+    //new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     
-    pthread_t ui_thread_id, system_usage_thread_id, instances_thread_id;
+    pthread_t ui_thread_id;
+    // pthread_t system_usage_thread_id;
+    // pthread_t instances_thread_id;
     
     // TODO: Investigate thread priority.
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, NULL))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, NULL))
+    //DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, NULL))
+    //DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, NULL))
 
-    DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_thread_id, NULL))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
+    //DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_thread_id, NULL))
+    //DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
 
     return 0;

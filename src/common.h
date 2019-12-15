@@ -1,6 +1,8 @@
 #ifndef DSTUDIO_COMMON_H_INCLUDED
 #define DSTUDIO_COMMON_H_INCLUDED
 
+#include <semaphore.h>
+
 #include "extensions.h"
 
 // TODO : MOVE THE FOLLOWING INTO dsandgrains/ui.h ?
@@ -14,37 +16,14 @@
 #define DSTUDIO_BUTTON_ADD_ASSET_PATH               "../assets/button_add.png"
 #define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
 
-#define DSTUDIO_RENDER_ALL                    0xffffffff
-#define DSTUDIO_RENDER_KNOBS                  1
-#define DSTUDIO_RENDER_SLIDERS                2
-#define DSTUDIO_RENDER_SYSTEM_USAGE           4
-#define DSTUDIO_RENDER_INSTANCES              8
-#define DSTUDIO_RENDER_BUTTONS_TYPE_REBOUNCE  16
-#define DSTUDIO_RENDER_BUTTONS_TYPE_LIST_ITEM 32
-#define DSTUDIO_RENDER_VOICES                 64
-#define DSTUDIO_RENDER_TEXT_POINTER           128
-
 #define DSTUDIO_FLAG_NONE               0
-#define DSTUDIO_FLAG_ANIMATED           1
-#define DSTUDIO_FLAG_FLIP_Y             2
-#define DSTUDIO_FLAG_USE_ALPHA          4
-#define DSTUDIO_FLAG_USE_ANTI_ALIASING  8
+#define DSTUDIO_FLAG_FLIP_Y             1
+#define DSTUDIO_FLAG_USE_ALPHA          2
+#define DSTUDIO_FLAG_USE_ANTI_ALIASING  4
 
-#define DSTUDIO_CONTEXT_INSTANCES   1
-#define DSTUDIO_CONTEXT_VOICES      2
-#define DSTUDIO_CONTEXT_SAMPLES     3
-#define DSTUDIO_BUTTON_ACTION_LIST_BACKWARD   1
-
-#define DSTUDIO_KNOB_TYPE_CONTINUE      1
-#define DSTUDIO_KNOB_TYPE_DISCRETE      2
-#define DSTUDIO_SLIDER_TYPE_VERTICAL    4
-#define DSTUDIO_BUTTON_TYPE_REBOUNCE    8
-#define DSTUDIO_BUTTON_TYPE_LIST_ITEM   16
-#define DSTUDIO_BUTTON_TYPES \
-    (DSTUDIO_BUTTON_TYPE_LIST_ITEM | \
-    DSTUDIO_BUTTON_TYPE_REBOUNCE)
-    
 #define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
+#define DSTUDIO_FRAMERATE 20000
+#define DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE 16
 
 #define DSTUDIO_SET_UI_ELEMENT_SCALE_MATRIX(matrix, width, height) \
     matrix[0].x = ((float) width / (float) DSTUDIO_VIEWPORT_WIDTH); \
@@ -81,10 +60,15 @@
 #define DSTUDIO_DYNAMIC_ALLOCATION(dest, size) \
     dest = malloc(size); \
     explicit_bzero(dest, size);
-    
-extern GLint scissor_x, scissor_y;
-extern GLsizei scissor_width, scissor_height;
-extern const char APPLICATION_NAME[];
+
+/*
+ * Safely allocate and initialize memory. Automatically stop the program on failure.
+ */
+void * dstudio_alloc(unsigned int buffer_size);
+void dstudio_free(void * buffer);
+
+extern sem_t g_alloc_register_mutex;
+extern const char g_application_name[];
 double get_timestamp();
 
 #endif

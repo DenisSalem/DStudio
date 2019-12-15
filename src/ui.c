@@ -48,7 +48,7 @@ void compile_shader(
         }
     #endif
 }
-
+/*
 void configure_ui_element(
     UIElements * ui_elements,
     void * params
@@ -90,57 +90,68 @@ void configure_ui_element(
         ui_callback->type = configure_ui_element_p->ui_element_type;
     }
 }
+*/
 
 void create_shader_program(
-    GLuint * interactive_program_id,
-    GLuint * non_interactive_program_id
+    GLuint * shader_program_id
 ) {
     GLchar * shader_buffer = NULL;
-    // NON INTERACTIVE VERTEX SHADER
-    GLuint non_interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    
+    // TODO Replace with create_shader function, returning shader id;
+    // VERTEX SHADER
+    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     load_shader(&shader_buffer, DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH);
-    compile_shader(non_interactive_vertex_shader, &shader_buffer);
-    free(shader_buffer);
- 
-     // INTERACTIVE VERTEX SHADER
-    GLuint interactive_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    load_shader(&shader_buffer, DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH);
-    compile_shader(interactive_vertex_shader, &shader_buffer);
-    free(shader_buffer);
+    compile_shader(vertex_shader, &shader_buffer);
+    dstudio_free(shader_buffer);
 
     //FRAGMENT SHADER
     GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     load_shader(&shader_buffer, DSTUDIO_FRAGMENT_SHADER_PATH);
     compile_shader(fragment_shader, &shader_buffer);
-    free(shader_buffer);
+    dstudio_free(shader_buffer);
 
     // Linking Shader
-    *non_interactive_program_id = glCreateProgram();
-    glAttachShader(*non_interactive_program_id, non_interactive_vertex_shader);
-    glAttachShader(*non_interactive_program_id, fragment_shader);
-    glLinkProgram(*non_interactive_program_id);
 
-    *interactive_program_id = glCreateProgram();
-    glAttachShader(*interactive_program_id, interactive_vertex_shader);
-    glAttachShader(*interactive_program_id, fragment_shader);
-    glLinkProgram(*interactive_program_id);
+    *shader_program_id = glCreateProgram();
+    glAttachShader(*shader_program_id, vertex_shader);
+    glAttachShader(*shader_program_id, fragment_shader);
+    glLinkProgram(*shader_program_id);
     
-    glDeleteShader(non_interactive_vertex_shader);
-    glDeleteShader(interactive_vertex_shader);
+    glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
     #ifdef DSTUDIO_DEBUG
     int info_log_length = 2048;
     char program_error_message[2048] = {0};
 
-    glGetProgramiv(*interactive_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-    glGetProgramInfoLog(*interactive_program_id, info_log_length, NULL, program_error_message);
+    glGetProgramiv(*shader_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+    glGetProgramInfoLog(*shader_program_id, info_log_length, NULL, program_error_message);
 
     if (strlen(program_error_message) != 0) {
         printf("%s\n", program_error_message);
     }
-    
     #endif
+}
+
+void manage_cursor_position(int xpos, int ypos) {
+    (void) xpos;
+    (void) ypos;
+    /*float motion;
+    if (active_ui_element.callback == NULL) {
+        return;
+    }
+    if (active_ui_element.type == DSTUDIO_KNOB_TYPE_CONTINUE) {
+        motion = compute_knob_rotation(xpos, ypos);
+        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
+    }
+    else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_DISCRETE) {
+        motion = compute_knob_rotation(xpos, ypos);
+        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
+    }
+    else if (active_ui_element.type == DSTUDIO_SLIDER_TYPE_VERTICAL) {
+        motion = compute_slider_translation(ypos);
+        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
+    }*/
 }
 
 void gen_gl_buffer(
@@ -167,7 +178,7 @@ int get_png_pixel(
     image.version = PNG_IMAGE_VERSION;
     if (png_image_begin_read_from_file(&image, filename) != 0) {
         image.format = format;
-        *buffer = malloc(PNG_IMAGE_SIZE(image));
+        *buffer = dstudio_alloc(PNG_IMAGE_SIZE(image));
         if (*buffer != NULL && png_image_finish_read(&image, NULL, *buffer, 0, NULL) != 0) {
             return PNG_IMAGE_SIZE(image);
         }
@@ -180,6 +191,14 @@ int get_png_pixel(
     exit(-1);
 }
 
+void manage_mouse_button(int xpos, int ypos, int button, int action) {
+    (void) xpos;
+    (void) ypos;
+    (void) button;
+    (void) action;
+}
+
+/*
 void init_ui_element(
     GLfloat * instance_offset_p,
     float offset_x,
@@ -190,27 +209,15 @@ void init_ui_element(
     instance_offset_p[1] = offset_y;
     *motion_buffer = 0;
 }
+*/
 
 void init_ui_elements(
     int flags,
-    UIElements * ui_elements,
-    GLuint texture_id,
-    unsigned int count,
-    void (*configure_ui_element)(UIElements * ui_elements, void * params),
-    void * params
+    UIElements * ui_elements
 ) {
-    int animated = flags & DSTUDIO_FLAG_ANIMATED;
     int flip_y =  (flags & DSTUDIO_FLAG_FLIP_Y) >> 1;
     
-    Vec4 * offsets; 
-    ui_elements->animated = animated;
-    /* How many elements this group holds? */
-    ui_elements->count = count;
-    
-    /* Copy texture identifier */
-    ui_elements->texture_id = texture_id;
-    
-    /* Setting vertex indexes */
+    // Setting vertex indexes
     GLchar * vertex_indexes = ui_elements->vertex_indexes;
     vertex_indexes[0] = 0;
     vertex_indexes[1] = 1;
@@ -218,7 +225,7 @@ void init_ui_elements(
     vertex_indexes[3] = 3;
     gen_gl_buffer(GL_ELEMENT_ARRAY_BUFFER, &ui_elements->index_buffer_object, vertex_indexes, GL_STATIC_DRAW, sizeof(GLchar) * 4);
     
-    /* Setting default vertex coordinates */
+    // Setting default vertex coordinates
     Vec4 * vertex_attributes = ui_elements->vertex_attributes;
     vertex_attributes[0].x = -1.0;
     vertex_attributes[0].y =  1.0;
@@ -229,45 +236,23 @@ void init_ui_elements(
     vertex_attributes[3].x =  1.0;
     vertex_attributes[3].y = -1.0;
     
-    /* Setting default texture coordinates */
-    if (texture_id) {
-        vertex_attributes[2].z = 1.0;
-        vertex_attributes[3].z = 1.0;
-        if (flip_y) {
-            vertex_attributes[0].w = 1.0f;
-            vertex_attributes[2].w = 1.0;
-        }
-        else {
-            vertex_attributes[1].w = 1.0;
-            vertex_attributes[3].w = 1.0;
-        }
+    // Setting default texture coordinates
+    vertex_attributes[2].z = 1.0;
+    vertex_attributes[3].z = 1.0;
+    if (flip_y) {
+        vertex_attributes[0].w = 1.0f;
+        vertex_attributes[2].w = 1.0;
+    }
+    else {
+        vertex_attributes[1].w = 1.0;
+        vertex_attributes[3].w = 1.0;
     }
     
-    /* Setting instance buffers */
-    ui_elements->instance_offsets_buffer = malloc(count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
-    explicit_bzero(ui_elements->instance_offsets_buffer, count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
-
-    if (configure_ui_element != NULL && params != NULL) {
-        if (animated) {
-            ui_elements->instance_motions_buffer = malloc(count * sizeof(GLfloat));
-        }
-        configure_ui_element(ui_elements, params);
-    }
-    
-    if (params != NULL && !animated && configure_ui_element == NULL) {
-        offsets = (Vec4 *) &ui_elements->instance_offsets_buffer[0];
-        offsets->x = ((Vec4 *) params)->x;
-        offsets->y = ((Vec4 *) params)->y;
-        offsets->z = ((Vec4 *) params)->z;
-        offsets->w = ((Vec4 *) params)->w;
-    }
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
-    if (animated) {
-        gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * count);
-    }
-    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, count * (animated ? sizeof(Vec2) : sizeof(Vec4)));
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * ui_elements->count);
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, ui_elements->count * sizeof(Vec4));
 
-    /* Setting vertex array */
+    // Setting vertex array
     glGenVertexArrays(1, &ui_elements->vertex_array_object);
     glBindVertexArray(ui_elements->vertex_array_object);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->vertex_buffer_object);         
@@ -278,23 +263,18 @@ void init_ui_elements(
             glEnableVertexAttribArray(1);
             glVertexAttribDivisor(1, 0);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
-
-            // If there is no motions required, it means that we might want to offset texture coordinates instead */
-            glVertexAttribPointer(2, animated ? 2 : 4, GL_FLOAT, GL_FALSE, animated ? sizeof(Vec2) : sizeof(Vec4), (GLvoid *) 0 );
+            glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), (GLvoid *) 0 );
             glEnableVertexAttribArray(2);
             glVertexAttribDivisor(2, 1);
-
-            if (animated) {
-                glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_motions);
-                    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
-                    glEnableVertexAttribArray(3);
-                    glVertexAttribDivisor(3, 1);
-            }
-
+        glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_motions);
+            glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
+            glEnableVertexAttribArray(3);
+            glVertexAttribDivisor(3, 1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
+/*
 void init_ui_elements_settings(
     UIElementSetting ** settings_p,
     GLfloat gl_x,
@@ -344,7 +324,7 @@ void init_ui_elements_settings(
         #endif
 
     }
-}
+}*/
 
 void load_shader(
     GLchar ** shader_buffer,
@@ -355,7 +335,7 @@ void load_shader(
         printf("Failed to open \"%s\" with errno: %d.\n", filename, errno);
         exit(-1);
     }
-    (*shader_buffer) = malloc(2048 * sizeof(GLchar));
+    (*shader_buffer) = dstudio_alloc(2048 * sizeof(GLchar));
     GLchar * local_shader_buffer = (*shader_buffer);
     for (int i=0; i < 2048; i++) {
         local_shader_buffer[i] = (GLchar ) fgetc(shader);
@@ -367,8 +347,9 @@ void load_shader(
     fclose(shader);
 }
 
+
 void render_ui_elements(UIElements * ui_elements) {
-    glBindTexture(GL_TEXTURE_2D, ui_elements->texture_id);
+    glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ui_elements->index_buffer_object);
                 glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, ui_elements->count);
@@ -399,19 +380,20 @@ GLuint setup_texture_n_scale_matrix(
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, enable_aa ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST );
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
-    free(texture_data);
+    dstudio_free(texture_data);
     
     /* Setting scale matrix if not NULL */
     if (scale_matrix) {
-        scale_matrix[0].x = ((float) texture_width) / ((float) DSTUDIO_VIEWPORT_WIDTH);
+        scale_matrix[0].x = ((float) texture_width) / ((float) g_dstudio_viewport_width);
         scale_matrix[0].y = 0;
         scale_matrix[1].x = 0;
-        scale_matrix[1].y = ((float) texture_height) / ((float) DSTUDIO_VIEWPORT_HEIGHT);
+        scale_matrix[1].y = ((float) texture_height) / ((float) g_dstudio_viewport_height);
     }
     
     return texture_id;
 }
 
+/*
 void update_and_render(
     sem_t * mutex,
     unsigned int * update,
@@ -431,6 +413,7 @@ void update_and_render(
     }
     sem_post(mutex);
 }
+*/
 
 void update_ui_element_motion(
     int index,

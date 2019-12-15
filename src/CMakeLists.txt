@@ -38,18 +38,18 @@ add_executable(
 	dsandgrains
 	dsandgrains/main.c
     dsandgrains/ui.c
-    add.c
-    buttons.c
+    #add.c
+    #buttons.c
     common.c
     extensions.c
-    fileutils.c
-    instances.c
-    interactive_list.c
-    system_usage.c
-    text.c
-    text_pointer.c
+    #fileutils.c
+    #instances.c
+    #interactive_list.c
+    #system_usage.c
+    #text.c
+    #text_pointer.c
     ui.c
-    voices.c
+    #voices.c
     window_management.c
 )
 

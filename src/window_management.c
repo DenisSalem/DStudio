@@ -268,16 +268,16 @@ void listen_events() {
         }
         else if(x_event.type == KeyPress) {
             if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
-                g_text_pointer_context.active = 0;
+                //g_text_pointer_context.active = 0;
             }
             else if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT || x_event.xkey.keycode == DSTUDIO_KEY_CAPS_LOCK) {
                 keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
             }
-            else if(g_text_pointer_context.active) {
-                update_text_box(
-                    XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
-                );
-            }
+            //~ else if(g_text_pointer_context.active) {
+                //~ update_text_box(
+                    //~ XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
+                //~ );
+            //~ }
         }
         else if(x_event.type == KeyRelease)  {
             if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT) {
