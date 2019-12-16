@@ -19,41 +19,28 @@
 
 #version 330
 
-layout(location = 0) in vec2  vertex_position;
-layout(location = 1) in vec2  texture_coordinates;
-layout(location = 2) in vec2  translation;
+layout(location = 0) in vec2 vertex_position;
+layout(location = 1) in vec2 texture_coordinates;
+layout(location = 2) in vec4 offset;
 layout(location = 3) in float motion;
+layout(location = 4) in float in_alpha;
 
-uniform mat2 scale_matrix;
-uniform float motion_type;
-flat out vec2 no_texture_args;
+uniform mat2            scale_matrix;
+uniform float           no_texture;
+uniform uint            motion_type;
+
 out vec2 fragment_texture_coordinates;
+flat out vec2 no_texture_args;
+flat out float alpha;
 
 void main() {
-    no_texture_args = vec2(0);
-    
-    if (motion_type == 0.0) {
-        vec2 applied_rotation; 
-        float c = cos(motion);
-        float s = sin(motion);
-    
-        if (motion != 0) {  
-            applied_rotation.x = vertex_position.x * c - vertex_position.y * s;
-            applied_rotation.y = vertex_position.x * s + vertex_position.y * c;
-        }
-        else {
-            applied_rotation = vertex_position.xy;
-        }
-    
-        gl_Position = vec4( scale_matrix * applied_rotation + translation, 0, 1.0);
+    alpha = in_alpha;
+    gl_Position = vec4( scale_matrix * vertex_position + offset.xy, 0, 1.0);
+    if (no_texture == 1.0) {
+        no_texture_args = vec2(1.0, offset.z);
     }
     else {
-            if (motion != 0) {
-                gl_Position = vec4( scale_matrix * vertex_position.xy + translation + vec2(0, motion), 0, 1.0);
-            }
-            else {
-                gl_Position = vec4( scale_matrix * vertex_position.xy + translation, 0, 1.0);
-            }
+        no_texture_args = vec2(0.0);
+        fragment_texture_coordinates = texture_coordinates + offset.zw;
     }
-    fragment_texture_coordinates = texture_coordinates;
 } 

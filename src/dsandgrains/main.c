@@ -52,6 +52,7 @@ int main(int argc, char ** argv) {
     //DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_thread_id, NULL))
     //DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
-
+    
+    dstudio_free(0);
     return 0;
 }

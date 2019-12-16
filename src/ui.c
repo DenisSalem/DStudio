@@ -100,7 +100,7 @@ void create_shader_program(
     // TODO Replace with create_shader function, returning shader id;
     // VERTEX SHADER
     GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    load_shader(&shader_buffer, DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH);
+    load_shader(&shader_buffer, DSTUDIO_VERTEX_SHADER_PATH);
     compile_shader(vertex_shader, &shader_buffer);
     dstudio_free(shader_buffer);
 
@@ -249,8 +249,9 @@ void init_ui_elements(
     }
     
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
-    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, sizeof(GLfloat) * ui_elements->count);
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, ui_elements->count * sizeof(GLfloat) );
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, ui_elements->count * sizeof(Vec4));
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_alphas, ui_elements->instance_alphas_buffer, GL_STATIC_DRAW, ui_elements->count * sizeof(GLfloat));
 
     // Setting vertex array
     glGenVertexArrays(1, &ui_elements->vertex_array_object);
@@ -270,6 +271,10 @@ void init_ui_elements(
             glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
             glEnableVertexAttribArray(3);
             glVertexAttribDivisor(3, 1);
+        glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_alphas);
+            glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(GLfloat), (GLvoid *) 0 );
+            glEnableVertexAttribArray(4);
+            glVertexAttribDivisor(4, 1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }

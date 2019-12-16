@@ -7,8 +7,7 @@
 
 // TODO : MOVE THE FOLLOWING INTO dsandgrains/ui.h ?
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
-#define DSTUDIO_INTERACTIVE_VERTEX_SHADER_PATH      "../assets/interactive_vertex.shader"
-#define DSTUDIO_NON_INTERACTIVE_VERTEX_SHADER_PATH  "../assets/non_interactive_vertex.shader"
+#define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"
 #define DSTUDIO_CHAR_TABLE_ASSET_PATH               "../assets/char_table.png"
 #define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"

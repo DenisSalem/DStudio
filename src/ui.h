@@ -105,6 +105,7 @@ typedef struct UIElements_t {
     GLuint                      index_buffer_object;
     GLuint                      instance_alphas;
     GLuint                      instance_motions;
+    GLuint                      motion_type;
     GLuint                      instance_offsets;
     GLfloat *                   instance_alphas_buffer; 
     GLfloat *                   instance_motions_buffer;
