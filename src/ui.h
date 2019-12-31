@@ -274,19 +274,58 @@ void update_ui_element_motion(
     void render_viewport() { \
         unsigned int ui_elements_count = sizeof(UIElementsArray) / sizeof(UIElements); \
         UIElements * ui_elements_array = (UIElements *) &g_ui_elements_array; \
-        for (unsigned int i = 0; i < ui_elements_count; i++) { \
+        if (g_ui_elements_array.background.render) { \
+            glScissor( \
+                g_ui_elements_array.background.scissor.x, \
+                g_ui_elements_array.background.scissor.y, \
+                g_ui_elements_array.background.scissor.width, \
+                g_ui_elements_array.background.scissor.height \
+            ); \
+            glUniformMatrix2fv( \
+                g_scale_matrix_id, \
+                1, \
+                GL_FALSE, \
+                (float *) g_ui_elements_array.background.scale_matrix \
+            ); \
+            render_ui_elements(&g_ui_elements_array.background); \
+            g_ui_elements_array.background.render = 0; \
+        } \
+        else { \
+            for (unsigned int i = 1; i < ui_elements_count; i++) { \
+                if (ui_elements_array[i].render) { \
+                    glScissor( \
+                        ui_elements_array[i].scissor.x, \
+                        ui_elements_array[i].scissor.y, \
+                        ui_elements_array[i].scissor.width, \
+                        ui_elements_array[i].scissor.height \
+                    ); \
+                    glUniformMatrix2fv( \
+                        g_scale_matrix_id, \
+                        1, \
+                        GL_FALSE, \
+                        (float *) g_ui_elements_array.background.scale_matrix \
+                    ); \
+                    render_ui_elements(&g_ui_elements_array.background); \
+                }\
+            } \
+        } \
+        for (unsigned int i = 1; i < ui_elements_count; i++) { \
             if (ui_elements_array[i].render) { \
-                glUniformMatrix2fv(g_scale_matrix_id, 1, GL_FALSE, (float *) ui_elements_array[i].scale_matrix); \
                 glScissor( \
                     ui_elements_array[i].scissor.x, \
                     ui_elements_array[i].scissor.y, \
                     ui_elements_array[i].scissor.width, \
                     ui_elements_array[i].scissor.height \
                 ); \
+                glUniformMatrix2fv( \
+                    g_scale_matrix_id, \
+                    1, \
+                    GL_FALSE, \
+                    (float *) ui_elements_array[i].scale_matrix \
+                ); \
                 render_ui_elements(&ui_elements_array[i]); \
                 ui_elements_array[i].render = 0; \
             }\
         } \
     }
-
 #endif

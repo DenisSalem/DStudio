@@ -62,7 +62,6 @@ inline static void init_background() {
 }
 
 static void init_ui() {
-    printf("sizeof(UIElements) == %lu\n", sizeof(UIElements));
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
     init_background();
     //sem_init(&g_text_pointer_context.mutex, 0, 1);
