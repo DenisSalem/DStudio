@@ -20,7 +20,6 @@
 static Vec2 active_slider_range = {0};
 static UICallback active_ui_element = {0};
 static Vec2 active_ui_element_center = {0};
-static int render_mask = 0;
 static int ui_element_index = 0;
 static int mouse_state = 0;
 static double list_item_click_timestamp = 0;

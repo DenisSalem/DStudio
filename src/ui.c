@@ -198,19 +198,6 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     (void) action;
 }
 
-/*
-void init_ui_element(
-    GLfloat * instance_offset_p,
-    float offset_x,
-    float offset_y,
-    GLfloat * motion_buffer
-) {
-    instance_offset_p[0] = offset_x;
-    instance_offset_p[1] = offset_y;
-    *motion_buffer = 0;
-}
-*/
-
 void init_ui_elements(
     int flags,
     UIElements * ui_elements
@@ -285,8 +272,8 @@ void init_ui_elements_array(
     Vec2 * scale_matrix,
     GLfloat gl_x,
     GLfloat gl_y,
-    GLfloat scale_area_x,
-    GLfloat scale_area_y,
+    GLfloat area_width,
+    GLfloat area_height,
     GLfloat offset_x,
     GLfloat offset_y,
     unsigned int columns,
@@ -294,10 +281,10 @@ void init_ui_elements_array(
     unsigned int instances_count,
     UIElementType ui_element_type
 ) {
-    GLfloat min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (scale_area_x / 2);
-    GLfloat max_area_x = min_area_x + scale_area_x;
-    GLfloat min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (scale_area_y / 2);
-    GLfloat max_area_y = min_area_y + scale_area_y;
+    GLfloat min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2);
+    GLfloat max_area_x = min_area_x + area_width;
+    GLfloat min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
+    GLfloat max_area_y = min_area_y + area_height;
     
     GLfloat area_offset_x = offset_x * (GLfloat)(g_dstudio_viewport_width >> 1);
     GLfloat area_offset_y = offset_y * (GLfloat)(g_dstudio_viewport_height >> 1);
@@ -401,13 +388,10 @@ GLuint setup_texture_n_scale_matrix(
     glBindTexture(GL_TEXTURE_2D, 0);
     dstudio_free(texture_data);
     
-    /* Setting scale matrix if not NULL */
-    if (scale_matrix) {
-        scale_matrix[0].x = ((float) texture_width) / ((float) g_dstudio_viewport_width);
-        scale_matrix[0].y = 0;
-        scale_matrix[1].x = 0;
-        scale_matrix[1].y = ((float) texture_height) / ((float) g_dstudio_viewport_height);
-    }
+    scale_matrix[0].x = ((float) texture_width) / ((float) g_dstudio_viewport_width);
+    scale_matrix[0].y = 0;
+    scale_matrix[1].x = 0;
+    scale_matrix[1].y = ((float) texture_height) / ((float) g_dstudio_viewport_height);
     
     return texture_id;
 }

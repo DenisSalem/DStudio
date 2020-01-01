@@ -143,8 +143,8 @@ void init_ui_elements_array(
     Vec2 * scale_matrix,
     GLfloat gl_x,
     GLfloat gl_y,
-    GLfloat scale_area_x,
-    GLfloat scale_area_y,
+    GLfloat area_width,
+    GLfloat area_height,
     GLfloat offset_x,
     GLfloat offset_y,
     unsigned int columns,
@@ -233,7 +233,7 @@ typedef union TextFieldContext_t {
 void configure_ui_element(
     UIElements * ui_elements,
     void * params
-);
+);*/
 
 void gen_gl_buffer(
     GLenum type,
@@ -242,27 +242,6 @@ void gen_gl_buffer(
     GLenum mode,
     unsigned int data_size
 );
-
-void init_ui_element(
-    GLfloat * instance_offset_p,
-    float offset_x,
-    float offset_y,
-    GLfloat * motion_buffer
-);
-
-void init_ui_elements_settings(
-    UIElementSetting ** settings_p,
-    GLfloat gl_x,
-    GLfloat gl_y,
-    GLfloat scale_area_x,
-    GLfloat scale_area_y,
-    GLfloat offset_x,
-    GLfloat offset_y,
-    unsigned int rows,
-    unsigned int count,
-    unsigned int ui_element_type
-);
-*/
 
 void render_ui_elements(
     UIElements * ui_elements
