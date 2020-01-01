@@ -20,8 +20,23 @@
 #include "../ui.h"
 
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
+
+#define DSANDGRAINS_SAMPLE_KNOBS_POS_X -0.8675
+#define DSANDGRAINS_SAMPLE_KNOBS_POS_Y 0.25
+#define DSANDGRAINS_SAMPLE_KNOBS_OFFSET_X 0.16
+#define DSANDGRAINS_SAMPLE_KNOBS_OFFSET_Y -0.4
+#define DSANDGRAINS_SAMPLE_KNOBS_COLUMNS 4
+
 typedef struct UIElementsArray_t {
     UIElements background;
+    UIElements knob_sample_start;
+    UIElements knob_sample_end;
+    UIElements knob_sample_grain_size;
+    UIElements knob_sample_transient_thresold;
+    UIElements knob_sample_loop_duration;
+    UIElements knob_sample_cloud_size;
+    UIElements knob_sample_distribution_balance;
+    UIElements knob_sample_smooth_transition;
 } UIElementsArray;
 
 void * ui_thread(void * arg);

@@ -279,57 +279,71 @@ void init_ui_elements(
     glBindVertexArray(0);
 }
 
-/*
-void init_ui_elements_settings(
-    UIElementSetting ** settings_p,
+void init_ui_elements_array(
+    UIElements * ui_elements_array,
+    GLuint * texture_ids,
+    Vec2 * scale_matrix,
     GLfloat gl_x,
     GLfloat gl_y,
     GLfloat scale_area_x,
     GLfloat scale_area_y,
     GLfloat offset_x,
     GLfloat offset_y,
-    unsigned int rows,
+    unsigned int columns,
     unsigned int count,
-    unsigned int ui_element_type
+    unsigned int instances_count,
+    UIElementType ui_element_type
 ) {
-    *settings_p = malloc(count * sizeof(UIElementSetting));
-    UIElementSetting * settings = *settings_p;
-    GLfloat min_area_x = (1 + gl_x) * (DSTUDIO_VIEWPORT_WIDTH >> 1) - (scale_area_x / 2);
+    GLfloat min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (scale_area_x / 2);
     GLfloat max_area_x = min_area_x + scale_area_x;
-    GLfloat min_area_y = (1 - gl_y) * (DSTUDIO_VIEWPORT_HEIGHT >> 1) - (scale_area_y / 2);
+    GLfloat min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (scale_area_y / 2);
     GLfloat max_area_y = min_area_y + scale_area_y;
     
-    GLfloat area_offset_x = offset_x * (GLfloat)(DSTUDIO_VIEWPORT_WIDTH >> 1);
-    GLfloat area_offset_y = offset_y * (GLfloat)(DSTUDIO_VIEWPORT_HEIGHT >> 1);
+    GLfloat area_offset_x = offset_x * (GLfloat)(g_dstudio_viewport_width >> 1);
+    GLfloat area_offset_y = offset_y * (GLfloat)(g_dstudio_viewport_height >> 1);
         
     for (unsigned int i = 0; i < count; i++) {
-        unsigned int x = (i % rows);
-        unsigned int y = (i / rows);
+        unsigned int x = (i % columns);
+        unsigned int y = (i / columns);
+        
         GLfloat computed_area_offset_x = x * area_offset_x;
         GLfloat computed_area_offset_y = y * -area_offset_y;
 
-        settings[i].gl_x = gl_x + x * offset_x;
-        settings[i].gl_y = gl_y + y * offset_y;
-        settings[i].min_area_x = min_area_x + computed_area_offset_x;
-        settings[i].max_area_x = max_area_x + computed_area_offset_x;
-        settings[i].min_area_y = min_area_y + computed_area_offset_y;
-        settings[i].max_area_y = max_area_y + computed_area_offset_y;
-        settings[i].ui_element_type = ui_element_type;
+        ui_elements_array[i].areas.min_area_x = min_area_x + computed_area_offset_x;
+        ui_elements_array[i].areas.max_area_x = max_area_x + computed_area_offset_x;
+        ui_elements_array[i].areas.min_area_y = min_area_y + computed_area_offset_y;
+        ui_elements_array[i].areas.max_area_y = max_area_y + computed_area_offset_y;
         
-        #ifdef DSTUDIO_DEBUG
-        printf("%lf %lf %lf %lf %f %lf %lf\n",
-            area_offset_y,
-            settings[i].gl_x,
-            settings[i].gl_y,
-            settings[i].min_area_x,
-            settings[i].max_area_x,
-            settings[i].min_area_y,
-            settings[i].max_area_y
+        ui_elements_array[i].type = ui_element_type;
+        
+        ui_elements_array[i].instance_alphas_buffer = dstudio_alloc(sizeof(GLfloat));
+        ui_elements_array[i].instance_alphas_buffer[0] = 1.0;
+        
+        ui_elements_array[i].instance_motions_buffer = dstudio_alloc(sizeof(GLfloat));
+        
+        ui_elements_array[i].instance_offsets_buffer = dstudio_alloc(sizeof(Vec4));
+        ui_elements_array[i].instance_offsets_buffer->x = gl_x + x * offset_x;
+        ui_elements_array[i].instance_offsets_buffer->y = gl_y + y * offset_y;
+        
+        ui_elements_array[i].scissor.x = 0;
+        ui_elements_array[i].scissor.y = 0;
+        ui_elements_array[i].scissor.width = g_dstudio_viewport_width;
+        ui_elements_array[i].scissor.height = g_dstudio_viewport_height;
+        
+        ui_elements_array[i].count = instances_count;
+        
+        memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
+        
+        ui_elements_array[i].scale_matrix = scale_matrix;
+        
+        ui_elements_array[i].render = 1;
+        
+        init_ui_elements(
+            DSTUDIO_FLAG_NONE,
+            &ui_elements_array[i]
         );
-        #endif
-
     }
-}*/
+}
 
 void load_shader(
     GLchar ** shader_buffer,

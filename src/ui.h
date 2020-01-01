@@ -39,18 +39,23 @@ typedef struct vec2_t {
  
 typedef struct Vec4_t {
     union {
-        GLfloat x;
+        GLfloat min_area_x;
         GLfloat top_left_x;
+        GLfloat x;
     };
     union {
+        GLfloat max_area_x;
         GLfloat top_left_y;
         GLfloat y;
+
     };
     union {
+        GLfloat min_area_y;
         GLfloat bottom_right_x;
         GLfloat z;
     };
     union {
+        GLfloat max_area_y;
         GLfloat bottom_right_y;
         GLfloat w;
     };
@@ -130,6 +135,22 @@ void create_shader_program(
 void init_ui_elements(
     int flags,
     UIElements * ui_elements
+);
+
+void init_ui_elements_array(
+    UIElements * ui_elements_array,
+    GLuint * texture_ids,
+    Vec2 * scale_matrix,
+    GLfloat gl_x,
+    GLfloat gl_y,
+    GLfloat scale_area_x,
+    GLfloat scale_area_y,
+    GLfloat offset_x,
+    GLfloat offset_y,
+    unsigned int columns,
+    unsigned int count,
+    unsigned int instances_count,
+    UIElementType ui_element_type
 );
 
 int get_png_pixel(
@@ -271,10 +292,10 @@ void update_ui_element_motion(
 */
 
 #define DEFINE_RENDER_VIEWPORT \
-    void render_viewport() { \
+    void render_viewport(unsigned int render_all) { \
         unsigned int ui_elements_count = sizeof(UIElementsArray) / sizeof(UIElements); \
         UIElements * ui_elements_array = (UIElements *) &g_ui_elements_array; \
-        if (g_ui_elements_array.background.render) { \
+        if (g_ui_elements_array.background.render || render_all) { \
             glScissor( \
                 g_ui_elements_array.background.scissor.x, \
                 g_ui_elements_array.background.scissor.y, \
@@ -310,7 +331,7 @@ void update_ui_element_motion(
             } \
         } \
         for (unsigned int i = 1; i < ui_elements_count; i++) { \
-            if (ui_elements_array[i].render) { \
+            if (ui_elements_array[i].render || render_all) { \
                 glScissor( \
                     ui_elements_array[i].scissor.x, \
                     ui_elements_array[i].scissor.y, \

@@ -34,6 +34,8 @@ unsigned int framerate = DSTUDIO_FRAMERATE;
 UIElementsArray g_ui_elements_array = {0};
 
 Vec2 background_scale_matrix[2] = {0};
+Vec2 knob1_64_scale_matrix[2] = {0};
+Vec2 knob1_48_scale_matrix[2] = {0};
 
 inline static void init_background() {
     g_ui_elements_array.background.type = DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND;
@@ -61,9 +63,46 @@ inline static void init_background() {
     );
 }
 
+inline static void init_knobs() {
+    GLuint knob_textures_ids[2] = {0};
+        
+    knob_textures_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_ANTI_ALIASING,
+        DSTUDIO_KNOB_1_64_WIDTH,
+        DSTUDIO_KNOB_1_64_HEIGHT, 
+        DSTUDIO_KNOB_1_64x64_TEXTURE_PATH,
+        knob1_64_scale_matrix
+    );
+
+    init_ui_elements_array(
+        &g_ui_elements_array.knob_sample_start,
+        &knob_textures_ids[0],
+        &knob1_64_scale_matrix[0],
+        DSANDGRAINS_SAMPLE_KNOBS_POS_X,
+        DSANDGRAINS_SAMPLE_KNOBS_POS_Y,
+        64,
+        64,
+        DSANDGRAINS_SAMPLE_KNOBS_OFFSET_X,
+        DSANDGRAINS_SAMPLE_KNOBS_OFFSET_Y,
+        DSANDGRAINS_SAMPLE_KNOBS_COLUMNS,
+        8,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+    );
+    
+    knob_textures_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_ANTI_ALIASING,
+        DSTUDIO_KNOB_1_48_WIDTH,
+        DSTUDIO_KNOB_1_48_HEIGHT, 
+        DSTUDIO_KNOB_1_48x48_TEXTURE_PATH,
+        knob1_48_scale_matrix
+    );
+}
+
 static void init_ui() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
     init_background();
+    init_knobs();
     //sem_init(&g_text_pointer_context.mutex, 0, 1);
 }
 
@@ -91,7 +130,7 @@ void * ui_thread(void * arg) {
     glUseProgram(g_shader_program_id);
     while (do_no_exit_loop()) {
         usleep(framerate);
-        render_viewport();
+        render_viewport(need_to_redraw_all());
         swap_window_buffer();
         listen_events();
     }

@@ -29,7 +29,7 @@
 
 const unsigned int g_dstudio_viewport_width = 800;
 const unsigned int g_dstudio_viewport_height = 480;
-const char g_application_name[] = "D S A N D G R A I N S";
+const char g_application_name[] = "DSANDGRAINS";
 
 int main(int argc, char ** argv) {
     (void) argc;
