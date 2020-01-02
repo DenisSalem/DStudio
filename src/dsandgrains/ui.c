@@ -90,12 +90,76 @@ inline static void init_knobs() {
         DSTUDIO_UI_ELEMENT_TYPE_KNOBS
     );
     
+    init_ui_elements_array(
+        &g_ui_elements_array.knob_voice_volume,
+        &knob_textures_ids[0],
+        &knob1_64_scale_matrix[0],
+        DSANDGRAINS_VOICE_KNOBS_POS_X,
+        DSANDGRAINS_VOICE_KNOBS_POS_Y,
+        DSTUDIO_KNOB_1_64_AREA_WIDTH,
+        DSTUDIO_KNOB_1_64_AREA_HEIGHT,
+        DSANDGRAINS_VOICE_KNOBS_OFFSET_X,
+        DSANDGRAINS_VOICE_KNOBS_OFFSET_Y,
+        DSANDGRAINS_VOICE_KNOBS_COLUMNS,
+        4,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+    );
+    
     knob_textures_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_ANTI_ALIASING,
         DSTUDIO_KNOB_1_48_WIDTH,
         DSTUDIO_KNOB_1_48_HEIGHT, 
         DSTUDIO_KNOB_1_48x48_TEXTURE_PATH,
         knob1_48_scale_matrix
+    );
+    
+    init_ui_elements_array(
+        &g_ui_elements_array.knob_sample_amount,
+        &knob_textures_ids[0],
+        &knob1_48_scale_matrix[0],
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X,
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_Y,
+        DSTUDIO_KNOB_1_48_AREA_WIDTH,
+        DSTUDIO_KNOB_1_48_AREA_HEIGHT,
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_X,
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_Y,
+        DSANDGRAINS_AMOUNT_PITCH_KNOBS_COLUMNS,
+        2,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+    );
+    
+    init_ui_elements_array(
+        &g_ui_elements_array.knob_sample_lfo_tune,
+        &knob_textures_ids[0],
+        &knob1_48_scale_matrix[0],
+        DSANDGRAINS_LFO_KNOBS_POS_X,
+        DSANDGRAINS_LFO_KNOBS_POS_Y,
+        DSTUDIO_KNOB_1_48_AREA_WIDTH,
+        DSTUDIO_KNOB_1_48_AREA_HEIGHT,
+        DSANDGRAINS_LFO_KNOBS_OFFSET_X,
+        DSANDGRAINS_LFO_KNOBS_OFFSET_Y,
+        DSANDGRAINS_LFO_KNOBS_COLUMNS,
+        4,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+    );
+    
+    init_ui_elements_array(
+        &g_ui_elements_array.knob_sample_lfo_pitch_tune,
+        &knob_textures_ids[0],
+        &knob1_48_scale_matrix[0],
+        DSANDGRAINS_LFO_PITCH_KNOBS_POS_X,
+        DSANDGRAINS_LFO_PITCH_KNOBS_POS_Y,
+        DSTUDIO_KNOB_1_48_AREA_WIDTH,
+        DSTUDIO_KNOB_1_48_AREA_HEIGHT,
+        DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_X,
+        DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_Y,
+        DSANDGRAINS_LFO_PITCH_KNOBS_COLUMNS,
+        4,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
     );
 }
 
