@@ -27,6 +27,9 @@
 #include "extensions.h"
 #include "ui.h"
 
+GLuint g_shader_program_id = 0;
+GLuint g_scale_matrix_id = 0;
+
 void compile_shader(
     GLuint shader_id, 
     GLchar ** source_pointer
@@ -192,10 +195,17 @@ int get_png_pixel(
 }
 
 void manage_mouse_button(int xpos, int ypos, int button, int action) {
-    (void) xpos;
-    (void) ypos;
-    (void) button;
-    (void) action;
+    UIElements * ui_elements_p = 0;
+    if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
+        for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
+            ui_elements_p = &g_ui_elements_array[i];
+            if (xpos > ui_elements_p->areas.min_area_x && xpos < ui_elements_p->areas.max_area_x && ypos > ui_elements_p->areas.min_area_y && ypos < ui_elements_p->areas.max_area_y) {
+                printf("Clicked!\n");
+            }
+        }
+    }
+    else if(action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
+    }
 }
 
 void init_ui_elements(
@@ -362,6 +372,63 @@ void render_ui_elements(UIElements * ui_elements) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void render_viewport(unsigned int render_all) {
+    // UI element at index 0 is always background
+    if (g_ui_elements_array[0].render || render_all) {
+        glScissor(
+            g_ui_elements_array[0].scissor.x,
+            g_ui_elements_array[0].scissor.y,
+            g_ui_elements_array[0].scissor.width,
+            g_ui_elements_array[0].scissor.height
+        );
+        glUniformMatrix2fv(
+            g_scale_matrix_id,
+            1,
+            GL_FALSE,
+            (float *) g_ui_elements_array[0].scale_matrix
+        );
+        render_ui_elements(&g_ui_elements_array[0]);
+        g_ui_elements_array[0].render = 0;
+    }
+    else {
+        for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
+            if (g_ui_elements_array[i].render) {
+                glScissor(
+                    g_ui_elements_array[i].scissor.x,
+                    g_ui_elements_array[i].scissor.y,
+                    g_ui_elements_array[i].scissor.width,
+                    g_ui_elements_array[i].scissor.height
+                );
+                glUniformMatrix2fv(
+                    g_scale_matrix_id,
+                    1,
+                    GL_FALSE,
+                    (float *) g_ui_elements_array[0].scale_matrix
+                );
+                render_ui_elements(&g_ui_elements_array[0]);
+            }
+        }
+    }
+    for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
+        if (g_ui_elements_array[i].render || render_all) {
+            glScissor(
+                g_ui_elements_array[i].scissor.x,
+                g_ui_elements_array[i].scissor.y,
+                g_ui_elements_array[i].scissor.width,
+                g_ui_elements_array[i].scissor.height
+            );
+            glUniformMatrix2fv(
+                g_scale_matrix_id,
+                1,
+                GL_FALSE,
+                (float *) g_ui_elements_array[i].scale_matrix
+            );
+            render_ui_elements(&g_ui_elements_array[i]);
+            g_ui_elements_array[i].render = 0;
+        }
+    }
 }
 
 GLuint setup_texture_n_scale_matrix(

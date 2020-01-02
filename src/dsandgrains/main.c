@@ -30,6 +30,7 @@
 const unsigned int g_dstudio_viewport_width = 800;
 const unsigned int g_dstudio_viewport_height = 480;
 const char g_application_name[] = "DSANDGRAINS";
+const unsigned int g_dstudio_ui_element_count = sizeof(UIElementsStruct) / sizeof(UIElements);;
 
 int main(int argc, char ** argv) {
     (void) argc;

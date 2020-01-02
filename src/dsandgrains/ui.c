@@ -27,39 +27,38 @@
 
 #include "ui.h"
 
-GLuint g_shader_program_id = 0;
-GLuint g_scale_matrix_id = 0;
 unsigned int framerate = DSTUDIO_FRAMERATE;
 
-UIElementsArray g_ui_elements_array = {0};
+UIElementsStruct g_ui_elements_struct = {0};
+UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
 
 Vec2 background_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
 
 inline static void init_background() {
-    g_ui_elements_array.background.type = DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND;
-    g_ui_elements_array.background.render = 1;
-    g_ui_elements_array.background.instance_alphas_buffer = dstudio_alloc(sizeof(GLfloat));
-    g_ui_elements_array.background.instance_alphas_buffer[0] = 1.0;
-    g_ui_elements_array.background.instance_motions_buffer = dstudio_alloc(sizeof(GLfloat));
-    g_ui_elements_array.background.instance_offsets_buffer = dstudio_alloc(sizeof(Vec4));
-    g_ui_elements_array.background.scissor.x = 0;
-    g_ui_elements_array.background.scissor.y = 0;
-    g_ui_elements_array.background.scissor.width = g_dstudio_viewport_width;
-    g_ui_elements_array.background.scissor.height = g_dstudio_viewport_height;
-    g_ui_elements_array.background.texture_ids[0] = setup_texture_n_scale_matrix(
+    g_ui_elements_struct.background.type = DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND;
+    g_ui_elements_struct.background.render = 1;
+    g_ui_elements_struct.background.instance_alphas_buffer = dstudio_alloc(sizeof(GLfloat));
+    g_ui_elements_struct.background.instance_alphas_buffer[0] = 1.0;
+    g_ui_elements_struct.background.instance_motions_buffer = dstudio_alloc(sizeof(GLfloat));
+    g_ui_elements_struct.background.instance_offsets_buffer = dstudio_alloc(sizeof(Vec4));
+    g_ui_elements_struct.background.scissor.x = 0;
+    g_ui_elements_struct.background.scissor.y = 0;
+    g_ui_elements_struct.background.scissor.width = g_dstudio_viewport_width;
+    g_ui_elements_struct.background.scissor.height = g_dstudio_viewport_height;
+    g_ui_elements_struct.background.texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_NONE,
         g_dstudio_viewport_width,
         g_dstudio_viewport_height, 
         DSANDGRAINS_BACKGROUND_ASSET_PATH,
         background_scale_matrix
     );
-    g_ui_elements_array.background.scale_matrix = &background_scale_matrix[0];
-    g_ui_elements_array.background.count = 1;
+    g_ui_elements_struct.background.scale_matrix = &background_scale_matrix[0];
+    g_ui_elements_struct.background.count = 1;
     init_ui_elements(
         DSTUDIO_FLAG_NONE,
-        &g_ui_elements_array.background
+        &g_ui_elements_struct.background
     );
 }
 
@@ -75,7 +74,7 @@ inline static void init_knobs() {
     );
 
     init_ui_elements_array(
-        &g_ui_elements_array.knob_sample_start,
+        &g_ui_elements_struct.knob_sample_start,
         &knob_textures_ids[0],
         &knob1_64_scale_matrix[0],
         DSANDGRAINS_SAMPLE_KNOBS_POS_X,
@@ -91,7 +90,7 @@ inline static void init_knobs() {
     );
     
     init_ui_elements_array(
-        &g_ui_elements_array.knob_voice_volume,
+        &g_ui_elements_struct.knob_voice_volume,
         &knob_textures_ids[0],
         &knob1_64_scale_matrix[0],
         DSANDGRAINS_VOICE_KNOBS_POS_X,
@@ -115,7 +114,7 @@ inline static void init_knobs() {
     );
     
     init_ui_elements_array(
-        &g_ui_elements_array.knob_sample_amount,
+        &g_ui_elements_struct.knob_sample_amount,
         &knob_textures_ids[0],
         &knob1_48_scale_matrix[0],
         DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X,
@@ -131,7 +130,7 @@ inline static void init_knobs() {
     );
     
     init_ui_elements_array(
-        &g_ui_elements_array.knob_sample_lfo_tune,
+        &g_ui_elements_struct.knob_sample_lfo_tune,
         &knob_textures_ids[0],
         &knob1_48_scale_matrix[0],
         DSANDGRAINS_LFO_KNOBS_POS_X,
@@ -147,7 +146,7 @@ inline static void init_knobs() {
     );
     
     init_ui_elements_array(
-        &g_ui_elements_array.knob_sample_lfo_pitch_tune,
+        &g_ui_elements_struct.knob_sample_lfo_pitch_tune,
         &knob_textures_ids[0],
         &knob1_48_scale_matrix[0],
         DSANDGRAINS_LFO_PITCH_KNOBS_POS_X,
@@ -169,8 +168,6 @@ static void init_ui() {
     init_knobs();
     //sem_init(&g_text_pointer_context.mutex, 0, 1);
 }
-
-DEFINE_RENDER_VIEWPORT
 
 void * ui_thread(void * arg) {
     (void) arg;

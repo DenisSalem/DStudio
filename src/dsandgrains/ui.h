@@ -51,7 +51,7 @@
 #define DSANDGRAINS_VOICE_KNOBS_POS_X 0.3725
 #define DSANDGRAINS_VOICE_KNOBS_POS_Y 0.2708
 
-typedef struct UIElementsArray_t {
+typedef struct UIElementsStruct_t {
     UIElements background;
     UIElements knob_sample_start;
     UIElements knob_sample_end;
@@ -75,6 +75,6 @@ typedef struct UIElementsArray_t {
     UIElements knob_sample_lfo_pitch_phase;
     UIElements knob_sample_lfo_pitch_depth;
     UIElements knob_sample_lfo_pitch_signal;
-} UIElementsArray;
+} UIElementsStruct;
 
 void * ui_thread(void * arg);

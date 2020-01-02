@@ -185,14 +185,17 @@ GLuint setup_texture_n_scale_matrix(
 );
 
 // Must be defined by consumer
-typedef struct UIElementsArray_t UIElementsArray;
-extern UIElementsArray g_ui_elements_array;
+typedef struct UIElementsStruct_t UIElementsStruct;
+extern UIElementsStruct g_ui_elements_struct;
+extern UIElements * g_ui_elements_array;
 
 extern GLint scissor_x, scissor_y;
 extern GLsizei scissor_width, scissor_height;
+extern const unsigned int g_dstudio_ui_element_count;
 extern const unsigned int g_dstudio_viewport_width;
 extern const unsigned int g_dstudio_viewport_height;
-
+extern GLuint g_shader_program_id;
+extern GLuint g_scale_matrix_id;
 /*
 typedef struct UIArea_t {
     float min_x;
@@ -247,6 +250,8 @@ void render_ui_elements(
     UIElements * ui_elements
 );
 
+void render_viewport(unsigned int render_all);
+
 /*
 // This one is not defined in the generic ui.c source file.
 // Instead, it is defined for every tools from DStudio.
@@ -270,62 +275,4 @@ void update_ui_element_motion(
 );
 */
 
-#define DEFINE_RENDER_VIEWPORT \
-    void render_viewport(unsigned int render_all) { \
-        unsigned int ui_elements_count = sizeof(UIElementsArray) / sizeof(UIElements); \
-        UIElements * ui_elements_array = (UIElements *) &g_ui_elements_array; \
-        if (g_ui_elements_array.background.render || render_all) { \
-            glScissor( \
-                g_ui_elements_array.background.scissor.x, \
-                g_ui_elements_array.background.scissor.y, \
-                g_ui_elements_array.background.scissor.width, \
-                g_ui_elements_array.background.scissor.height \
-            ); \
-            glUniformMatrix2fv( \
-                g_scale_matrix_id, \
-                1, \
-                GL_FALSE, \
-                (float *) g_ui_elements_array.background.scale_matrix \
-            ); \
-            render_ui_elements(&g_ui_elements_array.background); \
-            g_ui_elements_array.background.render = 0; \
-        } \
-        else { \
-            for (unsigned int i = 1; i < ui_elements_count; i++) { \
-                if (ui_elements_array[i].render) { \
-                    glScissor( \
-                        ui_elements_array[i].scissor.x, \
-                        ui_elements_array[i].scissor.y, \
-                        ui_elements_array[i].scissor.width, \
-                        ui_elements_array[i].scissor.height \
-                    ); \
-                    glUniformMatrix2fv( \
-                        g_scale_matrix_id, \
-                        1, \
-                        GL_FALSE, \
-                        (float *) g_ui_elements_array.background.scale_matrix \
-                    ); \
-                    render_ui_elements(&g_ui_elements_array.background); \
-                }\
-            } \
-        } \
-        for (unsigned int i = 1; i < ui_elements_count; i++) { \
-            if (ui_elements_array[i].render || render_all) { \
-                glScissor( \
-                    ui_elements_array[i].scissor.x, \
-                    ui_elements_array[i].scissor.y, \
-                    ui_elements_array[i].scissor.width, \
-                    ui_elements_array[i].scissor.height \
-                ); \
-                glUniformMatrix2fv( \
-                    g_scale_matrix_id, \
-                    1, \
-                    GL_FALSE, \
-                    (float *) ui_elements_array[i].scale_matrix \
-                ); \
-                render_ui_elements(&ui_elements_array[i]); \
-                ui_elements_array[i].render = 0; \
-            }\
-        } \
-    }
 #endif
