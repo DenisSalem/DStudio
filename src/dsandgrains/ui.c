@@ -86,7 +86,7 @@ inline static void init_knobs() {
         DSANDGRAINS_SAMPLE_KNOBS_COLUMNS,
         8,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+        DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
     init_ui_elements_array(
@@ -102,7 +102,7 @@ inline static void init_knobs() {
         DSANDGRAINS_VOICE_KNOBS_COLUMNS,
         4,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+        DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
     knob_textures_ids[0] = setup_texture_n_scale_matrix(
@@ -126,7 +126,7 @@ inline static void init_knobs() {
         DSANDGRAINS_AMOUNT_PITCH_KNOBS_COLUMNS,
         2,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+        DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
     init_ui_elements_array(
@@ -142,7 +142,7 @@ inline static void init_knobs() {
         DSANDGRAINS_LFO_KNOBS_COLUMNS,
         4,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+        DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
     init_ui_elements_array(
@@ -158,7 +158,7 @@ inline static void init_knobs() {
         DSANDGRAINS_LFO_PITCH_KNOBS_COLUMNS,
         4,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_KNOBS
+        DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
 }
 
@@ -182,6 +182,8 @@ void * ui_thread(void * arg) {
     DSTUDIO_EXIT_IF_FAILURE(load_extensions())
     
     create_shader_program(&g_shader_program_id);
+    
+    g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
     
     init_ui();
 

@@ -71,10 +71,15 @@ typedef struct Scissor_t {
 typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND = 1,
     DSTUDIO_UI_ELEMENT_TYPE_TEXT = 2,
-    DSTUDIO_UI_ELEMENT_TYPE_SLIDERS = 4,
-    DSTUDIO_UI_ELEMENT_TYPE_KNOBS = 8
+    DSTUDIO_UI_ELEMENT_TYPE_SLIDER = 4,
+    DSTUDIO_UI_ELEMENT_TYPE_KNOB = 8
 } UIElementType;
 
+typedef enum MotionType_t {
+    DSTUDIO_MOTION_TYPE_NONE = 0U,
+    DSTUDIO_MOTION_TYPE_ROTATION = 1U,
+    DSTUDIO_MOTION_TYPE_SLIDE = 2U
+} MotionType;
 /*
  * UIElements describe any rendered elements. It holds both application
  * logic information and OpenGL buffers.
@@ -196,6 +201,7 @@ extern const unsigned int g_dstudio_viewport_width;
 extern const unsigned int g_dstudio_viewport_height;
 extern GLuint g_shader_program_id;
 extern GLuint g_scale_matrix_id;
+extern GLuint g_motion_type_location;
 /*
 typedef struct UIArea_t {
     float min_x;
@@ -267,12 +273,11 @@ void update_and_render(
     GLuint scissor_height,
     unsigned int render_flag
 );
+*/
 
 void update_ui_element_motion(
-    int index,
-    UIElements * knobs_p,
-    void * args
+    UIElements * ui_elements_p,
+    float motion
 );
-*/
 
 #endif

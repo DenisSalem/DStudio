@@ -29,6 +29,35 @@
 
 GLuint g_shader_program_id = 0;
 GLuint g_scale_matrix_id = 0;
+GLuint g_motion_type_location = 0;
+
+static int s_ui_element_index = -1;
+static int s_ui_element_center_x = 0;
+static int s_ui_element_center_y = 0;
+
+static inline float compute_knob_rotation(int xpos, int ypos) {
+    float rotation = 0;
+    float y = - ypos + s_ui_element_center_y;
+    float x = xpos - s_ui_element_center_x;
+    rotation = -atan(x / y);
+
+    if (y < 0) {
+        if (x < 0) {
+            rotation += 3.141592;
+        }
+        else {
+                rotation -= 3.141592;
+        }
+    }
+    if (rotation > 2.356194) {
+        rotation = 2.356194;
+    }
+    else if (rotation < -2.356194) {
+        rotation = -2.356194;
+    }
+
+    return rotation;
+}
 
 void compile_shader(
     GLuint shader_id, 
@@ -136,27 +165,6 @@ void create_shader_program(
     #endif
 }
 
-void manage_cursor_position(int xpos, int ypos) {
-    (void) xpos;
-    (void) ypos;
-    /*float motion;
-    if (active_ui_element.callback == NULL) {
-        return;
-    }
-    if (active_ui_element.type == DSTUDIO_KNOB_TYPE_CONTINUE) {
-        motion = compute_knob_rotation(xpos, ypos);
-        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
-    }
-    else if (active_ui_element.type == DSTUDIO_KNOB_TYPE_DISCRETE) {
-        motion = compute_knob_rotation(xpos, ypos);
-        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
-    }
-    else if (active_ui_element.type == DSTUDIO_SLIDER_TYPE_VERTICAL) {
-        motion = compute_slider_translation(ypos);
-        active_ui_element.callback(active_ui_element.index, active_ui_element.context_p, &motion);
-    }*/
-}
-
 void gen_gl_buffer(
     GLenum type,
     GLuint * buffer_object_p,
@@ -194,19 +202,37 @@ int get_png_pixel(
     exit(-1);
 }
 
+void manage_cursor_position(int xpos, int ypos) {
+    float motion;
+    if (s_ui_element_index < 0) {
+        return;
+    }
+    if (g_ui_elements_array[s_ui_element_index].type == DSTUDIO_UI_ELEMENT_TYPE_KNOB) {
+        motion = compute_knob_rotation(xpos, ypos);
+        update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+    }
+}
+
 void manage_mouse_button(int xpos, int ypos, int button, int action) {
     UIElements * ui_elements_p = 0;
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
             if (xpos > ui_elements_p->areas.min_area_x && xpos < ui_elements_p->areas.max_area_x && ypos > ui_elements_p->areas.min_area_y && ypos < ui_elements_p->areas.max_area_y) {
-                printf("Clicked!\n");
+                s_ui_element_index = i;
+                s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
+                s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
+                break;
             }
         }
+        return;
     }
     else if(action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
+        s_ui_element_index = -1;
     }
 }
+
+
 
 void init_ui_elements(
     int flags,
@@ -322,10 +348,10 @@ void init_ui_elements_array(
         ui_elements_array[i].instance_offsets_buffer->x = gl_x + x * offset_x;
         ui_elements_array[i].instance_offsets_buffer->y = gl_y + y * offset_y;
         
-        ui_elements_array[i].scissor.x = 0;
-        ui_elements_array[i].scissor.y = 0;
-        ui_elements_array[i].scissor.width = g_dstudio_viewport_width;
-        ui_elements_array[i].scissor.height = g_dstudio_viewport_height;
+        ui_elements_array[i].scissor.x = min_area_x + computed_area_offset_x;
+        ui_elements_array[i].scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
+        ui_elements_array[i].scissor.width = max_area_x - min_area_x;
+        ui_elements_array[i].scissor.height = max_area_y - min_area_y;
         
         ui_elements_array[i].count = instances_count;
         
@@ -351,9 +377,9 @@ void load_shader(
         printf("Failed to open \"%s\" with errno: %d.\n", filename, errno);
         exit(-1);
     }
-    (*shader_buffer) = dstudio_alloc(2048 * sizeof(GLchar));
+    (*shader_buffer) = dstudio_alloc(4096 * sizeof(GLchar));
     GLchar * local_shader_buffer = (*shader_buffer);
-    for (int i=0; i < 2048; i++) {
+    for (int i=0; i < 4096; i++) {
         local_shader_buffer[i] = (GLchar ) fgetc(shader);
         if (local_shader_buffer[i] == EOF) {
             local_shader_buffer[i] = '\0';
@@ -363,8 +389,21 @@ void load_shader(
     fclose(shader);
 }
 
-
 void render_ui_elements(UIElements * ui_elements) {
+    switch(ui_elements->type) {
+        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+            glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_ROTATION);
+            break;
+        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+            glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_SLIDE);
+            break;
+             
+        case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+            glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
+            break;
+    }
+
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ui_elements->index_buffer_object);
@@ -376,7 +415,7 @@ void render_ui_elements(UIElements * ui_elements) {
 
 void render_viewport(unsigned int render_all) {
     // UI element at index 0 is always background
-    if (g_ui_elements_array[0].render || render_all) {
+    if (g_ui_elements_array[0].render || render_all) {       
         glScissor(
             g_ui_elements_array[0].scissor.x,
             g_ui_elements_array[0].scissor.y,
@@ -486,13 +525,12 @@ void update_and_render(
 */
 
 void update_ui_element_motion(
-    int index,
     UIElements * ui_elements_p,
-    void * args
+    float motion
 ) {
-    float * motion = (float*) args;
-    ui_elements_p->instance_motions_buffer[index] = *motion;
+    *ui_elements_p->instance_motions_buffer = motion;
     glBindBuffer(GL_ARRAY_BUFFER, ui_elements_p->instance_motions);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_elements_p->count, ui_elements_p->instance_motions_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    ui_elements_p->render = 1;
 }
