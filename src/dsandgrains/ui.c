@@ -35,6 +35,7 @@ UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
 Vec2 background_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
+Vec2 slider1_10_scale_matrix[2] = {0};
 
 inline static void init_background() {
     g_ui_elements_struct.background.type = DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND;
@@ -162,10 +163,39 @@ inline static void init_knobs() {
     );
 }
 
+static void init_sliders() {
+    GLuint slider_textures_ids[2] = {0};
+        
+    slider_textures_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_SLIDER_1_10_WIDTH,
+        DSTUDIO_SLIDER_1_10_HEIGHT, 
+        DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH,
+        slider1_10_scale_matrix
+    );
+    
+    init_ui_elements_array(
+        &g_ui_elements_struct.slider_delay,
+        &slider_textures_ids[0],
+        &slider1_10_scale_matrix[0],
+        DSANDGRAINS_SLIDERS_DAHDSR_POS_X,
+        DSANDGRAINS_SLIDERS_DAHDSR_POS_Y,
+        DSTUDIO_SLIDER_1_10_AREA_WIDTH,
+        DSTUDIO_SLIDER_1_10_AREA_HEIGHT,
+        DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_X,
+        DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_Y,
+        DSANDGRAINS_SLIDERS_DAHDSR_COLUMNS,
+        6,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER
+    );
+}
+
 static void init_ui() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
     init_background();
     init_knobs();
+    init_sliders();
     //sem_init(&g_text_pointer_context.mutex, 0, 1);
 }
 

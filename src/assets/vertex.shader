@@ -58,6 +58,9 @@ void main() {
         }
         gl_Position = vec4( scale_matrix * applied_rotation + offset.xy, 0, 1.0);
     }
+    else if (motion_type == DSTUDIO_MOTION_TYPE_SLIDE) {
+        gl_Position = vec4( scale_matrix * vertex_position.xy + offset.xy + vec2(0, motion), 0, 1.0);
+    }
     if (no_texture == 1U) {
         no_texture_args = vec2(1.0, offset.z);
     }

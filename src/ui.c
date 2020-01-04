@@ -34,6 +34,8 @@ GLuint g_motion_type_location = 0;
 static int s_ui_element_index = -1;
 static int s_ui_element_center_x = 0;
 static int s_ui_element_center_y = 0;
+static int s_active_slider_range_max = 0;
+static int s_active_slider_range_min = 0;
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
     float rotation = 0;
@@ -57,6 +59,17 @@ static inline float compute_knob_rotation(int xpos, int ypos) {
     }
 
     return rotation;
+}
+
+static inline float compute_slider_translation(int ypos) {
+    if (ypos > s_active_slider_range_max) {
+        ypos = s_active_slider_range_max;
+    }
+    else if (ypos < s_active_slider_range_min) {
+        ypos = s_active_slider_range_min;
+    }
+    float translation = - ypos + s_ui_element_center_y;
+    return translation / (g_dstudio_viewport_height >> 1);
 }
 
 void compile_shader(
@@ -207,9 +220,19 @@ void manage_cursor_position(int xpos, int ypos) {
     if (s_ui_element_index < 0) {
         return;
     }
-    if (g_ui_elements_array[s_ui_element_index].type == DSTUDIO_UI_ELEMENT_TYPE_KNOB) {
-        motion = compute_knob_rotation(xpos, ypos);
-        update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+    switch(g_ui_elements_array[s_ui_element_index].type) {
+        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+            motion = compute_knob_rotation(xpos, ypos);
+            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+            break;
+        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+            motion = compute_slider_translation(ypos);
+            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+            break;
+        case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        default:
+            break;
     }
 }
 
@@ -222,6 +245,10 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 s_ui_element_index = i;
                 s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
                 s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
+                if (ui_elements_p->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
+                    s_active_slider_range_min = ui_elements_p->areas.min_area_y + DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                    s_active_slider_range_max = ui_elements_p->areas.max_area_y - DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                }
                 break;
             }
         }

@@ -39,6 +39,13 @@
 #define DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_Y -0.2483
 #define DSANDGRAINS_LFO_PITCH_KNOBS_COLUMNS 2
 
+#define DSANDGRAINS_SLIDERS_DAHDSR_POS_X 0.0275
+#define DSANDGRAINS_SLIDERS_DAHDSR_POS_Y -0.466666
+#define DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_X 0.04
+#define DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_Y 0
+#define DSANDGRAINS_SLIDERS_DAHDSR_SLIDE 42
+#define DSANDGRAINS_SLIDERS_DAHDSR_COLUMNS 6
+
 #define DSANDGRAINS_SAMPLE_KNOBS_COLUMNS 4
 #define DSANDGRAINS_SAMPLE_KNOBS_OFFSET_X 0.16
 #define DSANDGRAINS_SAMPLE_KNOBS_OFFSET_Y -0.4
@@ -75,6 +82,12 @@ typedef struct UIElementsStruct_t {
     UIElements knob_sample_lfo_pitch_phase;
     UIElements knob_sample_lfo_pitch_depth;
     UIElements knob_sample_lfo_pitch_signal;
+    UIElements slider_delay;
+    UIElements slider_attack;
+    UIElements slider_hold;
+    UIElements slider_decay;
+    UIElements slider_sustain;
+    UIElements slider_release;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

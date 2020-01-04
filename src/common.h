@@ -5,27 +5,38 @@
 
 #include "extensions.h"
 
+
+
 // PATHS
+#define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
+#define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
+#define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
+#define DSTUDIO_BUTTON_ADD_ASSET_PATH               "../assets/button_add.png"
+#define DSTUDIO_CHAR_TABLE_ASSET_PATH               "../assets/char_table.png"
+#define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
 #define DSTUDIO_KNOB_1_64x64_TEXTURE_PATH           "../assets/knob1_64x64.png"
 #define DSTUDIO_KNOB_1_48x48_TEXTURE_PATH           "../assets/knob1_48x48.png"
+#define DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH         "../assets/slider1.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"
-#define DSTUDIO_CHAR_TABLE_ASSET_PATH               "../assets/char_table.png"
-#define DSTUDIO_CHAR_TABLE_SMALL_ASSET_PATH         "../assets/char_table_small.png"
-#define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
-#define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
-#define DSTUDIO_BUTTON_ADD_ASSET_PATH               "../assets/button_add.png"
-#define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
+
+
 
 // TEXTURES SCALES
-#define DSTUDIO_KNOB_1_64_WIDTH  64
-#define DSTUDIO_KNOB_1_64_HEIGHT 64
-#define DSTUDIO_KNOB_1_64_AREA_WIDTH  DSTUDIO_KNOB_1_64_WIDTH
-#define DSTUDIO_KNOB_1_64_AREA_HEIGHT DSTUDIO_KNOB_1_64_HEIGHT
 #define DSTUDIO_KNOB_1_48_WIDTH  48
 #define DSTUDIO_KNOB_1_48_HEIGHT 48
 #define DSTUDIO_KNOB_1_48_AREA_WIDTH  DSTUDIO_KNOB_1_48_WIDTH
 #define DSTUDIO_KNOB_1_48_AREA_HEIGHT DSTUDIO_KNOB_1_48_HEIGHT
+
+#define DSTUDIO_KNOB_1_64_WIDTH  64
+#define DSTUDIO_KNOB_1_64_HEIGHT 64
+#define DSTUDIO_KNOB_1_64_AREA_WIDTH  DSTUDIO_KNOB_1_64_WIDTH
+#define DSTUDIO_KNOB_1_64_AREA_HEIGHT DSTUDIO_KNOB_1_64_HEIGHT
+
+#define DSTUDIO_SLIDER_1_10_WIDTH 10
+#define DSTUDIO_SLIDER_1_10_HEIGHT 10
+#define DSTUDIO_SLIDER_1_10_AREA_WIDTH DSTUDIO_SLIDER_1_10_WIDTH
+#define DSTUDIO_SLIDER_1_10_AREA_HEIGHT 42
 
 // FLAGS
 #define DSTUDIO_FLAG_NONE               0
