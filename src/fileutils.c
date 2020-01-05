@@ -114,6 +114,7 @@ double get_proc_memory_usage() {
         #ifdef DSTUDIO_DEBUG
         printf("get_proc_memory_usage(): %s: %s\n", processus_status_path, strerror(errno));
         #endif
+        
         return -1;
     }
     while(getline(&line_buffer, &line_buffer_size, processus_status) > 0) {
@@ -155,27 +156,27 @@ double get_proc_memory_usage() {
     //~ free(tmp_str);
 //~ }
 
-//~ int set_physical_memory() {
-    //~ char * line_buffer = 0;
-    //~ size_t line_buffer_size = 0;
-    //~ FILE * meminfo_fd = 0;
-    //~ meminfo_fd = fopen("/proc/meminfo", "r");
-    //~ if (0 != errno && meminfo_fd == NULL) {
-        //~ #ifdef DSTUDIO_DEBUG
-        //~ printf("set_physical_memory(): /proc/meminfo: %s\n", strerror(errno));
-        //~ #endif
-        //~ return -1;
-    //~ }
-    //~ while(getline(&line_buffer, &line_buffer_size, meminfo_fd) > 0) {
-        //~ if (strncmp(line_buffer, "MemTotal:", 9) == 0 ) {
-            //~ strrchr(line_buffer, ' ')[0] = 0;
-            //~ physical_memory_kib = atof(strpbrk(line_buffer, " "));
-            //~ fclose(meminfo_fd);
-            //~ return 0;
-        //~ }
-    //~ }
-    //~ #ifdef DSTUDIO_DEBUG
-    //~ printf("set_physical_memory(): There no line matching with 'MemTotal:'.\n");
-    //~ #endif
-    //~ return -1;
-//~ }
+int set_physical_memory() {
+    char * line_buffer = 0;
+    size_t line_buffer_size = 0;
+    FILE * meminfo_fd = 0;
+    meminfo_fd = fopen("/proc/meminfo", "r");
+    if (0 != errno && meminfo_fd == NULL) {
+        #ifdef DSTUDIO_DEBUG
+        printf("set_physical_memory(): /proc/meminfo: %s\n", strerror(errno));
+        #endif
+        return -1;
+    }
+    while(getline(&line_buffer, &line_buffer_size, meminfo_fd) > 0) {
+        if (strncmp(line_buffer, "MemTotal:", 9) == 0 ) {
+            strrchr(line_buffer, ' ')[0] = 0;
+            physical_memory_kib = atof(strpbrk(line_buffer, " "));
+            fclose(meminfo_fd);
+            return 0;
+        }
+    }
+    #ifdef DSTUDIO_DEBUG
+    printf("set_physical_memory(): There no line matching with 'MemTotal:'.\n");
+    #endif
+    return -1;
+}

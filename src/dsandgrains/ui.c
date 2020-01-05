@@ -280,7 +280,7 @@ void * ui_thread(void * arg) {
         swap_window_buffer();
         listen_events();
     }
-    
+    dstudio_cut_thread(&g_ressource_usage.thread_control);
     destroy_context();
     return NULL;
 }

@@ -33,6 +33,7 @@ UIElements g_mem_usage = {0};
 
 void init_ressource_usage_backend(unsigned int string_size) {
     sem_init(&g_ressource_usage.thread_control.mutex, 0, 1);
+    set_physical_memory();
     g_ressource_usage.string_size = string_size;
     g_ressource_usage.thread_control.ready = 1;
 }
@@ -53,12 +54,12 @@ void * update_ressource_usage(void * args) {
         }
         double cpu_usage = (((double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
         explicit_bzero(g_ressource_usage.cpu_string_buffer, 6);
-        sprintf(g_ressource_usage.cpu_string_buffer, "%0.1f%%", cpu_usage);
+        sprintf(g_ressource_usage.cpu_string_buffer, "%0.1lf%%", cpu_usage);
         
         double mem_usage = get_proc_memory_usage();
         if (mem_usage != -1) {
             explicit_bzero(g_ressource_usage.mem_string_buffer, 6);
-            sprintf(g_ressource_usage.mem_string_buffer, "%0.1f%%", mem_usage);
+            sprintf(g_ressource_usage.mem_string_buffer, "%0.1lf%%", mem_usage);
         }
 
         send_expose_event();
