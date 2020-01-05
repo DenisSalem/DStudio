@@ -19,6 +19,7 @@
 
 #include "../common.h"
 #include "../extensions.h"
+#include "../ressource_usage.h"
 #include "../window_management.h"
 
 #include <stdlib.h>
@@ -36,37 +37,40 @@ Vec2 background_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
+Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
 
 inline static void init_background() {
-    g_ui_elements_struct.background.type = DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND;
-    g_ui_elements_struct.background.render = 1;
-    g_ui_elements_struct.background.instance_alphas_buffer = dstudio_alloc(sizeof(GLfloat));
-    g_ui_elements_struct.background.instance_alphas_buffer[0] = 1.0;
-    g_ui_elements_struct.background.instance_motions_buffer = dstudio_alloc(sizeof(GLfloat));
-    g_ui_elements_struct.background.instance_offsets_buffer = dstudio_alloc(sizeof(Vec4));
-    g_ui_elements_struct.background.scissor.x = 0;
-    g_ui_elements_struct.background.scissor.y = 0;
-    g_ui_elements_struct.background.scissor.width = g_dstudio_viewport_width;
-    g_ui_elements_struct.background.scissor.height = g_dstudio_viewport_height;
-    g_ui_elements_struct.background.texture_ids[0] = setup_texture_n_scale_matrix(
+    GLuint texture_ids[2] = {0};
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_NONE,
         g_dstudio_viewport_width,
         g_dstudio_viewport_height, 
         DSANDGRAINS_BACKGROUND_ASSET_PATH,
         background_scale_matrix
     );
-    g_ui_elements_struct.background.scale_matrix = &background_scale_matrix[0];
-    g_ui_elements_struct.background.count = 1;
+
     init_ui_elements(
-        DSTUDIO_FLAG_NONE,
-        &g_ui_elements_struct.background
+        &g_ui_elements_struct.background,
+        &texture_ids[0],
+        &background_scale_matrix[0],
+        0,
+        0,
+        g_dstudio_viewport_width,
+        g_dstudio_viewport_height,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND
     );
 }
 
 inline static void init_knobs() {
-    GLuint knob_textures_ids[2] = {0};
+    GLuint knob_texture_ids[2] = {0};
         
-    knob_textures_ids[0] = setup_texture_n_scale_matrix(
+    knob_texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_ANTI_ALIASING,
         DSTUDIO_KNOB_1_64_WIDTH,
         DSTUDIO_KNOB_1_64_HEIGHT, 
@@ -74,9 +78,9 @@ inline static void init_knobs() {
         knob1_64_scale_matrix
     );
 
-    init_ui_elements_array(
+    init_ui_elements(
         &g_ui_elements_struct.knob_sample_start,
-        &knob_textures_ids[0],
+        &knob_texture_ids[0],
         &knob1_64_scale_matrix[0],
         DSANDGRAINS_SAMPLE_KNOBS_POS_X,
         DSANDGRAINS_SAMPLE_KNOBS_POS_Y,
@@ -90,9 +94,9 @@ inline static void init_knobs() {
         DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
-    init_ui_elements_array(
+    init_ui_elements(
         &g_ui_elements_struct.knob_voice_volume,
-        &knob_textures_ids[0],
+        &knob_texture_ids[0],
         &knob1_64_scale_matrix[0],
         DSANDGRAINS_VOICE_KNOBS_POS_X,
         DSANDGRAINS_VOICE_KNOBS_POS_Y,
@@ -106,7 +110,7 @@ inline static void init_knobs() {
         DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
-    knob_textures_ids[0] = setup_texture_n_scale_matrix(
+    knob_texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_ANTI_ALIASING,
         DSTUDIO_KNOB_1_48_WIDTH,
         DSTUDIO_KNOB_1_48_HEIGHT, 
@@ -114,9 +118,9 @@ inline static void init_knobs() {
         knob1_48_scale_matrix
     );
     
-    init_ui_elements_array(
+    init_ui_elements(
         &g_ui_elements_struct.knob_sample_amount,
-        &knob_textures_ids[0],
+        &knob_texture_ids[0],
         &knob1_48_scale_matrix[0],
         DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X,
         DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_Y,
@@ -130,9 +134,9 @@ inline static void init_knobs() {
         DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
-    init_ui_elements_array(
+    init_ui_elements(
         &g_ui_elements_struct.knob_sample_lfo_tune,
-        &knob_textures_ids[0],
+        &knob_texture_ids[0],
         &knob1_48_scale_matrix[0],
         DSANDGRAINS_LFO_KNOBS_POS_X,
         DSANDGRAINS_LFO_KNOBS_POS_Y,
@@ -146,9 +150,9 @@ inline static void init_knobs() {
         DSTUDIO_UI_ELEMENT_TYPE_KNOB
     );
     
-    init_ui_elements_array(
+    init_ui_elements(
         &g_ui_elements_struct.knob_sample_lfo_pitch_tune,
-        &knob_textures_ids[0],
+        &knob_texture_ids[0],
         &knob1_48_scale_matrix[0],
         DSANDGRAINS_LFO_PITCH_KNOBS_POS_X,
         DSANDGRAINS_LFO_PITCH_KNOBS_POS_Y,
@@ -163,10 +167,10 @@ inline static void init_knobs() {
     );
 }
 
-static void init_sliders() {
-    GLuint slider_textures_ids[2] = {0};
+inline static void init_sliders() {
+    GLuint slider_texture_ids[2] = {0};
         
-    slider_textures_ids[0] = setup_texture_n_scale_matrix(
+    slider_texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
         DSTUDIO_SLIDER_1_10_WIDTH,
         DSTUDIO_SLIDER_1_10_HEIGHT, 
@@ -174,20 +178,64 @@ static void init_sliders() {
         slider1_10_scale_matrix
     );
     
-    init_ui_elements_array(
+    init_ui_elements(
         &g_ui_elements_struct.slider_delay,
-        &slider_textures_ids[0],
+        &slider_texture_ids[0],
         &slider1_10_scale_matrix[0],
-        DSANDGRAINS_SLIDERS_DAHDSR_POS_X,
-        DSANDGRAINS_SLIDERS_DAHDSR_POS_Y,
+        DSANDGRAINS_DAHDSR_SLIDERS_POS_X,
+        DSANDGRAINS_DAHDSR_SLIDERS_POS_Y,
         DSTUDIO_SLIDER_1_10_AREA_WIDTH,
         DSTUDIO_SLIDER_1_10_AREA_HEIGHT,
-        DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_X,
-        DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_Y,
-        DSANDGRAINS_SLIDERS_DAHDSR_COLUMNS,
-        6,
+        DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_X,
+        DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_Y,
+        DSANDGRAINS_DAHDSR_SLIDERS_COLUMNS,
+        DSANDGRAINS_DAHDSR_SLIDERS_COUNT,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.slider_equalizer_band_1,
+        &slider_texture_ids[0],
+        &slider1_10_scale_matrix[0],
+        DSANDGRAINS_EQUALIZER_SLIDERS_POS_X,
+        DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y,
+        DSTUDIO_SLIDER_1_10_AREA_WIDTH,
+        DSTUDIO_SLIDER_1_10_AREA_HEIGHT,
+        DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_X,
+        DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_Y,
+        DSANDGRAINS_EQUALIZER_SLIDERS_COLUMNS,
+        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER
+    );
+}
+
+inline static void init_ressource_usage() {
+    GLuint textures_ids[2] = {0};
+        
+    textures_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_RESSOURCE_USAGE_WIDTH,
+        DSTUDIO_RESSOURCE_USAGE_HEIGHT, 
+        DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH,
+        ressource_usage_prompt_scale_matrix
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.ressource_usage_prompt,
+        &textures_ids[0],
+        &ressource_usage_prompt_scale_matrix[0],
+        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_X,
+        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y,
+        DSTUDIO_RESSOURCE_USAGE_WIDTH,
+        DSTUDIO_RESSOURCE_USAGE_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND
     );
 }
 
@@ -196,6 +244,10 @@ static void init_ui() {
     init_background();
     init_knobs();
     init_sliders();
+    init_ressource_usage();
+    for (unsigned int i = 2; i < g_dstudio_ui_element_count; i++) {
+        g_ui_elements_array[i].enabled = 1;
+    }
     //sem_init(&g_text_pointer_context.mutex, 0, 1);
 }
 
@@ -216,6 +268,7 @@ void * ui_thread(void * arg) {
     g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
     
     init_ui();
+    init_ressource_usage_backend(DSTUDIO_RESSOURCE_USAGE_STRING_SIZE);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);

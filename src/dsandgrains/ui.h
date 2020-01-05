@@ -19,13 +19,28 @@
 
 #include "../ui.h"
 
-#define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
-
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_X 0.13
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_Y 0
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X 0.0375
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_Y 0.3
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_COLUMNS 2
+
+#define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
+
+#define DSANDGRAINS_DAHDSR_SLIDERS_COLUMNS 6
+#define DSANDGRAINS_DAHDSR_SLIDERS_COUNT 6
+#define DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_X 0.04
+#define DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_Y 0
+#define DSANDGRAINS_DAHDSR_SLIDERS_POS_X 0.0275
+#define DSANDGRAINS_DAHDSR_SLIDERS_POS_Y -0.466666
+#define DSANDGRAINS_DAHDSR_SLIDERS_SLIDE 42
+
+#define DSANDGRAINS_EQUALIZER_SLIDERS_COLUMNS 8
+#define DSANDGRAINS_EQUALIZER_SLIDERS_COUNT 8
+#define DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_X 0.04
+#define DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_Y 0
+#define DSANDGRAINS_EQUALIZER_SLIDERS_POS_X 0.32
+#define DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y -0.425
 
 #define DSANDGRAINS_LFO_KNOBS_COLUMNS 2
 #define DSANDGRAINS_LFO_KNOBS_OFFSET_X 0.12
@@ -39,12 +54,9 @@
 #define DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_Y -0.2483
 #define DSANDGRAINS_LFO_PITCH_KNOBS_COLUMNS 2
 
-#define DSANDGRAINS_SLIDERS_DAHDSR_POS_X 0.0275
-#define DSANDGRAINS_SLIDERS_DAHDSR_POS_Y -0.466666
-#define DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_X 0.04
-#define DSANDGRAINS_SLIDERS_DAHDSR_OFFSET_Y 0
-#define DSANDGRAINS_SLIDERS_DAHDSR_SLIDE 42
-#define DSANDGRAINS_SLIDERS_DAHDSR_COLUMNS 6
+#define DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_X -0.035
+#define DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y 0.891666
+#define DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE 6
 
 #define DSANDGRAINS_SAMPLE_KNOBS_COLUMNS 4
 #define DSANDGRAINS_SAMPLE_KNOBS_OFFSET_X 0.16
@@ -60,6 +72,7 @@
 
 typedef struct UIElementsStruct_t {
     UIElements background;
+    UIElements ressource_usage_prompt;
     UIElements knob_sample_start;
     UIElements knob_sample_end;
     UIElements knob_sample_grain_size;
@@ -88,6 +101,14 @@ typedef struct UIElementsStruct_t {
     UIElements slider_decay;
     UIElements slider_sustain;
     UIElements slider_release;
+    UIElements slider_equalizer_band_1;
+    UIElements slider_equalizer_band_2;
+    UIElements slider_equalizer_band_3;
+    UIElements slider_equalizer_band_4;
+    UIElements slider_equalizer_band_5;
+    UIElements slider_equalizer_band_6;
+    UIElements slider_equalizer_band_7;
+    UIElements slider_equalizer_band_8;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

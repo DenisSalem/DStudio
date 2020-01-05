@@ -23,7 +23,7 @@
 #include "../common.h"
 //#include "../fileutils.h"
 //#include "../instances.h"
-//#include "../system_usage.h"
+#include "../ressource_usage.h"
 //#include "instances.h"
 #include "ui.h"
 
@@ -42,16 +42,16 @@ int main(int argc, char ** argv) {
     //new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     
     pthread_t ui_thread_id;
-    // pthread_t system_usage_thread_id;
+    pthread_t ressource_usage_thread_id;
     // pthread_t instances_thread_id;
     
     // TODO: Investigate thread priority.
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
-    //DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ressource_usage_thread_id, NULL, update_ressource_usage, NULL))
     //DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, NULL))
 
     //DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_thread_id, NULL))
-    //DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_join(ressource_usage_thread_id, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
     
     dstudio_free(0);

@@ -42,10 +42,10 @@ add_executable(
     #buttons.c
     common.c
     extensions.c
-    #fileutils.c
+    fileutils.c
     #instances.c
     #interactive_list.c
-    #system_usage.c
+    ressource_usage.c
     #text.c
     #text_pointer.c
     ui.c

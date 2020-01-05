@@ -80,6 +80,7 @@ typedef enum MotionType_t {
     DSTUDIO_MOTION_TYPE_ROTATION = 1U,
     DSTUDIO_MOTION_TYPE_SLIDE = 2U
 } MotionType;
+
 /*
  * UIElements describe any rendered elements. It holds both application
  * logic information and OpenGL buffers.
@@ -137,12 +138,12 @@ void create_shader_program(
     GLuint * shader_program_id
 );
 
-void init_ui_elements(
+void init_opengl_ui_elements(
     int flags,
     UIElements * ui_elements
 );
 
-void init_ui_elements_array(
+void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
     Vec2 * scale_matrix,

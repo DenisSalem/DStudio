@@ -13,11 +13,11 @@ static unsigned int g_allocation_register_index = 0;
 static unsigned int g_allocation_register_size = DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
 sem_t g_alloc_register_mutex = {0};
 
-double get_timestamp() {
-    struct timespec timestamp;
-    clock_gettime(CLOCK_REALTIME, &timestamp);
-    return (double) (timestamp.tv_sec * 1000 + timestamp.tv_nsec / 1000000) / 1000.0;
-}
+void dstudio_cut_thread(ThreadControl * thread_control) {
+    sem_wait(&thread_control->mutex);
+    thread_control->cut_thread = 1;
+    sem_post(&thread_control->mutex);
+} 
 
 void * dstudio_alloc(unsigned int buffer_size) {
     sem_wait(&g_alloc_register_mutex);
@@ -71,4 +71,10 @@ void dstudio_free(void * buffer) {
     g_allocation_register_index--;
     sem_post(&g_alloc_register_mutex);
     return;
+}
+
+double get_timestamp() {
+    struct timespec timestamp;
+    clock_gettime(CLOCK_REALTIME, &timestamp);
+    return (double) (timestamp.tv_sec * 1000 + timestamp.tv_nsec / 1000000) / 1000.0;
 }

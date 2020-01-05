@@ -241,7 +241,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
-            if (xpos > ui_elements_p->areas.min_area_x && xpos < ui_elements_p->areas.max_area_x && ypos > ui_elements_p->areas.min_area_y && ypos < ui_elements_p->areas.max_area_y) {
+            if (xpos > ui_elements_p->areas.min_area_x && xpos < ui_elements_p->areas.max_area_x && ypos > ui_elements_p->areas.min_area_y && ypos < ui_elements_p->areas.max_area_y && ui_elements_p->enabled) {
                 s_ui_element_index = i;
                 s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
                 s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
@@ -259,9 +259,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     }
 }
 
-
-
-void init_ui_elements(
+void init_opengl_ui_elements(
     int flags,
     UIElements * ui_elements
 ) {
@@ -329,7 +327,7 @@ void init_ui_elements(
     glBindVertexArray(0);
 }
 
-void init_ui_elements_array(
+void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
     Vec2 * scale_matrix,
@@ -348,7 +346,7 @@ void init_ui_elements_array(
     GLfloat max_area_x = min_area_x + area_width;
     GLfloat min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
     GLfloat max_area_y = min_area_y + area_height;
-    
+         
     GLfloat area_offset_x = offset_x * (GLfloat)(g_dstudio_viewport_width >> 1);
     GLfloat area_offset_y = offset_y * (GLfloat)(g_dstudio_viewport_height >> 1);
         
@@ -388,7 +386,7 @@ void init_ui_elements_array(
         
         ui_elements_array[i].render = 1;
         
-        init_ui_elements(
+        init_opengl_ui_elements(
             DSTUDIO_FLAG_NONE,
             &ui_elements_array[i]
         );
