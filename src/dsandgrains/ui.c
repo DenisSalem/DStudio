@@ -38,6 +38,9 @@ Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
+Vec2 char_scale_matrix[2] = {0};
+Vec2 charset_8x18scale_matrix[2] = {0};
+Vec2 charset_4x9_scale_matrix[2] = {0};
 
 inline static void init_background() {
     GLuint texture_ids[2] = {0};

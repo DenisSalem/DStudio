@@ -22,8 +22,6 @@
 
 #include "ui.h"
 
-#define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
-
 typedef struct UITextSettingParams {
     unsigned int string_size;
     Vec2 * scale_matrix;

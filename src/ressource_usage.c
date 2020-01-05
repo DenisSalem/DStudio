@@ -64,8 +64,6 @@ void * update_ressource_usage(void * args) {
 
         send_expose_event();
         g_ressource_usage.thread_control.update = 1;
-        printf("%s\n", g_ressource_usage.cpu_string_buffer);
-        printf("%s\n\n", g_ressource_usage.mem_string_buffer);
         sem_post(&g_ressource_usage.thread_control.mutex);
     }
     return NULL;

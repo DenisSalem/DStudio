@@ -506,6 +506,7 @@ GLuint setup_texture_n_scale_matrix(
     unsigned char * texture_data = 0;
     int alpha = flags & DSTUDIO_FLAG_USE_ALPHA;
     int enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
+    int enable_text_scale_matrix = flags & DSTUDIO_FLAG_USE_TEXT_SCALE_MATRIX;
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
     glGenTextures(1, &texture_id);
@@ -523,7 +524,10 @@ GLuint setup_texture_n_scale_matrix(
     scale_matrix[0].y = 0;
     scale_matrix[1].x = 0;
     scale_matrix[1].y = ((float) texture_height) / ((float) g_dstudio_viewport_height);
-    
+    if (enable_text_scale_matrix) {
+        scale_matrix[0].x /= DSTUDIO_CHAR_SIZE_DIVISOR;
+        scale_matrix[1].y /= DSTUDIO_CHAR_SIZE_DIVISOR;
+    }
     return texture_id;
 }
 
