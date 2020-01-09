@@ -35,7 +35,11 @@ typedef struct RessourceUsage_t {
 
 extern RessourceUsage g_ressource_usage;
 
-void init_ressource_usage_backend(unsigned int string_size);
+void init_ressource_usage_thread(
+    unsigned int string_size,
+    UIElements * cpu_usage,
+    UIElements * mem_usage
+);
 
 void * update_ressource_usage(void * args);
 

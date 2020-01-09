@@ -33,13 +33,16 @@ unsigned int framerate = DSTUDIO_FRAMERATE;
 UIElementsStruct g_ui_elements_struct = {0};
 UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
 
+GLuint charset_8x18_texture_ids[2] = {0};
+GLuint charset_4x9_texture_ids[2] = {0};
+
 Vec2 background_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
 Vec2 char_scale_matrix[2] = {0};
-Vec2 charset_8x18scale_matrix[2] = {0};
+Vec2 charset_8x18_scale_matrix[2] = {0};
 Vec2 charset_4x9_scale_matrix[2] = {0};
 
 inline static void init_background() {
@@ -240,15 +243,66 @@ inline static void init_ressource_usage() {
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND
     );
+
+    init_ui_elements(
+        &g_ui_elements_struct.cpu_usage,
+        &charset_8x18_texture_ids[0],
+        &charset_8x18_scale_matrix[0],
+        DSANDGRAINS_CPU_N_MEM_USAGE_X_POS,
+        DSANDGRAINS_CPU_USAGE_Y_POS,
+        DSANDGRAINS_CPU_USAGE_WIDTH,
+        DSANDGRAINS_CPU_USAGE_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT
+    );
+
+    init_ui_elements(
+        &g_ui_elements_struct.mem_usage,
+        &charset_8x18_texture_ids[0],
+        &charset_8x18_scale_matrix[0],
+        DSANDGRAINS_CPU_N_MEM_USAGE_X_POS,
+        DSANDGRAINS_MEM_USAGE_Y_POS,
+        DSANDGRAINS_MEM_USAGE_WIDTH,
+        DSANDGRAINS_MEM_USAGE_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT
+    );
+}
+
+inline static void init_text() {
+    charset_8x18_texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
+        DSTUDIO_CHAR_TABLE_8X18_WIDTH,
+        DSTUDIO_CHAR_TABLE_8X18_HEIGHT, 
+        DSTUDIO_CHAR_TABLE_8X18_ASSET_PATH,
+        charset_8x18_scale_matrix
+    );
+    
+    charset_4x9_texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
+        DSTUDIO_CHAR_TABLE_4X9_WIDTH,
+        DSTUDIO_CHAR_TABLE_4X9_HEIGHT, 
+        DSTUDIO_CHAR_TABLE_4X9_ASSET_PATH,
+        charset_4x9_scale_matrix
+    );
 }
 
 static void init_ui() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
+    init_text();
     init_background();
     init_knobs();
     init_sliders();
     init_ressource_usage();
-    for (unsigned int i = 2; i < g_dstudio_ui_element_count; i++) {
+    for (unsigned int i = 3; i < g_dstudio_ui_element_count; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
     //sem_init(&g_text_pointer_context.mutex, 0, 1);
@@ -271,7 +325,11 @@ void * ui_thread(void * arg) {
     g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
     
     init_ui();
-    init_ressource_usage_backend(DSTUDIO_RESSOURCE_USAGE_STRING_SIZE);
+    init_ressource_usage_thread(
+        DSTUDIO_RESSOURCE_USAGE_STRING_SIZE,
+        &g_ui_elements_struct.cpu_usage,
+        &g_ui_elements_struct.mem_usage
+    );
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -279,6 +337,12 @@ void * ui_thread(void * arg) {
     glUseProgram(g_shader_program_id);
     while (do_no_exit_loop()) {
         usleep(framerate);
+        
+        update_threaded_ui_element(
+            &g_ressource_usage.thread_control,
+            update_ui_ressource_usage
+        );
+
         render_viewport(need_to_redraw_all());
         swap_window_buffer();
         listen_events();

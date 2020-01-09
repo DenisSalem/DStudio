@@ -21,13 +21,13 @@
 
 flat in float alpha;
 
-uniform sampler2D texture_knob;
+uniform sampler2D input_texture;
 in vec2 fragment_texture_coordinates;
 out vec4 color;
 
 
 
 void main (void) {
-    color = texture(texture_knob, fragment_texture_coordinates);
+    color = texture(input_texture, fragment_texture_coordinates);
     color.a *= alpha;
 } 

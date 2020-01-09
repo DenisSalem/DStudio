@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "window_management.h"
 
 typedef struct vec2_t {
@@ -116,7 +117,6 @@ typedef struct UIElements_t {
     GLuint                      index_buffer_object;
     GLuint                      instance_alphas;
     GLuint                      instance_motions;
-    GLuint                      motion_type;
     GLuint                      instance_offsets;
     GLfloat *                   instance_alphas_buffer; 
     GLfloat *                   instance_motions_buffer;
@@ -203,47 +203,6 @@ extern const unsigned int g_dstudio_viewport_height;
 extern GLuint g_shader_program_id;
 extern GLuint g_scale_matrix_id;
 extern GLuint g_motion_type_location;
-/*
-typedef struct UIArea_t {
-    float min_x;
-    float min_y;
-    float max_x;
-    float max_y;
-    float x;
-    float y;
-} UIArea;
-
-typedef struct UIElementSetting_t {
-    GLfloat gl_x;
-    GLfloat gl_y;
-    GLfloat min_area_x;
-    GLfloat max_area_x;
-    GLfloat min_area_y;
-    GLfloat max_area_y;
-    unsigned char ui_element_type;
-} UIElementSetting;
-
-typedef struct ui_element_setting_params_t {
-    unsigned int        array_offset;
-    
-     //May be one of the following type
-     //- UIElementSetting
-     //- UIInteractiveListSetting
-     //
-    void *  settings;
-    UIArea *            areas;
-    UICallback *        callbacks;
-    void (*update_callback) (int index, UIElements * context, void * args);
-} UIElementSettingParams;
-
-typedef union TextFieldContext_t {
-    
-} UITextFieldContext;
-
-void configure_ui_element(
-    UIElements * ui_elements,
-    void * params
-);*/
 
 void gen_gl_buffer(
     GLenum type,
@@ -259,22 +218,10 @@ void render_ui_elements(
 
 void render_viewport(unsigned int render_all);
 
-/*
-// This one is not defined in the generic ui.c source file.
-// Instead, it is defined for every tools from DStudio.
-void render_viewport(unsigned int mask);
-
-void update_and_render(
-    sem_t * mutex,
-    unsigned int * update,
-    void (*update_callback)(),
-    GLuint scissor_x,
-    GLuint scissor_y,
-    GLuint scissor_width,
-    GLuint scissor_height,
-    unsigned int render_flag
+void update_threaded_ui_element(
+    ThreadControl * thread_control,
+    void (*update_callback)()
 );
-*/
 
 void update_ui_element_motion(
     UIElements * ui_elements_p,

@@ -23,7 +23,6 @@
     #include <stdio.h>
 #endif
 
-#include "common.h"
 #include "extensions.h"
 #include "ui.h"
 
@@ -93,49 +92,6 @@ void compile_shader(
         }
     #endif
 }
-/*
-void configure_ui_element(
-    UIElements * ui_elements,
-    void * params
-) {
-    UIElementSettingParams * ui_element_setting_params = (UIElementSettingParams *) params;
-    UIElementSetting * configure_ui_element_p;
-    UIElementSetting * configure_ui_element_array = ui_element_setting_params->settings;
-    UIArea * ui_areas = ui_element_setting_params->areas;
-    UIArea * ui_area = 0;
-    UICallback * ui_callbacks = ui_element_setting_params->callbacks;
-    UICallback * ui_callback = 0;
-    
-    unsigned int array_offset = ui_element_setting_params->array_offset;
-    
-    for (unsigned int i = 0; i < ui_elements->count; i++) {
-        configure_ui_element_p = &configure_ui_element_array[i];
-        if (ui_elements->animated) {
-            ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
-            ( (Vec2 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
-            ui_elements->instance_motions_buffer[i] = 0;
-        }
-        else {
-            ( (Vec4 *) ui_elements->instance_offsets_buffer)[i].x = configure_ui_element_p->gl_x;
-            ( (Vec4 *) ui_elements->instance_offsets_buffer)[i].y = configure_ui_element_p->gl_y;
-        }
-        
-        ui_area = &ui_areas[array_offset+i];
-        ui_area->min_x = configure_ui_element_p->min_area_x;
-        ui_area->max_x = configure_ui_element_p->max_area_x;
-        ui_area->min_y = configure_ui_element_p->min_area_y;
-        ui_area->max_y = configure_ui_element_p->max_area_y;
-        ui_area->x     = (configure_ui_element_p->min_area_x + configure_ui_element_p->max_area_x ) / 2;
-        ui_area->y     = (configure_ui_element_p->min_area_y + configure_ui_element_p->max_area_y ) / 2;
-    
-        ui_callback = &ui_callbacks[array_offset+i];
-        ui_callback->callback = ui_element_setting_params->update_callback;
-        ui_callback->index = i;
-        ui_callback->context_p = ui_elements;
-        ui_callback->type = configure_ui_element_p->ui_element_type;
-    }
-}
-*/
 
 void create_shader_program(
     GLuint * shader_program_id
@@ -263,7 +219,8 @@ void init_opengl_ui_elements(
     int flags,
     UIElements * ui_elements
 ) {
-    int flip_y =  (flags & DSTUDIO_FLAG_FLIP_Y) >> 1;
+    int flip_y = flags & DSTUDIO_FLAG_FLIP_Y;
+    int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
     
     // Setting vertex indexes
     GLchar * vertex_indexes = ui_elements->vertex_indexes;
@@ -294,6 +251,13 @@ void init_opengl_ui_elements(
     else {
         vertex_attributes[1].w = 1.0;
         vertex_attributes[3].w = 1.0;
+    }
+
+    if (text_setting) {
+        vertex_attributes[1].w /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
+        vertex_attributes[2].z /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
+        vertex_attributes[3].z /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
+        vertex_attributes[3].w /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
     }
     
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
@@ -342,7 +306,13 @@ void init_ui_elements(
     unsigned int instances_count,
     UIElementType ui_element_type
 ) {
-    GLfloat min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2);
+    GLfloat min_area_x;
+    if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT) {
+        min_area_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
+    }
+    else {
+        min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2); 
+    }
     GLfloat max_area_x = min_area_x + area_width;
     GLfloat min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
     GLfloat max_area_y = min_area_y + area_height;
@@ -364,14 +334,22 @@ void init_ui_elements(
         
         ui_elements_array[i].type = ui_element_type;
         
-        ui_elements_array[i].instance_alphas_buffer = dstudio_alloc(sizeof(GLfloat));
-        ui_elements_array[i].instance_alphas_buffer[0] = 1.0;
+        ui_elements_array[i].instance_alphas_buffer = dstudio_alloc(sizeof(GLfloat) * instances_count);        
+        ui_elements_array[i].instance_motions_buffer = dstudio_alloc(sizeof(GLfloat) * instances_count);
+        ui_elements_array[i].instance_offsets_buffer = dstudio_alloc(sizeof(Vec4) * instances_count);
         
-        ui_elements_array[i].instance_motions_buffer = dstudio_alloc(sizeof(GLfloat));
-        
-        ui_elements_array[i].instance_offsets_buffer = dstudio_alloc(sizeof(Vec4));
-        ui_elements_array[i].instance_offsets_buffer->x = gl_x + x * offset_x;
-        ui_elements_array[i].instance_offsets_buffer->y = gl_y + y * offset_y;
+        if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT) {
+            for (unsigned int j = 0; j < instances_count; j++) {
+                ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
+                ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + j * scale_matrix[0].x * 2;
+                ui_elements_array[i].instance_offsets_buffer[j].y = gl_y;
+            }
+        }
+        else {
+            ui_elements_array[i].instance_alphas_buffer[0] = 1.0;
+            ui_elements_array[i].instance_offsets_buffer->x = gl_x + x * offset_x;
+            ui_elements_array[i].instance_offsets_buffer->y = gl_y + y * offset_y;
+        }
         
         ui_elements_array[i].scissor.x = min_area_x + computed_area_offset_x;
         ui_elements_array[i].scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
@@ -387,7 +365,7 @@ void init_ui_elements(
         ui_elements_array[i].render = 1;
         
         init_opengl_ui_elements(
-            DSTUDIO_FLAG_NONE,
+            ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE,
             &ui_elements_array[i]
         );
     }
@@ -506,7 +484,7 @@ GLuint setup_texture_n_scale_matrix(
     unsigned char * texture_data = 0;
     int alpha = flags & DSTUDIO_FLAG_USE_ALPHA;
     int enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
-    int enable_text_scale_matrix = flags & DSTUDIO_FLAG_USE_TEXT_SCALE_MATRIX;
+    int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
     glGenTextures(1, &texture_id);
@@ -520,38 +498,29 @@ GLuint setup_texture_n_scale_matrix(
     glBindTexture(GL_TEXTURE_2D, 0);
     dstudio_free(texture_data);
     
-    scale_matrix[0].x = ((float) texture_width) / ((float) g_dstudio_viewport_width);
-    scale_matrix[0].y = 0;
-    scale_matrix[1].x = 0;
-    scale_matrix[1].y = ((float) texture_height) / ((float) g_dstudio_viewport_height);
-    if (enable_text_scale_matrix) {
-        scale_matrix[0].x /= DSTUDIO_CHAR_SIZE_DIVISOR;
-        scale_matrix[1].y /= DSTUDIO_CHAR_SIZE_DIVISOR;
+    if (scale_matrix) {
+        scale_matrix[0].x = (float) texture_width / (float) g_dstudio_viewport_width;
+        scale_matrix[0].y = 0;
+        scale_matrix[1].x = 0;
+        scale_matrix[1].y = (float) texture_height / (float) g_dstudio_viewport_height;
+        if (text_setting) {
+            scale_matrix[0].x /= DSTUDIO_CHAR_SIZE_DIVISOR;
+            scale_matrix[1].y /= DSTUDIO_CHAR_SIZE_DIVISOR;
+        }
     }
     return texture_id;
 }
 
-/*
-void update_and_render(
-    sem_t * mutex,
-    unsigned int * update,
-    void (*update_callback)(),
-    GLuint scissor_x,
-    GLuint scissor_y,
-    GLuint scissor_width,
-    GLuint scissor_height,
-    unsigned int render_flag
-) {
-    sem_wait(mutex);
-    if (*update) {
-        update_callback();
-        glScissor(scissor_x, scissor_y, scissor_width, scissor_height);
-        render_viewport(render_flag);
-        *update = 0;
+void update_threaded_ui_element(ThreadControl * thread_control, void (*update_callback)()) {
+    sem_wait(&thread_control->mutex);
+    if (!thread_control->update) {
+        sem_post(&thread_control->mutex);
+        return;
     }
-    sem_post(mutex);
+    update_callback();
+    thread_control->update = 0;
+    sem_post(&thread_control->mutex);
 }
-*/
 
 void update_ui_element_motion(
     UIElements * ui_elements_p,

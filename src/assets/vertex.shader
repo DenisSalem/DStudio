@@ -21,8 +21,8 @@
 
 const uint DSTUDIO_MOTION_TYPE_NONE = 0U;
 const uint DSTUDIO_MOTION_TYPE_ROTATION = 1U;
-const uint DSTUDIO_MOTION_TYPE_SLIDE = 2U;
-
+const uint DSTUDIO_MOTION_TYPE_SLIDE = 2U; 
+ 
 layout(location = 0) in vec2 vertex_position;
 layout(location = 1) in vec2 texture_coordinates;
 layout(location = 2) in vec4 offset;

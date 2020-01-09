@@ -27,6 +27,12 @@
 
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
 
+#define DSANDGRAINS_CPU_N_MEM_USAGE_X_POS 0.015
+
+#define DSANDGRAINS_CPU_USAGE_WIDTH 48
+#define DSANDGRAINS_CPU_USAGE_HEIGHT 10
+#define DSANDGRAINS_CPU_USAGE_Y_POS 0.916667
+
 #define DSANDGRAINS_DAHDSR_SLIDERS_COLUMNS 6
 #define DSANDGRAINS_DAHDSR_SLIDERS_COUNT 6
 #define DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_X 0.04
@@ -54,6 +60,10 @@
 #define DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_Y -0.2483
 #define DSANDGRAINS_LFO_PITCH_KNOBS_COLUMNS 2
 
+#define DSANDGRAINS_MEM_USAGE_WIDTH 48
+#define DSANDGRAINS_MEM_USAGE_HEIGHT 10
+#define DSANDGRAINS_MEM_USAGE_Y_POS 0.8625
+
 #define DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_X -0.035
 #define DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y 0.891666
 #define DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE 6
@@ -73,6 +83,8 @@
 typedef struct UIElementsStruct_t {
     UIElements background;
     UIElements ressource_usage_prompt;
+    UIElements cpu_usage;
+    UIElements mem_usage;
     UIElements knob_sample_start;
     UIElements knob_sample_end;
     UIElements knob_sample_grain_size;

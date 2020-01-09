@@ -28,14 +28,21 @@
 
 RessourceUsage g_ressource_usage = {0};
 
-UIElements g_cpu_usage = {0};
-UIElements g_mem_usage = {0};
+static UIElements * s_cpu_usage = {0};
+static UIElements * s_mem_usage = {0};
 
-void init_ressource_usage_backend(unsigned int string_size) {
+void init_ressource_usage_thread(
+    unsigned int string_size,
+    UIElements * cpu_usage,
+    UIElements * mem_usage
+) {
     sem_init(&g_ressource_usage.thread_control.mutex, 0, 1);
     set_physical_memory();
     g_ressource_usage.string_size = string_size;
+    s_cpu_usage = cpu_usage;
+    s_mem_usage = mem_usage;
     g_ressource_usage.thread_control.ready = 1;
+
 }
 
 void * update_ressource_usage(void * args) {
@@ -53,15 +60,14 @@ void * update_ressource_usage(void * args) {
             break;
         }
         double cpu_usage = (((double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
-        explicit_bzero(g_ressource_usage.cpu_string_buffer, 6);
+        explicit_bzero(g_ressource_usage.cpu_string_buffer, g_ressource_usage.string_size);
         sprintf(g_ressource_usage.cpu_string_buffer, "%0.1lf%%", cpu_usage);
         
         double mem_usage = get_proc_memory_usage();
         if (mem_usage != -1) {
-            explicit_bzero(g_ressource_usage.mem_string_buffer, 6);
+            explicit_bzero(g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);
             sprintf(g_ressource_usage.mem_string_buffer, "%0.1lf%%", mem_usage);
         }
-
         send_expose_event();
         g_ressource_usage.thread_control.update = 1;
         sem_post(&g_ressource_usage.thread_control.mutex);
@@ -69,7 +75,7 @@ void * update_ressource_usage(void * args) {
     return NULL;
 }
 
-/*void update_ui_system_usage() {
-    update_text(&g_cpu_usage, g_ressource_usage.cpu_string_buffer, g_ressource_usage.string_size);
-    update_text(&g_mem_usage, g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);
-}*/
+void update_ui_ressource_usage() {
+    update_text(s_cpu_usage, g_ressource_usage.cpu_string_buffer, g_ressource_usage.string_size);
+    update_text(s_mem_usage, g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);
+}

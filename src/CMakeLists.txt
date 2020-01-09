@@ -46,7 +46,7 @@ add_executable(
     #instances.c
     #interactive_list.c
     ressource_usage.c
-    #text.c
+    text.c
     #text_pointer.c
     ui.c
     #voices.c
