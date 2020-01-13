@@ -39,7 +39,7 @@ add_executable(
 	dsandgrains/main.c
     dsandgrains/ui.c
     #add.c
-    #buttons.c
+    buttons.c
     common.c
     extensions.c
     fileutils.c

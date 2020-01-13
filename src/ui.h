@@ -73,7 +73,9 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND = 1,
     DSTUDIO_UI_ELEMENT_TYPE_TEXT = 2,
     DSTUDIO_UI_ELEMENT_TYPE_SLIDER = 4,
-    DSTUDIO_UI_ELEMENT_TYPE_KNOB = 8
+    DSTUDIO_UI_ELEMENT_TYPE_KNOB = 8,
+    DSTUDIO_UI_ELEMENT_TYPE_BUTTON = 16,
+    DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE = 32
 } UIElementType;
 
 typedef enum MotionType_t {
@@ -100,6 +102,7 @@ typedef enum MotionType_t {
  * - type:              specify the kind of ui element.
  * - vertex_attributes: Holds initial position of each vertex of the 
  *                      element as well as its initial UV coordinates.
+ * - timestamp:         Used only for buttons to animate rebounce.
  */
  
 typedef struct UIElements_t UIElements;
@@ -110,6 +113,7 @@ typedef struct UIElements_t {
     unsigned int                enabled;
     unsigned int                texture_index;
     unsigned int                group_identifier;
+    double                      timestamp;
     GLchar                      vertex_indexes[4];
     GLuint                      texture_ids[2];
     GLuint                      vertex_array_object;
@@ -127,6 +131,7 @@ typedef struct UIElements_t {
     Vec2 *                      scale_matrix;
     UIElementType               type;
     void (*application_callback)(UIElements * self, void * args);
+    void * application_callback_args;
 } UIElements;
 
 void compile_shader(
@@ -156,7 +161,8 @@ void init_ui_elements(
     unsigned int columns,
     unsigned int count,
     unsigned int instances_count,
-    UIElementType ui_element_type
+    UIElementType ui_element_type,
+    int flags
 );
 
 int get_png_pixel(

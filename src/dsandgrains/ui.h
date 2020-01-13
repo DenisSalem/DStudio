@@ -25,6 +25,9 @@
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_Y 0.3
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_COLUMNS 2
 
+#define DSANDGRAINS_ARROW_BUTTON_WIDTH 117
+#define DSANDGRAINS_ARROW_BUTTON_HEIGHT 8
+
 #define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
 
 #define DSANDGRAINS_CPU_N_MEM_USAGE_X_POS 0.015
@@ -47,6 +50,13 @@
 #define DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_Y 0
 #define DSANDGRAINS_EQUALIZER_SLIDERS_POS_X 0.32
 #define DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y -0.425
+
+#define DSANDGRAINS_INSTANCES_ARROW_DOWN_X_POS 0.81875
+#define DSANDGRAINS_INSTANCES_ARROW_DOWN_Y_POS 0.04167
+#define DSANDGRAINS_INSTANCES_ARROW_UP_POS_X 0.81875
+#define DSANDGRAINS_INSTANCES_ARROW_UP_POS_Y 0.404167
+#define DSANDGRAINS_INSTANCES_OFFSET_X 0
+#define DSANDGRAINS_INSTANCES_OFFSET_Y -0.4625
 
 #define DSANDGRAINS_LFO_KNOBS_COLUMNS 2
 #define DSANDGRAINS_LFO_KNOBS_OFFSET_X 0.12
@@ -121,6 +131,12 @@ typedef struct UIElementsStruct_t {
     UIElements slider_equalizer_band_6;
     UIElements slider_equalizer_band_7;
     UIElements slider_equalizer_band_8;
+    UIElements button_arrow_top_instances;
+    UIElements button_arrow_top_voices;
+    UIElements button_arrow_top_samples;
+    UIElements button_arrow_bottom_instances;
+    UIElements button_arrow_bottom_voices;
+    UIElements button_arrow_bottom_samples;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

@@ -23,6 +23,7 @@
     #include <stdio.h>
 #endif
 
+#include "buttons.h"
 #include "extensions.h"
 #include "ui.h"
 
@@ -199,11 +200,25 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
             ui_elements_p = &g_ui_elements_array[i];
             if (xpos > ui_elements_p->areas.min_area_x && xpos < ui_elements_p->areas.max_area_x && ypos > ui_elements_p->areas.min_area_y && ypos < ui_elements_p->areas.max_area_y && ui_elements_p->enabled) {
                 s_ui_element_index = i;
-                s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
-                s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
-                if (ui_elements_p->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
-                    s_active_slider_range_min = ui_elements_p->areas.min_area_y + DSTUDIO_SLIDER_1_10_HEIGHT / 2;
-                    s_active_slider_range_max = ui_elements_p->areas.max_area_y - DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                switch (ui_elements_p->type) {
+                    case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+                    case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
+                        update_button(ui_elements_p);
+                        break;
+                        
+                    case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+                        s_active_slider_range_min = ui_elements_p->areas.min_area_y + DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                        s_active_slider_range_max = ui_elements_p->areas.max_area_y - DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                        __attribute__ ((fallthrough));
+                                                                   
+                    case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+                        s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
+                        s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
+                        break;
+                        
+                    case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
+                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+                        break;
                 }
                 break;
             }
@@ -304,7 +319,8 @@ void init_ui_elements(
     unsigned int columns,
     unsigned int count,
     unsigned int instances_count,
-    UIElementType ui_element_type
+    UIElementType ui_element_type,
+    int flags
 ) {
     GLfloat min_area_x;
     if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT) {
@@ -365,7 +381,7 @@ void init_ui_elements(
         ui_elements_array[i].render = 1;
         
         init_opengl_ui_elements(
-            ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE,
+            (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
             &ui_elements_array[i]
         );
     }
@@ -403,6 +419,8 @@ void render_ui_elements(UIElements * ui_elements) {
              
         case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+        case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }
