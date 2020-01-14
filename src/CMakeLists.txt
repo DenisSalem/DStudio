@@ -43,7 +43,7 @@ add_executable(
     common.c
     extensions.c
     fileutils.c
-    #instances.c
+    instances.c
     #interactive_list.c
     ressource_usage.c
     text.c

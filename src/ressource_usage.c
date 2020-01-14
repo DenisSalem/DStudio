@@ -45,7 +45,7 @@ void init_ressource_usage_thread(
 
 }
 
-void * update_ressource_usage(void * args) {
+void * update_ressource_usage_thread(void * args) {
     (void) args;
     while(!g_ressource_usage.thread_control.ready) {
         usleep(1000);

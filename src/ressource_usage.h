@@ -41,7 +41,7 @@ void init_ressource_usage_thread(
     UIElements * mem_usage
 );
 
-void * update_ressource_usage(void * args);
+void * update_ressource_usage_thread(void * args);
 
 void update_ui_ressource_usage();
 

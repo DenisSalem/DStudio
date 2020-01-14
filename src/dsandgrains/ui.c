@@ -20,6 +20,7 @@
 #include "../buttons.h"
 #include "../common.h"
 #include "../extensions.h"
+#include "../instances.h"
 #include "../ressource_usage.h"
 #include "../window_management.h"
 
@@ -406,9 +407,9 @@ static void init_ui() {
     init_buttons_management();
     init_knobs();
     init_misc_buttons();
+    init_text();
     init_ressource_usage();
     init_sliders();
-    init_text();
 
     for (unsigned int i = 3; i < g_dstudio_ui_element_count; i++) {
         g_ui_elements_array[i].enabled = 1;
@@ -433,11 +434,13 @@ void * ui_thread(void * arg) {
     g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
     
     init_ui();
+    
     init_ressource_usage_thread(
         DSTUDIO_RESSOURCE_USAGE_STRING_SIZE,
         &g_ui_elements_struct.cpu_usage,
         &g_ui_elements_struct.mem_usage
     );
+    init_instances_management_thread();
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -457,7 +460,9 @@ void * ui_thread(void * arg) {
     }
     dstudio_cut_thread(&g_ressource_usage.thread_control);
     dstudio_cut_thread(&g_buttons_management.thread_control);
-    
+    dstudio_cut_thread(&g_instances.thread_control);
+    exit_instances_management_thread();
+
     destroy_context();
     return NULL;
 }
