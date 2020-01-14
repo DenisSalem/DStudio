@@ -19,6 +19,9 @@
 
 #include "../ui.h"
 
+#define DSANDGRAINS_ADD_BUTTON_X_POS 0.2175
+#define DSANDGRAINS_ADD_BUTTON_Y_POS -0.6625
+
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_X 0.13
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_Y 0
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X 0.0375
@@ -137,6 +140,7 @@ typedef struct UIElementsStruct_t {
     UIElements button_arrow_bottom_instances;
     UIElements button_arrow_bottom_voices;
     UIElements button_arrow_bottom_samples;
+    UIElements button_add;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

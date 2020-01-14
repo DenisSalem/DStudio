@@ -45,7 +45,61 @@ Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
 Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
+Vec2 tiny_button_scale_matrix[2] = {0};
 
+inline static void init_arrow_instance_buttons() {
+    GLuint texture_ids[2] = {0};
+        
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSANDGRAINS_ARROW_BUTTON_WIDTH,
+        DSANDGRAINS_ARROW_BUTTON_HEIGHT, 
+        DSTUDIO_ARROW_INSTANCES_ASSET_PATH,
+        arrow_button_scale_matrix
+    );
+    
+    texture_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSANDGRAINS_ARROW_BUTTON_WIDTH,
+        DSANDGRAINS_ARROW_BUTTON_HEIGHT, 
+        DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH,
+        arrow_button_scale_matrix
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.button_arrow_top_instances,
+        &texture_ids[0],
+        &arrow_button_scale_matrix[0],
+        DSANDGRAINS_INSTANCES_ARROW_UP_POS_X,
+        DSANDGRAINS_INSTANCES_ARROW_UP_POS_Y,
+        DSANDGRAINS_ARROW_BUTTON_WIDTH,
+        DSANDGRAINS_ARROW_BUTTON_HEIGHT,
+        DSANDGRAINS_INSTANCES_OFFSET_X,
+        DSANDGRAINS_INSTANCES_OFFSET_Y,
+        1,
+        3,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
+        DSTUDIO_FLAG_NONE
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.button_arrow_bottom_instances,
+        &texture_ids[0],
+        &arrow_button_scale_matrix[0],
+        DSANDGRAINS_INSTANCES_ARROW_DOWN_X_POS,
+        DSANDGRAINS_INSTANCES_ARROW_DOWN_Y_POS,
+        DSANDGRAINS_ARROW_BUTTON_WIDTH,
+        DSANDGRAINS_ARROW_BUTTON_HEIGHT,
+        DSANDGRAINS_INSTANCES_OFFSET_X,
+        DSANDGRAINS_INSTANCES_OFFSET_Y,
+        1,
+        3,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
+        DSTUDIO_FLAG_FLIP_Y
+    );
+}
 
 inline static void init_background() {
     GLuint texture_ids[2] = {0};
@@ -181,103 +235,40 @@ inline static void init_knobs() {
     );
 }
 
-inline static void init_sliders() {
-    GLuint slider_texture_ids[2] = {0};
-        
-    slider_texture_ids[0] = setup_texture_n_scale_matrix(
+inline static void init_misc_buttons() {
+    GLuint textures_ids[2] = {0};
+    
+    textures_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
-        DSTUDIO_SLIDER_1_10_WIDTH,
-        DSTUDIO_SLIDER_1_10_HEIGHT, 
-        DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH,
-        slider1_10_scale_matrix
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        DSANDGRAINS_TINY_BUTTON_SCALE, 
+        DSTUDIO_BUTTON_ADD_ASSET_PATH,
+        tiny_button_scale_matrix
+    );
+    
+    textures_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        DSANDGRAINS_TINY_BUTTON_SCALE, 
+        DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH,
+        NULL
     );
     
     init_ui_elements(
-        &g_ui_elements_struct.slider_delay,
-        &slider_texture_ids[0],
-        &slider1_10_scale_matrix[0],
-        DSANDGRAINS_DAHDSR_SLIDERS_POS_X,
-        DSANDGRAINS_DAHDSR_SLIDERS_POS_Y,
-        DSTUDIO_SLIDER_1_10_AREA_WIDTH,
-        DSTUDIO_SLIDER_1_10_AREA_HEIGHT,
-        DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_X,
-        DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_Y,
-        DSANDGRAINS_DAHDSR_SLIDERS_COLUMNS,
-        DSANDGRAINS_DAHDSR_SLIDERS_COUNT,
+        &g_ui_elements_struct.button_add,
+        &textures_ids[0],
+        &tiny_button_scale_matrix[0],
+        DSANDGRAINS_ADD_BUTTON_X_POS,
+        DSANDGRAINS_ADD_BUTTON_Y_POS,
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        0,
+        0,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
-        DSTUDIO_FLAG_NONE
-    );
-    
-    init_ui_elements(
-        &g_ui_elements_struct.slider_equalizer_band_1,
-        &slider_texture_ids[0],
-        &slider1_10_scale_matrix[0],
-        DSANDGRAINS_EQUALIZER_SLIDERS_POS_X,
-        DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y,
-        DSTUDIO_SLIDER_1_10_AREA_WIDTH,
-        DSTUDIO_SLIDER_1_10_AREA_HEIGHT,
-        DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_X,
-        DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_Y,
-        DSANDGRAINS_EQUALIZER_SLIDERS_COLUMNS,
-        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
-        DSTUDIO_FLAG_NONE
-    );
-}
-
-inline static void init_arrow_instance_buttons() {
-    GLuint texture_ids[2] = {0};
-        
-    texture_ids[0] = setup_texture_n_scale_matrix(
-        DSTUDIO_FLAG_USE_ALPHA,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT, 
-        DSTUDIO_ARROW_INSTANCES_ASSET_PATH,
-        arrow_button_scale_matrix
-    );
-    
-    texture_ids[1] = setup_texture_n_scale_matrix(
-        DSTUDIO_FLAG_USE_ALPHA,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT, 
-        DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH,
-        arrow_button_scale_matrix
-    );
-    
-    init_ui_elements(
-        &g_ui_elements_struct.button_arrow_top_instances,
-        &texture_ids[0],
-        &arrow_button_scale_matrix[0],
-        DSANDGRAINS_INSTANCES_ARROW_UP_POS_X,
-        DSANDGRAINS_INSTANCES_ARROW_UP_POS_Y,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT,
-        DSANDGRAINS_INSTANCES_OFFSET_X,
-        DSANDGRAINS_INSTANCES_OFFSET_Y,
-        1,
-        3,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
         DSTUDIO_FLAG_NONE
-    );
-    
-    init_ui_elements(
-        &g_ui_elements_struct.button_arrow_bottom_instances,
-        &texture_ids[0],
-        &arrow_button_scale_matrix[0],
-        DSANDGRAINS_INSTANCES_ARROW_DOWN_X_POS,
-        DSANDGRAINS_INSTANCES_ARROW_DOWN_Y_POS,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT,
-        DSANDGRAINS_INSTANCES_OFFSET_X,
-        DSANDGRAINS_INSTANCES_OFFSET_Y,
-        1,
-        3,
-        1,
-        DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
-        DSTUDIO_FLAG_FLIP_Y
     );
 }
 
@@ -344,6 +335,52 @@ inline static void init_ressource_usage() {
     );
 }
 
+inline static void init_sliders() {
+    GLuint slider_texture_ids[2] = {0};
+        
+    slider_texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_SLIDER_1_10_WIDTH,
+        DSTUDIO_SLIDER_1_10_HEIGHT, 
+        DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH,
+        slider1_10_scale_matrix
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.slider_delay,
+        &slider_texture_ids[0],
+        &slider1_10_scale_matrix[0],
+        DSANDGRAINS_DAHDSR_SLIDERS_POS_X,
+        DSANDGRAINS_DAHDSR_SLIDERS_POS_Y,
+        DSTUDIO_SLIDER_1_10_AREA_WIDTH,
+        DSTUDIO_SLIDER_1_10_AREA_HEIGHT,
+        DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_X,
+        DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_Y,
+        DSANDGRAINS_DAHDSR_SLIDERS_COLUMNS,
+        DSANDGRAINS_DAHDSR_SLIDERS_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
+        DSTUDIO_FLAG_NONE
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.slider_equalizer_band_1,
+        &slider_texture_ids[0],
+        &slider1_10_scale_matrix[0],
+        DSANDGRAINS_EQUALIZER_SLIDERS_POS_X,
+        DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y,
+        DSTUDIO_SLIDER_1_10_AREA_WIDTH,
+        DSTUDIO_SLIDER_1_10_AREA_HEIGHT,
+        DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_X,
+        DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_Y,
+        DSANDGRAINS_EQUALIZER_SLIDERS_COLUMNS,
+        DSANDGRAINS_EQUALIZER_SLIDERS_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
+        DSTUDIO_FLAG_NONE
+    );
+}
+
 inline static void init_text() {
     charset_8x18_texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
@@ -364,13 +401,15 @@ inline static void init_text() {
 
 static void init_ui() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
-    init_buttons_management();
-    init_text();
-    init_background();
-    init_knobs();
-    init_sliders();
-    init_ressource_usage();
     init_arrow_instance_buttons();
+    init_background();
+    init_buttons_management();
+    init_knobs();
+    init_misc_buttons();
+    init_ressource_usage();
+    init_sliders();
+    init_text();
+
     for (unsigned int i = 3; i < g_dstudio_ui_element_count; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
@@ -411,7 +450,6 @@ void * ui_thread(void * arg) {
             &g_ressource_usage.thread_control,
             update_ui_ressource_usage
         );
-        check_for_buttons_to_update();
 
         render_viewport(need_to_redraw_all());
         swap_window_buffer();

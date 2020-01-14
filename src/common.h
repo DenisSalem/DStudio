@@ -50,6 +50,8 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_SLIDER_1_10_AREA_WIDTH DSTUDIO_SLIDER_1_10_WIDTH
 #define DSTUDIO_SLIDER_1_10_AREA_HEIGHT 42
 
+#define DSANDGRAINS_TINY_BUTTON_SCALE 32
+
 // FLAGS
 #define DSTUDIO_FLAG_NONE                   0
 #define DSTUDIO_FLAG_FLIP_Y                 1

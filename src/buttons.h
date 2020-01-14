@@ -27,35 +27,11 @@
 #include "text_pointer.h"
 #include "interactive_list.h"
 
-/*
- * There is many usages of a button. To save memory
- * we're reusing and renaming some fields for different
- * use cases.
- */
- 
-//~ typedef struct ButtonStates_t {
-    //~ GLuint active;
-    //~ GLuint release;
-    //~ double timestamp;
-    //~ union {
-        //~ void (*application_callback)(void * args);
-        //~ TextPointerContextPayload context;
-    //~ };
-    //~ union {
-        //~ unsigned int flags;
-        //~ unsigned int index;
-    //~ };
-    //~ unsigned int update;
-    //~ unsigned int disabled;
-//~ } ButtonStates;
-
 typedef struct ButtonsManagement_t {
     ThreadControl thread_control;
 } ButtonsManagement;
 
 void * buttons_management_thread(void * args);
-
-void check_for_buttons_to_update();
     
 void init_buttons_management();
 

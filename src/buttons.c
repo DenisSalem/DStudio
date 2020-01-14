@@ -44,32 +44,22 @@ void * buttons_management_thread(void * args) {
             if (timestamp == 0) {
                 continue;
             }
-            elapsed_time = get_timestamp() - g_ui_elements_array[i].timestamp;
-            
-            if (elapsed_time > 0.025 && g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
-                send_expose_event();
+            elapsed_time = get_timestamp() - timestamp;
+
+            if (elapsed_time > 0.05 && g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
+                if (g_ui_elements_array[i].texture_index == 0 && g_dstudio_mouse_state == 0) {
+                    g_ui_elements_array[i].timestamp = 0;
+                    continue;
+                }
+                if (g_ui_elements_array[i].texture_index == 1 && g_dstudio_mouse_state == 0 && g_ui_elements_array[i].render == 0) {
+                    update_button(&g_ui_elements_array[i]);
+                    send_expose_event();
+                }
             }
         }
         sem_post(&g_buttons_management.thread_control.mutex);
     }
     return NULL;
-}
-
-void check_for_buttons_to_update() {
-    sem_wait(&g_buttons_management.thread_control.mutex);
-    for (unsigned int i=0; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].timestamp != 0) {
-            if (g_ui_elements_array[i].texture_index == 1) {
-                if(g_dstudio_mouse_state == 0) {
-                    update_button(&g_ui_elements_array[i]);
-                }
-            }
-            else {
-                g_ui_elements_array[i].timestamp = 0;
-            }
-        }
-    }
-    sem_post(&g_buttons_management.thread_control.mutex);
 }
 
 void init_buttons_management()
