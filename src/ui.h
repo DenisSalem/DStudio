@@ -108,11 +108,11 @@ typedef enum MotionType_t {
 typedef struct UIElements_t UIElements;
 
 typedef struct UIElements_t {
-    unsigned int                count;
-    unsigned int                render;
-    unsigned int                enabled;
-    unsigned int                texture_index;
-    unsigned int                group_identifier;
+    unsigned char               count;
+    unsigned char               render;
+    unsigned char               enabled;
+    unsigned char               group_identifier;
+    unsigned char               texture_index;
     double                      timestamp;
     GLchar                      vertex_indexes[4];
     GLuint                      texture_ids[2];
@@ -130,8 +130,8 @@ typedef struct UIElements_t {
     Scissor                     scissor;
     Vec2 *                      scale_matrix;
     UIElementType               type;
+    void *                      application_callback_args;
     void (*application_callback)(UIElements * self, void * args);
-    void * application_callback_args;
 } UIElements;
 
 void compile_shader(

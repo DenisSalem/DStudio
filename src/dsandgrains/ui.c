@@ -131,6 +131,25 @@ inline static void init_background() {
     );
 }
 
+inline static void init_instances_list() {
+    init_ui_elements(
+        &g_ui_elements_struct.instances_list_item_1,
+        &charset_4x9_texture_ids[0],
+        &charset_4x9_scale_matrix[0],
+        DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_X,
+        DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_Y,
+        DSANDGRAINS_ITEM_LIST_WIDTH,
+        DSANDGRAINS_ITEM_LIST_HEIGHT,
+        0,
+        DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET,
+        1,
+        DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_FLAG_NONE
+    );
+}
+
 inline static void init_knobs() {
     GLuint knob_texture_ids[2] = {0};
         
@@ -301,6 +320,7 @@ inline static void init_ressource_usage() {
         DSTUDIO_FLAG_NONE
     );
 
+    // Initialize both cpu_usage and memory usage.
     init_ui_elements(
         &g_ui_elements_struct.cpu_usage,
         &charset_8x18_texture_ids[0],
@@ -310,26 +330,9 @@ inline static void init_ressource_usage() {
         DSANDGRAINS_CPU_USAGE_WIDTH,
         DSANDGRAINS_CPU_USAGE_HEIGHT,
         0,
-        0,
+        DSANDGRAINS_MEM_USAGE_OFFSET_Y,
         1,
-        1,
-        DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE,
-        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
-        DSTUDIO_FLAG_NONE
-    );
-
-    init_ui_elements(
-        &g_ui_elements_struct.mem_usage,
-        &charset_8x18_texture_ids[0],
-        &charset_8x18_scale_matrix[0],
-        DSANDGRAINS_CPU_N_MEM_USAGE_X_POS,
-        DSANDGRAINS_MEM_USAGE_Y_POS,
-        DSANDGRAINS_MEM_USAGE_WIDTH,
-        DSANDGRAINS_MEM_USAGE_HEIGHT,
-        0,
-        0,
-        1,
-        1,
+        2,
         DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE,
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_NONE
@@ -402,16 +405,18 @@ inline static void init_text() {
 
 static void init_ui() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
+    init_text();
+
     init_arrow_instance_buttons();
     init_background();
     init_buttons_management();
+    init_instances_list();
     init_knobs();
     init_misc_buttons();
-    init_text();
     init_ressource_usage();
     init_sliders();
 
-    for (unsigned int i = 3; i < g_dstudio_ui_element_count; i++) {
+    for (unsigned int i = 4; i < g_dstudio_ui_element_count; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
     //sem_init(&g_text_pointer_context.mutex, 0, 1);
@@ -440,7 +445,12 @@ void * ui_thread(void * arg) {
         &g_ui_elements_struct.cpu_usage,
         &g_ui_elements_struct.mem_usage
     );
-    init_instances_management_thread();
+    
+    init_instances_management_thread(
+        &g_ui_elements_struct.instances_list_item_1,
+        DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE
+    );
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -452,6 +462,11 @@ void * ui_thread(void * arg) {
         update_threaded_ui_element(
             &g_ressource_usage.thread_control,
             update_ui_ressource_usage
+        );
+
+        update_insteractive_list(
+            &g_ui_instances,
+            -1
         );
 
         render_viewport(need_to_redraw_all());

@@ -13,9 +13,9 @@
 #include "fileutils.h"
 #include "instances.h"
 #include "ui.h"
-#include "voices.h"
+//~ #include "voices.h"
 #include "buttons.h"
-#include "text_pointer.h"
+//~ #include "text_pointer.h"
 
 static struct stat st = {0};
 
@@ -48,7 +48,21 @@ void exit_instances_management_thread() {
     //~ return g_instances.contexts[g_ui_instances.window_offset+index].name;
 //~ }
 
-void init_instances_management_thread() {
+void init_instances_management_thread(
+    UIElements * lines,
+    unsigned int lines_number,
+    unsigned int string_size
+) {
+    init_interactive_list(
+        &g_ui_instances,
+        lines,
+        lines_number,
+        string_size,
+        sizeof(InstanceContext),
+        &g_instances.count,
+        (char **) &g_instances.contexts,
+        &g_instances.thread_control.mutex
+    );
     sem_init(&g_instances.thread_control.mutex, 0, 1);
     g_instances.thread_control.ready = 1;
 }
@@ -68,7 +82,6 @@ void * instances_management_thread(void * args) {
         printf("inotify_init(): failed\n");
         exit(-1);
     }
-    printf("%s\n", s_instances_directory);
     
     wd = inotify_add_watch(fd, s_instances_directory, IN_CREATE | IN_DELETE);
     if (errno != 0 && wd == 0) {
@@ -79,17 +92,12 @@ void * instances_management_thread(void * args) {
 	struct inotify_event * event = dstudio_alloc(sizeof(struct inotify_event) + 16 + 1);
 
     while(1) {
-        printf("THERE\n");
-
         if(read(fd, event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
             continue;
         }
-        printf("THERE 2\n");
-
         sem_wait(&g_instances.thread_control.mutex);
         if (g_instances.thread_control.cut_thread) {
             sem_post(&g_instances.thread_control.mutex);
-            printf("THERE 3\n");
             break;
         }
         
@@ -97,8 +105,7 @@ void * instances_management_thread(void * args) {
             //clear_text_pointer();
             g_instances.count++;
             saved_contexts = g_instances.contexts;
-            g_instances.contexts = realloc(g_instances.contexts, sizeof(InstanceContext) * g_instances.count);
-            
+            g_instances.contexts = dstudio_realloc(g_instances.contexts, sizeof(InstanceContext) * g_instances.count);
             if (g_instances.contexts == NULL) {
                 g_instances.contexts = saved_contexts;
                 g_instances.count--;
@@ -114,7 +121,7 @@ void * instances_management_thread(void * args) {
             g_current_active_instance->identifier = 1;
             strcat(g_current_active_instance->name, "Instance ");
             strcat(g_current_active_instance->name, event->name);
-            if (g_instances.count > g_ui_instances.max_lines_number) {
+            if (g_instances.count > g_ui_instances.lines_number) {
                 g_ui_instances.window_offset++;
             }
             //new_voice();

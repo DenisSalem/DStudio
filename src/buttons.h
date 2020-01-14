@@ -24,8 +24,8 @@
 #include <semaphore.h>
 
 #include "ui.h"
-#include "text_pointer.h"
-#include "interactive_list.h"
+//~ #include "text_pointer.h"
+//~ #include "interactive_list.h"
 
 typedef struct ButtonsManagement_t {
     ThreadControl thread_control;

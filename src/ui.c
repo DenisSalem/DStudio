@@ -354,17 +354,10 @@ void init_ui_elements(
         ui_elements_array[i].instance_motions_buffer = dstudio_alloc(sizeof(GLfloat) * instances_count);
         ui_elements_array[i].instance_offsets_buffer = dstudio_alloc(sizeof(Vec4) * instances_count);
         
-        if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT) {
-            for (unsigned int j = 0; j < instances_count; j++) {
-                ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
-                ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + j * scale_matrix[0].x * 2;
-                ui_elements_array[i].instance_offsets_buffer[j].y = gl_y;
-            }
-        }
-        else {
-            ui_elements_array[i].instance_alphas_buffer[0] = 1.0;
-            ui_elements_array[i].instance_offsets_buffer->x = gl_x + x * offset_x;
-            ui_elements_array[i].instance_offsets_buffer->y = gl_y + y * offset_y;
+        for (unsigned int j = 0; j < instances_count; j++) {
+            ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
+            ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + (j * scale_matrix[0].x * 2) + (x * offset_x);
+            ui_elements_array[i].instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
         }
         
         ui_elements_array[i].scissor.x = min_area_x + computed_area_offset_x;

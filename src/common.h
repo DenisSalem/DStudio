@@ -93,7 +93,7 @@ void   dstudio_cut_thread(ThreadControl * thread_control);
  */
 void * dstudio_alloc(unsigned int buffer_size);
 void   dstudio_free(void * buffer);
-
+void * dstudio_realloc(void * buffer, unsigned int new_size);
 double get_timestamp();
 
 #endif

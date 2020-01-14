@@ -21,12 +21,12 @@
 #include "extensions.h"
 #include "text.h"
 
-void update_text(UIElements * text, char * string_value, unsigned int string_size) {
+void update_text(UIElements * text, char * string_value, unsigned int buffer_size) {
         Vec4 * offset_buffer = (Vec4 *) text->instance_offsets_buffer;
         int linear_coordinate = 0;
         int padding = 0;
         int request_update = 0;
-        for (unsigned int i = 0; i < string_size; i++) {
+        for (unsigned int i = 0; i < buffer_size; i++) {
             if (padding || string_value[i] == 0) {
                 offset_buffer[i].z = 0;
                 offset_buffer[i].w = 0;
@@ -47,7 +47,7 @@ void update_text(UIElements * text, char * string_value, unsigned int string_siz
         
         if(request_update) {
             glBindBuffer(GL_ARRAY_BUFFER, text->instance_offsets);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, string_size * sizeof(Vec4), offset_buffer);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, buffer_size * sizeof(Vec4), offset_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             text->render = 1;
         }

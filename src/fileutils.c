@@ -39,7 +39,7 @@ unsigned int count_process(const char * process_name) {
     struct dirent *de;
     char * processus_status_path = dstudio_alloc(sizeof(char) * 128);
     char * line_buffer = dstudio_alloc(sizeof(char) * 64);
-    size_t line_buffer_size = 0;
+    size_t line_buffer_size = 64;
     explicit_bzero(processus_status_path, sizeof(char) * 128);
     int count = 0;
     long long int process_id;
@@ -86,6 +86,7 @@ unsigned int count_process(const char * process_name) {
     dstudio_free(line_buffer);
     return count;
 }
+
 
 void expand_user(char ** dest, const char * directory) {
     struct passwd * pw = 0;

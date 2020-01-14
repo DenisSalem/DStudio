@@ -73,6 +73,24 @@ void dstudio_free(void * buffer) {
     return;
 }
 
+void * dstudio_realloc(void * buffer, unsigned int new_size) {
+    void * new_buffer = 0;
+    sem_wait(&g_alloc_register_mutex);
+    for (unsigned int i = 0; i < g_allocation_register_size; i++) {
+        if(g_allocation_register[i] == (long unsigned int) buffer) {
+            new_buffer = realloc(buffer, new_size);
+            if (!new_buffer) {
+                sem_post(&g_alloc_register_mutex);
+                return NULL;
+            }
+            g_allocation_register[i] = (long unsigned int) new_buffer;
+            break;
+        }
+    }
+    sem_post(&g_alloc_register_mutex);
+    return new_buffer;
+}
+
 double get_timestamp() {
     struct timespec timestamp;
     clock_gettime(CLOCK_REALTIME, &timestamp);

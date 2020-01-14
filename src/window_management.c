@@ -28,7 +28,7 @@
 
 #include "common.h"
 #include "extensions.h"
-#include "text_pointer.h"
+//#include "text_pointer.h"
 #include "window_management.h"
 
 unsigned int g_dstudio_mouse_state = 0;
