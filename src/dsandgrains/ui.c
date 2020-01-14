@@ -21,6 +21,7 @@
 #include "../common.h"
 #include "../extensions.h"
 #include "../instances.h"
+#include "../interactive_list.h"
 #include "../ressource_usage.h"
 #include "../window_management.h"
 
@@ -47,6 +48,14 @@ Vec2 knob1_48_scale_matrix[2] = {0};
 Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 tiny_button_scale_matrix[2] = {0};
+
+inline static void bind_callbacks() {
+    g_ui_elements_struct.button_arrow_top_instances.application_callback = scroll_up;
+    g_ui_elements_struct.button_arrow_top_instances.application_callback_args = (void *) &g_ui_instances;
+    
+    g_ui_elements_struct.button_arrow_bottom_instances.application_callback = scroll_down;
+    g_ui_elements_struct.button_arrow_bottom_instances.application_callback_args = (void *) &g_ui_instances;
+}
 
 inline static void init_arrow_instance_buttons() {
     GLuint texture_ids[2] = {0};
@@ -451,6 +460,8 @@ void * ui_thread(void * arg) {
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE
     );
+    
+    bind_callbacks();
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -464,9 +475,9 @@ void * ui_thread(void * arg) {
             update_ui_ressource_usage
         );
 
-        update_insteractive_list(
-            &g_ui_instances,
-            -1
+        update_threaded_ui_element(
+            &g_instances.thread_control,
+            update_instances_ui_list
         );
 
         render_viewport(need_to_redraw_all());

@@ -35,6 +35,28 @@
     //~ configure_ui_element(ui_elements, params);
 //~ }
 
+void scroll_up(UIElements * self) {
+    UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
+    sem_wait(&interactive_list->thread_bound_control->mutex);
+    if (interactive_list->window_offset > 0) {
+        interactive_list->window_offset--;
+        interactive_list->update_request= -1;
+        interactive_list->thread_bound_control->update = 1;
+    }
+    sem_post(&interactive_list->thread_bound_control->mutex);
+}
+
+void scroll_down(UIElements * self) {
+    UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
+    sem_wait(&interactive_list->thread_bound_control->mutex);
+    if (interactive_list->window_offset + interactive_list->lines_number < *interactive_list->source_data_count) {
+        interactive_list->window_offset++;
+        interactive_list->update_request= -1;
+        interactive_list->thread_bound_control->update = 1;
+    }
+    sem_post(&interactive_list->thread_bound_control->mutex);
+}
+
 void init_interactive_list(
     UIInteractiveList * interactive_list,
     UIElements * lines,
@@ -43,15 +65,18 @@ void init_interactive_list(
     unsigned int stride,
     unsigned int * source_data_count,
     char ** source_data,
-    sem_t * mutex
+    ThreadControl * thread_bound_control
 ) {
     interactive_list->lines_number = lines_number;
     interactive_list->string_size = string_size;
     interactive_list->lines = lines;
+    for (unsigned int i = 0; i < lines_number; i++) {
+        interactive_list->lines[i].interactive_list = interactive_list;
+    }
     interactive_list->stride = stride;
     interactive_list->source_data_count = source_data_count;
     interactive_list->source_data = source_data;
-    interactive_list->mutex = mutex;
+    interactive_list->thread_bound_control = thread_bound_control;
 }
 
 //~ void update_insteractive_list_shadow(
@@ -88,13 +113,13 @@ void init_interactive_list(
 //~ }
 
 void update_insteractive_list(
-    UIInteractiveList * interactive_list,
-    int index
+    UIInteractiveList * interactive_list
 ) {
     unsigned int stride = interactive_list->stride;
     unsigned int window_offset = interactive_list->window_offset;
     unsigned int string_size = interactive_list->string_size;
     unsigned int source_data_count = *interactive_list->source_data_count;
+    int index = interactive_list->update_request; 
     for (unsigned int i = index < 0 ? 0 : index; i < interactive_list->lines_number; i++) {
         if (i >= source_data_count) {
             break;

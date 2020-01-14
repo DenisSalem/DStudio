@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "common.h"
+#include "interactive_list.h"
 #include "window_management.h"
 
 typedef struct vec2_t {
@@ -106,12 +107,12 @@ typedef enum MotionType_t {
  */
  
 typedef struct UIElements_t UIElements;
+typedef struct UIInteractiveList_t UIInteractiveList;
 
 typedef struct UIElements_t {
     unsigned char               count;
     unsigned char               render;
     unsigned char               enabled;
-    unsigned char               group_identifier;
     unsigned char               texture_index;
     double                      timestamp;
     GLchar                      vertex_indexes[4];
@@ -130,8 +131,9 @@ typedef struct UIElements_t {
     Scissor                     scissor;
     Vec2 *                      scale_matrix;
     UIElementType               type;
+    UIInteractiveList *         interactive_list;
     void *                      application_callback_args;
-    void (*application_callback)(UIElements * self, void * args);
+    void (*application_callback)(UIElements * self);
 } UIElements;
 
 void compile_shader(

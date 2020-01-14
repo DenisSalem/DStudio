@@ -24,6 +24,8 @@
 
 #include "ui.h"
 
+typedef struct UIElements_t UIElements;
+
 typedef struct UIInteractiveList_t {
     UIElements * lines;
     unsigned int lines_number;
@@ -32,7 +34,8 @@ typedef struct UIInteractiveList_t {
     unsigned int stride;
     unsigned int * source_data_count;
     char ** source_data;
-    sem_t * mutex;
+    ThreadControl * thread_bound_control;
+    int update_request;
 } UIInteractiveList;
 
 //~ typedef struct UIInteractiveListSetting_t {
@@ -67,7 +70,7 @@ void init_interactive_list(
     unsigned int stride,
     unsigned int * source_data_count,
     char ** source_data,
-    sem_t * mutex
+    ThreadControl * thread_bound_control
 );
 
 //~ void select_element_from_list(
@@ -78,9 +81,11 @@ void init_interactive_list(
  * negative item_index means update all the item.
  */
 void update_insteractive_list(
-    UIInteractiveList * interactive_list,
-    int item_index
+    UIInteractiveList * interactive_list
 );
+
+void scroll_down(UIElements * self);
+void scroll_up(UIElements * self);
 
 //~ void update_insteractive_list_shadow(
     //~ int context_type,

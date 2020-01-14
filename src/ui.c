@@ -203,6 +203,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
+                        ui_elements_p->application_callback(ui_elements_p);
                         update_button(ui_elements_p);
                         break;
                         

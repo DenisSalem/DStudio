@@ -61,7 +61,7 @@ void init_instances_management_thread(
         sizeof(InstanceContext),
         &g_instances.count,
         (char **) &g_instances.contexts,
-        &g_instances.thread_control.mutex
+        &g_instances.thread_control
     );
     sem_init(&g_instances.thread_control.mutex, 0, 1);
     g_instances.thread_control.ready = 1;
@@ -123,10 +123,13 @@ void * instances_management_thread(void * args) {
             strcat(g_current_active_instance->name, event->name);
             if (g_instances.count > g_ui_instances.lines_number) {
                 g_ui_instances.window_offset++;
+                g_ui_instances.update_request = -1;
+            }
+            else {
+                g_ui_instances.update_request = g_instances.count - 1;
             }
             //new_voice();
             g_instances.thread_control.update = 1;
-            
             send_expose_event();
             
             #ifdef DSTUDIO_DEBUG
@@ -150,50 +153,6 @@ void * instances_management_thread(void * args) {
     dstudio_free(event);
     return NULL;
 }
-
-//~ void init_instances_ui(
-    //~ UIElements * lines,
-    //~ unsigned int max_lines_number,
-    //~ unsigned int string_size,
-    //~ UIElementSettingParams * params
-//~ ) {        
-    //~ init_interactive_list(
-        //~ &g_ui_instances,
-        //~ lines,
-        //~ max_lines_number,
-        //~ &g_instances.count,
-        //~ string_size
-    //~ );
-    //~ // TODO: GENERALIZE BELOW
-    //~ UIElementSetting * shadow_settings = malloc(sizeof(UIElementSetting) * max_lines_number);
-    //~ explicit_bzero(shadow_settings, sizeof(UIElementSetting) * max_lines_number);
-    //~ UIInteractiveListSetting * interactive_list_setting = params->settings;
-    //~ GLfloat offset = interactive_list_setting->offset;
-    //~ GLfloat area_offset = interactive_list_setting->area_offset;
-    //~ for (unsigned int i = 0; i < max_lines_number; i++) {
-        //~ GLfloat computed_area_offet = i * area_offset;
-        //~ shadow_settings[i].gl_x = interactive_list_setting->gl_x;
-        //~ shadow_settings[i].gl_y = interactive_list_setting->gl_y - i * offset;
-        //~ shadow_settings[i].min_area_x = interactive_list_setting->min_area_x;
-        //~ shadow_settings[i].max_area_x = interactive_list_setting->max_area_x;
-        //~ shadow_settings[i].min_area_y = interactive_list_setting->min_area_y + computed_area_offet;
-        //~ shadow_settings[i].max_area_y = interactive_list_setting->max_area_y + computed_area_offet;
-        //~ shadow_settings[i].ui_element_type = DSTUDIO_BUTTON_TYPE_LIST_ITEM;
-
-    //~ }
-    //~ params->update_callback = 0;
-    //~ params->settings = &shadow_settings[0];
-    
-    //~ init_ui_elements(
-        //~ DSTUDIO_FLAG_NONE,
-        //~ g_ui_instances.shadows,
-        //~ 0, // There is no texture id: we're rendering solid quad
-        //~ max_lines_number,
-        //~ configure_ui_interactive_list,
-        //~ params
-    //~ );
-    //~ free(shadow_settings);
-//~ }
 
 void new_instance(const char * given_directory, const char * process_name) {
     unsigned int count = 0;
@@ -247,6 +206,8 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
         strcpy(g_current_active_instance->name, "Instance 1");
+        g_instances.thread_control.update = 1;
+
         //new_voice();
     }
     dstudio_free(instance_filename_buffer);
@@ -301,3 +262,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         //~ &g_instances.contexts[0]
     //~ );
 //~ }
+
+void update_instances_ui_list() {
+    update_insteractive_list(&g_ui_instances);
+}
