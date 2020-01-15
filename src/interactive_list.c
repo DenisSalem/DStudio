@@ -22,18 +22,35 @@
 #include "instances.h"
 #include "text.h"
 
-//~ unsigned char g_group_identifier = 0;
-
-//~ void configure_ui_interactive_list(
-    //~ UIElements * ui_elements,
-    //~ void * params
-//~ ) {
-    //~ ((Vec4 *) ui_elements->instance_offsets_buffer)[0].opacity = 0.125;
-    //~ for (unsigned int i = 1; i < ui_elements->count; i++ ) {
-        //~ ((Vec4 *) ui_elements->instance_offsets_buffer)[i].opacity = 0;
-    //~ }
-    //~ configure_ui_element(ui_elements, params);
-//~ }
+void init_interactive_list(
+    UIInteractiveList * interactive_list,
+    UIElements * ui_elements,
+    unsigned int lines_number,
+    unsigned int string_size,
+    unsigned int stride,
+    unsigned int * source_data_count,
+    char ** source_data,
+    ThreadControl * thread_bound_control,
+    unsigned int (*select_callback)(unsigned int index),
+    unsigned int editable,
+    GLfloat highlight_step
+) {
+    interactive_list->lines_number = lines_number;
+    interactive_list->string_size = string_size;
+    interactive_list->highlight = ui_elements;
+    interactive_list->lines = &ui_elements[1];
+    for (unsigned int i = 0; i < lines_number; i++) {
+        interactive_list->lines[i].interactive_list = interactive_list;
+    }
+    interactive_list->stride = stride;
+    interactive_list->source_data_count = source_data_count;
+    interactive_list->source_data = source_data;
+    interactive_list->thread_bound_control = thread_bound_control;
+    interactive_list->select_callback = select_callback;
+    interactive_list->editable = editable;
+    interactive_list->highlight_step = highlight_step;
+    interactive_list->highlight_offset_y = ui_elements->instance_offsets_buffer->y;
+}
 
 void scroll_up(UIElements * self) {
     UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
@@ -57,60 +74,34 @@ void scroll_down(UIElements * self) {
     sem_post(&interactive_list->thread_bound_control->mutex);
 }
 
-void init_interactive_list(
-    UIInteractiveList * interactive_list,
-    UIElements * lines,
-    unsigned int lines_number,
-    unsigned int string_size,
-    unsigned int stride,
-    unsigned int * source_data_count,
-    char ** source_data,
-    ThreadControl * thread_bound_control
+void select_item(
+    UIElements * self,
+    SelectItemOpt do_not_use_callback
 ) {
-    interactive_list->lines_number = lines_number;
-    interactive_list->string_size = string_size;
-    interactive_list->lines = lines;
-    for (unsigned int i = 0; i < lines_number; i++) {
-        interactive_list->lines[i].interactive_list = interactive_list;
+    unsigned int lines_number = self->interactive_list->lines_number;
+    UIInteractiveList * interactive_list = self->interactive_list;
+    UIElements * highlight = interactive_list->highlight;
+    if (!do_not_use_callback){
+        sem_wait(&interactive_list->thread_bound_control->mutex);
     }
-    interactive_list->stride = stride;
-    interactive_list->source_data_count = source_data_count;
-    interactive_list->source_data = source_data;
-    interactive_list->thread_bound_control = thread_bound_control;
+    for(unsigned int i = 0; i < lines_number; i++) {
+        if (&interactive_list->lines[i] == self) {
+            if(do_not_use_callback || interactive_list->select_callback(i+interactive_list->window_offset)) {
+                interactive_list->lines[interactive_list->previous_item_index].render = 1;
+                interactive_list->lines[i].render = 1;
+                interactive_list->thread_bound_control->update = 1;
+                interactive_list->update_highlight = 1;
+                highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
+                highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
+                interactive_list->previous_item_index = i;
+            }
+            break;
+        }
+    }
+    if (!do_not_use_callback){
+        sem_post(&interactive_list->thread_bound_control->mutex);
+    }
 }
-
-//~ void update_insteractive_list_shadow(
-        //~ int context_type,
-        //~ UIInteractiveList * interactive_list
-//~ ) {
-    //~ int window_offset = interactive_list->window_offset;
-    //~ unsigned int context_index = 0;
-    //~ unsigned int * update_p = 0;
-    
-    //~ switch(context_type) {
-        //~ case DSTUDIO_CONTEXT_INSTANCES:
-            //~ context_index = g_instances.index;
-            //~ update_p = &g_ui_instances.update;
-            //~ break;
-    //~ }
-    
-    //~ int highlight = (int) context_index >= window_offset && context_index < window_offset + interactive_list->max_lines_number;
-    //~ int highlight_index = context_index - window_offset;
-    
-    //~ for (unsigned int i = 0; i < interactive_list->max_lines_number; i++) {
-        //~ if (highlight_index == (int) i && highlight) {
-            //~ ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].opacity = 0.125;
-        //~ }
-        //~ else {
-            //~ ((Vec4 *) interactive_list->shadows->instance_offsets_buffer)[i].opacity = 0;
-        //~ }
-    //~ }
-    //~ glBindBuffer(GL_ARRAY_BUFFER, interactive_list->shadows->instance_offsets);
-        //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->shadows->count, interactive_list->shadows->instance_offsets_buffer);
-    //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //~ *update_p = 1;
-    //~ send_expose_event();
-//~ }
 
 void update_insteractive_list(
     UIInteractiveList * interactive_list
@@ -132,5 +123,14 @@ void update_insteractive_list(
         if (index >= 0) {
             break;
         }
+    }
+    printf("THERE\n");
+    if (interactive_list->update_highlight) {
+        printf("THERE 2\n");
+        glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_offsets);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->highlight->count, interactive_list->highlight->instance_offsets_buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        interactive_list->highlight->render = 1;
+        interactive_list->update_highlight = 0;
     }
 }

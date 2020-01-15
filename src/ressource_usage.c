@@ -68,7 +68,7 @@ void * update_ressource_usage_thread(void * args) {
             explicit_bzero(g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);
             sprintf(g_ressource_usage.mem_string_buffer, "%0.1lf%%", mem_usage);
         }
-        send_expose_event();
+        //send_expose_event();
         g_ressource_usage.thread_control.update = 1;
         sem_post(&g_ressource_usage.thread_control.mutex);
     }

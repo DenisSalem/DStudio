@@ -67,6 +67,8 @@
 
 #define DSANDGRAINS_ITEM_LIST_WIDTH 117
 #define DSANDGRAINS_ITEM_LIST_HEIGHT 11
+#define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X 0.8195
+#define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y 0.35625
 
 #define DSANDGRAINS_LFO_KNOBS_COLUMNS 2
 #define DSANDGRAINS_LFO_KNOBS_OFFSET_X 0.12
@@ -149,6 +151,7 @@ typedef struct UIElementsStruct_t {
     UIElements button_arrow_bottom_voices;
     UIElements button_arrow_bottom_samples;
     UIElements button_add;
+    UIElements instances_list_item_highlight;
     UIElements instances_list_item_1;
     UIElements instances_list_item_2;
     UIElements instances_list_item_3;
@@ -156,6 +159,10 @@ typedef struct UIElementsStruct_t {
     UIElements instances_list_item_5;
     UIElements instances_list_item_6;
     UIElements instances_list_item_7;
+    //~ UIElements voices_list_item_highlight;
+    //~ UIElements samples_list_item_highlight;
+    //~ UIElements dahdsr_target_list_item_highlight;
+
 ;
 } UIElementsStruct;
 

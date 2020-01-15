@@ -40,14 +40,19 @@ GLuint charset_8x18_texture_ids[2] = {0};
 GLuint charset_4x9_texture_ids[2] = {0};
 
 Vec2 arrow_button_scale_matrix[2] = {0};
+Vec2 background_scale_matrix[2] = {0};
 Vec2 charset_8x18_scale_matrix[2] = {0};
 Vec2 charset_4x9_scale_matrix[2] = {0};
-Vec2 background_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
+Vec2 list_item_highlight_scale_matrix[2] = {0};
 Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 tiny_button_scale_matrix[2] = {0};
+
+void dummy(UIElements * ui_elements) {
+    (void) ui_elements;
+}
 
 inline static void bind_callbacks() {
     g_ui_elements_struct.button_arrow_top_instances.application_callback = scroll_up;
@@ -55,6 +60,8 @@ inline static void bind_callbacks() {
     
     g_ui_elements_struct.button_arrow_bottom_instances.application_callback = scroll_down;
     g_ui_elements_struct.button_arrow_bottom_instances.application_callback_args = (void *) &g_ui_instances;
+    
+    g_ui_elements_struct.button_add.application_callback = dummy;
 }
 
 inline static void init_arrow_instance_buttons() {
@@ -154,7 +161,7 @@ inline static void init_instances_list() {
         1,
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
-        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
         DSTUDIO_FLAG_NONE
     );
 }
@@ -260,6 +267,35 @@ inline static void init_knobs() {
         4,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
+        DSTUDIO_FLAG_NONE
+    );
+}
+
+inline static void init_list_item_highlights() {
+    GLuint texture_ids[2] = {0};
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT, 
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_PATH,
+        list_item_highlight_scale_matrix
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.instances_list_item_highlight,
+        &texture_ids[0],
+        &list_item_highlight_scale_matrix[0],
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y,
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT, 
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
 }
@@ -415,6 +451,7 @@ inline static void init_text() {
 static void init_ui() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
     init_text();
+    init_list_item_highlights();
 
     init_arrow_instance_buttons();
     init_background();
@@ -456,9 +493,10 @@ void * ui_thread(void * arg) {
     );
     
     init_instances_management_thread(
-        &g_ui_elements_struct.instances_list_item_1,
+        &g_ui_elements_struct.instances_list_item_highlight,
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
-        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
     
     bind_callbacks();
@@ -468,6 +506,7 @@ void * ui_thread(void * arg) {
     glEnable(GL_SCISSOR_TEST);
     glUseProgram(g_shader_program_id);
     while (do_no_exit_loop()) {
+        listen_events();
         usleep(framerate);
         
         update_threaded_ui_element(
@@ -475,14 +514,14 @@ void * ui_thread(void * arg) {
             update_ui_ressource_usage
         );
 
+        printf("T2 %d\n", g_instances.thread_control.update);
         update_threaded_ui_element(
             &g_instances.thread_control,
             update_instances_ui_list
         );
-
+        
         render_viewport(need_to_redraw_all());
         swap_window_buffer();
-        listen_events();
     }
     dstudio_cut_thread(&g_ressource_usage.thread_control);
     dstudio_cut_thread(&g_buttons_management.thread_control);

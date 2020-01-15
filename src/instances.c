@@ -49,19 +49,23 @@ void exit_instances_management_thread() {
 //~ }
 
 void init_instances_management_thread(
-    UIElements * lines,
+    UIElements * ui_elements,
     unsigned int lines_number,
-    unsigned int string_size
+    unsigned int string_size,
+    GLfloat item_offset_y
 ) {
     init_interactive_list(
         &g_ui_instances,
-        lines,
+        ui_elements,
         lines_number,
         string_size,
         sizeof(InstanceContext),
         &g_instances.count,
         (char **) &g_instances.contexts,
-        &g_instances.thread_control
+        &g_instances.thread_control,
+        select_instance_from_list,
+        1,
+        item_offset_y
     );
     sem_init(&g_instances.thread_control.mutex, 0, 1);
     g_instances.thread_control.ready = 1;
@@ -118,6 +122,10 @@ void * instances_management_thread(void * args) {
             explicit_bzero(&g_instances.contexts[g_instances.count-1], sizeof(InstanceContext));
             g_current_active_instance = &g_instances.contexts[g_instances.count-1];
             g_instances.index = g_instances.count - 1;
+            select_item(
+                &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
+                DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+            );
             g_current_active_instance->identifier = 1;
             strcat(g_current_active_instance->name, "Instance ");
             strcat(g_current_active_instance->name, event->name);
@@ -213,39 +221,20 @@ void new_instance(const char * given_directory, const char * process_name) {
     dstudio_free(instance_filename_buffer);
 }
 
-//~ void scroll_instances(void * args) {
-    //~ unsigned int flags = *((unsigned int *) args);
-    //~ sem_wait(&g_ui_instances.mutex);
-    //~ if (g_ui_instances.window_offset > 0 && flags && DSTUDIO_BUTTON_ACTION_LIST_BACKWARD) {
-        //~ g_ui_instances.window_offset--;
-        //~ g_ui_instances.update = 1;
-    //~ }
-    //~ else if (g_ui_instances.window_offset + g_ui_instances.max_lines_number < g_instances.count && !(flags & DSTUDIO_BUTTON_ACTION_LIST_BACKWARD)) {
-        //~ g_ui_instances.window_offset++;
-        //~ g_ui_instances.update = 1;
-    //~ }
-    //~ sem_post(&g_ui_instances.mutex);
-//~ }
+unsigned int select_instance_from_list(
+    unsigned int index
+) {
+    if (index != g_instances.index && index < g_instances.count) {
+        update_current_instance(index);
+        return 1;
+    }
+    return 0;
+}
 
-//~ void select_instance_from_list(
-    //~ unsigned int index
-//~ ) {
-    //~ index += g_ui_instances.window_offset; 
-    //~ if (index != g_instances.index && index < g_instances.count) {
-        //~ update_current_instance(index);
-        //~ update_insteractive_list_shadow(
-            //~ DSTUDIO_CONTEXT_INSTANCES,
-            //~ &g_ui_instances
-        //~ );
-    //~ }
-//~ }
-
-//~ void update_current_instance(unsigned int index) {
-    //~ sem_wait(&g_ui_instances.mutex);
-    //~ g_instances.index = index;
-    //~ g_current_active_instance = &g_instances.contexts[index];
-    //~ sem_post(&g_ui_instances.mutex);
-//~ }
+void update_current_instance(unsigned int index) {
+    g_instances.index = index;
+    g_current_active_instance = &g_instances.contexts[index];
+}
 
 //~ void update_instances_text() {
     //~ update_insteractive_list_shadow(

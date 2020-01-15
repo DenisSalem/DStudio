@@ -49,7 +49,6 @@ typedef struct Vec4_t {
         GLfloat max_area_x;
         GLfloat top_left_y;
         GLfloat y;
-
     };
     union {
         GLfloat min_area_y;
@@ -76,7 +75,8 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_SLIDER = 4,
     DSTUDIO_UI_ELEMENT_TYPE_KNOB = 8,
     DSTUDIO_UI_ELEMENT_TYPE_BUTTON = 16,
-    DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE = 32
+    DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE = 32,
+    DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 64
 } UIElementType;
 
 typedef enum MotionType_t {

@@ -25,6 +25,7 @@
 
 #include "buttons.h"
 #include "extensions.h"
+#include "instances.h"
 #include "ui.h"
 
 GLuint g_shader_program_id = 0;
@@ -198,13 +199,25 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
-            if (xpos > ui_elements_p->areas.min_area_x && xpos < ui_elements_p->areas.max_area_x && ypos > ui_elements_p->areas.min_area_y && ypos < ui_elements_p->areas.max_area_y && ui_elements_p->enabled) {
+            if (
+                xpos > ui_elements_p->areas.min_area_x &&
+                xpos < ui_elements_p->areas.max_area_x &&
+                ypos > ui_elements_p->areas.min_area_y &&
+                ypos < ui_elements_p->areas.max_area_y &&
+                ui_elements_p->enabled &&
+                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND
+            ) {
                 s_ui_element_index = i;
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
                         ui_elements_p->application_callback(ui_elements_p);
                         update_button(ui_elements_p);
+                        break;
+                    
+                    case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                        select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+                        printf("T1 %d\n", g_instances.thread_control.update);
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
@@ -224,7 +237,6 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 break;
             }
         }
-        return;
     }
     else if(action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
         s_ui_element_index = -1;
@@ -236,7 +248,7 @@ void init_opengl_ui_elements(
     UIElements * ui_elements
 ) {
     int flip_y = flags & DSTUDIO_FLAG_FLIP_Y;
-    int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
+    int text_setting = flags & (DSTUDIO_FLAG_USE_TEXT_SETTING | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM);
     
     // Setting vertex indexes
     GLchar * vertex_indexes = ui_elements->vertex_indexes;
@@ -324,7 +336,7 @@ void init_ui_elements(
     int flags
 ) {
     GLfloat min_area_x;
-    if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT) {
+    if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM)) {
         min_area_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
     }
     else {
@@ -375,7 +387,7 @@ void init_ui_elements(
         ui_elements_array[i].render = 1;
         
         init_opengl_ui_elements(
-            (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_TEXT ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
+            ( ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
             &ui_elements_array[i]
         );
     }
@@ -412,9 +424,10 @@ void render_ui_elements(UIElements * ui_elements) {
             break;
              
         case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
+        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }

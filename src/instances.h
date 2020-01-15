@@ -27,9 +27,10 @@ void exit_instances_management_thread();
 char * get_instance_target_name(unsigned int index);
 
 void init_instances_management_thread(
-    UIElements * lines,
+    UIElements * ui_elements,
     unsigned int lines_number,
-    unsigned int string_size
+    unsigned int string_size,
+    GLfloat item_offset_y
 );
 void * instances_management_thread(void * args);
 
@@ -38,12 +39,10 @@ void new_instance(
     const char * process_name
 );
 
-//~ void scroll_instances(void * args);
-//~ void select_instance_from_list(unsigned int index);
+unsigned int select_instance_from_list(unsigned int index);
 
 void update_instances_ui_list();
 
-//~ // Periodically check if new instances were added
-//~ void update_current_instance(unsigned int index);
+void update_current_instance(unsigned int index);
 //~ void update_instances_text();
 #endif

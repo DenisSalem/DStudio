@@ -24,9 +24,15 @@
 
 #include "ui.h"
 
+typedef enum SelectItemOpt_t {
+    DSTUDIO_SELECT_ITEM_WITH_CALLBACK = 0,
+    DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK = 1,
+} SelectItemOpt;
+
 typedef struct UIElements_t UIElements;
 
 typedef struct UIInteractiveList_t {
+    UIElements * highlight;
     UIElements * lines;
     unsigned int lines_number;
     unsigned int string_size;
@@ -36,50 +42,28 @@ typedef struct UIInteractiveList_t {
     char ** source_data;
     ThreadControl * thread_bound_control;
     int update_request;
+    unsigned int (*select_callback)(unsigned int index);
+    unsigned char editable;
+    unsigned char update_highlight;
+    GLfloat highlight_offset_y;
+    GLfloat highlight_step;
+    unsigned int previous_item_index;
 } UIInteractiveList;
-
-//~ typedef struct UIInteractiveListSetting_t {
-    //~ GLfloat gl_x;
-    //~ GLfloat gl_y;
-    //~ GLfloat min_area_x;
-    //~ GLfloat max_area_x;
-    //~ GLfloat min_area_y;
-    //~ GLfloat max_area_y;
-    //~ GLfloat offset;
-    //~ GLfloat area_offset;
-//~ } UIInteractiveListSetting;
-
-//~ typedef struct InteractiveListContext_t {
-        //~ void (*application_callback)(unsigned int index);
-        //~ char * (*get_item_name_callback) (unsigned int index);
-        //~ void (*sub_ui_element_update_callback)();
-        //~ UIInteractiveList * related_list;
-        //~ int render_flag;
-//~ } InteractiveListContext;
-
-//~ void configure_ui_interactive_list(
-    //~ UIElements * ui_elements,
-    //~ void * params
-//~ );
 
 void init_interactive_list(
     UIInteractiveList * interactive_list,
-    UIElements * lines,
+    UIElements * ui_elements,
     unsigned int lines_number,
     unsigned int string_size,
     unsigned int stride,
     unsigned int * source_data_count,
     char ** source_data,
-    ThreadControl * thread_bound_control
+    ThreadControl * thread_bound_control,
+    unsigned int (*select_callback)(unsigned int index),
+    unsigned int editable,
+    GLfloat highlight_step
 );
 
-//~ void select_element_from_list(
-    //~ void * args
-//~ );
-
-/*
- * negative item_index means update all the item.
- */
 void update_insteractive_list(
     UIInteractiveList * interactive_list
 );
@@ -87,10 +71,9 @@ void update_insteractive_list(
 void scroll_down(UIElements * self);
 void scroll_up(UIElements * self);
 
-//~ void update_insteractive_list_shadow(
-    //~ int context_type,
-    //~ UIInteractiveList * interactive_list
-//~ );
+void select_item(
+    UIElements * self,
+    unsigned int do_not_use_callback
+);
 
-//~ extern unsigned char g_group_identifier;
 #endif

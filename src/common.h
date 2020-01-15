@@ -13,7 +13,6 @@ typedef struct ThreadControl_t {
 } ThreadControl;
 
 // PATHS
-#define DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH   "../assets/ressource_usage.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
 #define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
@@ -23,6 +22,8 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
 #define DSTUDIO_KNOB_1_64x64_TEXTURE_PATH           "../assets/knob1_64x64.png"
 #define DSTUDIO_KNOB_1_48x48_TEXTURE_PATH           "../assets/knob1_48x48.png"
+#define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_PATH          "../assets/list_item_highlight1.png"
+#define DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH   "../assets/ressource_usage.png"
 #define DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH         "../assets/slider1.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"
 
@@ -41,6 +42,9 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_KNOB_1_64_HEIGHT 64
 #define DSTUDIO_KNOB_1_64_AREA_WIDTH  DSTUDIO_KNOB_1_64_WIDTH
 #define DSTUDIO_KNOB_1_64_AREA_HEIGHT DSTUDIO_KNOB_1_64_HEIGHT
+
+#define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH 117
+#define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT 11
 
 #define DSTUDIO_RESSOURCE_USAGE_WIDTH 30
 #define DSTUDIO_RESSOURCE_USAGE_HEIGHT 23
