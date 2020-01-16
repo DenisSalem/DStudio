@@ -506,7 +506,6 @@ void * ui_thread(void * arg) {
     glEnable(GL_SCISSOR_TEST);
     glUseProgram(g_shader_program_id);
     while (do_no_exit_loop()) {
-        listen_events();
         usleep(framerate);
         
         update_threaded_ui_element(
@@ -514,7 +513,6 @@ void * ui_thread(void * arg) {
             update_ui_ressource_usage
         );
 
-        printf("T2 %d\n", g_instances.thread_control.update);
         update_threaded_ui_element(
             &g_instances.thread_control,
             update_instances_ui_list
@@ -522,6 +520,7 @@ void * ui_thread(void * arg) {
         
         render_viewport(need_to_redraw_all());
         swap_window_buffer();
+        listen_events();
     }
     dstudio_cut_thread(&g_ressource_usage.thread_control);
     dstudio_cut_thread(&g_buttons_management.thread_control);

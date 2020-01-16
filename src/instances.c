@@ -122,10 +122,6 @@ void * instances_management_thread(void * args) {
             explicit_bzero(&g_instances.contexts[g_instances.count-1], sizeof(InstanceContext));
             g_current_active_instance = &g_instances.contexts[g_instances.count-1];
             g_instances.index = g_instances.count - 1;
-            select_item(
-                &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
-                DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
-            );
             g_current_active_instance->identifier = 1;
             strcat(g_current_active_instance->name, "Instance ");
             strcat(g_current_active_instance->name, event->name);
@@ -136,6 +132,11 @@ void * instances_management_thread(void * args) {
             else {
                 g_ui_instances.update_request = g_instances.count - 1;
             }
+            printf("target: %d\n", g_instances.index-g_ui_instances.window_offset);
+            select_item(
+                &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
+                DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+            );
             //new_voice();
             g_instances.thread_control.update = 1;
             send_expose_event();

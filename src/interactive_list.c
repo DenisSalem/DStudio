@@ -124,9 +124,7 @@ void update_insteractive_list(
             break;
         }
     }
-    printf("THERE\n");
     if (interactive_list->update_highlight) {
-        printf("THERE 2\n");
         glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_offsets);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->highlight->count, interactive_list->highlight->instance_offsets_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
