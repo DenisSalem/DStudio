@@ -59,6 +59,10 @@ void scroll_up(UIElements * self) {
         interactive_list->window_offset--;
         interactive_list->update_request= -1;
         interactive_list->thread_bound_control->update = 1;
+        if (++interactive_list->index < (int) interactive_list->lines_number) {
+            select_item(&interactive_list->lines[interactive_list->index], DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
+        }
+
     }
     sem_post(&interactive_list->thread_bound_control->mutex);
 }
@@ -70,6 +74,9 @@ void scroll_down(UIElements * self) {
         interactive_list->window_offset++;
         interactive_list->update_request= -1;
         interactive_list->thread_bound_control->update = 1;
+        if (--interactive_list->index >= 0) {
+            select_item(&interactive_list->lines[interactive_list->index], DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
+        }
     }
     sem_post(&interactive_list->thread_bound_control->mutex);
 }
@@ -92,6 +99,7 @@ void select_item(
                 interactive_list->thread_bound_control->update = 1;
                 interactive_list->update_highlight = 1;
                 highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
+                interactive_list->index = i;
                 highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
                 interactive_list->previous_item_index = i;
             }

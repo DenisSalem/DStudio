@@ -48,6 +48,7 @@ typedef struct UIInteractiveList_t {
     GLfloat highlight_offset_y;
     GLfloat highlight_step;
     unsigned int previous_item_index;
+    int index;
 } UIInteractiveList;
 
 void init_interactive_list(

@@ -132,7 +132,6 @@ void * instances_management_thread(void * args) {
             else {
                 g_ui_instances.update_request = g_instances.count - 1;
             }
-            printf("target: %d\n", g_instances.index-g_ui_instances.window_offset);
             select_item(
                 &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
                 DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
