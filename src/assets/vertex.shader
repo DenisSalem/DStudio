@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -34,7 +34,6 @@ uniform uint            no_texture;
 uniform uint            motion_type;
 
 out vec2 fragment_texture_coordinates;
-flat out vec2 no_texture_args;
 flat out float alpha;
 
 void main() {
@@ -61,11 +60,7 @@ void main() {
     else if (motion_type == DSTUDIO_MOTION_TYPE_SLIDE) {
         gl_Position = vec4( scale_matrix * vertex_position.xy + offset.xy + vec2(0, motion), 0, 1.0);
     }
-    if (no_texture == 1U) {
-        no_texture_args = vec2(1.0, offset.z);
-    }
-    else {
-        no_texture_args = vec2(0.0);
+    if (no_texture != 1U) {
         fragment_texture_coordinates = texture_coordinates + offset.zw;
     }
 } 

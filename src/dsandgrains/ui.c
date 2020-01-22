@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -23,6 +23,7 @@
 #include "../instances.h"
 #include "../interactive_list.h"
 #include "../ressource_usage.h"
+#include "../text_pointer.h"
 #include "../window_management.h"
 
 #include <stdlib.h>
@@ -461,11 +462,11 @@ static void init_ui() {
     init_misc_buttons();
     init_ressource_usage();
     init_sliders();
+    init_text_pointer(&g_ui_elements_struct.text_pointer);
 
     for (unsigned int i = 4; i < g_dstudio_ui_element_count; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
-    //sem_init(&g_text_pointer_context.mutex, 0, 1);
 }
 
 void * ui_thread(void * arg) {
@@ -483,6 +484,7 @@ void * ui_thread(void * arg) {
     create_shader_program(&g_shader_program_id);
     
     g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
+    g_no_texture_location = glGetUniformLocation(g_shader_program_id, "no_texture");
     
     init_ui();
     
@@ -509,6 +511,11 @@ void * ui_thread(void * arg) {
         usleep(framerate);
         
         update_threaded_ui_element(
+            &g_text_pointer_context.thread_control,
+            update_text_pointer
+        );
+        
+        update_threaded_ui_element(
             &g_ressource_usage.thread_control,
             update_ui_ressource_usage
         );
@@ -517,7 +524,6 @@ void * ui_thread(void * arg) {
             &g_instances.thread_control,
             update_instances_ui_list
         );
-        
         render_viewport(need_to_redraw_all());
         swap_window_buffer();
         listen_events();
@@ -526,7 +532,7 @@ void * ui_thread(void * arg) {
     dstudio_cut_thread(&g_buttons_management.thread_control);
     dstudio_cut_thread(&g_instances.thread_control);
     exit_instances_management_thread();
-
+    clear_text_pointer();
     destroy_context();
     return NULL;
 }

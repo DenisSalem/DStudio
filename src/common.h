@@ -54,6 +54,10 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_SLIDER_1_10_AREA_WIDTH DSTUDIO_SLIDER_1_10_WIDTH
 #define DSTUDIO_SLIDER_1_10_AREA_HEIGHT 42
 
+#define DSTUDIO_TEXT_POINTER_WIDTH 1
+#define DSTUDIO_TEXT_POINTER_1_HEIGHT DSTUDIO_CHAR_TABLE_4X9_HEIGHT / 13
+#define DSTUDIO_TEXT_POINTER_2_HEIGHT DSTUDIO_CHAR_TABLE_8X18_HEIGHT / 13
+
 #define DSANDGRAINS_TINY_BUTTON_SCALE 32
 
 // FLAGS
@@ -72,13 +76,13 @@ typedef struct ThreadControl_t {
 
 #define DSTUDIO_RETURN_IF_FAILURE(value) \
     if ( (value) != 0 ) { \
-        printf("!" #value "\n"); \
+        printf("%s:%d !" #value "\n", __FILE__, __LINE__); \
         return -1; \
     }
 
 #define DSTUDIO_EXIT_IF_FAILURE(value) \
     if ((value) != 0) { \
-        printf("!" #value "\n"); \
+        printf("%s:%d !" #value "\n", __FILE__, __LINE__); \
         exit(-1); \
     }
 

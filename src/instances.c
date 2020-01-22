@@ -15,7 +15,7 @@
 #include "ui.h"
 //~ #include "voices.h"
 #include "buttons.h"
-//~ #include "text_pointer.h"
+#include "text_pointer.h"
 
 static struct stat st = {0};
 
@@ -138,6 +138,7 @@ void * instances_management_thread(void * args) {
             );
             //new_voice();
             g_instances.thread_control.update = 1;
+            clear_text_pointer();
             send_expose_event();
             
             #ifdef DSTUDIO_DEBUG

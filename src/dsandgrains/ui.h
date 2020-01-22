@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -159,6 +159,7 @@ typedef struct UIElementsStruct_t {
     UIElements instances_list_item_5;
     UIElements instances_list_item_6;
     UIElements instances_list_item_7;
+    UIElements text_pointer;
     //~ UIElements voices_list_item_highlight;
     //~ UIElements samples_list_item_highlight;
     //~ UIElements dahdsr_target_list_item_highlight;

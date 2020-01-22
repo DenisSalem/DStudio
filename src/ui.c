@@ -26,17 +26,20 @@
 #include "buttons.h"
 #include "extensions.h"
 #include "instances.h"
+#include "text_pointer.h"
 #include "ui.h"
 
 GLuint g_shader_program_id = 0;
 GLuint g_scale_matrix_id = 0;
 GLuint g_motion_type_location = 0;
+GLuint g_no_texture_location = 0;
 
 static int s_ui_element_index = -1;
 static int s_ui_element_center_x = 0;
 static int s_ui_element_center_y = 0;
 static int s_active_slider_range_max = 0;
 static int s_active_slider_range_min = 0;
+static double list_item_click_timestamp = 0;
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
     float rotation = 0;
@@ -196,7 +199,9 @@ void manage_cursor_position(int xpos, int ypos) {
 
 void manage_mouse_button(int xpos, int ypos, int button, int action) {
     UIElements * ui_elements_p = 0;
+    double timestamp = 0;
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
+        clear_text_pointer();
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
             if (
@@ -216,8 +221,14 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         break;
                     
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                        select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
-                        printf("T1 %d\n", g_instances.thread_control.update);
+                        timestamp = get_timestamp();
+                        if (ui_elements_p->interactive_list->editable && timestamp - list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                            update_text_pointer_context(ui_elements_p);
+                        }
+                        else {
+                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+                            list_item_click_timestamp = timestamp;
+                        }
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
@@ -232,6 +243,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
                     case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
                         break;
                 }
                 break;
@@ -380,8 +392,9 @@ void init_ui_elements(
         
         ui_elements_array[i].count = instances_count;
         
-        memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
-        
+        if(texture_ids) {
+            memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
+        }
         ui_elements_array[i].scale_matrix = scale_matrix;
         
         ui_elements_array[i].render = 1;
@@ -428,9 +441,11 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
         case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }
+    glUniform1ui(g_no_texture_location, ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER ? 1 : 0);
 
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);
@@ -479,7 +494,7 @@ void render_viewport(unsigned int render_all) {
         }
     }
     for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].render || render_all) {
+        if (g_ui_elements_array[i].render || (render_all && g_ui_elements_array[i].type != DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER)) {
             glScissor(
                 g_ui_elements_array[i].scissor.x,
                 g_ui_elements_array[i].scissor.y,

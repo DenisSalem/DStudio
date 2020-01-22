@@ -76,7 +76,8 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_KNOB = 8,
     DSTUDIO_UI_ELEMENT_TYPE_BUTTON = 16,
     DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE = 32,
-    DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 64
+    DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 64,
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER = 128
 } UIElementType;
 
 typedef enum MotionType_t {
@@ -211,6 +212,7 @@ extern const unsigned int g_dstudio_viewport_height;
 extern GLuint g_shader_program_id;
 extern GLuint g_scale_matrix_id;
 extern GLuint g_motion_type_location;
+extern GLuint g_no_texture_location;
 
 void gen_gl_buffer(
     GLenum type,
