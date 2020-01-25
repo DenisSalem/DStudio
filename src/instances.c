@@ -25,14 +25,6 @@ Instances g_instances = {0};
 
 UIInteractiveList g_ui_instances = {0};
 
-//~ InteractiveListContext g_instances_list_context = {
-    //~ select_instance_from_list,
-    //~ get_instance_target_name,
-    //~ update_instances_text,
-    //~ &g_ui_instances,
-    //~ DSTUDIO_RENDER_INSTANCES
-//~ };
-
 static char * s_instances_directory = 0;
 
 void exit_instances_management_thread() {
@@ -42,11 +34,6 @@ void exit_instances_management_thread() {
     unlink(instance_path);
     sem_post(&g_instances.thread_control.mutex);
 }
-
-
-//~ char * get_instance_target_name(unsigned int index) {
-    //~ return g_instances.contexts[g_ui_instances.window_offset+index].name;
-//~ }
 
 void init_instances_management_thread(
     UIElements * ui_elements,
@@ -136,7 +123,7 @@ void * instances_management_thread(void * args) {
                 &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
                 DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
             );
-            //new_voice();
+            new_voice();
             g_instances.thread_control.update = 1;
             clear_text_pointer();
             send_expose_event();
@@ -216,8 +203,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_current_active_instance = &g_instances.contexts[0];
         strcpy(g_current_active_instance->name, "Instance 1");
         g_instances.thread_control.update = 1;
-
-        //new_voice();
+        new_voice();
     }
     dstudio_free(instance_filename_buffer);
 }
@@ -236,22 +222,6 @@ void update_current_instance(unsigned int index) {
     g_instances.index = index;
     g_current_active_instance = &g_instances.contexts[index];
 }
-
-//~ void update_instances_text() {
-    //~ update_insteractive_list_shadow(
-        //~ DSTUDIO_CONTEXT_INSTANCES,
-        //~ &g_ui_instances
-    //~ );
-    //~ update_insteractive_list(
-        //~ DSTUDIO_CONTEXT_INSTANCES,
-        //~ g_ui_instances.window_offset,
-        //~ g_ui_instances.max_lines_number,
-        //~ g_instances.count,
-        //~ g_ui_instances.lines,
-        //~ g_ui_instances.string_size, 
-        //~ &g_instances.contexts[0]
-    //~ );
-//~ }
 
 void update_instances_ui_list() {
     update_insteractive_list(&g_ui_instances);

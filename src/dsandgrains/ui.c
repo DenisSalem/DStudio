@@ -165,6 +165,22 @@ inline static void init_instances_list() {
         DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
         DSTUDIO_FLAG_NONE
     );
+    init_ui_elements(
+        &g_ui_elements_struct.voices_list_item_1,
+        &charset_4x9_texture_ids[0],
+        &charset_4x9_scale_matrix[0],
+        DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_X,
+        DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_Y,
+        DSANDGRAINS_ITEM_LIST_WIDTH,
+        DSANDGRAINS_ITEM_LIST_HEIGHT,
+        0,
+        DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET,
+        1,
+        DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
+        DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
+        DSTUDIO_FLAG_NONE
+    );
 }
 
 inline static void init_knobs() {
@@ -289,6 +305,22 @@ inline static void init_list_item_highlights() {
         &list_item_highlight_scale_matrix[0],
         DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X,
         DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y,
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT, 
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
+        DSTUDIO_FLAG_NONE
+    );
+    init_ui_elements(
+        &g_ui_elements_struct.voices_list_item_highlight,
+        &texture_ids[0],
+        &list_item_highlight_scale_matrix[0],
+        DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_X,
+        DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_Y,
         DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
         DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT, 
         0,
@@ -501,8 +533,13 @@ void * ui_thread(void * arg) {
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
     
-    bind_callbacks();
-
+    init_voices_interactive_list(
+        &g_ui_elements_struct.voices_list_item_highlight,
+        DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
+    );
+    
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     glEnable(GL_SCISSOR_TEST);
@@ -524,6 +561,12 @@ void * ui_thread(void * arg) {
             &g_instances.thread_control,
             update_instances_ui_list
         );
+        
+        update_threaded_ui_element(
+            &g_current_active_instance->voices.thread_control,        
+            update_voices_ui_list
+        );
+        
         render_viewport(need_to_redraw_all());
         swap_window_buffer();
         listen_events();

@@ -49,7 +49,7 @@ add_executable(
     text.c
     text_pointer.c
     ui.c
-    #voices.c
+    voices.c
     window_management.c
 )
 

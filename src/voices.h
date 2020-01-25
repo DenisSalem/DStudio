@@ -29,14 +29,21 @@ typedef struct VoiceContext_t {
 typedef struct Voices_t {
     VoiceContext * contexts;
     unsigned int count;
+    ThreadControl thread_control;
 } Voices;
 
 extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;
+void bind_voices_interactive_list();
 
-void init_voices_ui(UIElements * lines, unsigned int lines_number, unsigned int string_size);
+void init_voices_interactive_list(
+    UIElements * ui_elements,
+    unsigned int lines_number,
+    unsigned int string_size,
+    GLfloat item_offset_y
+);
+
 int new_voice();
-void scroll_voices(void * args);
-void update_voices_text();
-
+//void scroll_voices(void * args);
+void update_voices_ui_list();
 #endif

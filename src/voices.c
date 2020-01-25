@@ -23,19 +23,46 @@
 
 VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
+UIElements * g_ui_elements = {0};
 
-void init_voices_ui(UIElements * lines, unsigned int max_lines_number, unsigned int string_size) {
+static UIElements * s_ui_elements;
+static unsigned int s_lines_number;
+static unsigned int s_string_size;
+static GLfloat s_item_offset_y;
+
+void bind_voices_interactive_list() {
     init_interactive_list(
         &g_ui_voices,
-        lines,
-        max_lines_number,
+        s_ui_elements,
+        s_lines_number,
+        s_string_size,
+        sizeof(InstanceContext),
         &g_current_active_instance->voices.count,
-        string_size
+        (char **) &g_current_active_instance->voices.contexts,
+        &g_current_active_instance->voices.thread_control,
+        select_instance_from_list,
+        1,
+        s_item_offset_y
     );
+    g_current_active_instance->voices.thread_control.ready = 1;
+    g_current_active_instance->voices.thread_control.update = 1;
+}
+
+void init_voices_interactive_list(
+    UIElements * ui_elements,
+    unsigned int lines_number,
+    unsigned int string_size,
+    GLfloat item_offset_y
+) {
+    s_ui_elements = ui_elements;
+    s_lines_number = lines_number;
+    s_string_size = string_size;
+    s_item_offset_y = item_offset_y;
+    bind_voices_interactive_list();
 }
 
 int new_voice() {
-    VoiceContext * new_voice_context = realloc(
+    VoiceContext * new_voice_context = dstudio_realloc(
         g_current_active_instance->voices.contexts,
         (g_current_active_instance->voices.count + 1) * sizeof(VoiceContext)
     );
@@ -50,22 +77,18 @@ int new_voice() {
     #ifdef DSTUDIO_DEBUG
     printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
     #endif
-    g_ui_voices.update = 1;
+    sem_init(&g_current_active_instance->voices.thread_control.mutex, 0, 1);
+
+    if (s_ui_elements) {
+        bind_voices_interactive_list();
+    }
     return 1;
 }
 
-void scroll_voices(void * args) {
-    (void) args;
-}
+//~ void scroll_voices(void * args) {
+    //~ (void) args;
+//~ }
 
-void update_voices_text() {
-    update_insteractive_list(
-        DSTUDIO_CONTEXT_INSTANCES,
-        g_ui_voices.window_offset,
-        g_ui_voices.max_lines_number,
-        g_current_active_instance->voices.count,
-        g_ui_voices.lines,
-        g_ui_voices.string_size, 
-        &g_current_active_instance->voices.contexts[0]
-    );
+void update_voices_ui_list() {
+    update_insteractive_list(&g_ui_voices);
 }

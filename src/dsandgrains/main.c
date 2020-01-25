@@ -31,13 +31,20 @@
 const unsigned int g_dstudio_viewport_width = 800;
 const unsigned int g_dstudio_viewport_height = 480;
 const char g_application_name[] = "DSANDGRAINS";
+/* Allow generic DStudio UI features (like render loop) to deal with an 
+ * array of UIElements. The size of this array is specific to the client
+ * application and cannot be know in advance.
+ */
 const unsigned int g_dstudio_ui_element_count = sizeof(UIElementsStruct) / sizeof(UIElements);;
 
 int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
-    sem_init(&g_alloc_register_mutex, 0, 1);
-
+    
+    /* DStudio has it's own memory manager. It's a simple wrapper build around stantard
+     * function like malloc, realloc and free. */
+    dstudio_init_memory_management();
+    
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     
     pthread_t ui_thread_id;

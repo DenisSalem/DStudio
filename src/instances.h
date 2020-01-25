@@ -2,13 +2,12 @@
 #define DSTUDIO_INSTANCES_H_INCLUDED
 
 #include "interactive_list.h"
-//~ #include "text.h"
-//~ #include "voices.h"
+#include "voices.h"
 
 typedef struct InstanceContext_t {
     char name[33];
     int identifier;
-    //~ Voices voices;
+    Voices voices;
 } InstanceContext;
 
 typedef struct Instances_t {
@@ -23,8 +22,6 @@ extern InstanceContext * g_current_active_instance;
 extern UIInteractiveList g_ui_instances;
 
 void exit_instances_management_thread();
-
-char * get_instance_target_name(unsigned int index);
 
 void init_instances_management_thread(
     UIElements * ui_elements,
@@ -44,5 +41,4 @@ unsigned int select_instance_from_list(unsigned int index);
 void update_instances_ui_list();
 
 void update_current_instance(unsigned int index);
-//~ void update_instances_text();
 #endif

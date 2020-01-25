@@ -92,15 +92,15 @@ typedef struct ThreadControl_t {
         exit(-1); \
     }
 
-extern sem_t g_alloc_register_mutex;
 extern const char g_application_name[];
-void   dstudio_cut_thread(ThreadControl * thread_control);
 
 /*
  * Safely allocate and initialize memory. Automatically stop the program on failure.
  */
 void * dstudio_alloc(unsigned int buffer_size);
+void   dstudio_cut_thread(ThreadControl * thread_control);
 void   dstudio_free(void * buffer);
+void dstudio_init_memory_management();
 void * dstudio_realloc(void * buffer, unsigned int new_size);
 double get_timestamp();
 
