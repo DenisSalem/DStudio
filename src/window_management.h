@@ -45,4 +45,6 @@ void send_expose_event();
 void set_cursor_position_callback(void (*callback)(int xpos, int ypos));
 void set_mouse_button_callback(void (*callback)(int xpos, int ypos, int button, int action));
 void swap_window_buffer();
+
+extern unsigned int g_dstudio_mouse_state;
 #endif

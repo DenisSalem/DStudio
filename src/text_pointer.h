@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -26,33 +26,25 @@
 #include "interactive_list.h"
 
 typedef struct UITextPointerContext_t {
+    UIElements *    text_pointer;
     UIElements *    ui_text;
+    UIElements *    highlight;
     char *          string_buffer;
     unsigned int    buffer_size;
-    GLint           scissor_x;
-    GLint           scissor_y;
-    GLsizei         scissor_width;
-    GLsizei         scissor_height;
-    unsigned int    update;
+    ThreadControl   thread_control;
     unsigned int    active;
-    unsigned int    render_flag;
     unsigned int    insert_char_index;
     pthread_t       blink_thread_id;
-    sem_t           mutex;
-    void (*sub_ui_element_update_callback)();
-    // Optional, only required for interactive list
-    unsigned int    index;
-    unsigned int *  lines_count;
-
+    unsigned int    text_pointer_height;
+    unsigned int    char_width;
 } UITextPointerContext;
-
-typedef union TextPointerContextPayload_t {
-    InteractiveListContext * interactive_list;
-} TextPointerContextPayload;
 
 void clear_text_pointer();
 
 void compute_text_pointer_coordinates(unsigned int index);
+
+void init_text_pointer();
+void init_ui_text_pointer(UIElements * text_pointer);
 
 void * text_pointer_blink_thread(void * args);
 
@@ -60,13 +52,8 @@ void update_text_pointer();
 
 void update_text_box(unsigned int keycode);
 
-void update_text_pointer_context(
-    unsigned int type,
-    unsigned int index,
-    TextPointerContextPayload context
-);
+void update_text_pointer_context(UIElements * ui_elements);
 
-extern UIElements g_text_pointer;
 extern UITextPointerContext g_text_pointer_context;
 extern unsigned int g_text_pointer_height;
 extern unsigned int g_text_pointer_char_width;

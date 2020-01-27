@@ -26,116 +26,146 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
+#include "interactive_list.h"
 #include "window_management.h"
-
-/*
- * This structure may be used to store opacity in
- * interactive_list usage case. For readability, the
- * third field is renamed.
- */
- 
-typedef struct Vec4_t {
-    GLfloat x;
-    GLfloat y;
-    union {
-        GLfloat z;
-        GLfloat opacity;
-    };
-    GLfloat w;
-} Vec4;
 
 typedef struct vec2_t {
     GLfloat x;
     GLfloat y;
 } Vec2;
 
-typedef struct UITexture_t {
-    GLuint id;
-    GLuint width;
-    GLuint height;
-} UITexture;
+/*
+ * This structure may be used to store offsets or areas.
+ */
+ 
+typedef struct Vec4_t {
+    union {
+        GLfloat min_area_x;
+        GLfloat top_left_x;
+        GLfloat x;
+    };
+    union {
+        GLfloat max_area_x;
+        GLfloat top_left_y;
+        GLfloat y;
+    };
+    union {
+        GLfloat min_area_y;
+        GLfloat bottom_right_x;
+        GLfloat z;
+    };
+    union {
+        GLfloat max_area_y;
+        GLfloat bottom_right_y;
+        GLfloat w;
+    };
+} Vec4;
+
+typedef struct Scissor_t {
+    GLint x;
+  	GLint y;
+  	GLsizei width;
+  	GLsizei height;
+} Scissor;
+
+typedef enum UIElementType_t {
+    DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND = 1,
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT = 2,
+    DSTUDIO_UI_ELEMENT_TYPE_SLIDER = 4,
+    DSTUDIO_UI_ELEMENT_TYPE_KNOB = 8,
+    DSTUDIO_UI_ELEMENT_TYPE_BUTTON = 16,
+    DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE = 32,
+    DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 64,
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER = 128
+} UIElementType;
+
+typedef enum MotionType_t {
+    DSTUDIO_MOTION_TYPE_NONE = 0U,
+    DSTUDIO_MOTION_TYPE_ROTATION = 1U,
+    DSTUDIO_MOTION_TYPE_SLIDE = 2U
+} MotionType;
+
+/*
+ * UIElements describe any rendered elements. It holds both application
+ * logic information and OpenGL buffers.
+ * 
+ * - count:             specify the number of instance. Should be set
+ *                      to 1 by default except for text.
+ * - render:            is a boolean allowing ui_element to be rendered
+ *                      if set to 1.
+ * - enabled:           is a boolean allowing element to be interactive.
+ * - texture_index:     Point to the current texture id in textures_ids.
+ * - groupe_identifier: Some elements are part of meta element, like
+ *                      list or sliders group.
+ * - texture_ids:       Array of texture id. Allow switching texture for
+ *                      rebounce buttons or disabled ui elements like
+ *                      knobs or sliders.   
+ * - type:              specify the kind of ui element.
+ * - vertex_attributes: Holds initial position of each vertex of the 
+ *                      element as well as its initial UV coordinates.
+ * - timestamp:         Used only for buttons to animate rebounce.
+ */
+ 
+typedef struct UIElements_t UIElements;
+typedef struct UIInteractiveList_t UIInteractiveList;
 
 typedef struct UIElements_t {
-    unsigned                    count;
-    GLuint                      index_buffer_object;
-    GLuint                      instance_offsets;
-    GLfloat *                   instance_offsets_buffer; /* May be allocated either as array of Vec2 or Vec4 */
-    GLuint                      instance_motions;
-    GLfloat  *                  instance_motions_buffer;
-    unsigned int                animated;
-    Vec2                        scale_matrix[2];
-    unsigned char *             texture;
-    GLuint                      texture_id;
-    GLuint                      vertex_array_object;
-    Vec4                        vertex_attributes[4];  
-    GLuint                      vertex_buffer_object;
+    unsigned char               count;
+    unsigned char               render;
+    unsigned char               enabled;
+    unsigned char               texture_index;
+    double                      timestamp;
     GLchar                      vertex_indexes[4];
+    GLuint                      texture_ids[2];
+    GLuint                      vertex_array_object;
+    GLuint                      vertex_buffer_object;
+    GLuint                      index_buffer_object;
+    GLuint                      instance_alphas;
+    GLuint                      instance_motions;
+    GLuint                      instance_offsets;
+    GLfloat *                   instance_alphas_buffer; 
+    GLfloat *                   instance_motions_buffer;
+    Vec4 *                      instance_offsets_buffer; 
+    Vec4                        vertex_attributes[4];
+    Vec4                        areas;
+    Scissor                     scissor;
+    Vec2 *                      scale_matrix;
+    UIElementType               type;
+    UIInteractiveList *         interactive_list;
+    void *                      application_callback_args;
+    void (*application_callback)(UIElements * self);
 } UIElements;
-
-typedef struct UICallback_t {
-    void (*callback)(int index, UIElements * context, void * args);
-    int index;
-    void * context_p;
-    int type;
-} UICallback;
-
-typedef struct UIArea_t {
-    float min_x;
-    float min_y;
-    float max_x;
-    float max_y;
-    float x;
-    float y;
-} UIArea;
-
-typedef struct UIElementSetting_t {
-    GLfloat gl_x;
-    GLfloat gl_y;
-    GLfloat min_area_x;
-    GLfloat max_area_x;
-    GLfloat min_area_y;
-    GLfloat max_area_y;
-    unsigned char ui_element_type;
-} UIElementSetting;
-
-typedef struct ui_element_setting_params_t {
-    unsigned int        array_offset;
-    /*
-     * May be one of the following type
-     * - UIElementSetting
-     * - UIInteractiveListSetting
-     */
-    void *  settings;
-    UIArea *            areas;
-    UICallback *        callbacks;
-    void (*update_callback) (int index, UIElements * context, void * args);
-} UIElementSettingParams;
-
-typedef union TextFieldContext_t {
-    
-} UITextFieldContext;
 
 void compile_shader(
     GLuint shader_id,
     GLchar ** source_pointer
 );
 
-void configure_ui_element(
-    UIElements * ui_elements,
-    void * params
-);
-
 void create_shader_program(
-    GLuint * interactive_program_id,
-    GLuint * non_interactive_program_id
+    GLuint * shader_program_id
 );
 
-void gen_gl_buffer(
-    GLenum type,
-    GLuint * vertex_buffer_object_p,
-    void * vertex_attributes,
-    GLenum mode,
-    unsigned int data_size
+void init_opengl_ui_elements(
+    int flags,
+    UIElements * ui_elements
+);
+
+void init_ui_elements(
+    UIElements * ui_elements_array,
+    GLuint * texture_ids,
+    Vec2 * scale_matrix,
+    GLfloat gl_x,
+    GLfloat gl_y,
+    GLfloat area_width,
+    GLfloat area_height,
+    GLfloat offset_x,
+    GLfloat offset_y,
+    unsigned int columns,
+    unsigned int count,
+    unsigned int instances_count,
+    UIElementType ui_element_type,
+    int flags
 );
 
 int get_png_pixel(
@@ -144,47 +174,22 @@ int get_png_pixel(
     png_uint_32 format // png_bytep is basically unsigned char
 ); 
 
-void init_ui_element(
-    GLfloat * instance_offset_p,
-    float offset_x,
-    float offset_y,
-    GLfloat * motion_buffer
-);
-
-void init_ui_elements(
-    int flags,
-    UIElements * ui_elements,
-    GLuint texture_id,
-    unsigned int count,
-    void (*configure_ui_element)(UIElements * ui_elements, void * params),
-    void * params
-);
-
-void init_ui_elements_settings(
-    UIElementSetting ** settings_p,
-    GLfloat gl_x,
-    GLfloat gl_y,
-    GLfloat scale_area_x,
-    GLfloat scale_area_y,
-    GLfloat offset_x,
-    GLfloat offset_y,
-    unsigned int rows,
-    unsigned int count,
-    unsigned int ui_element_type
-);
-
 void load_shader(
     GLchar ** shader_buffer,
     const char * filename
 );
 
-void render_ui_elements(
-    UIElements * ui_elements
+void manage_cursor_position(
+    int xpos,
+    int ypos
 );
 
-// This one is not defined in the generic ui.c source file.
-// Instead, it is defined for every tools from DStudio.
-void render_viewport(unsigned int mask);
+void manage_mouse_button(
+    int xpos,
+    int ypos,
+    int button,
+    int action
+);
 
 GLuint setup_texture_n_scale_matrix(
     unsigned int flags,
@@ -194,24 +199,43 @@ GLuint setup_texture_n_scale_matrix(
     Vec2 * scale_matrix
 );
 
-void update_and_render(
-    sem_t * mutex,
-    unsigned int * update,
-    void (*update_callback)(),
-    GLuint scissor_x,
-    GLuint scissor_y,
-    GLuint scissor_width,
-    GLuint scissor_height,
-    unsigned int render_flag
+// Must be defined by consumer
+typedef struct UIElementsStruct_t UIElementsStruct;
+extern UIElementsStruct g_ui_elements_struct;
+extern UIElements * g_ui_elements_array;
+
+extern GLint scissor_x, scissor_y;
+extern GLsizei scissor_width, scissor_height;
+extern const unsigned int g_dstudio_ui_element_count;
+extern const unsigned int g_dstudio_viewport_width;
+extern const unsigned int g_dstudio_viewport_height;
+extern GLuint g_shader_program_id;
+extern GLuint g_scale_matrix_id;
+extern GLuint g_motion_type_location;
+extern GLuint g_no_texture_location;
+
+void gen_gl_buffer(
+    GLenum type,
+    GLuint * vertex_buffer_object_p,
+    void * vertex_attributes,
+    GLenum mode,
+    unsigned int data_size
+);
+
+void render_ui_elements(
+    UIElements * ui_elements
+);
+
+void render_viewport(unsigned int render_all);
+
+void update_threaded_ui_element(
+    ThreadControl * thread_control,
+    void (*update_callback)()
 );
 
 void update_ui_element_motion(
-    int index,
-    UIElements * knobs_p,
-    void * args
+    UIElements * ui_elements_p,
+    float motion
 );
-
-extern const unsigned int DSTUDIO_VIEWPORT_WIDTH;
-extern const unsigned int DSTUDIO_VIEWPORT_HEIGHT;
 
 #endif

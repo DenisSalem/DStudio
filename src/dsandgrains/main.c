@@ -20,34 +20,48 @@
 #include <pthread.h>
 #include <semaphore.h>
 
+#include "../buttons.h"
 #include "../common.h"
-#include "../fileutils.h"
 #include "../instances.h"
-#include "../system_usage.h"
+#include "../ressource_usage.h"
+#include "../text_pointer.h"
 #include "instances.h"
 #include "ui.h"
 
-const unsigned int DSTUDIO_VIEWPORT_WIDTH = 800;
-const unsigned int DSTUDIO_VIEWPORT_HEIGHT = 480;
-const char APPLICATION_NAME[] = "D S A N D G R A I N S";
+const unsigned int g_dstudio_viewport_width = 800;
+const unsigned int g_dstudio_viewport_height = 480;
+const char g_application_name[] = "DSANDGRAINS";
+
+/* Allow generic DStudio UI features (like render loop) to deal with an 
+ * array of UIElements. The size of this array is specific to the client
+ * application and cannot be know in advance.
+ */
+const unsigned int g_dstudio_ui_element_count = sizeof(UIElementsStruct) / sizeof(UIElements);;
 
 int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
-    DSTUDIO_EXIT_IF_FAILURE(set_physical_memory());
+    
+    dstudio_init_memory_management();
+    init_text_pointer();
 
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
-    
-    pthread_t ui_thread_id, system_usage_thread_id, instances_thread_id;
+    pthread_t ui_thread_id;
+    pthread_t ressource_usage_thread_id;
+    pthread_t button_management_thread_id;
+    pthread_t instances_management_thread_id;
     
     // TODO: Investigate thread priority.
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &system_usage_thread_id, NULL, update_system_usage, NULL))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_thread_id, NULL, update_instances, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ressource_usage_thread_id, NULL, update_ressource_usage_thread, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &button_management_thread_id, NULL, buttons_management_thread, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_management_thread_id, NULL, instances_management_thread, NULL))
 
-    DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_thread_id, NULL))
-    DSTUDIO_RETURN_IF_FAILURE(pthread_join(system_usage_thread_id, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_management_thread_id, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_join(button_management_thread_id, NULL))
+    DSTUDIO_RETURN_IF_FAILURE(pthread_join(ressource_usage_thread_id, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
-
+    
+    dstudio_free(0);
     return 0;
 }

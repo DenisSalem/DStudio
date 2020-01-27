@@ -21,26 +21,16 @@
 #include "extensions.h"
 #include "text.h"
 
-void configure_text_element(UIElements * ui_text, void * params) {
-    Vec4 * vertex_attributes = ui_text->vertex_attributes;
-    vertex_attributes[1].w /= (GLfloat)DSTUDIO_CHAR_SIZE_DIVISOR;
-    vertex_attributes[2].z /= (GLfloat)DSTUDIO_CHAR_SIZE_DIVISOR;
-    vertex_attributes[3].z /= (GLfloat)DSTUDIO_CHAR_SIZE_DIVISOR;
-    vertex_attributes[3].w /= (GLfloat)DSTUDIO_CHAR_SIZE_DIVISOR;
-    
-    UITextSettingParams * ui_text_setting_params = (UITextSettingParams *) params;
-    for (unsigned int i = 0; i < ui_text_setting_params->string_size; i++) {
-        ((Vec4 *) ui_text->instance_offsets_buffer)[i].x = ui_text_setting_params->gl_x + i * ui_text_setting_params->scale_matrix[0].x * 2;
-        ((Vec4 *) ui_text->instance_offsets_buffer)[i].y = ui_text_setting_params->gl_y;
-    }
-}
-
-void update_text(UIElements * text, char * string_value, unsigned int string_size) {
+void update_text(UIElements * text, char * string_value, unsigned int buffer_size) {
         Vec4 * offset_buffer = (Vec4 *) text->instance_offsets_buffer;
         int linear_coordinate = 0;
         int padding = 0;
-        for (unsigned int i = 0; i < string_size; i++) {
+        int request_update = 0;
+        for (unsigned int i = 0; i < buffer_size; i++) {
             if (padding || string_value[i] == 0) {
+                if (offset_buffer[i].z || offset_buffer[i].w) {
+                    request_update = 1;
+                }
                 offset_buffer[i].z = 0;
                 offset_buffer[i].w = 0;
                 padding = 1;
@@ -49,11 +39,22 @@ void update_text(UIElements * text, char * string_value, unsigned int string_siz
             if (string_value[i] >= 32 && string_value[i] <= 126) {
                 linear_coordinate = string_value[i] - 32;
             }
-            offset_buffer[i].z = (GLfloat) (linear_coordinate % (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
-            offset_buffer[i].w = (linear_coordinate / (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
-
+            GLfloat z = (GLfloat) (linear_coordinate % (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
+            GLfloat w = (linear_coordinate / (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
+            if (request_update || z != offset_buffer[i].z || w != offset_buffer[i].w) {
+                offset_buffer[i].z = z;
+                offset_buffer[i].w = w;
+                request_update = 1;
+            }
         }
-        glBindBuffer(GL_ARRAY_BUFFER, text->instance_offsets);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, string_size * sizeof(Vec4), offset_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
+        if(request_update) {
+            glBindBuffer(GL_ARRAY_BUFFER, text->instance_offsets);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, buffer_size * sizeof(Vec4), offset_buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            text->render = 1;
+            if (text->type == DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) {
+                text->interactive_list->highlight->render = 1;
+            }
+        }
 }

@@ -22,16 +22,6 @@
 
 #include "ui.h"
 
-#define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
-
-typedef struct UITextSettingParams {
-    unsigned int string_size;
-    Vec2 * scale_matrix;
-    GLfloat gl_x;
-    GLfloat gl_y;
-} UITextSettingParams;
-
-void configure_text_element(UIElements * ui_text, void * params);
-void update_text(UIElements * text, char * string_value, unsigned int string_size);
+void update_text(UIElements * text, char * string_value, unsigned int buffer_size);
 
 #endif

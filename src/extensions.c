@@ -85,7 +85,7 @@ int load_extensions() {
         DSTUDIO_SET_BINDER_ELEMENT(glVertexAttribPointer),
         DSTUDIO_SET_BINDER_ELEMENT(glShaderSource),
         DSTUDIO_SET_BINDER_ELEMENT(glUniformMatrix2fv),
-        DSTUDIO_SET_BINDER_ELEMENT(glUniform1f),
+        DSTUDIO_SET_BINDER_ELEMENT(glUniform1ui),
         DSTUDIO_SET_BINDER_ELEMENT(glUniform2fv),
         DSTUDIO_SET_BINDER_ELEMENT(glUseProgram),
         #ifdef DSTUDIO_DEBUG

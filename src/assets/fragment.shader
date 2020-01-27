@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -19,19 +19,20 @@
 
 #version 330
 
-uniform sampler2D texture_knob;
-flat in vec2 no_texture_args;
-
+flat in float alpha;
+uniform uint no_texture;
+uniform sampler2D input_texture;
 in vec2 fragment_texture_coordinates;
 out vec4 color;
 
-void main (void) {
-    if (no_texture_args.x == 1.0) {
-        color = vec4(1, 0.5, 0, no_texture_args.y);
-        //color = vec4(1, 0.5, 0, 1);
 
+
+void main (void) {
+    if (no_texture == 1U) {
+        color = vec4(1.0, 0.5, 0, 1);
     }
     else {
-        color = texture(texture_knob, fragment_texture_coordinates);
+        color = texture(input_texture, fragment_texture_coordinates);
     }
+    color.a *= alpha;
 } 

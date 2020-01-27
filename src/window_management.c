@@ -31,6 +31,8 @@
 #include "text_pointer.h"
 #include "window_management.h"
 
+unsigned int g_dstudio_mouse_state = 0;
+
 static void (*cursor_position_callback)(int xpos, int ypos) = 0;
 void (*mouse_button_callback)(int xpos, int ypos, int button, int action) = 0;
 
@@ -248,19 +250,25 @@ void listen_events() {
         }
         else if (x_event.type == ButtonPress) {
             if (x_event.xbutton.button == Button1) {
+                g_dstudio_mouse_state = 1;
                 mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
+                return;
             }
             else if (x_event.xbutton.button == Button3) {
                 mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
+                return;
             }
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if (x_event.type == ButtonRelease) {
             if (x_event.xbutton.button == Button1) {
+                g_dstudio_mouse_state = 0;
                 mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_RELEASE);
+                return;
             }
             else if (x_event.xbutton.button == Button3) {
                 mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_RELEASE);
+                return;
             }
         }
         else if(x_event.type == MotionNotify) {
@@ -268,7 +276,7 @@ void listen_events() {
         }
         else if(x_event.type == KeyPress) {
             if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
-                g_text_pointer_context.active = 0;
+                clear_text_pointer();
             }
             else if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT || x_event.xkey.keycode == DSTUDIO_KEY_CAPS_LOCK) {
                 keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;

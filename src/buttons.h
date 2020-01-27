@@ -24,57 +24,16 @@
 #include <semaphore.h>
 
 #include "ui.h"
-#include "text_pointer.h"
-#include "interactive_list.h"
-
-/*
- * There is many usages of a button. To save memory
- * we're reusing and renaming some fields for different
- * use cases.
- */
- 
-typedef struct ButtonStates_t {
-    GLuint active;
-    GLuint release;
-    double timestamp;
-    union {
-        void (*application_callback)(void * args);
-        TextPointerContextPayload context;
-    };
-    union {
-        unsigned int flags;
-        unsigned int index;
-    };
-    unsigned int update;
-} ButtonStates;
 
 typedef struct ButtonsManagement_t {
-    ButtonStates * states;
-    UICallback * callbacks;
-    int cut_thread;
-    sem_t mutex;
-    pthread_t thread_id;
-    int ready;
-    unsigned int count;
+    ThreadControl thread_control;
 } ButtonsManagement;
 
 void * buttons_management_thread(void * args);
-
-void check_for_buttons_to_render_n_update(
-    ButtonsManagement * buttons_management,
-    UICallback * ui_callbacks,
-    int mouse_state,
-    UIArea * ui_areas);
     
-void init_buttons_management(
-    ButtonsManagement * buttons_management,
-    ButtonStates * button_states_array,
-    UICallback * callbacks,
-    unsigned int count);
+void init_buttons_management();
 
-void update_button(
-    int index,
-    UIElements * buttons_p,
-    void * args);
+void update_button(UIElements * button_p);
 
+extern ButtonsManagement g_buttons_management;
 #endif
