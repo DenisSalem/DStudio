@@ -53,6 +53,8 @@ Vec2 tiny_button_scale_matrix[2] = {0};
 
 void dummy(UIElements * ui_elements) {
     (void) ui_elements;
+    new_voice(DSTUDIO_USE_MUTEX);
+    bind_voices_interactive_list();
 }
 
 inline static void bind_callbacks() {
@@ -61,7 +63,13 @@ inline static void bind_callbacks() {
     
     g_ui_elements_struct.button_arrow_bottom_instances.application_callback = scroll_down;
     g_ui_elements_struct.button_arrow_bottom_instances.application_callback_args = (void *) &g_ui_instances;
+
+    g_ui_elements_struct.button_arrow_top_voices.application_callback = scroll_up;
+    g_ui_elements_struct.button_arrow_top_voices.application_callback_args = (void *) &g_ui_instances;
     
+    g_ui_elements_struct.button_arrow_bottom_voices.application_callback = scroll_down;
+    g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_instances;
+
     g_ui_elements_struct.button_add.application_callback = dummy;
 }
 
@@ -494,8 +502,8 @@ static void init_ui() {
     init_misc_buttons();
     init_ressource_usage();
     init_sliders();
-    init_text_pointer(&g_ui_elements_struct.text_pointer);
-
+    init_ui_text_pointer(&g_ui_elements_struct.text_pointer);
+    bind_callbacks();
     for (unsigned int i = 4; i < g_dstudio_ui_element_count; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
@@ -525,7 +533,8 @@ void * ui_thread(void * arg) {
         &g_ui_elements_struct.cpu_usage,
         &g_ui_elements_struct.mem_usage
     );
-    
+
+
     init_instances_management_thread(
         &g_ui_elements_struct.instances_list_item_highlight,
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
@@ -539,6 +548,7 @@ void * ui_thread(void * arg) {
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
+    bind_voices_interactive_list();
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);

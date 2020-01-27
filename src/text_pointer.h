@@ -43,7 +43,8 @@ void clear_text_pointer();
 
 void compute_text_pointer_coordinates(unsigned int index);
 
-void init_text_pointer(UIElements * text_pointer);
+void init_text_pointer();
+void init_ui_text_pointer(UIElements * text_pointer);
 
 void * text_pointer_blink_thread(void * args);
 

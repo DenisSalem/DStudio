@@ -552,14 +552,15 @@ GLuint setup_texture_n_scale_matrix(
 }
 
 void update_threaded_ui_element(ThreadControl * thread_control, void (*update_callback)()) {
-    sem_wait(&thread_control->mutex);
+    sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
+    sem_wait(mutex);
     if (!thread_control->update) {
-        sem_post(&thread_control->mutex);
+        sem_post(mutex);
         return;
     }
     update_callback();
     thread_control->update = 0;
-    sem_post(&thread_control->mutex);
+    sem_post(mutex);
 }
 
 void update_ui_element_motion(

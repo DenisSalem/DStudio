@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -29,6 +29,7 @@ typedef struct VoiceContext_t {
 typedef struct Voices_t {
     VoiceContext * contexts;
     unsigned int count;
+    unsigned int index;
     ThreadControl thread_control;
 } Voices;
 
@@ -43,7 +44,12 @@ void init_voices_interactive_list(
     GLfloat item_offset_y
 );
 
-int new_voice();
-//void scroll_voices(void * args);
+int new_voice(unsigned int use_mutex);
+
+unsigned int select_voice_from_list(
+    unsigned int index
+);
+
+void update_current_voice(unsigned int index);
 void update_voices_ui_list();
 #endif

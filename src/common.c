@@ -29,9 +29,10 @@ void * dstudio_alloc(unsigned int buffer_size) {
 }
 
 void dstudio_cut_thread(ThreadControl * thread_control) {
-    sem_wait(&thread_control->mutex);
+    sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
+    sem_wait(mutex);
     thread_control->cut_thread = 1;
-    sem_post(&thread_control->mutex);
+    sem_post(mutex);
 } 
 
 void dstudio_free(void * buffer) {
@@ -68,6 +69,8 @@ void dstudio_free(void * buffer) {
     return;
 }
 
+/* DStudio has it's own memory manager. It's a simple wrapper build around stantard
+ * function like malloc, realloc and free. It MUST be the first dstudio call.*/
 void dstudio_init_memory_management() {
     sem_init(&s_alloc_register_mutex, 0, 1);
     s_allocation_register = malloc(sizeof(long unsigned int) * s_allocation_register_size);

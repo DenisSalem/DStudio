@@ -29,7 +29,7 @@ void init_interactive_list(
     unsigned int string_size,
     unsigned int stride,
     unsigned int * source_data_count,
-    char ** source_data,
+    char * source_data,
     ThreadControl * thread_bound_control,
     unsigned int (*select_callback)(unsigned int index),
     unsigned int editable,
@@ -60,7 +60,10 @@ void scroll_up(UIElements * self) {
         interactive_list->update_request= -1;
         interactive_list->thread_bound_control->update = 1;
         if (++interactive_list->index < (int) interactive_list->lines_number) {
-            select_item(&interactive_list->lines[interactive_list->index], DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
+            select_item(
+                &interactive_list->lines[interactive_list->index],
+                DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+            );
         }
 
     }
@@ -88,8 +91,9 @@ void select_item(
     unsigned int lines_number = self->interactive_list->lines_number;
     UIInteractiveList * interactive_list = self->interactive_list;
     UIElements * highlight = interactive_list->highlight;
-    if (!do_not_use_callback){
-        sem_wait(&interactive_list->thread_bound_control->mutex);
+    sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
+    if (!do_not_use_callback) {
+        sem_wait(mutex);
     }
     for(unsigned int i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
@@ -107,7 +111,7 @@ void select_item(
         }
     }
     if (!do_not_use_callback){
-        sem_post(&interactive_list->thread_bound_control->mutex);
+        sem_post(mutex);
     }
 }
 
@@ -118,18 +122,21 @@ void update_insteractive_list(
     unsigned int window_offset = interactive_list->window_offset;
     unsigned int string_size = interactive_list->string_size;
     unsigned int source_data_count = *interactive_list->source_data_count;
-    int index = interactive_list->update_request; 
+    int index = interactive_list->update_request;
     for (unsigned int i = index < 0 ? 0 : index; i < interactive_list->lines_number; i++) {
-        if (i >= source_data_count) {
-            break;
+        if (i < source_data_count) {
+            update_text(
+                &interactive_list->lines[i],
+                &interactive_list->source_data[stride * (i + window_offset)],
+                string_size
+            );
         }
-        update_text(
-            &interactive_list->lines[i],
-            &(*interactive_list->source_data)[stride * (i + window_offset)],
-            string_size
-        );
-        if (index >= 0) {
-            break;
+        else {
+            update_text(
+                &interactive_list->lines[i],
+                "",
+                string_size
+            );
         }
     }
     if (interactive_list->update_highlight) {

@@ -10,6 +10,7 @@ typedef struct ThreadControl_t {
     unsigned int    update;
     unsigned int    cut_thread;
     sem_t           mutex;
+    sem_t *         shared_mutex;
 } ThreadControl;
 
 // PATHS
@@ -67,18 +68,15 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_FLAG_USE_ANTI_ALIASING      4
 #define DSTUDIO_FLAG_USE_TEXT_SETTING       8
 
+#define DSTUDIO_USE_MUTEX                   1
+#define DSTUDIO_DO_NOT_USE_MUTEX            0
+
 // MISCELLANEOUS CONSTANTS
 #define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
 #define DSTUDIO_FRAMERATE 20000
 #define DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE 8
 #define DSTUDIO_RESSOURCE_USAGE_STRING_SIZE 6
 #define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
-
-#define DSTUDIO_RETURN_IF_FAILURE(value) \
-    if ( (value) != 0 ) { \
-        printf("%s:%d !" #value "\n", __FILE__, __LINE__); \
-        return -1; \
-    }
 
 #define DSTUDIO_EXIT_IF_FAILURE(value) \
     if ((value) != 0) { \
@@ -91,6 +89,16 @@ typedef struct ThreadControl_t {
         printf("0 == " #value "\n"); \
         exit(-1); \
     }
+
+#define DSTUDIO_RETURN_IF_FAILURE(value) \
+    if ( (value) != 0 ) { \
+        printf("%s:%d !" #value "\n", __FILE__, __LINE__); \
+        return -1; \
+    }
+
+#define DSTUDIO_TRACE \
+    printf("%s %d\n", __FILE__, __LINE__);
+
 
 extern const char g_application_name[];
 

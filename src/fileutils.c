@@ -58,7 +58,7 @@ unsigned int count_process(const char * process_name) {
             processus_status = fopen(processus_status_path, "r");
             if (0 != errno && processus_status == NULL) {
                 #ifdef DSTUDIO_DEBUG
-                printf("count_process(): %s: %s", processus_status_path, strerror(errno));
+                printf("count_process(): %s: %s\n", processus_status_path, strerror(errno));
                 #endif
                 continue;
             }

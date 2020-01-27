@@ -24,13 +24,14 @@
 #include "../common.h"
 #include "../instances.h"
 #include "../ressource_usage.h"
-
+#include "../text_pointer.h"
 #include "instances.h"
 #include "ui.h"
 
 const unsigned int g_dstudio_viewport_width = 800;
 const unsigned int g_dstudio_viewport_height = 480;
 const char g_application_name[] = "DSANDGRAINS";
+
 /* Allow generic DStudio UI features (like render loop) to deal with an 
  * array of UIElements. The size of this array is specific to the client
  * application and cannot be know in advance.
@@ -41,12 +42,10 @@ int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
     
-    /* DStudio has it's own memory manager. It's a simple wrapper build around stantard
-     * function like malloc, realloc and free. */
     dstudio_init_memory_management();
-    
+    init_text_pointer();
+
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
-    
     pthread_t ui_thread_id;
     pthread_t ressource_usage_thread_id;
     pthread_t button_management_thread_id;

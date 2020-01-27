@@ -48,13 +48,12 @@ void init_instances_management_thread(
         string_size,
         sizeof(InstanceContext),
         &g_instances.count,
-        (char **) &g_instances.contexts,
+        g_instances.contexts->name,
         &g_instances.thread_control,
         select_instance_from_list,
         1,
         item_offset_y
     );
-    sem_init(&g_instances.thread_control.mutex, 0, 1);
     g_instances.thread_control.ready = 1;
 }
 
@@ -93,7 +92,7 @@ void * instances_management_thread(void * args) {
         }
         
 		if (event->mask == IN_CREATE) {
-            //clear_text_pointer();
+            clear_text_pointer();
             g_instances.count++;
             saved_contexts = g_instances.contexts;
             g_instances.contexts = dstudio_realloc(g_instances.contexts, sizeof(InstanceContext) * g_instances.count);
@@ -108,24 +107,26 @@ void * instances_management_thread(void * args) {
             
             explicit_bzero(&g_instances.contexts[g_instances.count-1], sizeof(InstanceContext));
             g_current_active_instance = &g_instances.contexts[g_instances.count-1];
+            g_current_active_instance->voices.thread_control.shared_mutex = &g_instances.thread_control.mutex;
             g_instances.index = g_instances.count - 1;
             g_current_active_instance->identifier = 1;
             strcat(g_current_active_instance->name, "Instance ");
             strcat(g_current_active_instance->name, event->name);
             if (g_instances.count > g_ui_instances.lines_number) {
-                g_ui_instances.window_offset++;
+                g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
                 g_ui_instances.update_request = -1;
             }
             else {
-                g_ui_instances.update_request = g_instances.count - 1;
+                g_ui_instances.update_request = g_instances.index;
             }
             select_item(
                 &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
                 DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
             );
-            new_voice();
+            
+            new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
+            bind_voices_interactive_list();
             g_instances.thread_control.update = 1;
-            clear_text_pointer();
             send_expose_event();
             
             #ifdef DSTUDIO_DEBUG
@@ -151,6 +152,7 @@ void * instances_management_thread(void * args) {
 }
 
 void new_instance(const char * given_directory, const char * process_name) {
+    sem_init(&g_instances.thread_control.mutex, 0, 1);
     unsigned int count = 0;
     unsigned int last_id = 0;
 
@@ -202,8 +204,9 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
         strcpy(g_current_active_instance->name, "Instance 1");
+        g_current_active_instance->voices.thread_control.shared_mutex = &g_instances.thread_control.mutex;
         g_instances.thread_control.update = 1;
-        new_voice();
+        new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
     }
     dstudio_free(instance_filename_buffer);
 }
@@ -213,6 +216,7 @@ unsigned int select_instance_from_list(
 ) {
     if (index != g_instances.index && index < g_instances.count) {
         update_current_instance(index);
+        bind_voices_interactive_list();
         return 1;
     }
     return 0;
@@ -224,5 +228,6 @@ void update_current_instance(unsigned int index) {
 }
 
 void update_instances_ui_list() {
+    g_ui_instances.source_data = g_instances.contexts->name;
     update_insteractive_list(&g_ui_instances);
 }
