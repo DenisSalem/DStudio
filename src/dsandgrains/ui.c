@@ -52,9 +52,11 @@ Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 tiny_button_scale_matrix[2] = {0};
 
 void dummy(UIElements * ui_elements) {
-    (void) ui_elements;
-    new_voice(DSTUDIO_USE_MUTEX);
-    bind_voices_interactive_list();
+    (void) ui_elements; 
+    bind_voices_interactive_list(
+        new_voice(DSTUDIO_USE_MUTEX)
+    );
+
 }
 
 inline static void bind_callbacks() {
@@ -548,7 +550,7 @@ void * ui_thread(void * arg) {
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
-    bind_voices_interactive_list();
+    bind_voices_interactive_list(NULL);
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);

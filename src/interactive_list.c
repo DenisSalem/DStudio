@@ -54,34 +54,51 @@ void init_interactive_list(
 
 void scroll_up(UIElements * self) {
     UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
-    sem_wait(&interactive_list->thread_bound_control->mutex);
+    sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
+    sem_wait(mutex);
     if (interactive_list->window_offset > 0) {
         interactive_list->window_offset--;
         interactive_list->update_request= -1;
         interactive_list->thread_bound_control->update = 1;
-        if (++interactive_list->index < (int) interactive_list->lines_number) {
+        if (++interactive_list->index < (int) interactive_list->lines_number && interactive_list->index >= 0) {
+            select_item(
+                &interactive_list->lines[interactive_list->index],
+                DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+            );
+            *interactive_list->highlight->instance_alphas_buffer = 1;
+
+        }
+        else {
+            interactive_list->update_highlight = 1;
+            *interactive_list->highlight->instance_alphas_buffer = 0;
+        }
+        printf("index: %d\n", interactive_list->index);
+    }
+    sem_post(mutex);
+}
+
+void scroll_down(UIElements * self) {
+    UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
+    sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
+    sem_wait(mutex);
+    if (interactive_list->window_offset + interactive_list->lines_number < *interactive_list->source_data_count) {
+        interactive_list->window_offset++;
+        interactive_list->update_request= -1;
+        interactive_list->thread_bound_control->update = 1;
+        if (--interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
             select_item(
                 &interactive_list->lines[interactive_list->index],
                 DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
             );
         }
-
-    }
-    sem_post(&interactive_list->thread_bound_control->mutex);
-}
-
-void scroll_down(UIElements * self) {
-    UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
-    sem_wait(&interactive_list->thread_bound_control->mutex);
-    if (interactive_list->window_offset + interactive_list->lines_number < *interactive_list->source_data_count) {
-        interactive_list->window_offset++;
-        interactive_list->update_request= -1;
-        interactive_list->thread_bound_control->update = 1;
-        if (--interactive_list->index >= 0) {
-            select_item(&interactive_list->lines[interactive_list->index], DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
+        else {
+            interactive_list->update_highlight = 1;
+            *interactive_list->highlight->instance_alphas_buffer = 0;
         }
+        printf("index: %d\n", interactive_list->index);
+
     }
-    sem_post(&interactive_list->thread_bound_control->mutex);
+    sem_post(mutex);
 }
 
 void select_item(
@@ -101,6 +118,7 @@ void select_item(
                 interactive_list->lines[interactive_list->previous_item_index].render = 1;
                 interactive_list->lines[i].render = 1;
                 interactive_list->thread_bound_control->update = 1;
+                *interactive_list->highlight->instance_alphas_buffer = 1;
                 interactive_list->update_highlight = 1;
                 highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
                 interactive_list->index = i;
@@ -142,6 +160,8 @@ void update_insteractive_list(
     if (interactive_list->update_highlight) {
         glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_offsets);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->highlight->count, interactive_list->highlight->instance_offsets_buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_alphas);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * interactive_list->highlight->count, interactive_list->highlight->instance_alphas_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         interactive_list->highlight->render = 1;
         interactive_list->update_highlight = 0;

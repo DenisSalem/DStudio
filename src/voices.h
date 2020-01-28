@@ -35,7 +35,7 @@ typedef struct Voices_t {
 
 extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;
-void bind_voices_interactive_list();
+void bind_voices_interactive_list(UIElements * line);
 
 void init_voices_interactive_list(
     UIElements * ui_elements,
@@ -44,7 +44,7 @@ void init_voices_interactive_list(
     GLfloat item_offset_y
 );
 
-int new_voice(unsigned int use_mutex);
+UIElements * new_voice(unsigned int use_mutex);
 
 unsigned int select_voice_from_list(
     unsigned int index

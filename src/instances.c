@@ -124,8 +124,9 @@ void * instances_management_thread(void * args) {
                 DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
             );
             
+            
             new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
-            bind_voices_interactive_list();
+
             g_instances.thread_control.update = 1;
             send_expose_event();
             
@@ -204,6 +205,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
         strcpy(g_current_active_instance->name, "Instance 1");
+        g_ui_voices.thread_bound_control = &g_instances.thread_control;
         g_current_active_instance->voices.thread_control.shared_mutex = &g_instances.thread_control.mutex;
         g_instances.thread_control.update = 1;
         new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
@@ -216,7 +218,7 @@ unsigned int select_instance_from_list(
 ) {
     if (index != g_instances.index && index < g_instances.count) {
         update_current_instance(index);
-        bind_voices_interactive_list();
+        bind_voices_interactive_list(NULL);
         return 1;
     }
     return 0;

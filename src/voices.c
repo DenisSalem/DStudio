@@ -31,14 +31,17 @@ static unsigned int s_lines_number;
 static unsigned int s_string_size;
 static GLfloat s_item_offset_y;
 
-void bind_voices_interactive_list() {
+void bind_voices_interactive_list(UIElements * line) {
+    if (line == NULL) {
+        line = g_ui_voices.lines;
+    }
     update_current_voice(0);
     g_ui_voices.source_data = (char*) &g_current_active_instance->voices.contexts->name;
     g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
     g_ui_voices.thread_bound_control = &g_current_active_instance->voices.thread_control;
     g_ui_voices.window_offset = 0;
     select_item(
-        g_ui_voices.lines,
+        line,
         DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
     );
     g_ui_voices.update_request = -1;
@@ -69,7 +72,8 @@ void init_voices_interactive_list(
     );
 }
 
-int new_voice(unsigned int use_mutex) {
+UIElements * new_voice(unsigned int use_mutex) {
+    UIElements * line = 0;
     if(use_mutex) {
         sem_wait(g_current_active_instance->voices.thread_control.shared_mutex);
     }
@@ -84,7 +88,7 @@ int new_voice(unsigned int use_mutex) {
         return 0;
     }
     explicit_bzero(
-        new_voice_context + (g_current_active_instance->voices.count)*sizeof(VoiceContext),
+        &new_voice_context[g_current_active_instance->voices.count],
         sizeof(VoiceContext)
     );
     g_current_active_instance->voices.index = g_current_active_instance->voices.count++;
@@ -97,17 +101,18 @@ int new_voice(unsigned int use_mutex) {
     printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
     #endif
 
+    line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
-        g_ui_voices.source_data = (char*) &g_current_active_instance->voices.contexts->name;
+        bind_voices_interactive_list(line);
         select_item(
-            &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset],
+            line,
             DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
         );
     }
     if(use_mutex) {
         sem_post(g_current_active_instance->voices.thread_control.shared_mutex);
     }
-    return 1;
+    return line;
 }
 
 unsigned int select_voice_from_list(
