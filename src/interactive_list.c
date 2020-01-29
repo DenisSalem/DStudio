@@ -72,7 +72,6 @@ void scroll_up(UIElements * self) {
             interactive_list->update_highlight = 1;
             *interactive_list->highlight->instance_alphas_buffer = 0;
         }
-        printf("index: %d\n", interactive_list->index);
     }
     sem_post(mutex);
 }
@@ -95,8 +94,6 @@ void scroll_down(UIElements * self) {
             interactive_list->update_highlight = 1;
             *interactive_list->highlight->instance_alphas_buffer = 0;
         }
-        printf("index: %d\n", interactive_list->index);
-
     }
     sem_post(mutex);
 }

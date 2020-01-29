@@ -107,7 +107,6 @@ void * instances_management_thread(void * args) {
             
             explicit_bzero(&g_instances.contexts[g_instances.count-1], sizeof(InstanceContext));
             g_current_active_instance = &g_instances.contexts[g_instances.count-1];
-            g_current_active_instance->voices.thread_control.shared_mutex = &g_instances.thread_control.mutex;
             g_instances.index = g_instances.count - 1;
             g_current_active_instance->identifier = 1;
             strcat(g_current_active_instance->name, "Instance ");
@@ -205,8 +204,8 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
         strcpy(g_current_active_instance->name, "Instance 1");
-        g_ui_voices.thread_bound_control = &g_instances.thread_control;
-        g_current_active_instance->voices.thread_control.shared_mutex = &g_instances.thread_control.mutex;
+        g_ui_voices.thread_bound_control = &g_voices_thread_control;
+        g_voices_thread_control.shared_mutex = &g_instances.thread_control.mutex;
         g_instances.thread_control.update = 1;
         new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
     }

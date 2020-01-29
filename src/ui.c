@@ -18,6 +18,7 @@
 */
 
 #include <errno.h>
+#include <unistd.h>
        
 #ifdef DSTUDIO_DEBUG
     #include <stdio.h>
@@ -33,13 +34,16 @@ GLuint g_shader_program_id = 0;
 GLuint g_scale_matrix_id = 0;
 GLuint g_motion_type_location = 0;
 GLuint g_no_texture_location = 0;
+unsigned int g_framerate = DSTUDIO_FRAMERATE;
 
-static int s_ui_element_index = -1;
-static int s_ui_element_center_x = 0;
-static int s_ui_element_center_y = 0;
-static int s_active_slider_range_max = 0;
-static int s_active_slider_range_min = 0;
-static double list_item_click_timestamp = 0;
+static int                  s_active_slider_range_max = 0;
+static int                  s_active_slider_range_min = 0;
+static double               s_list_item_click_timestamp = 0;
+static int                  s_ui_element_center_x = 0;
+static int                  s_ui_element_center_y = 0;
+static int                  s_ui_element_index = -1;
+static UpdaterRegister *    s_updater_register = 0;
+static unsigned int         s_updater_register_index = 0;
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
     float rotation = 0;
@@ -176,85 +180,6 @@ int get_png_pixel(
     exit(-1);
 }
 
-void manage_cursor_position(int xpos, int ypos) {
-    float motion;
-    if (s_ui_element_index < 0) {
-        return;
-    }
-    switch(g_ui_elements_array[s_ui_element_index].type) {
-        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-            motion = compute_knob_rotation(xpos, ypos);
-            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
-            break;
-        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-            motion = compute_slider_translation(ypos);
-            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
-            break;
-        case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-        default:
-            break;
-    }
-}
-
-void manage_mouse_button(int xpos, int ypos, int button, int action) {
-    UIElements * ui_elements_p = 0;
-    double timestamp = 0;
-    if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
-        clear_text_pointer();
-        for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
-            ui_elements_p = &g_ui_elements_array[i];
-            if (
-                xpos > ui_elements_p->areas.min_area_x &&
-                xpos < ui_elements_p->areas.max_area_x &&
-                ypos > ui_elements_p->areas.min_area_y &&
-                ypos < ui_elements_p->areas.max_area_y &&
-                ui_elements_p->enabled &&
-                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND
-            ) {
-                s_ui_element_index = i;
-                switch (ui_elements_p->type) {
-                    case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
-                    case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
-                        ui_elements_p->application_callback(ui_elements_p);
-                        update_button(ui_elements_p);
-                        break;
-                    
-                    case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                        timestamp = get_timestamp();
-                        if (ui_elements_p->interactive_list->editable && timestamp - list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
-                            update_text_pointer_context(ui_elements_p);
-                        }
-                        else {
-                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
-                            list_item_click_timestamp = timestamp;
-                        }
-                        break;
-                        
-                    case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-                        s_active_slider_range_min = ui_elements_p->areas.min_area_y + DSTUDIO_SLIDER_1_10_HEIGHT / 2;
-                        s_active_slider_range_max = ui_elements_p->areas.max_area_y - DSTUDIO_SLIDER_1_10_HEIGHT / 2;
-                        __attribute__ ((fallthrough));
-                                                                   
-                    case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-                        s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
-                        s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
-                        break;
-                        
-                    case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
-                        break;
-                }
-                break;
-            }
-        }
-    }
-    else if(action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
-        s_ui_element_index = -1;
-    }
-}
-
 void init_opengl_ui_elements(
     int flags,
     UIElements * ui_elements
@@ -330,6 +255,32 @@ void init_opengl_ui_elements(
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
+
+void init_threaded_ui_element_updater_register(unsigned int updater_count) {
+    s_updater_register = dstudio_alloc(updater_count * sizeof(UpdaterRegister));
+}
+
+void init_ui() {
+    init_context(
+        g_application_name,
+        g_dstudio_viewport_width,
+        g_dstudio_viewport_height
+    );
+    set_mouse_button_callback(manage_mouse_button);
+    set_cursor_position_callback(manage_cursor_position);
+    	
+    DSTUDIO_EXIT_IF_FAILURE(load_extensions())
+    
+    create_shader_program(&g_shader_program_id);
+    
+    g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
+    g_no_texture_location = glGetUniformLocation(g_shader_program_id, "no_texture");
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glEnable(GL_SCISSOR_TEST);
+    glUseProgram(g_shader_program_id);
+};
 
 void init_ui_elements(
     UIElements * ui_elements_array,
@@ -426,6 +377,100 @@ void load_shader(
     }
     fclose(shader);
 }
+
+void manage_cursor_position(int xpos, int ypos) {
+    float motion;
+    if (s_ui_element_index < 0) {
+        return;
+    }
+    switch(g_ui_elements_array[s_ui_element_index].type) {
+        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+            motion = compute_knob_rotation(xpos, ypos);
+            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+            break;
+        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+            motion = compute_slider_translation(ypos);
+            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+            break;
+        case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        default:
+            break;
+    }
+}
+
+void manage_mouse_button(int xpos, int ypos, int button, int action) {
+    UIElements * ui_elements_p = 0;
+    double timestamp = 0;
+    if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
+        clear_text_pointer();
+        for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
+            ui_elements_p = &g_ui_elements_array[i];
+            if (
+                xpos > ui_elements_p->areas.min_area_x &&
+                xpos < ui_elements_p->areas.max_area_x &&
+                ypos > ui_elements_p->areas.min_area_y &&
+                ypos < ui_elements_p->areas.max_area_y &&
+                ui_elements_p->enabled &&
+                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND
+            ) {
+                s_ui_element_index = i;
+                switch (ui_elements_p->type) {
+                    case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+                    case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
+                        ui_elements_p->application_callback(ui_elements_p);
+                        update_button(ui_elements_p);
+                        break;
+                    
+                    case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                        timestamp = get_timestamp();
+                        if (ui_elements_p->interactive_list->editable && timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                            update_text_pointer_context(ui_elements_p);
+                        }
+                        else {
+                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+                            s_list_item_click_timestamp = timestamp;
+                        }
+                        break;
+                        
+                    case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+                        s_active_slider_range_min = ui_elements_p->areas.min_area_y + DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                        s_active_slider_range_max = ui_elements_p->areas.max_area_y - DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                        __attribute__ ((fallthrough));
+                                                                   
+                    case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+                        s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
+                        s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
+                        break;
+                        
+                    case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
+                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
+                        break;
+                }
+                break;
+            }
+        }
+    }
+    else if(action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
+        s_ui_element_index = -1;
+    }
+}
+
+void register_threaded_ui_elements_updater(ThreadControl * thread_control, void (*updater)()) {
+    s_updater_register[s_updater_register_index].thread_control = thread_control;
+    s_updater_register[s_updater_register_index++].updater = updater;
+}
+
+inline void render_loop() {
+    while (do_no_exit_loop()) {
+        usleep(g_framerate);
+        update_threaded_ui_element();
+        render_viewport(need_to_redraw_all());
+        swap_window_buffer();
+        listen_events();
+    }
+};
 
 void render_ui_elements(UIElements * ui_elements) {
     switch(ui_elements->type) {
@@ -551,16 +596,21 @@ GLuint setup_texture_n_scale_matrix(
     return texture_id;
 }
 
-void update_threaded_ui_element(ThreadControl * thread_control, void (*update_callback)()) {
-    sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
-    sem_wait(mutex);
-    if (!thread_control->update) {
+void update_threaded_ui_element() {
+    sem_t * mutex = 0;
+    ThreadControl * thread_control = 0;
+    for (unsigned int i = 0; i < s_updater_register_index; i++) {
+        thread_control = s_updater_register[i].thread_control;
+        mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
+        sem_wait(mutex);
+        if (!thread_control->update) {
+            sem_post(mutex);
+            continue;
+        }
+        s_updater_register[i].updater();
+        thread_control->update = 0;
         sem_post(mutex);
-        return;
     }
-    update_callback();
-    thread_control->update = 0;
-    sem_post(mutex);
 }
 
 void update_ui_element_motion(

@@ -17,6 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+#include <time.h>
+
 #include "../buttons.h"
 #include "../common.h"
 #include "../extensions.h"
@@ -26,13 +29,7 @@
 #include "../text_pointer.h"
 #include "../window_management.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include <unistd.h>
-
 #include "ui.h"
-
-unsigned int framerate = DSTUDIO_FRAMERATE;
 
 UIElementsStruct g_ui_elements_struct = {0};
 UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
@@ -67,10 +64,10 @@ inline static void bind_callbacks() {
     g_ui_elements_struct.button_arrow_bottom_instances.application_callback_args = (void *) &g_ui_instances;
 
     g_ui_elements_struct.button_arrow_top_voices.application_callback = scroll_up;
-    g_ui_elements_struct.button_arrow_top_voices.application_callback_args = (void *) &g_ui_instances;
+    g_ui_elements_struct.button_arrow_top_voices.application_callback_args = (void *) &g_ui_voices;
     
     g_ui_elements_struct.button_arrow_bottom_voices.application_callback = scroll_down;
-    g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_instances;
+    g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_voices;
 
     g_ui_elements_struct.button_add.application_callback = dummy;
 }
@@ -491,7 +488,7 @@ inline static void init_text() {
     );
 }
 
-static void init_ui() {
+static void init_dsandgrains_ui_elements() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
     init_text();
     init_list_item_highlights();
@@ -513,29 +510,16 @@ static void init_ui() {
 
 void * ui_thread(void * arg) {
     (void) arg;
-    init_context(
-        g_application_name,
-        g_dstudio_viewport_width,
-        g_dstudio_viewport_height
-    );
-    set_mouse_button_callback(manage_mouse_button);
-    set_cursor_position_callback(manage_cursor_position);
-    	
-    DSTUDIO_EXIT_IF_FAILURE(load_extensions())
-    
-    create_shader_program(&g_shader_program_id);
-    
-    g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
-    g_no_texture_location = glGetUniformLocation(g_shader_program_id, "no_texture");
-    
+
     init_ui();
+
+    init_dsandgrains_ui_elements();
     
     init_ressource_usage_thread(
         DSTUDIO_RESSOURCE_USAGE_STRING_SIZE,
         &g_ui_elements_struct.cpu_usage,
         &g_ui_elements_struct.mem_usage
     );
-
 
     init_instances_management_thread(
         &g_ui_elements_struct.instances_list_item_highlight,
@@ -550,42 +534,37 @@ void * ui_thread(void * arg) {
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
-    bind_voices_interactive_list(NULL);
     
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glEnable(GL_SCISSOR_TEST);
-    glUseProgram(g_shader_program_id);
-    while (do_no_exit_loop()) {
-        usleep(framerate);
-        
-        update_threaded_ui_element(
-            &g_text_pointer_context.thread_control,
-            update_text_pointer
-        );
-        
-        update_threaded_ui_element(
-            &g_ressource_usage.thread_control,
-            update_ui_ressource_usage
-        );
+    bind_voices_interactive_list(NULL);
 
-        update_threaded_ui_element(
-            &g_instances.thread_control,
-            update_instances_ui_list
-        );
-        
-        update_threaded_ui_element(
-            &g_current_active_instance->voices.thread_control,        
-            update_voices_ui_list
-        );
-        
-        render_viewport(need_to_redraw_all());
-        swap_window_buffer();
-        listen_events();
-    }
+    init_threaded_ui_element_updater_register(4);
+    
+    register_threaded_ui_elements_updater(
+        &g_text_pointer_context.thread_control,
+        update_text_pointer
+    );
+    
+    register_threaded_ui_elements_updater(
+        &g_ressource_usage.thread_control,
+        update_ui_ressource_usage
+    );
+
+    register_threaded_ui_elements_updater(
+        &g_instances.thread_control,
+        update_instances_ui_list
+    );
+    
+    register_threaded_ui_elements_updater(
+        &g_voices_thread_control,        
+        update_voices_ui_list
+    );
+    
+    render_loop();
+    
     dstudio_cut_thread(&g_ressource_usage.thread_control);
     dstudio_cut_thread(&g_buttons_management.thread_control);
     dstudio_cut_thread(&g_instances.thread_control);
+    
     exit_instances_management_thread();
     clear_text_pointer();
     destroy_context();

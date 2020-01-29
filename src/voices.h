@@ -30,11 +30,11 @@ typedef struct Voices_t {
     VoiceContext * contexts;
     unsigned int count;
     unsigned int index;
-    ThreadControl thread_control;
 } Voices;
 
 extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;
+extern ThreadControl g_voices_thread_control;
 void bind_voices_interactive_list(UIElements * line);
 
 void init_voices_interactive_list(

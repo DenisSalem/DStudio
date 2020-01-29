@@ -69,6 +69,11 @@ typedef struct Scissor_t {
   	GLsizei height;
 } Scissor;
 
+typedef struct UpdaterRegister_t {
+    ThreadControl * thread_control;
+    void (*updater)();
+} UpdaterRegister;
+
 typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND = 1,
     DSTUDIO_UI_ELEMENT_TYPE_TEXT = 2,
@@ -96,7 +101,7 @@ typedef enum MotionType_t {
  *                      if set to 1.
  * - enabled:           is a boolean allowing element to be interactive.
  * - texture_index:     Point to the current texture id in textures_ids.
- * - groupe_identifier: Some elements are part of meta element, like
+ * - interactive_list:  Some elements are part of meta element, like
  *                      list or sliders group.
  * - texture_ids:       Array of texture id. Allow switching texture for
  *                      rebounce buttons or disabled ui elements like
@@ -151,6 +156,12 @@ void init_opengl_ui_elements(
     UIElements * ui_elements
 );
 
+void init_threaded_ui_element_updater_register(
+    unsigned int updater_count
+);
+
+void init_ui();
+
 void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
@@ -166,6 +177,14 @@ void init_ui_elements(
     unsigned int instances_count,
     UIElementType ui_element_type,
     int flags
+);
+
+void gen_gl_buffer(
+    GLenum type,
+    GLuint * vertex_buffer_object_p,
+    void * vertex_attributes,
+    GLenum mode,
+    unsigned int data_size
 );
 
 int get_png_pixel(
@@ -199,6 +218,26 @@ GLuint setup_texture_n_scale_matrix(
     Vec2 * scale_matrix
 );
 
+void render_ui_elements(
+    UIElements * ui_elements
+);
+
+void register_threaded_ui_elements_updater(
+    ThreadControl * thread_control,
+    void (*updater)()
+);
+
+void render_loop();
+
+void render_viewport(unsigned int render_all);
+
+void update_threaded_ui_element();
+
+void update_ui_element_motion(
+    UIElements * ui_elements_p,
+    float motion
+);
+
 // Must be defined by consumer
 typedef struct UIElementsStruct_t UIElementsStruct;
 extern UIElementsStruct g_ui_elements_struct;
@@ -213,29 +252,6 @@ extern GLuint g_shader_program_id;
 extern GLuint g_scale_matrix_id;
 extern GLuint g_motion_type_location;
 extern GLuint g_no_texture_location;
-
-void gen_gl_buffer(
-    GLenum type,
-    GLuint * vertex_buffer_object_p,
-    void * vertex_attributes,
-    GLenum mode,
-    unsigned int data_size
-);
-
-void render_ui_elements(
-    UIElements * ui_elements
-);
-
-void render_viewport(unsigned int render_all);
-
-void update_threaded_ui_element(
-    ThreadControl * thread_control,
-    void (*update_callback)()
-);
-
-void update_ui_element_motion(
-    UIElements * ui_elements_p,
-    float motion
-);
+extern unsigned int g_framerate;
 
 #endif

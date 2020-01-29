@@ -25,6 +25,7 @@
 VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
+ThreadControl g_voices_thread_control = {0};
 
 static UIElements * s_ui_elements;
 static unsigned int s_lines_number;
@@ -34,17 +35,16 @@ static GLfloat s_item_offset_y;
 void bind_voices_interactive_list(UIElements * line) {
     if (line == NULL) {
         line = g_ui_voices.lines;
+        g_ui_voices.window_offset = 0;
+        g_ui_voices.update_request = -1;
     }
     update_current_voice(0);
     g_ui_voices.source_data = (char*) &g_current_active_instance->voices.contexts->name;
     g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
-    g_ui_voices.thread_bound_control = &g_current_active_instance->voices.thread_control;
-    g_ui_voices.window_offset = 0;
     select_item(
         line,
         DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
     );
-    g_ui_voices.update_request = -1;
 }
 
 void init_voices_interactive_list(
@@ -65,7 +65,7 @@ void init_voices_interactive_list(
         sizeof(VoiceContext),
         &g_current_active_instance->voices.count,
         g_current_active_instance->voices.contexts->name,
-        &g_current_active_instance->voices.thread_control,
+        &g_voices_thread_control,
         select_voice_from_list,
         1,
         s_item_offset_y
@@ -75,7 +75,7 @@ void init_voices_interactive_list(
 UIElements * new_voice(unsigned int use_mutex) {
     UIElements * line = 0;
     if(use_mutex) {
-        sem_wait(g_current_active_instance->voices.thread_control.shared_mutex);
+        sem_wait(g_voices_thread_control.shared_mutex);
     }
     VoiceContext * new_voice_context = dstudio_realloc(
         g_current_active_instance->voices.contexts,
@@ -83,7 +83,7 @@ UIElements * new_voice(unsigned int use_mutex) {
     );
     if (new_voice_context == NULL) {
         if(use_mutex) {
-            sem_post(g_current_active_instance->voices.thread_control.shared_mutex);
+            sem_post(g_voices_thread_control.shared_mutex);
         }
         return 0;
     }
@@ -101,6 +101,16 @@ UIElements * new_voice(unsigned int use_mutex) {
     printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
     #endif
 
+    if (g_current_active_instance->voices.count > g_ui_voices.lines_number) {
+        g_ui_voices.window_offset = g_current_active_instance->voices.count - g_ui_voices.lines_number;
+        g_ui_voices.update_request = -1;
+    }
+    else {
+        g_ui_instances.update_request = g_instances.index;
+        g_ui_voices.window_offset = 0;
+    }
+
+    printf("index %d\n", g_current_active_instance->voices.index-g_ui_voices.window_offset);
     line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
         bind_voices_interactive_list(line);
@@ -110,7 +120,7 @@ UIElements * new_voice(unsigned int use_mutex) {
         );
     }
     if(use_mutex) {
-        sem_post(g_current_active_instance->voices.thread_control.shared_mutex);
+        sem_post(g_voices_thread_control.shared_mutex);
     }
     return line;
 }
