@@ -117,12 +117,12 @@ void update_text_pointer_context(UIElements * ui_elements) {
             g_text_pointer_context.highlight = interactive_list->highlight;
             for(unsigned int i = 0; i < interactive_list->lines_number; i++) {
                 if (&interactive_list->lines[i] == ui_elements) {
-                    ui_elements->render = 1;
                     unsigned int index = i+interactive_list->window_offset;
                     if (index >= *interactive_list->source_data_count) {
                         sem_post(&g_text_pointer_context.thread_control.mutex);
                         return;
                     }
+                    ui_elements->render = 1;
                     g_text_pointer_context.string_buffer = &interactive_list->source_data[index*interactive_list->stride];
                     g_text_pointer_context.buffer_size = interactive_list->string_size;
                     g_text_pointer_context.text_pointer_height = (g_dstudio_viewport_height) * ui_elements->scale_matrix[1].y;

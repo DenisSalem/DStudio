@@ -110,7 +110,6 @@ UIElements * new_voice(unsigned int use_mutex) {
         g_ui_voices.window_offset = 0;
     }
 
-    printf("index %d\n", g_current_active_instance->voices.index-g_ui_voices.window_offset);
     line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
         bind_voices_interactive_list(line);
@@ -128,7 +127,7 @@ UIElements * new_voice(unsigned int use_mutex) {
 unsigned int select_voice_from_list(
     unsigned int index
 ) {
-    if (index != g_current_active_instance->voices.index && g_current_active_instance->voices.index < g_current_active_instance->voices.count) {
+    if (index != g_current_active_instance->voices.index && index < g_current_active_instance->voices.count) {
         update_current_voice(index);
         return 1;
     }

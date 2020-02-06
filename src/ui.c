@@ -186,7 +186,7 @@ void init_opengl_ui_elements(
 ) {
     int flip_y = flags & DSTUDIO_FLAG_FLIP_Y;
     int text_setting = flags & (DSTUDIO_FLAG_USE_TEXT_SETTING | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM);
-    
+    int texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
     // Setting vertex indexes
     GLchar * vertex_indexes = ui_elements->vertex_indexes;
     vertex_indexes[0] = 0;
@@ -223,6 +223,12 @@ void init_opengl_ui_elements(
         vertex_attributes[2].z /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
         vertex_attributes[3].z /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
         vertex_attributes[3].w /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
+    }
+    else if (texture_is_pattern) {
+        vertex_attributes[1].w *= (GLfloat) g_dstudio_viewport_height / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[2].z *= (GLfloat) g_dstudio_viewport_width / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[3].z *= (GLfloat) g_dstudio_viewport_width / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[3].w *= (GLfloat) g_dstudio_viewport_height / DSTUDIO_PATTERN_SCALE;
     }
     
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
@@ -570,12 +576,14 @@ GLuint setup_texture_n_scale_matrix(
     int alpha = flags & DSTUDIO_FLAG_USE_ALPHA;
     int enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
     int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
+    int texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
+    
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
     glGenTextures(1, &texture_id);
     glBindTexture(GL_TEXTURE_2D, texture_id);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, alpha ? GL_RGBA : GL_RGB, texture_width, texture_height, 0, alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, texture_data);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, enable_aa ? GL_LINEAR : GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, enable_aa ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST );

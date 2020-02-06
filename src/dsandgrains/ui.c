@@ -153,6 +153,31 @@ inline static void init_background() {
         DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_TEXTURE_IS_PATTERN | DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_PATTERN_SCALE,
+        DSTUDIO_PATTERN_SCALE, 
+        DSTUDIO_BACKGROUND_MENU_PATTERN_ASSET_PATH,
+        NULL
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.menu_background,
+        &texture_ids[0],
+        &background_scale_matrix[0],
+        0,
+        0,
+        g_dstudio_viewport_width,
+        g_dstudio_viewport_height,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
+        DSTUDIO_FLAG_TEXTURE_IS_PATTERN
+    );
 }
 
 inline static void init_instances_list() {

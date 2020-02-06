@@ -177,6 +177,7 @@ typedef struct UIElementsStruct_t {
     UIElements voices_list_item_7;
     //~ UIElements samples_list_item_highlight;
     //~ UIElements dahdsr_target_list_item_highlight;
+    UIElements menu_background;
 
 ;
 } UIElementsStruct;

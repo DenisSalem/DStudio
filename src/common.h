@@ -17,6 +17,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
 #define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
+#define DSTUDIO_BACKGROUND_MENU_PATTERN_ASSET_PATH  "../assets/background_menu_pattern.png"
 #define DSTUDIO_BUTTON_ADD_ASSET_PATH               "../assets/button_add.png"
 #define DSTUDIO_CHAR_TABLE_8X18_ASSET_PATH          "../assets/char_table_8x18.png"
 #define DSTUDIO_CHAR_TABLE_4X9_ASSET_PATH           "../assets/char_table_4x9.png"
@@ -47,6 +48,8 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH 117
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT 11
 
+#define DSTUDIO_PATTERN_SCALE 16
+
 #define DSTUDIO_RESSOURCE_USAGE_WIDTH 30
 #define DSTUDIO_RESSOURCE_USAGE_HEIGHT 23
 
@@ -67,6 +70,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_FLAG_USE_ALPHA              2
 #define DSTUDIO_FLAG_USE_ANTI_ALIASING      4
 #define DSTUDIO_FLAG_USE_TEXT_SETTING       8
+#define DSTUDIO_FLAG_TEXTURE_IS_PATTERN     16
 
 #define DSTUDIO_USE_MUTEX                   1
 #define DSTUDIO_DO_NOT_USE_MUTEX            0
