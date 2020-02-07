@@ -50,10 +50,12 @@ Vec2 tiny_button_scale_matrix[2] = {0};
 
 void dummy(UIElements * ui_elements) {
     (void) ui_elements; 
-    bind_voices_interactive_list(
-        new_voice(DSTUDIO_USE_MUTEX)
-    );
-
+    //~ bind_voices_interactive_list(
+        //~ new_voice(DSTUDIO_USE_MUTEX)
+    //~ );
+    set_prime_interface(0);
+    g_ui_elements_struct.menu_background.render = 1;
+    g_menu_background_enabled = &g_ui_elements_struct.menu_background;
 }
 
 inline static void bind_callbacks() {
@@ -175,7 +177,7 @@ inline static void init_background() {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
+        DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND,
         DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );
 }
@@ -536,6 +538,8 @@ static void init_dsandgrains_ui_elements() {
 void * ui_thread(void * arg) {
     (void) arg;
 
+    SET_UI_MENU_BACKGROUND_INDEX
+    
     init_ui();
 
     init_dsandgrains_ui_elements();

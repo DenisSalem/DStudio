@@ -276,6 +276,11 @@ void listen_events() {
         }
         else if(x_event.type == KeyPress) {
             if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
+                if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && g_menu_background_enabled) {
+                    g_menu_background_enabled = 0;
+                    set_prime_interface(1);
+                    refresh_all = 1;
+                }
                 clear_text_pointer();
             }
             else if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT || x_event.xkey.keycode == DSTUDIO_KEY_CAPS_LOCK) {
@@ -302,6 +307,9 @@ void listen_events() {
 int need_to_redraw_all() {
     if (refresh_all) {
         refresh_all = 0;
+        if (g_menu_background_enabled) {
+            g_menu_background_enabled->render = 1;
+        }
         return 1;
     }
     return 0;    

@@ -30,6 +30,14 @@
 #include "interactive_list.h"
 #include "window_management.h"
 
+#define SET_UI_MENU_BACKGROUND_INDEX \
+    for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) { \
+        if (&g_ui_elements_array[i] == &g_ui_elements_struct.menu_background) { \
+            g_menu_background_index = i; \
+            break; \
+        }\
+    }
+
 typedef struct vec2_t {
     GLfloat x;
     GLfloat y;
@@ -82,7 +90,8 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_BUTTON = 16,
     DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE = 32,
     DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 64,
-    DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER = 128
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER = 128,
+    DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND = 256
 } UIElementType;
 
 typedef enum MotionType_t {
@@ -149,6 +158,10 @@ void compile_shader(
 
 void create_shader_program(
     GLuint * shader_program_id
+);
+
+void set_prime_interface(
+    unsigned int state
 );
 
 void init_opengl_ui_elements(
@@ -253,5 +266,7 @@ extern GLuint g_scale_matrix_id;
 extern GLuint g_motion_type_location;
 extern GLuint g_no_texture_location;
 extern unsigned int g_framerate;
+extern unsigned int g_menu_background_index;
+extern UIElements * g_menu_background_enabled;
 
 #endif

@@ -35,7 +35,9 @@ GLuint g_scale_matrix_id = 0;
 GLuint g_motion_type_location = 0;
 GLuint g_no_texture_location = 0;
 unsigned int g_framerate = DSTUDIO_FRAMERATE;
-
+UIElements * g_menu_background_enabled = 0;
+unsigned int g_menu_background_index = 0;
+ 
 static int                  s_active_slider_range_max = 0;
 static int                  s_active_slider_range_min = 0;
 static double               s_list_item_click_timestamp = 0;
@@ -44,7 +46,6 @@ static int                  s_ui_element_center_y = 0;
 static int                  s_ui_element_index = -1;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
-
 static inline float compute_knob_rotation(int xpos, int ypos) {
     float rotation = 0;
     float y = - ypos + s_ui_element_center_y;
@@ -141,6 +142,27 @@ void create_shader_program(
         printf("%s\n", program_error_message);
     }
     #endif
+}
+
+void set_prime_interface(unsigned int state) {
+    for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
+        if (i < g_menu_background_index) {
+            switch (g_ui_elements_array[i].type) {
+                case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+                case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+                case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+                case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
+                case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                    g_ui_elements_array[i].enabled = state;
+                    
+                case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
+                case DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND:
+                case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+                case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
+                    break;
+            }
+        }
+    }
 }
 
 void gen_gl_buffer(
@@ -266,7 +288,7 @@ void init_threaded_ui_element_updater_register(unsigned int updater_count) {
     s_updater_register = dstudio_alloc(updater_count * sizeof(UpdaterRegister));
 }
 
-void init_ui() {
+void init_ui() {    
     init_context(
         g_application_name,
         g_dstudio_viewport_width,
@@ -354,7 +376,7 @@ void init_ui_elements(
         }
         ui_elements_array[i].scale_matrix = scale_matrix;
         
-        ui_elements_array[i].render = 1;
+        ui_elements_array[i].render = ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND ? 0 : 1;
         
         init_opengl_ui_elements(
             ( ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
@@ -452,6 +474,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
                     case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
                     case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
+                    case DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND:
                         break;
                 }
                 break;
@@ -472,7 +495,11 @@ inline void render_loop() {
     while (do_no_exit_loop()) {
         usleep(g_framerate);
         update_threaded_ui_element();
-        render_viewport(need_to_redraw_all());
+        unsigned int render_all = need_to_redraw_all();
+        if (g_menu_background_enabled) {
+            render_all |= g_menu_background_enabled->render;
+        }
+        render_viewport(render_all);
         swap_window_buffer();
         listen_events();
     }
@@ -493,6 +520,7 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
+        case DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }
@@ -545,7 +573,7 @@ void render_viewport(unsigned int render_all) {
         }
     }
     for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].render || (render_all && g_ui_elements_array[i].type != DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER)) {
+        if (g_ui_elements_array[i].render || (render_all && g_ui_elements_array[i].type < DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER)) {
             glScissor(
                 g_ui_elements_array[i].scissor.x,
                 g_ui_elements_array[i].scissor.y,
@@ -560,6 +588,16 @@ void render_viewport(unsigned int render_all) {
             );
             render_ui_elements(&g_ui_elements_array[i]);
             g_ui_elements_array[i].render = 0;
+            
+            if (g_menu_background_enabled && g_menu_background_enabled != &g_ui_elements_array[i] && !g_menu_background_enabled->render) {
+                glUniformMatrix2fv(
+                    g_scale_matrix_id,
+                    1,
+                    GL_FALSE,
+                    (float *) g_menu_background_enabled->scale_matrix
+                );
+                render_ui_elements(g_menu_background_enabled);
+            }
         }
     }
 }

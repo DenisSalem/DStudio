@@ -106,15 +106,12 @@ void select_item(
     UIInteractiveList * interactive_list = self->interactive_list;
     UIElements * highlight = interactive_list->highlight;
     sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
-    printf("HERE\n");
     if (!do_not_use_callback) {
         sem_wait(mutex);
     }
     for(unsigned int i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
-            printf("TRIGGER\n");
             if(do_not_use_callback || interactive_list->select_callback(i+interactive_list->window_offset)) {
-                printf("TRIGGER 2\n");
                 interactive_list->lines[interactive_list->previous_item_index].render = 1;
                 interactive_list->lines[i].render = 1;
                 interactive_list->thread_bound_control->update = 1;
