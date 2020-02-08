@@ -52,9 +52,9 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
             glBindBuffer(GL_ARRAY_BUFFER, text->instance_offsets);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, buffer_size * sizeof(Vec4), offset_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
-            text->render = 1;
+            text->request_render = 1;
             if (text->type == DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) {
-                text->interactive_list->highlight->render = 1;
+                text->interactive_list->highlight->request_render = 1;
             }
         }
 }

@@ -29,6 +29,7 @@
 #include "../text_pointer.h"
 #include "../window_management.h"
 
+#include "add.h"
 #include "ui.h"
 
 UIElementsStruct g_ui_elements_struct = {0};
@@ -47,16 +48,7 @@ Vec2 list_item_highlight_scale_matrix[2] = {0};
 Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 tiny_button_scale_matrix[2] = {0};
-
-void dummy(UIElements * ui_elements) {
-    (void) ui_elements; 
-    //~ bind_voices_interactive_list(
-        //~ new_voice(DSTUDIO_USE_MUTEX)
-    //~ );
-    set_prime_interface(0);
-    g_ui_elements_struct.menu_background.render = 1;
-    g_menu_background_enabled = &g_ui_elements_struct.menu_background;
-}
+Vec2 sub_menu_buttons_add_scale_matrix[2] = {0};
 
 inline static void bind_callbacks() {
     g_ui_elements_struct.button_arrow_top_instances.application_callback = scroll_up;
@@ -71,7 +63,8 @@ inline static void bind_callbacks() {
     g_ui_elements_struct.button_arrow_bottom_voices.application_callback = scroll_down;
     g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_voices;
 
-    g_ui_elements_struct.button_add.application_callback = dummy;
+    g_ui_elements_struct.button_add.application_callback = add_sub_menu;
+    g_ui_elements_struct.button_add_voice.application_callback = add_voice;
 }
 
 inline static void init_arrow_instance_buttons() {
@@ -107,7 +100,7 @@ inline static void init_arrow_instance_buttons() {
         3,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
     
     init_ui_elements(
@@ -124,7 +117,7 @@ inline static void init_arrow_instance_buttons() {
         3,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
-        DSTUDIO_FLAG_FLIP_Y
+        DSTUDIO_FLAG_FLIP_Y | DSTUDIO_FLAG_IS_VISIBLE
     );
 }
 
@@ -153,7 +146,7 @@ inline static void init_background() {
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
     
     texture_ids[0] = setup_texture_n_scale_matrix(
@@ -197,8 +190,9 @@ inline static void init_instances_list() {
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
+    
     init_ui_elements(
         &g_ui_elements_struct.voices_list_item_1,
         &charset_4x9_texture_ids[0],
@@ -213,7 +207,7 @@ inline static void init_instances_list() {
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
 }
 
@@ -242,7 +236,7 @@ inline static void init_knobs() {
         8,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
     
     init_ui_elements(
@@ -259,7 +253,7 @@ inline static void init_knobs() {
         4,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
     
     knob_texture_ids[0] = setup_texture_n_scale_matrix(
@@ -284,7 +278,7 @@ inline static void init_knobs() {
         2,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
     
     init_ui_elements(
@@ -301,7 +295,7 @@ inline static void init_knobs() {
         4,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
     
     init_ui_elements(
@@ -318,7 +312,7 @@ inline static void init_knobs() {
         4,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
 }
 
@@ -347,8 +341,9 @@ inline static void init_list_item_highlights() {
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
+    
     init_ui_elements(
         &g_ui_elements_struct.voices_list_item_highlight,
         &texture_ids[0],
@@ -363,7 +358,7 @@ inline static void init_list_item_highlights() {
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
 }
 
@@ -390,8 +385,8 @@ inline static void init_misc_buttons() {
         &g_ui_elements_struct.button_add,
         &textures_ids[0],
         &tiny_button_scale_matrix[0],
-        DSANDGRAINS_ADD_BUTTON_X_POS,
-        DSANDGRAINS_ADD_BUTTON_Y_POS,
+        DSANDGRAINS_ADD_BUTTON_POS_X,
+        DSANDGRAINS_ADD_BUTTON_POS_Y,
         DSANDGRAINS_TINY_BUTTON_SCALE,
         DSANDGRAINS_TINY_BUTTON_SCALE,
         0,
@@ -400,7 +395,7 @@ inline static void init_misc_buttons() {
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
 }
 
@@ -429,7 +424,7 @@ inline static void init_ressource_usage() {
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
 
     // Initialize both cpu_usage and memory usage.
@@ -447,7 +442,7 @@ inline static void init_ressource_usage() {
         2,
         DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE,
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
 }
 
@@ -476,7 +471,7 @@ inline static void init_sliders() {
         DSANDGRAINS_DAHDSR_SLIDERS_COUNT,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_IS_VISIBLE
     );
     
     init_ui_elements(
@@ -493,8 +488,106 @@ inline static void init_sliders() {
         DSANDGRAINS_EQUALIZER_SLIDERS_COUNT,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
+        DSTUDIO_FLAG_IS_VISIBLE
+    );
+}
+
+inline static void init_sub_menu_add() {
+    GLuint texture_ids[2] = {0};
+        
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_ADD_INSTANCE_WIDTH,
+        DSTUDIO_ADD_INSTANCE_HEIGHT, 
+        DSTUDIO_ADD_INSTANCE_ASSET_PATH,
+        sub_menu_buttons_add_scale_matrix
+    );
+
+    init_ui_elements(
+        &g_ui_elements_struct.button_add_instance,
+        &texture_ids[0],
+        &sub_menu_buttons_add_scale_matrix[0],
+        DSANDGRAINS_ADD_INSTANCE_POS_X,
+        DSANDGRAINS_ADD_INSTANCE_POS_Y,
+        DSTUDIO_ADD_INSTANCE_WIDTH,
+        DSTUDIO_ADD_INSTANCE_HEIGHT,
+        DSANDGRAINS_ADD_INSTANCE_OFFSET_X,
+        DSANDGRAINS_ADD_INSTANCE_OFFSET_Y,
+        DSANDGRAINS_ADD_INSTANCE_COLUMNS,
+        DSANDGRAINS_ADD_INSTANCE_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON,
         DSTUDIO_FLAG_NONE
     );
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_ADD_VOICE_WIDTH,
+        DSTUDIO_ADD_VOICE_HEIGHT, 
+        DSTUDIO_ADD_VOICE_ASSET_PATH,
+        sub_menu_buttons_add_scale_matrix
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.button_add_voice,
+        &texture_ids[0],
+        &sub_menu_buttons_add_scale_matrix[0],
+        DSANDGRAINS_ADD_VOICE_POS_X,
+        DSANDGRAINS_ADD_VOICE_POS_Y,
+        DSTUDIO_ADD_VOICE_WIDTH,
+        DSTUDIO_ADD_VOICE_HEIGHT,
+        DSANDGRAINS_ADD_VOICE_OFFSET_X,
+        DSANDGRAINS_ADD_VOICE_OFFSET_Y,
+        DSANDGRAINS_ADD_VOICE_COLUMNS,
+        DSANDGRAINS_ADD_VOICE_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON,
+        DSTUDIO_FLAG_NONE
+    );
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_ADD_SAMPLE_WIDTH,
+        DSTUDIO_ADD_SAMPLE_HEIGHT, 
+        DSTUDIO_ADD_SAMPLE_ASSET_PATH,
+        sub_menu_buttons_add_scale_matrix
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.button_add_sample,
+        &texture_ids[0],
+        &sub_menu_buttons_add_scale_matrix[0],
+        DSANDGRAINS_ADD_SAMPLE_POS_X,
+        DSANDGRAINS_ADD_SAMPLE_POS_Y,
+        DSTUDIO_ADD_SAMPLE_WIDTH,
+        DSTUDIO_ADD_SAMPLE_HEIGHT,
+        DSANDGRAINS_ADD_SAMPLE_OFFSET_X,
+        DSANDGRAINS_ADD_SAMPLE_OFFSET_Y,
+        DSANDGRAINS_ADD_SAMPLE_COLUMNS,
+        DSANDGRAINS_ADD_SAMPLE_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON,
+        DSTUDIO_FLAG_NONE
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.add_sub_menu_prompt,
+        &charset_8x18_texture_ids[0],
+        &charset_8x18_scale_matrix[0],
+        DSANDGRAINS_ADD_SUB_MENU_PROMPT_POS_X,
+        DSANDGRAINS_ADD_SUB_MENU_PROMPT_POS_Y,
+        DSANDGRAINS_ADD_SUB_MENU_PROMPT_WIDTH,
+        DSANDGRAINS_ADD_SUB_MENU_PROMPT_HEIGHT,
+        0,
+        0,
+        DSANDGRAINS_ADD_VOICE_COLUMNS,
+        1,
+        25,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_FLAG_NONE
+    );
+    update_text(&g_ui_elements_struct.add_sub_menu_prompt, "WHAT DO YOU WANT TO ADD?", 25);
+    g_ui_elements_struct.add_sub_menu_prompt.request_render = 0;
 }
 
 inline static void init_text() {
@@ -529,8 +622,10 @@ static void init_dsandgrains_ui_elements() {
     init_ressource_usage();
     init_sliders();
     init_ui_text_pointer(&g_ui_elements_struct.text_pointer);
+    init_sub_menu_add();
+    
     bind_callbacks();
-    for (unsigned int i = 4; i < g_dstudio_ui_element_count; i++) {
+    for (unsigned int i = 4; i < g_menu_background_index; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
 }

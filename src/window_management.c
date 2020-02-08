@@ -36,6 +36,8 @@ unsigned int g_dstudio_mouse_state = 0;
 static void (*cursor_position_callback)(int xpos, int ypos) = 0;
 void (*mouse_button_callback)(int xpos, int ypos, int button, int action) = 0;
 
+void (*close_sub_menu_callback)() = NULL;
+
 #ifdef DSTUDIO_RELY_ON_X11
 
 #define DSTUDIO_X11_INPUT_MASKS \
@@ -276,10 +278,10 @@ void listen_events() {
         }
         else if(x_event.type == KeyPress) {
             if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
-                if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && g_menu_background_enabled) {
-                    g_menu_background_enabled = 0;
-                    set_prime_interface(1);
+                if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && close_sub_menu_callback != NULL) {
+                    close_sub_menu_callback();
                     refresh_all = 1;
+                    close_sub_menu_callback = NULL;
                 }
                 clear_text_pointer();
             }
@@ -308,7 +310,7 @@ int need_to_redraw_all() {
     if (refresh_all) {
         refresh_all = 0;
         if (g_menu_background_enabled) {
-            g_menu_background_enabled->render = 1;
+            g_menu_background_enabled->request_render = 1;
         }
         return 1;
     }
@@ -324,6 +326,11 @@ void send_expose_event() {
     XSendEvent(display, window, 1, ExposureMask, &x_sent_expose_event);
     XFlush(display);
 }
+
+void set_close_sub_menu_callback(void (*callback)()) {
+    close_sub_menu_callback = callback;
+}
+
 
 void set_cursor_position_callback(void (*callback)(int xpos, int ypos)) {
     cursor_position_callback = callback;

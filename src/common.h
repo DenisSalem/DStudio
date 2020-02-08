@@ -16,6 +16,9 @@ typedef struct ThreadControl_t {
 // PATHS
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
 #define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
+#define DSTUDIO_ADD_INSTANCE_ASSET_PATH             "../assets/button_add_instance.png"
+#define DSTUDIO_ADD_SAMPLE_ASSET_PATH             "../assets/button_add_sample.png"
+#define DSTUDIO_ADD_VOICE_ASSET_PATH                "../assets/button_add_voice.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_BACKGROUND_MENU_PATTERN_ASSET_PATH  "../assets/background_menu_pattern.png"
 #define DSTUDIO_BUTTON_ADD_ASSET_PATH               "../assets/button_add.png"
@@ -30,6 +33,16 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"
 
 // TEXTURES SCALES
+
+#define DSTUDIO_ADD_INSTANCE_WIDTH 68
+#define DSTUDIO_ADD_INSTANCE_HEIGHT 15
+
+#define DSTUDIO_ADD_SAMPLE_WIDTH 68
+#define DSTUDIO_ADD_SAMPLE_HEIGHT 15
+
+#define DSTUDIO_ADD_VOICE_WIDTH 68
+#define DSTUDIO_ADD_VOICE_HEIGHT 15
+
 #define DSTUDIO_CHAR_TABLE_4X9_WIDTH 52
 #define DSTUDIO_CHAR_TABLE_4X9_HEIGHT 117
 #define DSTUDIO_CHAR_TABLE_8X18_WIDTH 104
@@ -71,6 +84,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_FLAG_USE_ANTI_ALIASING      4
 #define DSTUDIO_FLAG_USE_TEXT_SETTING       8
 #define DSTUDIO_FLAG_TEXTURE_IS_PATTERN     16
+#define DSTUDIO_FLAG_IS_VISIBLE             32
 
 #define DSTUDIO_USE_MUTEX                   1
 #define DSTUDIO_DO_NOT_USE_MUTEX            0

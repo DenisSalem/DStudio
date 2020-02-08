@@ -37,7 +37,8 @@ GLuint g_no_texture_location = 0;
 unsigned int g_framerate = DSTUDIO_FRAMERATE;
 UIElements * g_menu_background_enabled = 0;
 unsigned int g_menu_background_index = 0;
- 
+unsigned int g_request_render_all = 0;
+
 static int                  s_active_slider_range_max = 0;
 static int                  s_active_slider_range_min = 0;
 static double               s_list_item_click_timestamp = 0;
@@ -46,6 +47,7 @@ static int                  s_ui_element_center_y = 0;
 static int                  s_ui_element_index = -1;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
+
 static inline float compute_knob_rotation(int xpos, int ypos) {
     float rotation = 0;
     float y = - ypos + s_ui_element_center_y;
@@ -376,7 +378,8 @@ void init_ui_elements(
         }
         ui_elements_array[i].scale_matrix = scale_matrix;
         
-        ui_elements_array[i].render = ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND ? 0 : 1;
+        ui_elements_array[i].visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
+        ui_elements_array[i].request_render = ui_elements_array[i].visible;
         
         init_opengl_ui_elements(
             ( ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
@@ -445,6 +448,9 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 s_ui_element_index = i;
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+                        ui_elements_p->application_callback(ui_elements_p);
+                        break;
+                        
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
                         ui_elements_p->application_callback(ui_elements_p);
                         update_button(ui_elements_p);
@@ -471,10 +477,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
                         break;
                         
-                    case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
-                    case DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND:
+                    default:
                         break;
                 }
                 break;
@@ -496,8 +499,10 @@ inline void render_loop() {
         usleep(g_framerate);
         update_threaded_ui_element();
         unsigned int render_all = need_to_redraw_all();
+        render_all |= g_request_render_all;
+        g_request_render_all = 0;
         if (g_menu_background_enabled) {
-            render_all |= g_menu_background_enabled->render;
+            render_all |= g_menu_background_enabled->request_render;
         }
         render_viewport(render_all);
         swap_window_buffer();
@@ -537,7 +542,7 @@ void render_ui_elements(UIElements * ui_elements) {
 
 void render_viewport(unsigned int render_all) {
     // UI element at index 0 is always background
-    if (g_ui_elements_array[0].render || render_all) {       
+    if (g_ui_elements_array[0].request_render || render_all) {       
         glScissor(
             g_ui_elements_array[0].scissor.x,
             g_ui_elements_array[0].scissor.y,
@@ -551,11 +556,11 @@ void render_viewport(unsigned int render_all) {
             (float *) g_ui_elements_array[0].scale_matrix
         );
         render_ui_elements(&g_ui_elements_array[0]);
-        g_ui_elements_array[0].render = 0;
+        g_ui_elements_array[0].request_render = 0;
     }
     else {
         for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
-            if (g_ui_elements_array[i].render) {
+            if (g_ui_elements_array[i].request_render) {
                 glScissor(
                     g_ui_elements_array[i].scissor.x,
                     g_ui_elements_array[i].scissor.y,
@@ -573,7 +578,7 @@ void render_viewport(unsigned int render_all) {
         }
     }
     for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].render || (render_all && g_ui_elements_array[i].type < DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER)) {
+        if (g_ui_elements_array[i].request_render || (render_all && g_ui_elements_array[i].visible)) {
             glScissor(
                 g_ui_elements_array[i].scissor.x,
                 g_ui_elements_array[i].scissor.y,
@@ -587,9 +592,9 @@ void render_viewport(unsigned int render_all) {
                 (float *) g_ui_elements_array[i].scale_matrix
             );
             render_ui_elements(&g_ui_elements_array[i]);
-            g_ui_elements_array[i].render = 0;
+            g_ui_elements_array[i].request_render = 0;
             
-            if (g_menu_background_enabled && g_menu_background_enabled != &g_ui_elements_array[i] && !g_menu_background_enabled->render) {
+            if (g_menu_background_enabled && i < g_menu_background_index && !g_menu_background_enabled->request_render) {
                 glUniformMatrix2fv(
                     g_scale_matrix_id,
                     1,
@@ -598,6 +603,20 @@ void render_viewport(unsigned int render_all) {
                 );
                 render_ui_elements(g_menu_background_enabled);
             }
+        }
+    }
+}
+
+void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, unsigned int count) {
+    for (unsigned int i = 0; i < count; i++) {
+        ui_elements[i].request_render = state;
+        ui_elements[i].visible = state;
+        switch(ui_elements[i].type) {
+            case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+                ui_elements[i].enabled = state;
+                break;
+            default:
+                break;
         }
     }
 }
@@ -667,5 +686,5 @@ void update_ui_element_motion(
     glBindBuffer(GL_ARRAY_BUFFER, ui_elements_p->instance_motions);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_elements_p->count, ui_elements_p->instance_motions_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    ui_elements_p->render = 1;
+    ui_elements_p->request_render = 1;
 }

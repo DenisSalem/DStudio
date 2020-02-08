@@ -19,9 +19,35 @@
 
 #include "../ui.h"
 
-#define DSANDGRAINS_ADD_BUTTON_X_POS 0.2175
-#define DSANDGRAINS_ADD_BUTTON_Y_POS -0.6625
+#define DSANDGRAINS_ADD_BUTTON_POS_X 0.2175
+#define DSANDGRAINS_ADD_BUTTON_POS_Y -0.6625
 
+#define DSANDGRAINS_ADD_INSTANCE_COLUMNS 1
+#define DSANDGRAINS_ADD_INSTANCE_COUNT 1
+#define DSANDGRAINS_ADD_INSTANCE_OFFSET_X 0
+#define DSANDGRAINS_ADD_INSTANCE_OFFSET_Y 0
+#define DSANDGRAINS_ADD_INSTANCE_POS_X -0.5
+#define DSANDGRAINS_ADD_INSTANCE_POS_Y -0.335333
+
+#define DSANDGRAINS_ADD_SAMPLE_COLUMNS 1
+#define DSANDGRAINS_ADD_SAMPLE_COUNT 1
+#define DSANDGRAINS_ADD_SAMPLE_OFFSET_X 0
+#define DSANDGRAINS_ADD_SAMPLE_OFFSET_Y 0
+#define DSANDGRAINS_ADD_SAMPLE_POS_X 0.5
+#define DSANDGRAINS_ADD_SAMPLE_POS_Y -0.335333
+
+#define DSANDGRAINS_ADD_SUB_MENU_PROMPT_POS_X -0.208333
+#define DSANDGRAINS_ADD_SUB_MENU_PROMPT_POS_Y 0.333333
+#define DSANDGRAINS_ADD_SUB_MENU_PROMPT_HEIGHT 18
+#define DSANDGRAINS_ADD_SUB_MENU_PROMPT_WIDTH 200
+
+#define DSANDGRAINS_ADD_VOICE_COLUMNS 1
+#define DSANDGRAINS_ADD_VOICE_COUNT 1
+#define DSANDGRAINS_ADD_VOICE_OFFSET_X 0
+#define DSANDGRAINS_ADD_VOICE_OFFSET_Y 0
+#define DSANDGRAINS_ADD_VOICE_POS_X 0
+#define DSANDGRAINS_ADD_VOICE_POS_Y -0.335333
+        
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_X 0.13
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_Y 0
 #define DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X 0.0375
@@ -69,7 +95,6 @@
 
 #define DSANDGRAINS_ITEM_LIST_WIDTH 117
 #define DSANDGRAINS_ITEM_LIST_HEIGHT 11
-
 
 #define DSANDGRAINS_LFO_KNOBS_COLUMNS 2
 #define DSANDGRAINS_LFO_KNOBS_OFFSET_X 0.12
@@ -158,6 +183,7 @@ typedef struct UIElementsStruct_t {
     UIElements button_arrow_bottom_voices;
     UIElements button_arrow_bottom_samples;
     UIElements button_add;
+    UIElements text_pointer;
     UIElements instances_list_item_highlight;
     UIElements instances_list_item_1;
     UIElements instances_list_item_2;
@@ -166,7 +192,6 @@ typedef struct UIElementsStruct_t {
     UIElements instances_list_item_5;
     UIElements instances_list_item_6;
     UIElements instances_list_item_7;
-    UIElements text_pointer;
     UIElements voices_list_item_highlight;
     UIElements voices_list_item_1;
     UIElements voices_list_item_2;
@@ -178,8 +203,10 @@ typedef struct UIElementsStruct_t {
     //~ UIElements samples_list_item_highlight;
     //~ UIElements dahdsr_target_list_item_highlight;
     UIElements menu_background;
-
-;
+    UIElements add_sub_menu_prompt;
+    UIElements button_add_instance;
+    UIElements button_add_voice;
+    UIElements button_add_sample;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

@@ -126,7 +126,8 @@ typedef struct UIInteractiveList_t UIInteractiveList;
 
 typedef struct UIElements_t {
     unsigned char               count;
-    unsigned char               render;
+    unsigned char               request_render;
+    unsigned char               visible;
     unsigned char               enabled;
     unsigned char               texture_index;
     double                      timestamp;
@@ -223,14 +224,6 @@ void manage_mouse_button(
     int action
 );
 
-GLuint setup_texture_n_scale_matrix(
-    unsigned int flags,
-    GLuint texture_width,
-    GLuint texture_height,
-    const char * texture_filename,
-    Vec2 * scale_matrix
-);
-
 void render_ui_elements(
     UIElements * ui_elements
 );
@@ -243,6 +236,20 @@ void register_threaded_ui_elements_updater(
 void render_loop();
 
 void render_viewport(unsigned int render_all);
+
+void set_ui_elements_visibility(
+    UIElements * ui_elements,
+    unsigned int state,
+    unsigned int count
+);
+
+GLuint setup_texture_n_scale_matrix(
+    unsigned int flags,
+    GLuint texture_width,
+    GLuint texture_height,
+    const char * texture_filename,
+    Vec2 * scale_matrix
+);
 
 void update_threaded_ui_element();
 
@@ -268,5 +275,5 @@ extern GLuint g_no_texture_location;
 extern unsigned int g_framerate;
 extern unsigned int g_menu_background_index;
 extern UIElements * g_menu_background_enabled;
-
+extern unsigned int g_request_render_all;
 #endif

@@ -40,21 +40,25 @@ void * buttons_management_thread(void * args) {
         usleep(20000);
         sem_wait(&g_buttons_management.thread_control.mutex);
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
-            timestamp = g_ui_elements_array[i].timestamp;
-            if (timestamp == 0) {
-                continue;
-            }
-            elapsed_time = get_timestamp() - timestamp;
-
-            if (elapsed_time > 0.05 && g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
-                if (g_ui_elements_array[i].texture_index == 0 && g_dstudio_mouse_state == 0) {
-                    g_ui_elements_array[i].timestamp = 0;
+            if (g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
+                timestamp = g_ui_elements_array[i].timestamp;
+                if (timestamp == 0) {
                     continue;
                 }
-                if (g_ui_elements_array[i].texture_index == 1 && g_dstudio_mouse_state == 0 && g_ui_elements_array[i].render == 0) {
-                    update_button(&g_ui_elements_array[i]);
-                    send_expose_event();
+                elapsed_time = get_timestamp() - timestamp;
+    
+                if (elapsed_time > 0.05) {
+                    if (g_ui_elements_array[i].texture_index == 0 && g_dstudio_mouse_state == 0) {
+                        g_ui_elements_array[i].timestamp = 0;
+                        continue;
+                    }
+                    if (g_ui_elements_array[i].texture_index == 1 && g_dstudio_mouse_state == 0 && g_ui_elements_array[i].request_render == 0) {
+                        update_button(&g_ui_elements_array[i]);
+                        send_expose_event();
+                    }
                 }
+            }
+            else if (g_ui_elements_array[i].enabled && g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON) {
             }
         }
         sem_post(&g_buttons_management.thread_control.mutex);
@@ -77,5 +81,5 @@ void update_button(UIElements * buttons_p) {
         buttons_p->texture_index = 1;
     }
     buttons_p->timestamp = get_timestamp();
-    buttons_p->render = 1;
+    buttons_p->request_render = 1;
 }

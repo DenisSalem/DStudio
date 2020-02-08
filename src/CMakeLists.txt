@@ -36,9 +36,9 @@ endif()
 
 add_executable(
 	dsandgrains
+    dsandgrains/add.c
 	dsandgrains/main.c
     dsandgrains/ui.c
-    #add.c
     buttons.c
     common.c
     extensions.c
@@ -68,4 +68,3 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
         COMMENT "strip --strip-unneeded -s -R .comment -R .gnu.version dsandgrains"
     )
 endif()
-

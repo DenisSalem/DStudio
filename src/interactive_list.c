@@ -112,8 +112,8 @@ void select_item(
     for(unsigned int i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
             if(do_not_use_callback || interactive_list->select_callback(i+interactive_list->window_offset)) {
-                interactive_list->lines[interactive_list->previous_item_index].render = 1;
-                interactive_list->lines[i].render = 1;
+                interactive_list->lines[interactive_list->previous_item_index].request_render = 1;
+                interactive_list->lines[i].request_render = 1;
                 interactive_list->thread_bound_control->update = 1;
                 *interactive_list->highlight->instance_alphas_buffer = 1;
                 interactive_list->update_highlight = 1;
@@ -160,7 +160,7 @@ void update_insteractive_list(
         glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_alphas);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * interactive_list->highlight->count, interactive_list->highlight->instance_alphas_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        interactive_list->highlight->render = 1;
+        interactive_list->highlight->request_render = 1;
         interactive_list->update_highlight = 0;
     }
 }

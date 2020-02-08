@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -17,9 +17,6 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_ADD_H_INCLUDED
-#define DSTUDIO_ADD_H_INCLUDE
-
-void add_application_callback(void * args);
-
-#endif
+void add_sub_menu(UIElements * ui_elements);
+void add_voice(UIElements * ui_elements);
+void close_add_sub_menu();
