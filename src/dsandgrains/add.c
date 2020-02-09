@@ -17,11 +17,18 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../instances.h"
 #include "../voices.h"
 #include "../ui.h"
 
 #include "add.h"
 #include "ui.h"
+
+void add_instance(UIElements * ui_elements) {
+    (void) ui_elements;
+    add_instance_file_descriptor();
+    close_add_sub_menu();
+}
 
 void add_voice(UIElements * ui_elements) {
     (void) ui_elements; 
@@ -29,7 +36,6 @@ void add_voice(UIElements * ui_elements) {
         new_voice(DSTUDIO_USE_MUTEX)
     );
     close_add_sub_menu();
-    g_request_render_all = 1;
 }
 
 void add_sub_menu(UIElements * ui_elements) {
@@ -45,4 +51,5 @@ void close_add_sub_menu() {
     set_prime_interface(1);
     set_ui_elements_visibility(&g_ui_elements_struct.menu_background, 0, 5);
     g_menu_background_enabled = 0;
+    g_request_render_all = 1;
 }

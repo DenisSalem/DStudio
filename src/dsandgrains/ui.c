@@ -64,6 +64,7 @@ inline static void bind_callbacks() {
     g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_voices;
 
     g_ui_elements_struct.button_add.application_callback = add_sub_menu;
+    g_ui_elements_struct.button_add_instance.application_callback = add_instance;
     g_ui_elements_struct.button_add_voice.application_callback = add_voice;
 }
 

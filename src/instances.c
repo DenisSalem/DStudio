@@ -27,6 +27,22 @@ UIInteractiveList g_ui_instances = {0};
 
 static char * s_instances_directory = 0;
 
+void add_instance_file_descriptor() {
+    unsigned int count = 0;
+    unsigned int last_id = 0;
+    FILE * new_instance = 0;
+    char * instance_filename_buffer = dstudio_alloc(sizeof(char) * 128); 
+    char string_representation_of_integer[4] = {0};
+
+    count_instances(s_instances_directory, &count, &last_id);
+    strcat(instance_filename_buffer, s_instances_directory);
+    strcat(instance_filename_buffer, "/");
+    sprintf(string_representation_of_integer,"%d", last_id+1);
+    strcat(instance_filename_buffer, string_representation_of_integer);
+    new_instance = fopen(instance_filename_buffer, "w+");
+    fclose(new_instance);
+}
+
 void exit_instances_management_thread() {
     sem_wait(&g_instances.thread_control.mutex);
     char instance_path[128] = {0};
@@ -153,16 +169,12 @@ void * instances_management_thread(void * args) {
 
 void new_instance(const char * given_directory, const char * process_name) {
     sem_init(&g_instances.thread_control.mutex, 0, 1);
-    unsigned int count = 0;
-    unsigned int last_id = 0;
-
     DIR * dr = 0;
     struct dirent *de;
 
     int processes_count = count_process(process_name);
     expand_user(&s_instances_directory, given_directory);
     char * instance_filename_buffer = dstudio_alloc(sizeof(char) * 128); 
-    char string_representation_of_integer[4] = {0};
     FILE * new_instance = 0;
     if (stat(s_instances_directory, &st) == -1) {
         // Permission error
@@ -173,13 +185,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         recursive_mkdir(s_instances_directory);
     }
     if (processes_count > 1) {
-        count_instances(s_instances_directory, &count, &last_id);
-        strcat(instance_filename_buffer, s_instances_directory);
-        strcat(instance_filename_buffer, "/");
-        sprintf(string_representation_of_integer,"%d", last_id+1);
-        strcat(instance_filename_buffer, string_representation_of_integer);
-        new_instance = fopen(instance_filename_buffer, "w+");
-        fclose(new_instance);
+        add_instance_file_descriptor();
         exit(0);
     }
     else {
@@ -197,7 +203,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         closedir(dr);
         strcat(instance_filename_buffer, s_instances_directory);
         strcat(instance_filename_buffer, "/1");
-        FILE * new_instance = fopen(instance_filename_buffer, "w+");
+        new_instance = fopen(instance_filename_buffer, "w+");
         fclose(new_instance);
         g_instances.contexts = dstudio_alloc( sizeof(InstanceContext) );
         g_instances.count +=1;
