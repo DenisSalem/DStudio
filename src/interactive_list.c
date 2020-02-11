@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Denis Salem
+ * Copyright 2019, 2020 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "common.h"
 #include "extensions.h"
 #include "interactive_list.h"
@@ -109,6 +110,7 @@ void select_item(
     if (!do_not_use_callback) {
         sem_wait(mutex);
     }
+
     for(unsigned int i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
             if(do_not_use_callback || interactive_list->select_callback(i+interactive_list->window_offset)) {

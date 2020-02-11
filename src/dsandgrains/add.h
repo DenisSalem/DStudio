@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
 void add_instance(UIElements * ui_elements);
 void add_sub_menu(UIElements * ui_elements);
 void add_voice(UIElements * ui_elements);

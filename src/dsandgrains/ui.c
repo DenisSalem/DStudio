@@ -581,13 +581,13 @@ inline static void init_sub_menu_add() {
         DSANDGRAINS_ADD_SUB_MENU_PROMPT_HEIGHT,
         0,
         0,
-        DSANDGRAINS_ADD_VOICE_COLUMNS,
-        1,
-        25,
+        DSANDGRAINS_ADD_SUB_MENU_COLUMNS,
+        DSANDGRAINS_ADD_SUB_MENU_COUNT,
+        29,
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_NONE
     );
-    update_text(&g_ui_elements_struct.add_sub_menu_prompt, "WHAT DO YOU WANT TO ADD?", 25);
+    update_text(&g_ui_elements_struct.add_sub_menu_prompt, "PICK THE ITEM YOU WANT TO ADD", 29);
     g_ui_elements_struct.add_sub_menu_prompt.request_render = 0;
 }
 
