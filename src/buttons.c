@@ -31,7 +31,7 @@ void * buttons_management_thread(void * args) {
     (void) args;
     double timestamp = 0;
     double elapsed_time = 0;
-    
+    int pointer_x, pointer_y, texture_index;
     while(!g_buttons_management.thread_control.ready) {
         usleep(1000);
     }
@@ -59,6 +59,18 @@ void * buttons_management_thread(void * args) {
                 }
             }
             else if (g_ui_elements_array[i].enabled && g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON) {
+                get_pointer_coordinates(&pointer_x, &pointer_y);
+                if (pointer_x >= g_ui_elements_array[i].areas.min_area_x && pointer_x <= g_ui_elements_array[i].areas.max_area_x &&
+                    pointer_y >= g_ui_elements_array[i].areas.min_area_y && pointer_y <= g_ui_elements_array[i].areas.max_area_y) {
+                    texture_index = 1;
+                }
+                else {
+                    texture_index = 0;
+                }
+                if (texture_index != g_ui_elements_array[i].texture_index) {
+                    update_button(&g_ui_elements_array[i]);
+                    send_expose_event();
+                }
             }
         }
         sem_post(&g_buttons_management.thread_control.mutex);

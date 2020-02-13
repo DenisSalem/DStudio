@@ -112,6 +112,16 @@ int do_no_exit_loop() {
     return window_alive;
 }
 
+int get_pointer_coordinates(int * x, int * y) {
+    Window root_win_ret;
+    Window child_win_ret;
+    unsigned int mask_ret;
+    int root_x_ret;
+    int root_y_ret;
+    
+    return XQueryPointer(display, window, &root_win_ret,  &child_win_ret, &root_x_ret, &root_y_ret,  x, y, &mask_ret);
+};
+
 static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
     int fbcount;
     int best_frame_buffer_config_index = -1;

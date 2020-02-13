@@ -503,6 +503,14 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_INSTANCE_ASSET_PATH,
         sub_menu_buttons_add_scale_matrix
     );
+    
+    texture_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_ADD_INSTANCE_WIDTH,
+        DSTUDIO_ADD_INSTANCE_HEIGHT, 
+        DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH,
+        NULL
+    );
 
     init_ui_elements(
         &g_ui_elements_struct.button_add_instance,
@@ -529,6 +537,14 @@ inline static void init_sub_menu_add() {
         sub_menu_buttons_add_scale_matrix
     );
     
+    texture_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_ADD_INSTANCE_WIDTH,
+        DSTUDIO_ADD_INSTANCE_HEIGHT, 
+        DSTUDIO_ACTIVE_ADD_VOICE_ASSET_PATH,
+        NULL
+    );
+    
     init_ui_elements(
         &g_ui_elements_struct.button_add_voice,
         &texture_ids[0],
@@ -552,6 +568,14 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_SAMPLE_HEIGHT, 
         DSTUDIO_ADD_SAMPLE_ASSET_PATH,
         sub_menu_buttons_add_scale_matrix
+    );
+    
+    texture_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_ADD_INSTANCE_WIDTH,
+        DSTUDIO_ADD_INSTANCE_HEIGHT, 
+        DSTUDIO_ACTIVE_ADD_SAMPLE_ASSET_PATH,
+        NULL
     );
     
     init_ui_elements(

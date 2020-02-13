@@ -33,10 +33,13 @@ typedef struct ThreadControl_t {
 } ThreadControl;
 
 // PATHS
+#define DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH      "../assets/active_button_add_instance.png"
+#define DSTUDIO_ACTIVE_ADD_SAMPLE_ASSET_PATH        "../assets/active_button_add_sample.png"
+#define DSTUDIO_ACTIVE_ADD_VOICE_ASSET_PATH         "../assets/active_button_add_voice.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
 #define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
 #define DSTUDIO_ADD_INSTANCE_ASSET_PATH             "../assets/button_add_instance.png"
-#define DSTUDIO_ADD_SAMPLE_ASSET_PATH             "../assets/button_add_sample.png"
+#define DSTUDIO_ADD_SAMPLE_ASSET_PATH               "../assets/button_add_sample.png"
 #define DSTUDIO_ADD_VOICE_ASSET_PATH                "../assets/button_add_voice.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_BACKGROUND_MENU_PATTERN_ASSET_PATH  "../assets/background_menu_pattern.png"

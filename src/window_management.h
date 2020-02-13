@@ -38,6 +38,7 @@
 
 void destroy_context();
 int do_no_exit_loop();
+int get_pointer_coordinates(int * x, int * y);
 void init_context(const char * window_name, int width, int height);
 void listen_events();
 int need_to_redraw_all();

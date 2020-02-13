@@ -510,6 +510,16 @@ inline void render_loop() {
     }
 };
 
+static void render_sub_menu_background() {
+    glUniformMatrix2fv(
+        g_scale_matrix_id,
+        1,
+        GL_FALSE,
+        (float *) g_menu_background_enabled->scale_matrix
+    );
+    render_ui_elements(g_menu_background_enabled);
+}
+
 void render_ui_elements(UIElements * ui_elements) {
     switch(ui_elements->type) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
@@ -585,23 +595,23 @@ void render_viewport(unsigned int render_all) {
                 g_ui_elements_array[i].scissor.width,
                 g_ui_elements_array[i].scissor.height
             );
+            
+            if (g_menu_background_enabled && g_ui_elements_array[i].request_render && !render_all && i > g_menu_background_index && !g_menu_background_enabled->request_render) {
+               render_sub_menu_background();
+            }
+            
             glUniformMatrix2fv(
                 g_scale_matrix_id,
                 1,
                 GL_FALSE,
                 (float *) g_ui_elements_array[i].scale_matrix
             );
+            
             render_ui_elements(&g_ui_elements_array[i]);
             g_ui_elements_array[i].request_render = 0;
-            
+                                    
             if (g_menu_background_enabled && i < g_menu_background_index && !g_menu_background_enabled->request_render) {
-                glUniformMatrix2fv(
-                    g_scale_matrix_id,
-                    1,
-                    GL_FALSE,
-                    (float *) g_menu_background_enabled->scale_matrix
-                );
-                render_ui_elements(g_menu_background_enabled);
+                render_sub_menu_background();
             }
         }
     }
