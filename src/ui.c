@@ -30,6 +30,10 @@
 #include "text_pointer.h"
 #include "ui.h"
 
+GLuint g_charset_8x18_texture_ids[2] = {0};
+GLuint g_charset_4x9_texture_ids[2] = {0};
+Vec2 g_charset_8x18_scale_matrix[2] = {0};
+Vec2 g_charset_4x9_scale_matrix[2] = {0};
 GLuint g_shader_program_id = 0;
 GLuint g_scale_matrix_id = 0;
 GLuint g_motion_type_location = 0;
@@ -284,6 +288,24 @@ void init_opengl_ui_elements(
             glVertexAttribDivisor(4, 1);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+}
+
+void init_text() {
+    g_charset_8x18_texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
+        DSTUDIO_CHAR_TABLE_8X18_WIDTH,
+        DSTUDIO_CHAR_TABLE_8X18_HEIGHT,
+        DSTUDIO_CHAR_TABLE_8X18_ASSET_PATH,
+        g_charset_8x18_scale_matrix
+    );
+    
+    g_charset_4x9_texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
+        DSTUDIO_CHAR_TABLE_4X9_WIDTH,
+        DSTUDIO_CHAR_TABLE_4X9_HEIGHT,
+        DSTUDIO_CHAR_TABLE_4X9_ASSET_PATH,
+        g_charset_4x9_scale_matrix
+    );
 }
 
 void init_threaded_ui_element_updater_register(unsigned int updater_count) {

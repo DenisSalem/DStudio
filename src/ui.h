@@ -170,6 +170,8 @@ void init_opengl_ui_elements(
     UIElements * ui_elements
 );
 
+void init_text();
+
 void init_threaded_ui_element_updater_register(
     unsigned int updater_count
 );
@@ -263,11 +265,15 @@ typedef struct UIElementsStruct_t UIElementsStruct;
 extern UIElementsStruct g_ui_elements_struct;
 extern UIElements * g_ui_elements_array;
 
-extern GLint scissor_x, scissor_y;
-extern GLsizei scissor_width, scissor_height;
+extern GLuint g_charset_8x18_texture_ids[2];
+extern GLuint g_charset_4x9_texture_ids[2];
+extern Vec2 g_charset_8x18_scale_matrix[2];
+extern Vec2 g_charset_4x9_scale_matrix[2];
 extern const unsigned int g_dstudio_ui_element_count;
 extern const unsigned int g_dstudio_viewport_width;
 extern const unsigned int g_dstudio_viewport_height;
+extern GLint scissor_x, scissor_y;
+extern GLsizei scissor_width, scissor_height;
 extern GLuint g_shader_program_id;
 extern GLuint g_scale_matrix_id;
 extern GLuint g_motion_type_location;
@@ -276,4 +282,5 @@ extern unsigned int g_framerate;
 extern unsigned int g_menu_background_index;
 extern UIElements * g_menu_background_enabled;
 extern unsigned int g_request_render_all;
+
 #endif

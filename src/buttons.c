@@ -37,7 +37,7 @@ void * buttons_management_thread(void * args) {
     }
     
     while(!g_buttons_management.thread_control.cut_thread) {
-        usleep(20000);
+        usleep(g_framerate);
         sem_wait(&g_buttons_management.thread_control.mutex);
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             if (g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {

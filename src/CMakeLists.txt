@@ -45,6 +45,7 @@ add_executable(
     fileutils.c
     instances.c
     interactive_list.c
+    open_file.c
     ressource_usage.c
     text.c
     text_pointer.c

@@ -209,6 +209,7 @@ typedef struct UIElementsStruct_t {
     UIElements button_add_instance;
     UIElements button_add_voice;
     UIElements button_add_sample;
+    UIElements open_file_menu_prompts;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

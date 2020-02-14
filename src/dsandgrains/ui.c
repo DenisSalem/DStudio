@@ -35,13 +35,8 @@
 UIElementsStruct g_ui_elements_struct = {0};
 UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
 
-GLuint charset_8x18_texture_ids[2] = {0};
-GLuint charset_4x9_texture_ids[2] = {0};
-
 Vec2 arrow_button_scale_matrix[2] = {0};
 Vec2 background_scale_matrix[2] = {0};
-Vec2 charset_8x18_scale_matrix[2] = {0};
-Vec2 charset_4x9_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
 Vec2 list_item_highlight_scale_matrix[2] = {0};
@@ -179,8 +174,8 @@ inline static void init_background() {
 inline static void init_instances_list() {
     init_ui_elements(
         &g_ui_elements_struct.instances_list_item_1,
-        &charset_4x9_texture_ids[0],
-        &charset_4x9_scale_matrix[0],
+        &g_charset_4x9_texture_ids[0],
+        &g_charset_4x9_scale_matrix[0],
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_X,
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_Y,
         DSANDGRAINS_ITEM_LIST_WIDTH,
@@ -196,8 +191,8 @@ inline static void init_instances_list() {
     
     init_ui_elements(
         &g_ui_elements_struct.voices_list_item_1,
-        &charset_4x9_texture_ids[0],
-        &charset_4x9_scale_matrix[0],
+        &g_charset_4x9_texture_ids[0],
+        &g_charset_4x9_scale_matrix[0],
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_X,
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_Y,
         DSANDGRAINS_ITEM_LIST_WIDTH,
@@ -431,8 +426,8 @@ inline static void init_ressource_usage() {
     // Initialize both cpu_usage and memory usage.
     init_ui_elements(
         &g_ui_elements_struct.cpu_usage,
-        &charset_8x18_texture_ids[0],
-        &charset_8x18_scale_matrix[0],
+        &g_charset_8x18_texture_ids[0],
+        &g_charset_8x18_scale_matrix[0],
         DSANDGRAINS_CPU_N_MEM_USAGE_X_POS,
         DSANDGRAINS_CPU_USAGE_Y_POS,
         DSANDGRAINS_CPU_USAGE_WIDTH,
@@ -597,8 +592,8 @@ inline static void init_sub_menu_add() {
     
     init_ui_elements(
         &g_ui_elements_struct.add_sub_menu_prompt,
-        &charset_8x18_texture_ids[0],
-        &charset_8x18_scale_matrix[0],
+        &g_charset_8x18_texture_ids[0],
+        &g_charset_8x18_scale_matrix[0],
         DSANDGRAINS_ADD_SUB_MENU_PROMPT_POS_X,
         DSANDGRAINS_ADD_SUB_MENU_PROMPT_POS_Y,
         DSANDGRAINS_ADD_SUB_MENU_PROMPT_WIDTH,
@@ -613,24 +608,6 @@ inline static void init_sub_menu_add() {
     );
     update_text(&g_ui_elements_struct.add_sub_menu_prompt, "PICK THE ITEM YOU WANT TO ADD", 29);
     g_ui_elements_struct.add_sub_menu_prompt.request_render = 0;
-}
-
-inline static void init_text() {
-    charset_8x18_texture_ids[0] = setup_texture_n_scale_matrix(
-        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
-        DSTUDIO_CHAR_TABLE_8X18_WIDTH,
-        DSTUDIO_CHAR_TABLE_8X18_HEIGHT,
-        DSTUDIO_CHAR_TABLE_8X18_ASSET_PATH,
-        charset_8x18_scale_matrix
-    );
-    
-    charset_4x9_texture_ids[0] = setup_texture_n_scale_matrix(
-        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
-        DSTUDIO_CHAR_TABLE_4X9_WIDTH,
-        DSTUDIO_CHAR_TABLE_4X9_HEIGHT,
-        DSTUDIO_CHAR_TABLE_4X9_ASSET_PATH,
-        charset_4x9_scale_matrix
-    );
 }
 
 static void init_dsandgrains_ui_elements() {
