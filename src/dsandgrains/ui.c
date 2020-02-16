@@ -60,6 +60,7 @@ inline static void bind_callbacks() {
 
     g_ui_elements_struct.button_add.application_callback = add_sub_menu;
     g_ui_elements_struct.button_add_instance.application_callback = add_instance;
+    g_ui_elements_struct.button_add_sample.application_callback = add_sample;
     g_ui_elements_struct.button_add_voice.application_callback = add_voice;
 }
 
@@ -166,7 +167,7 @@ inline static void init_background() {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND,
+        DSTUDIO_UI_ELEMENT_TYPE_PATTERN,
         DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );
 }
@@ -315,12 +316,19 @@ inline static void init_knobs() {
 inline static void init_list_item_highlights() {
     GLuint texture_ids[2] = {0};
     
-    texture_ids[0] = setup_texture_n_scale_matrix(
-        DSTUDIO_FLAG_USE_ALPHA,
+    DEFINE_SCALE_MATRIX(
+        list_item_highlight_scale_matrix,
         DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT, 
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_PATH,
-        list_item_highlight_scale_matrix
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT
+    )
+    
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_TEXTURE_IS_PATTERN,
+        DSTUDIO_PATTERN_SCALE,
+        DSTUDIO_PATTERN_SCALE, 
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_PATTERN_PATH,
+        NULL
     );
     
     init_ui_elements(
@@ -336,8 +344,8 @@ inline static void init_list_item_highlights() {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
-        DSTUDIO_FLAG_IS_VISIBLE
+        DSTUDIO_UI_ELEMENT_TYPE_PATTERN,
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );
     
     init_ui_elements(
@@ -353,8 +361,8 @@ inline static void init_list_item_highlights() {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
-        DSTUDIO_FLAG_IS_VISIBLE
+        DSTUDIO_UI_ELEMENT_TYPE_PATTERN,
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );
 }
 

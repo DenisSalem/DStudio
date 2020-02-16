@@ -162,7 +162,7 @@ void set_prime_interface(unsigned int state) {
                     g_ui_elements_array[i].enabled = state;
                     
                 case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-                case DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND:
+                case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
                 case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
                 case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
                     break;
@@ -253,10 +253,10 @@ void init_opengl_ui_elements(
         vertex_attributes[3].w /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
     }
     else if (texture_is_pattern) {
-        vertex_attributes[1].w *= (GLfloat) g_dstudio_viewport_height / DSTUDIO_PATTERN_SCALE;
-        vertex_attributes[2].z *= (GLfloat) g_dstudio_viewport_width / DSTUDIO_PATTERN_SCALE;
-        vertex_attributes[3].z *= (GLfloat) g_dstudio_viewport_width / DSTUDIO_PATTERN_SCALE;
-        vertex_attributes[3].w *= (GLfloat) g_dstudio_viewport_height / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[1].w *= ((GLfloat) ui_elements->scale_matrix[1].y * g_dstudio_viewport_height) / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[2].z *= ((GLfloat) ui_elements->scale_matrix[0].x * g_dstudio_viewport_width) / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[3].z *= ((GLfloat) ui_elements->scale_matrix[0].x * g_dstudio_viewport_width) / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[3].w *= ((GLfloat) ui_elements->scale_matrix[1].y * g_dstudio_viewport_height) / DSTUDIO_PATTERN_SCALE;
     }
     
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
@@ -557,7 +557,7 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
-        case DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND:
+        case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }
@@ -681,10 +681,7 @@ GLuint setup_texture_n_scale_matrix(
     dstudio_free(texture_data);
     
     if (scale_matrix) {
-        scale_matrix[0].x = (float) texture_width / (float) g_dstudio_viewport_width;
-        scale_matrix[0].y = 0;
-        scale_matrix[1].x = 0;
-        scale_matrix[1].y = (float) texture_height / (float) g_dstudio_viewport_height;
+        DEFINE_SCALE_MATRIX(scale_matrix, texture_width, texture_height)
         if (text_setting) {
             scale_matrix[0].x /= DSTUDIO_CHAR_SIZE_DIVISOR;
             scale_matrix[1].y /= DSTUDIO_CHAR_SIZE_DIVISOR;

@@ -18,6 +18,7 @@
 */
 
 void add_instance(UIElements * ui_elements);
+void add_sample(UIElements * ui_elements);
 void add_sub_menu(UIElements * ui_elements);
 void add_voice(UIElements * ui_elements);
 void close_add_sub_menu();

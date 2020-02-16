@@ -137,7 +137,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
-        case DSTUDIO_UI_ELEMENT_TYPE_MENU_BACKGROUND:
+        case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
             sem_post(&g_text_pointer_context.thread_control.mutex);
             return;
     }

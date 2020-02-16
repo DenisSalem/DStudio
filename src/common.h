@@ -49,7 +49,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
 #define DSTUDIO_KNOB_1_64x64_TEXTURE_PATH           "../assets/knob1_64x64.png"
 #define DSTUDIO_KNOB_1_48x48_TEXTURE_PATH           "../assets/knob1_48x48.png"
-#define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_PATH          "../assets/list_item_highlight1.png"
+#define DSTUDIO_LIST_ITEM_HIGHLIGHT_PATTERN_PATH    "../assets/list_item_highlight_pattern.png"
 #define DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH   "../assets/ressource_usage.png"
 #define DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH         "../assets/slider1.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"
@@ -117,6 +117,12 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE 8
 #define DSTUDIO_RESSOURCE_USAGE_STRING_SIZE 6
 #define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
+
+#define DEFINE_SCALE_MATRIX(scale_matrix, width, height) \
+        scale_matrix[0].x = (float) width / (float) g_dstudio_viewport_width;\
+        scale_matrix[0].y = 0; \
+        scale_matrix[1].x = 0;  \
+        scale_matrix[1].y = (float) height / (float) g_dstudio_viewport_height;
 
 #define DSTUDIO_EXIT_IF_FAILURE(value) \
     if ((value) != 0) { \

@@ -18,11 +18,18 @@
 */
 
 #include "../instances.h"
-#include "../voices.h"
+#include "../open_file.h"
 #include "../ui.h"
+#include "../voices.h"
 
 #include "add.h"
 #include "ui.h"
+
+void add_sample(UIElements * ui_elements) {
+    (void) ui_elements;
+    close_add_sub_menu();
+    //add_instance_file_descriptor();
+}
 
 void add_instance(UIElements * ui_elements) {
     (void) ui_elements;
