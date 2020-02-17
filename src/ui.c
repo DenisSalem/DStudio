@@ -465,7 +465,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 ypos > ui_elements_p->areas.min_area_y &&
                 ypos < ui_elements_p->areas.max_area_y &&
                 ui_elements_p->enabled &&
-                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND
+                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND && ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
             ) {
                 s_ui_element_index = i;
                 switch (ui_elements_p->type) {

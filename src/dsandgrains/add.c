@@ -25,10 +25,18 @@
 #include "add.h"
 #include "ui.h"
 
+static void load_sample(FILE * file_fd) {
+    (void) file_fd;
+}
+
 void add_sample(UIElements * ui_elements) {
     (void) ui_elements;
     close_add_sub_menu();
-    //add_instance_file_descriptor();
+    
+    open_file_menu(
+        add_sub_menu_proxy,
+        load_sample
+    );
 }
 
 void add_instance(UIElements * ui_elements) {
@@ -45,9 +53,12 @@ void add_voice(UIElements * ui_elements) {
 
 void add_sub_menu(UIElements * ui_elements) {
     (void) ui_elements; 
+    add_sub_menu_proxy();
+}
+
+void add_sub_menu_proxy() {
     set_prime_interface(0);
     set_ui_elements_visibility(&g_ui_elements_struct.menu_background, 1, 5);
-
     g_menu_background_enabled = &g_ui_elements_struct.menu_background;
     set_close_sub_menu_callback(close_add_sub_menu);
 }

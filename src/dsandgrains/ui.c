@@ -25,6 +25,7 @@
 #include "../extensions.h"
 #include "../instances.h"
 #include "../interactive_list.h"
+#include "../open_file.h"
 #include "../ressource_usage.h"
 #include "../text_pointer.h"
 #include "../window_management.h"
@@ -633,6 +634,10 @@ static void init_dsandgrains_ui_elements() {
     init_sliders();
     init_ui_text_pointer(&g_ui_elements_struct.text_pointer);
     init_sub_menu_add();
+    init_open_menu(
+        &g_ui_elements_struct.menu_background,
+        &g_ui_elements_struct.open_file_menu_prompts
+    );
     
     bind_callbacks();
     for (unsigned int i = 4; i < g_menu_background_index; i++) {

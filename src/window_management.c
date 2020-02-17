@@ -249,6 +249,7 @@ void init_context(const char * window_name, int width, int height) {
 }
 
 void listen_events() {
+    void (*close_sub_menu_callback_swap)() = NULL;
     while(XPending(display)) {
         XNextEvent(display, &x_event);
         if(x_event.type == ClientMessage) {
@@ -289,9 +290,10 @@ void listen_events() {
         else if(x_event.type == KeyPress) {
             if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
                 if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && close_sub_menu_callback != NULL) {
-                    close_sub_menu_callback();
-                    refresh_all = 1;
+                    close_sub_menu_callback_swap = close_sub_menu_callback;
                     close_sub_menu_callback = NULL;
+                    close_sub_menu_callback_swap();
+                    refresh_all = 1;
                 }
                 clear_text_pointer();
             }
