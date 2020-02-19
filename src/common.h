@@ -83,6 +83,17 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH 117
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT 11
 
+#define DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_Y 38
+#define DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_X 32
+#define DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH 72
+#define DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT 10
+#define DSTUDIO_OPEN_FILE_PROMPT_COLUMN 1
+#define DSTUDIO_OPEN_FILE_PROMPT_COUNT 1
+#define DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE 9
+
+#define DSTUDIO_OPEN_FILE_PROMPT_BOX_ABS_POS_Y 38
+#define DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT 26
+
 #define DSTUDIO_PATTERN_SCALE 16
 
 #define DSTUDIO_RESSOURCE_USAGE_WIDTH 30
@@ -119,10 +130,10 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
 
 #define DEFINE_SCALE_MATRIX(scale_matrix, width, height) \
-        scale_matrix[0].x = (float) width / (float) g_dstudio_viewport_width;\
+        scale_matrix[0].x = (GLfloat) width / (GLfloat) g_dstudio_viewport_width;\
         scale_matrix[0].y = 0; \
-        scale_matrix[1].x = 0;  \
-        scale_matrix[1].y = (float) height / (float) g_dstudio_viewport_height;
+        scale_matrix[1].x = 0; \
+        scale_matrix[1].y = (GLfloat) height / (GLfloat) g_dstudio_viewport_height;
 
 #define DSTUDIO_EXIT_IF_FAILURE(value) \
     if ((value) != 0) { \

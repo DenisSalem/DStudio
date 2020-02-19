@@ -78,7 +78,11 @@ void init_ui_text_pointer(UIElements * text_pointer) {
 
     s_text_pointer_8x18_scale_matrix[0].x = (DSTUDIO_TEXT_POINTER_WIDTH / (float) g_dstudio_viewport_width);
     s_text_pointer_8x18_scale_matrix[1].y = ((float) DSTUDIO_TEXT_POINTER_2_HEIGHT / (float) g_dstudio_viewport_height);    
-    
+    text_pointer->color.r = 1;
+    text_pointer->color.g = 0.5;
+    text_pointer->color.b = 0;
+    text_pointer->color.a = 1.0;
+
     init_ui_elements(
         text_pointer,
         NULL,
@@ -92,7 +96,7 @@ void init_ui_text_pointer(UIElements * text_pointer) {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER,
+        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
         DSTUDIO_FLAG_NONE
     );
     text_pointer->request_render = 0;
@@ -131,13 +135,13 @@ void update_text_pointer_context(UIElements * ui_elements) {
             }
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
+        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
         case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
+        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
             sem_post(&g_text_pointer_context.thread_control.mutex);
             return;
     }

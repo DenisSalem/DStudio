@@ -38,6 +38,8 @@ GLuint g_shader_program_id = 0;
 GLuint g_scale_matrix_id = 0;
 GLuint g_motion_type_location = 0;
 GLuint g_no_texture_location = 0;
+GLuint g_ui_element_color_location = 0;
+
 unsigned int g_framerate = DSTUDIO_FRAMERATE;
 UIElements * g_menu_background_enabled = 0;
 unsigned int g_menu_background_index = 0;
@@ -162,9 +164,9 @@ void set_prime_interface(unsigned int state) {
                     g_ui_elements_array[i].enabled = state;
                     
                 case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
+                case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
                 case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
                 case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-                case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
                     break;
             }
         }
@@ -327,6 +329,7 @@ void init_ui() {
     
     g_motion_type_location = glGetUniformLocation(g_shader_program_id, "motion_type");
     g_no_texture_location = glGetUniformLocation(g_shader_program_id, "no_texture");
+    g_ui_element_color_location = glGetUniformLocation(g_shader_program_id, "ui_element_color");
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -550,18 +553,21 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_SLIDE);
             break;
-             
+
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
+            glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
+            __attribute__ ((fallthrough));
+
         case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
         case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER:
         case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }
-    glUniform1ui(g_no_texture_location, ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER ? 1 : 0);
+    glUniform1ui(g_no_texture_location, ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE ? 1 : 0);
 
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);

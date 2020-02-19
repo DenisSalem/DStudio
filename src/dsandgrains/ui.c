@@ -636,7 +636,7 @@ static void init_dsandgrains_ui_elements() {
     init_sub_menu_add();
     init_open_menu(
         &g_ui_elements_struct.menu_background,
-        &g_ui_elements_struct.open_file_menu_prompts
+        &g_ui_elements_struct.open_file_menu_prompts_box
     );
     
     bind_callbacks();

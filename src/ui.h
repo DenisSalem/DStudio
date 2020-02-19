@@ -49,21 +49,25 @@ typedef struct vec2_t {
  
 typedef struct Vec4_t {
     union {
+        GLfloat r;
         GLfloat min_area_x;
         GLfloat top_left_x;
         GLfloat x;
     };
     union {
+        GLfloat g;
         GLfloat max_area_x;
         GLfloat top_left_y;
         GLfloat y;
     };
     union {
+        GLfloat b;
         GLfloat min_area_y;
         GLfloat bottom_right_x;
         GLfloat z;
     };
     union {
+        GLfloat a;
         GLfloat max_area_y;
         GLfloat bottom_right_y;
         GLfloat w;
@@ -90,7 +94,7 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_BUTTON = 16,
     DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE = 32,
     DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 64,
-    DSTUDIO_UI_ELEMENT_TYPE_TEXT_POINTER = 128,
+    DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE = 128,
     DSTUDIO_UI_ELEMENT_TYPE_PATTERN = 256
 } UIElementType;
 
@@ -144,6 +148,7 @@ typedef struct UIElements_t {
     Vec4 *                      instance_offsets_buffer; 
     Vec4                        vertex_attributes[4];
     Vec4                        areas;
+    Vec4                        color;
     Scissor                     scissor;
     Vec2 *                      scale_matrix;
     UIElementType               type;
@@ -278,6 +283,7 @@ extern GLuint g_shader_program_id;
 extern GLuint g_scale_matrix_id;
 extern GLuint g_motion_type_location;
 extern GLuint g_no_texture_location;
+extern GLuint g_ui_element_color_location;
 extern unsigned int g_framerate;
 extern unsigned int g_menu_background_index;
 extern UIElements * g_menu_background_enabled;

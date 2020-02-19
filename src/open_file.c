@@ -24,12 +24,13 @@
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static void (*s_select_callback)(FILE * file_fd) = 0;
 static UIElements * s_menu_background;
+static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
 static UIElements * s_ui_elements;
 
 static void close_open_file_menu() {
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
-    set_ui_elements_visibility(s_ui_elements, 0, 1);
+    set_ui_elements_visibility(s_ui_elements, 0, 2);
     if (s_cancel_callback) {
         s_cancel_callback(NULL);
     }
@@ -41,25 +42,53 @@ void init_open_menu(
 ) {
     s_ui_elements = ui_elements;
     s_menu_background = menu_background;
-    UIElements * prompt = ui_elements;
+    UIElements * prompt_box  = ui_elements;
+    UIElements * prompt = &ui_elements[1];
+
     init_ui_elements(
         prompt,
         &g_charset_8x18_texture_ids[0],
         &g_charset_8x18_scale_matrix[0],
+        -1.0 + (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_X) / g_dstudio_viewport_width),
+        1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_Y) / g_dstudio_viewport_height),
+        DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH,
+        DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT,
         0,
         0,
-        g_dstudio_viewport_width,
-        26,
-        0,
-        0,
-        1,
-        1,
-        29,
+        DSTUDIO_OPEN_FILE_PROMPT_COLUMN,
+        DSTUDIO_OPEN_FILE_PROMPT_COUNT,
+        DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE,
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_NONE
     );
-    update_text(prompt, "OPEN FILE", 29);
+    
+    update_text(prompt, "OPEN FILE", 9);
     prompt->request_render = 0;
+    
+    s_open_file_prompt_box_scale_matrix[0].x = 1;
+    s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
+    prompt_box->color.r = 0;
+    prompt_box->color.g = 0;
+    prompt_box->color.b = 0;
+    prompt_box->color.a = 0.66;
+    
+    init_ui_elements(
+        prompt_box,
+        NULL,
+        &s_open_file_prompt_box_scale_matrix[0],
+        0,
+        1.0 - ( ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_ABS_POS_Y) / g_dstudio_viewport_height),
+        g_dstudio_viewport_width,
+        DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        10,
+        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
+        DSTUDIO_FLAG_NONE
+    );
+
 }
 
 void open_file_menu(
@@ -71,7 +100,7 @@ void open_file_menu(
     
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);
-    set_ui_elements_visibility(s_ui_elements, 1, 1);
+    set_ui_elements_visibility(s_ui_elements, 1, 2);
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
 }

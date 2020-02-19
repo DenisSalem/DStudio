@@ -20,16 +20,15 @@
 #version 330
 
 flat in float alpha;
+uniform vec4 ui_element_color;
 uniform uint no_texture;
 uniform sampler2D input_texture;
 in vec2 fragment_texture_coordinates;
 out vec4 color;
 
-
-
 void main (void) {
     if (no_texture == 1U) {
-        color = vec4(1.0, 0.5, 0, 1);
+        color = ui_element_color;
     }
     else {
         color = texture(input_texture, fragment_texture_coordinates);
