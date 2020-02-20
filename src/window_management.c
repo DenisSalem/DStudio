@@ -106,6 +106,8 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
 }
 
 void configure_input(long mask) {
+    pointer_x = -1;
+    pointer_y = -1;
     XSelectInput(display, window, DSTUDIO_X11_INPUT_MASKS ^ mask);
 }
 

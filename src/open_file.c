@@ -125,7 +125,6 @@ void open_file_menu(
 ) {
     s_cancel_callback = cancel_callback;
     s_select_callback = select_callback;
-    
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);

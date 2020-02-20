@@ -652,7 +652,9 @@ void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, un
         switch(ui_elements[i].type) {
             case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                 ui_elements[i].enabled = state;
+                ui_elements[i].texture_index = 0;
                 break;
+                
             default:
                 break;
         }
