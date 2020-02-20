@@ -36,9 +36,15 @@ void * buttons_management_thread(void * args) {
         usleep(1000);
     }
     
-    while(!g_buttons_management.thread_control.cut_thread) {
-        usleep(g_framerate);
+    while(1) {
+        usleep(g_framerate * 10);
         sem_wait(&g_buttons_management.thread_control.mutex);
+
+        if (g_buttons_management.thread_control.cut_thread) {
+            sem_post(&g_buttons_management.thread_control.mutex);
+            break;
+        }
+
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             if (g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
                 timestamp = g_ui_elements_array[i].timestamp;
@@ -67,6 +73,7 @@ void * buttons_management_thread(void * args) {
                 else {
                     texture_index = 0;
                 }
+
                 if (texture_index != g_ui_elements_array[i].texture_index) {
                     update_button(&g_ui_elements_array[i]);
                     send_expose_event();

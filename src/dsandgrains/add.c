@@ -57,6 +57,7 @@ void add_sub_menu(UIElements * ui_elements) {
 }
 
 void add_sub_menu_proxy() {
+    configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(&g_ui_elements_struct.menu_background, 1, 5);
     g_menu_background_enabled = &g_ui_elements_struct.menu_background;
@@ -64,6 +65,7 @@ void add_sub_menu_proxy() {
 }
 
 void close_add_sub_menu() {
+    configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(&g_ui_elements_struct.menu_background, 0, 5);
     g_menu_background_enabled = 0;

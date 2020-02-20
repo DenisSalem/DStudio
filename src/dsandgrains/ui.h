@@ -211,7 +211,7 @@ typedef struct UIElementsStruct_t {
     UIElements button_add_sample;
     UIElements open_file_menu_prompts_box;
     UIElements open_file_menu_prompts;
-    
+    UIElements open_file_list_box;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

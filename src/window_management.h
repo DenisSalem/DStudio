@@ -36,9 +36,10 @@
 #define DSTUDIO_KEY_CAPS_LOCK           66           
 #define DSTUDIO_KEY_MAJ_BIT             1
 
+void configure_input(long mask);
 void destroy_context();
 int do_no_exit_loop();
-int get_pointer_coordinates(int * x, int * y);
+void get_pointer_coordinates(int * x, int * y);
 void init_context(const char * window_name, int width, int height);
 void listen_events();
 int need_to_redraw_all();

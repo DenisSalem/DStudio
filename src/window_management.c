@@ -41,12 +41,13 @@ void (*close_sub_menu_callback)() = NULL;
 #ifdef DSTUDIO_RELY_ON_X11
 
 #define DSTUDIO_X11_INPUT_MASKS \
-    ExposureMask | \
+    (ExposureMask | \
     KeyPressMask | \
     KeyReleaseMask | \
     ButtonPressMask | \
     ButtonReleaseMask | \
-    VisibilityChangeMask
+    VisibilityChangeMask | \
+    ButtonMotionMask)
 
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
@@ -80,6 +81,8 @@ static int visual_attribs[] = {
 
 static int glx_major, glx_minor;
 static unsigned int keyboard_chars_map_mode = 0;
+static int pointer_x = 0;
+static int pointer_y = 0;
 int (*default_error_handler)(Display*, XErrorEvent*);
 
 static int ctx_error_handler( Display *dpy, XErrorEvent *ev ) {
@@ -99,7 +102,11 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
     swa->colormap = color_map;
     swa->background_pixmap = None ;
     swa->border_pixel      = 0;
-    swa->event_mask        = ExposureMask | StructureNotifyMask |PointerMotionMask;
+    swa->event_mask        = 0; //ExposureMask | StructureNotifyMask | PointerMotionMask;
+}
+
+void configure_input(long mask) {
+    XSelectInput(display, window, DSTUDIO_X11_INPUT_MASKS ^ mask);
 }
 
 void destroy_context() {
@@ -112,15 +119,10 @@ int do_no_exit_loop() {
     return window_alive;
 }
 
-int get_pointer_coordinates(int * x, int * y) {
-    Window root_win_ret;
-    Window child_win_ret;
-    unsigned int mask_ret;
-    int root_x_ret;
-    int root_y_ret;
-    
-    return XQueryPointer(display, window, &root_win_ret,  &child_win_ret, &root_x_ret, &root_y_ret,  x, y, &mask_ret);
-};
+void get_pointer_coordinates(int * x, int * y) {
+    *x = pointer_x;
+    *y = pointer_y;
+}
 
 static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
     int fbcount;
@@ -199,8 +201,7 @@ void init_context(const char * window_name, int width, int height) {
     XSetWMSizeHints(display, window, size_hints, XA_WM_NORMAL_HINTS);
     Atom delWindow = XInternAtom(display, "WM_DELETE_WINDOW", 0);
     XSetWMProtocols(display , window, &delWindow, 1);
-
-    XSelectInput(display, window, DSTUDIO_X11_INPUT_MASKS | ButtonMotionMask);
+    configure_input(0);
     XkbSetDetectableAutoRepeat (display, 1, NULL);
 
     XFree(visual_info);
@@ -255,6 +256,10 @@ void listen_events() {
         if(x_event.type == ClientMessage) {
             window_alive = 0;
             return;
+        }
+        else if (x_event.type == MotionNotify) {
+            pointer_x = x_event.xmotion.x;
+            pointer_y = x_event.xmotion.y;
         }
         else if (x_event.type == Expose) {
             if (x_event.xexpose.send_event != 1) {
