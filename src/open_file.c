@@ -26,16 +26,22 @@ static void (*s_select_callback)(FILE * file_fd) = 0;
 static UIElements * s_menu_background;
 static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_list_box_scale_matrix[2] = {0};
+static Vec2 s_open_file_buttons_scale_matrix[2] = {0};
 static UIElements * s_ui_elements;
 
 static void close_open_file_menu() {
     configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
-    set_ui_elements_visibility(s_ui_elements, 0, 3);
+    set_ui_elements_visibility(s_ui_elements, 0, 6);
     if (s_cancel_callback) {
         s_cancel_callback(NULL);
     }
+}
+
+static void close_open_file_menu_button_callback(UIElements * ui_elements) {
+    (void) ui_elements;
+    close_open_file_menu();
 }
 
 void init_open_menu(
@@ -44,9 +50,14 @@ void init_open_menu(
 ) {
     s_ui_elements = ui_elements;
     s_menu_background = menu_background;
+    GLuint texture_ids[2] = {0};
+    
     UIElements * prompt_box  = ui_elements;
     UIElements * prompt = &ui_elements[1];
-    UIElements * list_box = &ui_elements[2];
+    UIElements * buttons_box = &ui_elements[2];
+    UIElements * button_cancel = &ui_elements[3];
+    UIElements * button_open = &ui_elements[4];
+    UIElements * list_box = &ui_elements[5];
     
     s_open_file_prompt_box_scale_matrix[0].x = 1;
     s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
@@ -61,7 +72,7 @@ void init_open_menu(
         NULL,
         &s_open_file_prompt_box_scale_matrix[0],
         0,
-        1.0 - ( ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_ABS_POS_Y) / g_dstudio_viewport_height),
+        1.0 - ( ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_OFFSET_Y) / g_dstudio_viewport_height),
         g_dstudio_viewport_width,
         DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT,
         0,
@@ -77,8 +88,8 @@ void init_open_menu(
         prompt,
         &g_charset_8x18_texture_ids[0],
         &g_charset_8x18_scale_matrix[0],
-        -1.0 + (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_X) / g_dstudio_viewport_width),
-        1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_Y) / g_dstudio_viewport_height),
+        -1.0 + (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_OFFSET_X) / g_dstudio_viewport_width),
+        1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_OFFSET_Y) / g_dstudio_viewport_height),
         DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH,
         DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT,
         0,
@@ -91,10 +102,102 @@ void init_open_menu(
     );
     
     update_text(prompt, "OPEN FILE", 9);
-    prompt->request_render = 0;
+
+    buttons_box->color.r = 0;
+    buttons_box->color.g = 0;
+    buttons_box->color.b = 0;
+    buttons_box->color.a = 0.5;
+    
+    init_ui_elements(
+        buttons_box,
+        NULL,
+        &s_open_file_prompt_box_scale_matrix[0],
+        0,
+        -1.0 + ( ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_OFFSET_Y) / g_dstudio_viewport_height),
+        g_dstudio_viewport_width,
+        DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        10,
+        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
+        DSTUDIO_FLAG_NONE
+    );
 
     s_open_file_list_box_scale_matrix[0].x = 1;
     s_open_file_list_box_scale_matrix[1].y = ((GLfloat) g_dstudio_viewport_height - 76 )/ (GLfloat) g_dstudio_viewport_height;
+
+    /* round to avoid rendering glitch */
+    GLfloat buttons_height = -1.0 + roundf((((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y) / g_dstudio_viewport_height) * 1000) / 1000;
+
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
+        DSTUDIO_CANCEL_BUTTON_ASSET_PATH,
+        s_open_file_buttons_scale_matrix
+    );
+    
+    texture_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
+        DSTUDIO_ACTIVE_CANCEL_BUTTON_ASSET_PATH,
+        NULL
+    ); 
+    
+    init_ui_elements(
+        button_cancel,
+        &texture_ids[0],
+        &s_open_file_buttons_scale_matrix[0],
+        1.0 - (((GLfloat) DSTUDIO_CANCEL_BUTTON_OFFSET_X) / g_dstudio_viewport_width),
+        buttons_height,
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        0,
+        0,
+        DSTUDIO_CANCEL_BUTTON_COLUMNS,
+        DSTUDIO_CANCEL_BUTTON_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON,
+        DSTUDIO_FLAG_NONE
+    );
+    button_cancel->application_callback = close_open_file_menu_button_callback;
+
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
+        DSTUDIO_OPEN_FILE_BUTTON_ASSET_PATH,
+        NULL
+    );
+    
+    texture_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
+        DSTUDIO_ACTIVE_OPEN_FILE_BUTTON_ASSET_PATH,
+        NULL
+    ); 
+
+    init_ui_elements(
+        button_open,
+        &texture_ids[0],
+        &s_open_file_buttons_scale_matrix[0],
+        1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_X) / g_dstudio_viewport_width),
+        buttons_height, 
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
+        0,
+        0,
+        DSTUDIO_OPEN_FILE_BUTTON_COLUMNS,
+        DSTUDIO_OPEN_FILE_BUTTON_COUNT,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON,
+        DSTUDIO_FLAG_NONE
+    );
     
     list_box->color.r = 0;
     list_box->color.g = 0;
@@ -106,7 +209,7 @@ void init_open_menu(
         NULL,
         &s_open_file_list_box_scale_matrix[0],
         0,
-        0,//1.0 - ( ((GLfloat) g_dstudio_viewport_height - 32) / g_dstudio_viewport_height) * 5,
+        0,
         g_dstudio_viewport_width,
         g_dstudio_viewport_height,
         0,
@@ -128,7 +231,7 @@ void open_file_menu(
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);
-    set_ui_elements_visibility(s_ui_elements, 1, 3);
+    set_ui_elements_visibility(s_ui_elements, 1, 6);
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
 }

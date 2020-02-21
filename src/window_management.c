@@ -102,7 +102,7 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
     swa->colormap = color_map;
     swa->background_pixmap = None ;
     swa->border_pixel      = 0;
-    swa->event_mask        = 0; //ExposureMask | StructureNotifyMask | PointerMotionMask;
+    swa->event_mask        = 0;
 }
 
 void configure_input(long mask) {
@@ -259,10 +259,6 @@ void listen_events() {
             window_alive = 0;
             return;
         }
-        else if (x_event.type == MotionNotify) {
-            pointer_x = x_event.xmotion.x;
-            pointer_y = x_event.xmotion.y;
-        }
         else if (x_event.type == Expose) {
             if (x_event.xexpose.send_event != 1) {
                 refresh_all = 1;
@@ -292,6 +288,8 @@ void listen_events() {
             }
         }
         else if(x_event.type == MotionNotify) {
+            pointer_x = x_event.xmotion.x;
+            pointer_y = x_event.xmotion.y;
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if(x_event.type == KeyPress) {

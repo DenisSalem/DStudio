@@ -38,18 +38,22 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_ACTIVE_ADD_VOICE_ASSET_PATH         "../assets/active_button_add_voice.png"
 #define DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH   "../assets/active_arrow_instances.png"
 #define DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH        "../assets/active_button_add.png"
+#define DSTUDIO_ACTIVE_CANCEL_BUTTON_ASSET_PATH     "../assets/active_button_cancel.png"
+#define DSTUDIO_ACTIVE_OPEN_FILE_BUTTON_ASSET_PATH  "../assets/active_button_open.png"
 #define DSTUDIO_ADD_INSTANCE_ASSET_PATH             "../assets/button_add_instance.png"
 #define DSTUDIO_ADD_SAMPLE_ASSET_PATH               "../assets/button_add_sample.png"
 #define DSTUDIO_ADD_VOICE_ASSET_PATH                "../assets/button_add_voice.png"
 #define DSTUDIO_ARROW_INSTANCES_ASSET_PATH          "../assets/arrow_instances.png"
 #define DSTUDIO_BACKGROUND_MENU_PATTERN_ASSET_PATH  "../assets/background_menu_pattern.png"
 #define DSTUDIO_BUTTON_ADD_ASSET_PATH               "../assets/button_add.png"
+#define DSTUDIO_CANCEL_BUTTON_ASSET_PATH            "../assets/button_cancel.png"
 #define DSTUDIO_CHAR_TABLE_8X18_ASSET_PATH          "../assets/char_table_8x18.png"
 #define DSTUDIO_CHAR_TABLE_4X9_ASSET_PATH           "../assets/char_table_4x9.png"
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
 #define DSTUDIO_KNOB_1_64x64_TEXTURE_PATH           "../assets/knob1_64x64.png"
 #define DSTUDIO_KNOB_1_48x48_TEXTURE_PATH           "../assets/knob1_48x48.png"
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_PATTERN_PATH    "../assets/list_item_highlight_pattern.png"
+#define DSTUDIO_OPEN_FILE_BUTTON_ASSET_PATH         "../assets/button_open.png"
 #define DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH   "../assets/ressource_usage.png"
 #define DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH         "../assets/slider1.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"
@@ -64,6 +68,11 @@ typedef struct ThreadControl_t {
 
 #define DSTUDIO_ADD_VOICE_WIDTH 68
 #define DSTUDIO_ADD_VOICE_HEIGHT 15
+
+#define DSTUDIO_CANCEL_BUTTON_COLUMNS 1
+#define DSTUDIO_CANCEL_BUTTON_COUNT 1
+#define DSTUDIO_CANCEL_BUTTON_OFFSET_X 252
+#define DSTUDIO_CANCEL_BUTTON_OFFSET_Y 38
 
 #define DSTUDIO_CHAR_TABLE_4X9_WIDTH 52
 #define DSTUDIO_CHAR_TABLE_4X9_HEIGHT 117
@@ -83,15 +92,22 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH 117
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT 11
 
-#define DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_Y 38
-#define DSTUDIO_OPEN_FILE_PROMPT_ABS_POS_X 32
-#define DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH 72
-#define DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT 10
 #define DSTUDIO_OPEN_FILE_PROMPT_COLUMN 1
 #define DSTUDIO_OPEN_FILE_PROMPT_COUNT 1
+#define DSTUDIO_OPEN_FILE_PROMPT_OFFSET_X 32
+#define DSTUDIO_OPEN_FILE_PROMPT_OFFSET_Y 38
+#define DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH 72
+#define DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT 10
 #define DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE 9
 
-#define DSTUDIO_OPEN_FILE_PROMPT_BOX_ABS_POS_Y 38
+#define DSTUDIO_OPEN_FILE_BUTTON_COLUMNS 1
+#define DSTUDIO_OPEN_FILE_BUTTON_COUNT 1
+#define DSTUDIO_OPEN_FILE_BUTTON_OFFSET_X 92
+#define DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y 38
+#define DSTUDIO_OPEN_FILE_BUTTONS_WIDTH 68
+#define DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT 15
+
+#define DSTUDIO_OPEN_FILE_PROMPT_BOX_OFFSET_Y 38
 #define DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT 26
 
 #define DSTUDIO_PATTERN_SCALE 16

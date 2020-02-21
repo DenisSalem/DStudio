@@ -115,7 +115,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
 
     sem_wait(&g_text_pointer_context.thread_control.mutex);
     switch(ui_elements->type) {
-        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
             interactive_list = ui_elements->interactive_list;
             g_text_pointer_context.ui_text = ui_elements;
             g_text_pointer_context.highlight = interactive_list->highlight;
@@ -190,7 +190,7 @@ void * text_pointer_blink_thread(void * args) {
  * sem_post multiple times. */
 void update_text_box(unsigned int keycode) {
     sem_t * mutex = 0;
-    if (g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) {
+    if (g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
         mutex = g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex ? g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex : &g_text_pointer_context.ui_text->interactive_list->thread_bound_control->mutex;
     }
     
@@ -262,7 +262,7 @@ void update_text_pointer() {
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), g_text_pointer_context.text_pointer->instance_alphas_buffer);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    if (g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) {
+    if (g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
         g_text_pointer_context.highlight->request_render = 1;
     }
     g_text_pointer_context.ui_text->request_render = 1;

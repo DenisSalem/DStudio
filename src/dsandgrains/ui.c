@@ -187,7 +187,7 @@ inline static void init_instances_list() {
         1,
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
-        DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
+        DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM,
         DSTUDIO_FLAG_IS_VISIBLE
     );
     
@@ -204,7 +204,7 @@ inline static void init_instances_list() {
         1,
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
-        DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
+        DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM,
         DSTUDIO_FLAG_IS_VISIBLE
     );
 }
@@ -544,7 +544,7 @@ inline static void init_sub_menu_add() {
     texture_ids[1] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
         DSTUDIO_ADD_INSTANCE_WIDTH,
-        DSTUDIO_ADD_INSTANCE_HEIGHT, 
+        DSTUDIO_ADD_INSTANCE_HEIGHT,
         DSTUDIO_ACTIVE_ADD_VOICE_ASSET_PATH,
         NULL
     );

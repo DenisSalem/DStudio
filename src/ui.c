@@ -160,7 +160,7 @@ void set_prime_interface(unsigned int state) {
                 case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
                 case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                 case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
-                case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                     g_ui_elements_array[i].enabled = state;
                     
                 case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
@@ -215,7 +215,7 @@ void init_opengl_ui_elements(
     UIElements * ui_elements
 ) {
     int flip_y = flags & DSTUDIO_FLAG_FLIP_Y;
-    int text_setting = flags & (DSTUDIO_FLAG_USE_TEXT_SETTING | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM);
+    int text_setting = flags & (DSTUDIO_FLAG_USE_TEXT_SETTING | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM);
     int texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
     // Setting vertex indexes
     GLchar * vertex_indexes = ui_elements->vertex_indexes;
@@ -354,7 +354,7 @@ void init_ui_elements(
     int flags
 ) {
     GLfloat min_area_x;
-    if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM)) {
+    if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM)) {
         min_area_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
     }
     else {
@@ -407,7 +407,7 @@ void init_ui_elements(
         ui_elements_array[i].request_render = ui_elements_array[i].visible;
         
         init_opengl_ui_elements(
-            ( ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
+            ( ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
             &ui_elements_array[i]
         );
     }
@@ -481,7 +481,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         update_button(ui_elements_p);
                         break;
                     
-                    case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                    case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                         timestamp = get_timestamp();
                         if (ui_elements_p->interactive_list->editable && timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
                             update_text_pointer_context(ui_elements_p);
@@ -565,7 +565,7 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
-        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
