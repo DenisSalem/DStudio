@@ -239,9 +239,21 @@ void new_instance(const char * given_directory, const char * process_name) {
 unsigned int select_instance_from_list(
     unsigned int index
 ) {
+    unsigned int voice_index = 0;
+    UIElements * line = NULL;
+    
     if (index != g_instances.index && index < g_instances.count) {
         update_current_instance(index);
-        bind_voices_interactive_list(NULL);
+        voice_index = g_instances.contexts[index].voices.index;
+        if (voice_index < g_ui_voices.lines_number) {
+            line = &g_ui_voices.lines[voice_index];
+            g_ui_voices.window_offset = 0;
+        }
+        else {
+            line = &g_ui_voices.lines[g_ui_voices.lines_number-1];
+            g_ui_voices.window_offset = voice_index - g_ui_voices.lines_number + 1;
+        }
+        bind_voices_interactive_list(line);
         return 1;
     }
     return 0;

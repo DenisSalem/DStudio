@@ -33,13 +33,12 @@ static unsigned int s_string_size;
 static GLfloat s_item_offset_y;
 
 void bind_voices_interactive_list(UIElements * line) {
+    g_ui_voices.update_request = -1;
     if (line == NULL) {
         line = g_ui_voices.lines;
         g_ui_voices.window_offset = 0;
-        g_ui_voices.update_request = -1;
         update_current_voice(0);
     }
-    
     g_ui_voices.source_data = (char*) &g_current_active_instance->voices.contexts->name;
     g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
     select_item(
@@ -110,7 +109,6 @@ UIElements * new_voice(unsigned int use_mutex) {
     else {
         g_ui_voices.update_request = g_instances.index;
         g_ui_voices.window_offset = 0;
-        printf("instance index: %d\n", g_instances.index);
     }
 
     line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];

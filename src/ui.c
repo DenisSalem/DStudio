@@ -535,14 +535,18 @@ inline void render_loop() {
     }
 };
 
-static void render_sub_menu_background() {
-    glUniformMatrix2fv(
-        g_scale_matrix_id,
-        1,
-        GL_FALSE,
-        (float *) g_menu_background_enabled->scale_matrix
-    );
-    render_ui_elements(g_menu_background_enabled);
+static void render_sub_menu_region() {
+    for (unsigned int i = g_menu_background_index; i < g_dstudio_ui_element_count; i++) {
+        if (g_ui_elements_array[i].visible) {
+            glUniformMatrix2fv(
+                g_scale_matrix_id,
+                1,
+                GL_FALSE,
+                (float *) g_ui_elements_array[i].scale_matrix
+            );
+            render_ui_elements(&g_ui_elements_array[i]);
+        }
+    }
 }
 
 void render_ui_elements(UIElements * ui_elements) {
@@ -625,7 +629,7 @@ void render_viewport(unsigned int render_all) {
             );
             
             if (g_menu_background_enabled && g_ui_elements_array[i].request_render && !render_all && i > g_menu_background_index && !g_menu_background_enabled->request_render) {
-               render_sub_menu_background();
+               render_sub_menu_region();
             }
             
             glUniformMatrix2fv(
@@ -639,7 +643,7 @@ void render_viewport(unsigned int render_all) {
             g_ui_elements_array[i].request_render = 0;
                                     
             if (g_menu_background_enabled && i < g_menu_background_index && !g_menu_background_enabled->request_render) {
-                render_sub_menu_background();
+                render_sub_menu_region();
             }
         }
     }
