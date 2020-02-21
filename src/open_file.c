@@ -17,6 +17,10 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <dirent.h>
+#include <sys/types.h>
+
+#include "fileutils.h"
 #include "text.h"
 #include "ui.h"
 
@@ -33,7 +37,7 @@ static void close_open_file_menu() {
     configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
-    set_ui_elements_visibility(s_ui_elements, 0, 6);
+    set_ui_elements_visibility(s_ui_elements, 0, 25);
     if (s_cancel_callback) {
         s_cancel_callback(NULL);
     }
@@ -58,6 +62,7 @@ void init_open_menu(
     UIElements * button_cancel = &ui_elements[3];
     UIElements * button_open = &ui_elements[4];
     UIElements * list_box = &ui_elements[5];
+    UIElements * list = &ui_elements[6];
     
     s_open_file_prompt_box_scale_matrix[0].x = 1;
     s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
@@ -100,8 +105,8 @@ void init_open_menu(
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_NONE
     );
-    
     update_text(prompt, "OPEN FILE", 9);
+    prompt->request_render = 0;
 
     buttons_box->color.r = 0;
     buttons_box->color.g = 0;
@@ -124,9 +129,6 @@ void init_open_menu(
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
         DSTUDIO_FLAG_NONE
     );
-
-    s_open_file_list_box_scale_matrix[0].x = 1;
-    s_open_file_list_box_scale_matrix[1].y = ((GLfloat) g_dstudio_viewport_height - 76 )/ (GLfloat) g_dstudio_viewport_height;
 
     /* round to avoid rendering glitch */
     GLfloat buttons_height = -1.0 + roundf((((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y) / g_dstudio_viewport_height) * 1000) / 1000;
@@ -204,6 +206,9 @@ void init_open_menu(
     list_box->color.b = 0;
     list_box->color.a = 0.5;
     
+    s_open_file_list_box_scale_matrix[0].x = 1;
+    s_open_file_list_box_scale_matrix[1].y = ((GLfloat) g_dstudio_viewport_height - 76 )/ (GLfloat) g_dstudio_viewport_height;
+
     init_ui_elements(
         list_box,
         NULL,
@@ -220,6 +225,23 @@ void init_open_menu(
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
         DSTUDIO_FLAG_NONE
     );
+    
+    init_ui_elements(
+        list,
+        &g_charset_8x18_texture_ids[0],
+        &g_charset_8x18_scale_matrix[0],
+        0,
+        0,
+        800,
+        480,
+        0,
+        -0.054166, /* offset y */
+        1,
+        ((g_dstudio_viewport_height - 76) / 18) - 2,
+        (g_dstudio_viewport_width - 48) / 8, /* char per lines */
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_FLAG_IS_VISIBLE
+    );
 }
 
 void open_file_menu(
@@ -231,7 +253,27 @@ void open_file_menu(
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);
-    set_ui_elements_visibility(s_ui_elements, 1, 6);
+    set_ui_elements_visibility(s_ui_elements, 1, 25);
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
+    
+    char * default_path = 0;
+    expand_user(&default_path, "~");
+    DIR * dr = opendir(default_path);
+    struct dirent *de;
+
+    unsigned int index = 0;
+    while ((de = readdir(dr)) != NULL) {
+        if (index < ((g_dstudio_viewport_height - 76) / 18) - 2) {
+            update_text(
+                &s_ui_elements[6+index],
+                de->d_name,
+                (g_dstudio_viewport_width - 48) / 8
+            );
+            printf("%u %s\n", index, de->d_name);
+            index +=1;
+        }
+    }
+    
+    dstudio_free(default_path);
 }

@@ -215,6 +215,26 @@ typedef struct UIElementsStruct_t {
     UIElements open_file_button_cancel;
     UIElements open_file_button_open;
     UIElements open_file_list_box;
+    UIElements open_file_list_item_1;
+    UIElements open_file_list_item_2;
+    UIElements open_file_list_item_3;
+    UIElements open_file_list_item_4;
+    UIElements open_file_list_item_5;
+    UIElements open_file_list_item_6;
+    UIElements open_file_list_item_7;
+    UIElements open_file_list_item_8;
+    UIElements open_file_list_item_9;
+    UIElements open_file_list_item_10;
+    UIElements open_file_list_item_11;
+    UIElements open_file_list_item_12;
+    UIElements open_file_list_item_13;
+    UIElements open_file_list_item_14;
+    UIElements open_file_list_item_15;
+    UIElements open_file_list_item_16;
+    UIElements open_file_list_item_17;
+    UIElements open_file_list_item_18;
+    UIElements open_file_list_item_19;
+    UIElements open_file_list_item_20;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

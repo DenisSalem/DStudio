@@ -161,6 +161,7 @@ void set_prime_interface(unsigned int state) {
                 case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                 case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
                 case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+                case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
                     g_ui_elements_array[i].enabled = state;
                     
                 case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
@@ -566,6 +567,7 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
         case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
