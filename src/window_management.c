@@ -248,7 +248,7 @@ void init_context(const char * window_name, int width, int height) {
             printf("Direct GLX rendering context obtained\n");
         }
     #endif
-    glXMakeCurrent( display, window, opengl_context );
+    glXMakeCurrent(display, window, opengl_context);
 }
 
 void listen_events() {

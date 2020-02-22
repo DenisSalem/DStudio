@@ -21,7 +21,7 @@ if ( (NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE MATCHES Release))
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address")
+    message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined")
     add_definitions(-DDSTUDIO_DEBUG)
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined")
 endif()

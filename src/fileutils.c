@@ -31,6 +31,7 @@
 
 static struct stat st = {0};
 static double s_physical_memory_kib = 0;
+static double s_cpu_usage = 0;
 
 void count_instances(const char * directory, unsigned int * count, unsigned int * last_id) {
     DIR * dr = 0;
@@ -141,8 +142,10 @@ double get_proc_memory_usage() {
     while(getline(&line_buffer, &line_buffer_size, processus_status) > 0) {
         if (strncmp(line_buffer, "VmRSS:", 6) == 0 ) {
             strrchr(line_buffer, ' ')[0] = 0;
+            s_cpu_usage = atof(strpbrk(line_buffer, " ")) / s_physical_memory_kib * 100;
             fclose(processus_status);
-            return atof(strpbrk(line_buffer, " ")) / s_physical_memory_kib * 100;
+            free(line_buffer);
+            return s_cpu_usage;
         }
     }
     fclose(processus_status);
@@ -192,6 +195,7 @@ int set_physical_memory() {
         if (strncmp(line_buffer, "MemTotal:", 9) == 0 ) {
             strrchr(line_buffer, ' ')[0] = 0;
             s_physical_memory_kib = atof(strpbrk(line_buffer, " "));
+            free(line_buffer);
             fclose(meminfo_fd);
             return 0;
         }
