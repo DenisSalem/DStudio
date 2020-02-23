@@ -164,10 +164,7 @@ void set_prime_interface(unsigned int state) {
                 case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
                     g_ui_elements_array[i].enabled = state;
                     
-                case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-                case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
-                case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
-                case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+                default:
                     break;
             }
         }
@@ -216,8 +213,10 @@ void init_opengl_ui_elements(
     UIElements * ui_elements
 ) {
     int flip_y = flags & DSTUDIO_FLAG_FLIP_Y;
-    int text_setting = flags & (DSTUDIO_FLAG_USE_TEXT_SETTING | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM);
+    int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
+    int slider_background_setting = flags & DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING;
     int texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
+    
     // Setting vertex indexes
     GLchar * vertex_indexes = ui_elements->vertex_indexes;
     vertex_indexes[0] = 0;
@@ -254,6 +253,10 @@ void init_opengl_ui_elements(
         vertex_attributes[2].z /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
         vertex_attributes[3].z /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
         vertex_attributes[3].w /= (GLfloat) DSTUDIO_CHAR_SIZE_DIVISOR;
+    }
+    else if (slider_background_setting) {
+        vertex_attributes[1].w /= (GLfloat) 3.0;
+        vertex_attributes[3].w /= (GLfloat) 3.0;
     }
     else if (texture_is_pattern) {
         vertex_attributes[1].w *= ((GLfloat) ui_elements->scale_matrix[1].y * g_dstudio_viewport_height) / DSTUDIO_PATTERN_SCALE;
@@ -355,14 +358,20 @@ void init_ui_elements(
     int flags
 ) {
     GLfloat min_area_x;
+    GLfloat min_area_y;
     if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM)) {
         min_area_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
     }
     else {
         min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2); 
     }
+    if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
+        min_area_y = 0;//(1 - gl_y) * (g_dstudio_viewport_height >> 1);
+    }
+    else {
+        min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
+    }
     GLfloat max_area_x = min_area_x + area_width;
-    GLfloat min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
     GLfloat max_area_y = min_area_y + area_height;
          
     GLfloat area_offset_x = offset_x * (GLfloat)(g_dstudio_viewport_width >> 1);
@@ -388,8 +397,20 @@ void init_ui_elements(
         
         for (unsigned int j = 0; j < instances_count; j++) {
             ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
-            ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + (j * scale_matrix[0].x * 2) + (x * offset_x);
-            ui_elements_array[i].instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
+            if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
+                ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + (x * offset_x);
+                ui_elements_array[i].instance_offsets_buffer[j].y = gl_y - (j * scale_matrix[1].y * 2) + (y * offset_y);
+                if (j == instances_count-1) {
+                    ui_elements_array[i].instance_offsets_buffer[j].w = 2.0/3.0;
+                }
+                else if (j != 0) {
+                    ui_elements_array[i].instance_offsets_buffer[j].w = 1.0/3.0;
+                }
+            }
+            else {
+                ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + (j * scale_matrix[0].x * 2) + (x * offset_x);
+                ui_elements_array[i].instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
+            }
         }
         
         ui_elements_array[i].scissor.x = min_area_x + computed_area_offset_x;
@@ -407,8 +428,16 @@ void init_ui_elements(
         ui_elements_array[i].visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
         ui_elements_array[i].request_render = ui_elements_array[i].visible;
         
+        
+        if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM)) {
+            flags |= DSTUDIO_FLAG_USE_TEXT_SETTING;
+        }
+        if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
+            flags |= DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING;
+        }
+        
         init_opengl_ui_elements(
-            ( ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) ? DSTUDIO_FLAG_USE_TEXT_SETTING : DSTUDIO_FLAG_NONE) | flags,
+            flags,
             &ui_elements_array[i]
         );
     }
@@ -563,13 +592,7 @@ void render_ui_elements(UIElements * ui_elements) {
             glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
             __attribute__ ((fallthrough));
 
-        case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
-        case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
-        case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
-        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-        case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        default:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }

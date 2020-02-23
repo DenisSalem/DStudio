@@ -18,6 +18,7 @@
 */
 
 #include <dirent.h>
+#include <stdlib.h>
 #include <sys/types.h>
 
 #include "fileutils.h"
@@ -31,13 +32,22 @@ static UIElements * s_menu_background;
 static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_list_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_buttons_scale_matrix[2] = {0};
+static Vec2 s_slider_background_scale_matrix[2] = {0};
 static UIElements * s_ui_elements;
+static unsigned int s_list_lines_number = 0;
+static char ** s_files_list = 0;
+static unsigned int s_files_count = 0;
 
 static void close_open_file_menu() {
     configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
-    set_ui_elements_visibility(s_ui_elements, 0, 25);
+    set_ui_elements_visibility(s_ui_elements, 0, 27);
+    for (unsigned int i = 0; i < s_files_count; i++) {
+        dstudio_free(s_files_list[i]);
+    }
+    dstudio_free(s_files_list);
+    
     if (s_cancel_callback) {
         s_cancel_callback(NULL);
     }
@@ -46,6 +56,10 @@ static void close_open_file_menu() {
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {
     (void) ui_elements;
     close_open_file_menu();
+}
+
+static int strcoll_proxy(const void * a, const void *b) {
+    return strcoll( *(const char**) a, *(const char **) b);
 }
 
 void init_open_menu(
@@ -62,7 +76,8 @@ void init_open_menu(
     UIElements * button_cancel = &ui_elements[3];
     UIElements * button_open = &ui_elements[4];
     UIElements * list_box = &ui_elements[5];
-    UIElements * list = &ui_elements[6];
+    UIElements * slider_background = &ui_elements[6];
+    UIElements * list = &ui_elements[7];
     
     s_open_file_prompt_box_scale_matrix[0].x = 1;
     s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
@@ -207,7 +222,7 @@ void init_open_menu(
     list_box->color.a = 0.5;
     
     s_open_file_list_box_scale_matrix[0].x = 1;
-    s_open_file_list_box_scale_matrix[1].y = ((GLfloat) g_dstudio_viewport_height - 76 )/ (GLfloat) g_dstudio_viewport_height;
+    s_open_file_list_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT)/ (GLfloat) g_dstudio_viewport_height;
 
     init_ui_elements(
         list_box,
@@ -216,29 +231,59 @@ void init_open_menu(
         0,
         0,
         g_dstudio_viewport_width,
-        g_dstudio_viewport_height,
+        DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT,
         0,
         0,
         1,
         1,
-        10,
+        1,
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
         DSTUDIO_FLAG_NONE
     );
-    
+
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_SLIDER_BACKGROUND_WIDTH,
+        DSTUDIO_SLIDER_BACKGROUND_HEIGHT, 
+        DSTUDIO_SLIDER_BACKGROUND_ASSET_PATH,
+        NULL
+    );
+
+    s_list_lines_number = (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2;
+
+    s_slider_background_scale_matrix[0].x = (GLfloat) DSTUDIO_SLIDER_BACKGROUND_WIDTH / (GLfloat) g_dstudio_viewport_width;
+    s_slider_background_scale_matrix[1].y = (GLfloat) (DSTUDIO_SLIDER_BACKGROUND_HEIGHT/3) / (GLfloat) g_dstudio_viewport_height;
+
+    init_ui_elements(
+        slider_background,
+        &texture_ids[0],
+        &s_slider_background_scale_matrix[0],
+        1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_SLIDER_BACKGROUND_OFFSET_X) / g_dstudio_viewport_width),
+        roundf((((GLfloat) s_list_lines_number*18-9) / (GLfloat) (g_dstudio_viewport_height)) * 1000) / 1000,
+        18,
+        480,
+        0,
+        0,
+        1,
+        1,
+        s_list_lines_number * 2,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND,
+        DSTUDIO_FLAG_NONE
+    );    
+        
     init_ui_elements(
         list,
         &g_charset_8x18_texture_ids[0],
         &g_charset_8x18_scale_matrix[0],
-        0,
-        0,
+        -1.0 + (((GLfloat)DSTUDIO_OPEN_FILE_LIST_OFFSET_X) / g_dstudio_viewport_width),
+        roundf((((GLfloat) s_list_lines_number*18 - 18) / (GLfloat) (g_dstudio_viewport_height)) * 1000) / 1000,
         800,
-        480,
+        18,
         0,
-        -0.054166, /* offset y */
+        -((GLfloat) 18) / (GLfloat) (g_dstudio_viewport_height >> 1), /* offset y */
         1,
-        ((g_dstudio_viewport_height - 76) / 18) - 2,
-        (g_dstudio_viewport_width - 48) / 8, /* char per lines */
+        (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2,
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_IS_VISIBLE
     );
@@ -253,7 +298,7 @@ void open_file_menu(
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);
-    set_ui_elements_visibility(s_ui_elements, 1, 25);
+    set_ui_elements_visibility(s_ui_elements, 1, 27);
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
     
@@ -262,16 +307,29 @@ void open_file_menu(
     DIR * dr = opendir(default_path);
     struct dirent *de;
 
-    unsigned int index = 0;
+    s_files_count = 0;
+    s_files_list = dstudio_alloc( sizeof(char *) * s_list_lines_number);
+    unsigned int allocation_size = sizeof(char *) * s_list_lines_number;
+    
     while ((de = readdir(dr)) != NULL) {
-        if (index < ((g_dstudio_viewport_height - 76) / 18) - 2) {
+        if (s_files_count == (allocation_size / sizeof(char *))) {
+            allocation_size += sizeof(char *) * s_list_lines_number;
+            s_files_list = dstudio_realloc(s_files_list, allocation_size);
+        }
+        s_files_list[s_files_count] = dstudio_alloc(strlen(de->d_name)+1);
+        strcpy(s_files_list[s_files_count], de->d_name);
+        s_files_count +=1;
+    }
+    
+    qsort(s_files_list, s_files_count, sizeof(char *), strcoll_proxy);
+    
+    for (unsigned int i=0; i < s_files_count; i++) {
+        if (i < s_list_lines_number) {
             update_text(
-                &s_ui_elements[6+index],
-                de->d_name,
-                (g_dstudio_viewport_width - 48) / 8
+                &s_ui_elements[7+i],
+                s_files_list[i],
+                DSTUDIO_OPEN_FILE_CHAR_PER_LINE
             );
-            printf("%u %s\n", index, de->d_name);
-            index +=1;
         }
     }
     

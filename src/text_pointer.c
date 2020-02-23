@@ -134,15 +134,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
                 }
             }
             break;
-        case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
-        case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
-        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
-        case DSTUDIO_UI_ELEMENT_TYPE_PATTERN:
-        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        default:
             sem_post(&g_text_pointer_context.thread_control.mutex);
             return;
     }
