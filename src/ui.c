@@ -366,7 +366,8 @@ void init_ui_elements(
         min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2); 
     }
     if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
-        min_area_y = 0;//(1 - gl_y) * (g_dstudio_viewport_height >> 1);
+        min_area_y = (1 - gl_y - scale_matrix[1].y*2) * (g_dstudio_viewport_height >> 1);
+        printf("min_area_y: %lf, height: %lf\n", min_area_y, area_height);
     }
     else {
         min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
@@ -488,6 +489,7 @@ void manage_cursor_position(int xpos, int ypos) {
 void manage_mouse_button(int xpos, int ypos, int button, int action) {
     UIElements * ui_elements_p = 0;
     double timestamp = 0;
+    GLfloat half_height;
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         clear_text_pointer();
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
@@ -523,8 +525,9 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-                        s_active_slider_range_min = ui_elements_p->areas.min_area_y + DSTUDIO_SLIDER_1_10_HEIGHT / 2;
-                        s_active_slider_range_max = ui_elements_p->areas.max_area_y - DSTUDIO_SLIDER_1_10_HEIGHT / 2;
+                        half_height = (ui_elements_p->scale_matrix[1].y * g_dstudio_viewport_height) / 2;
+                        s_active_slider_range_min = ui_elements_p->areas.min_area_y + half_height;
+                        s_active_slider_range_max = ui_elements_p->areas.max_area_y - half_height;
                         __attribute__ ((fallthrough));
                                                                    
                     case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
@@ -679,6 +682,7 @@ void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, un
         ui_elements[i].request_render = state;
         ui_elements[i].visible = state;
         switch(ui_elements[i].type) {
+            case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                 ui_elements[i].enabled = state;
                 ui_elements[i].texture_index = 0;

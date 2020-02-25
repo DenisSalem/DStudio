@@ -33,6 +33,7 @@ static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_list_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_buttons_scale_matrix[2] = {0};
 static Vec2 s_slider_background_scale_matrix[2] = {0};
+static Vec2 s_slider_scale_matrix[2] = {0};
 static UIElements * s_ui_elements;
 static unsigned int s_list_lines_number = 0;
 static char ** s_files_list = 0;
@@ -42,7 +43,7 @@ static void close_open_file_menu() {
     configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
-    set_ui_elements_visibility(s_ui_elements, 0, 27);
+    set_ui_elements_visibility(s_ui_elements, 0, 28);
     for (unsigned int i = 0; i < s_files_count; i++) {
         dstudio_free(s_files_list[i]);
     }
@@ -77,7 +78,8 @@ void init_open_menu(
     UIElements * button_open = &ui_elements[4];
     UIElements * list_box = &ui_elements[5];
     UIElements * slider_background = &ui_elements[6];
-    UIElements * list = &ui_elements[7];
+    UIElements * slider = &ui_elements[7];
+    UIElements * list = &ui_elements[8];
     
     s_open_file_prompt_box_scale_matrix[0].x = 1;
     s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
@@ -261,7 +263,7 @@ void init_open_menu(
         1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_SLIDER_BACKGROUND_OFFSET_X) / g_dstudio_viewport_width),
         roundf((((GLfloat) s_list_lines_number*18-9) / (GLfloat) (g_dstudio_viewport_height)) * 1000) / 1000,
         18,
-        480,
+        s_list_lines_number*18,
         0,
         0,
         1,
@@ -270,7 +272,32 @@ void init_open_menu(
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );    
-        
+
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_OPEN_FILE_SLIDER_WIDTH,
+        DSTUDIO_OPEN_FILE_SLIDER_HEIGHT, 
+        DSTUDIO_OPEN_FILE_SLIDER_ASSET_PATH,
+        s_slider_scale_matrix
+    );
+
+    init_ui_elements(
+        slider,
+        &texture_ids[0],
+        &s_slider_scale_matrix[0],
+        1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_SLIDER_BACKGROUND_OFFSET_X) / g_dstudio_viewport_width),
+        0,
+        18,
+        s_list_lines_number*18,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
+        DSTUDIO_FLAG_NONE
+    );
+
     init_ui_elements(
         list,
         &g_charset_8x18_texture_ids[0],
@@ -298,7 +325,7 @@ void open_file_menu(
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);
-    set_ui_elements_visibility(s_ui_elements, 1, 27);
+    set_ui_elements_visibility(s_ui_elements, 1, 28);
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
     
@@ -326,7 +353,7 @@ void open_file_menu(
     for (unsigned int i=0; i < s_files_count; i++) {
         if (i < s_list_lines_number) {
             update_text(
-                &s_ui_elements[7+i],
+                &s_ui_elements[8+i],
                 s_files_list[i],
                 DSTUDIO_OPEN_FILE_CHAR_PER_LINE
             );

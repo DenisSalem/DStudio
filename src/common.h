@@ -54,6 +54,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_KNOB_1_48x48_TEXTURE_PATH           "../assets/knob1_48x48.png"
 #define DSTUDIO_LIST_ITEM_HIGHLIGHT_PATTERN_PATH    "../assets/list_item_highlight_pattern.png"
 #define DSTUDIO_OPEN_FILE_BUTTON_ASSET_PATH         "../assets/button_open.png"
+#define DSTUDIO_OPEN_FILE_SLIDER_ASSET_PATH         "../assets/slider2.png"
 #define DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH   "../assets/ressource_usage.png"
 #define DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH         "../assets/slider1.png"
 #define DSTUDIO_SLIDER_BACKGROUND_ASSET_PATH        "../assets/slider_background.png"
@@ -110,6 +111,9 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH 72
 #define DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT 10
 #define DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE 9
+
+#define DSTUDIO_OPEN_FILE_SLIDER_WIDTH 18
+#define DSTUDIO_OPEN_FILE_SLIDER_HEIGHT 18
 
 #define DSTUDIO_OPEN_FILE_SLIDER_BACKGROUND_OFFSET_X 42
 
