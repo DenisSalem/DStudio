@@ -32,6 +32,15 @@ typedef struct ThreadControl_t {
     sem_t *         shared_mutex;
 } ThreadControl;
 
+
+// MISCELLANEOUS CONSTANTS
+#define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
+#define DSTUDIO_FRAMERATE 20000
+#define DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE 8
+#define DSTUDIO_RESSOURCE_USAGE_STRING_SIZE 6
+#define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
+#define DSTUDIO_OPEN_FILE_CHAR_PER_LINE ((int) (g_dstudio_viewport_width - 62) / 8)
+
 // PATHS
 #define DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH      "../assets/active_button_add_instance.png"
 #define DSTUDIO_ACTIVE_ADD_SAMPLE_ASSET_PATH        "../assets/active_button_add_sample.png"
@@ -103,6 +112,8 @@ typedef struct ThreadControl_t {
 
 #define DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT (g_dstudio_viewport_height - 76)
 #define DSTUDIO_OPEN_FILE_LIST_OFFSET_X 32
+#define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_POS_X (-0.97 + (GLfloat) (g_dstudio_viewport_width - 62) / (GLfloat) g_dstudio_viewport_width)
+#define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y (18.0 / (GLfloat) (g_dstudio_viewport_height >> 1))
 
 #define DSTUDIO_OPEN_FILE_PROMPT_COLUMN 1
 #define DSTUDIO_OPEN_FILE_PROMPT_COUNT 1
@@ -151,14 +162,6 @@ typedef struct ThreadControl_t {
 
 #define DSTUDIO_USE_MUTEX                   1
 #define DSTUDIO_DO_NOT_USE_MUTEX            0
-
-// MISCELLANEOUS CONSTANTS
-#define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
-#define DSTUDIO_FRAMERATE 20000
-#define DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE 8
-#define DSTUDIO_RESSOURCE_USAGE_STRING_SIZE 6
-#define DSTUDIO_CHAR_SIZE_DIVISOR 13.0
-#define DSTUDIO_OPEN_FILE_CHAR_PER_LINE (g_dstudio_viewport_width - 62) / 8
 
 #define DEFINE_SCALE_MATRIX(scale_matrix, width, height) \
         scale_matrix[0].x = (GLfloat) width / (GLfloat) g_dstudio_viewport_width;\

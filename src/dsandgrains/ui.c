@@ -323,7 +323,6 @@ inline static void init_list_item_highlights() {
         DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT
     )
     
-    
     texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_TEXTURE_IS_PATTERN,
         DSTUDIO_PATTERN_SCALE,

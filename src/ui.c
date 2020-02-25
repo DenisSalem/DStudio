@@ -359,15 +359,14 @@ void init_ui_elements(
 ) {
     GLfloat min_area_x;
     GLfloat min_area_y;
-    if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM)) {
+    if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM)) {
         min_area_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
     }
     else {
         min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2); 
     }
     if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
-        min_area_y = (1 - gl_y - scale_matrix[1].y*2) * (g_dstudio_viewport_height >> 1);
-        printf("min_area_y: %lf, height: %lf\n", min_area_y, area_height);
+        min_area_y = round((1 - gl_y - (scale_matrix[1].y)) * (g_dstudio_viewport_height >> 1));
     }
     else {
         min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
@@ -430,7 +429,7 @@ void init_ui_elements(
         ui_elements_array[i].request_render = ui_elements_array[i].visible;
         
         
-        if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM)) {
+        if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM )) {
             flags |= DSTUDIO_FLAG_USE_TEXT_SETTING;
         }
         if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
@@ -494,15 +493,28 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
         clear_text_pointer();
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
+            if (ui_elements_p->type == DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) {
+                printf("%d %d %d %d %d %d %d\n",
+                    xpos > ui_elements_p->areas.min_area_x,
+                    xpos < ui_elements_p->areas.max_area_x,
+                    ypos > ui_elements_p->areas.min_area_y,
+                    ypos < ui_elements_p->areas.max_area_y,
+                    ui_elements_p->enabled,
+                    ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
+                    ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
+                );
+            }
             if (
                 xpos > ui_elements_p->areas.min_area_x &&
                 xpos < ui_elements_p->areas.max_area_x &&
                 ypos > ui_elements_p->areas.min_area_y &&
                 ypos < ui_elements_p->areas.max_area_y &&
                 ui_elements_p->enabled &&
-                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND && ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
+                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND &&
+                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
             ) {
                 s_ui_element_index = i;
+                DSTUDIO_TRACE
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                         ui_elements_p->application_callback(ui_elements_p);
@@ -513,6 +525,11 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         update_button(ui_elements_p);
                         break;
                     
+                    case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                        DSTUDIO_TRACE
+                        select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+                        s_list_item_click_timestamp = timestamp;
+                        break;
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                         timestamp = get_timestamp();
                         if (ui_elements_p->interactive_list->editable && timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {

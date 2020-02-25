@@ -217,6 +217,7 @@ typedef struct UIElementsStruct_t {
     UIElements open_file_list_box;
     UIElements open_file_slider_background;
     UIElements open_file_slider;
+    UIElements open_file_list_highlight;
     UIElements open_file_list_item_1;
     UIElements open_file_list_item_2;
     UIElements open_file_list_item_3;

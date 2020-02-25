@@ -119,6 +119,7 @@ void select_item(
                 interactive_list->thread_bound_control->update = 1;
                 *interactive_list->highlight->instance_alphas_buffer = 1;
                 interactive_list->update_highlight = 1;
+                printf("%lf\n", interactive_list->highlight_offset_y + interactive_list->highlight_step * i);
                 highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
                 interactive_list->index = i;
                 highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);

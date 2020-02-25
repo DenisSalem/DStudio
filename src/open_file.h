@@ -21,9 +21,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "ui.h"
+
 void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
     void (*select_callback)(FILE * file_fd)
+);
+
+unsigned int select_file_from_list(
+    unsigned int index
 );

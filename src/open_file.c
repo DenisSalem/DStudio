@@ -18,10 +18,12 @@
 */
 
 #include <dirent.h>
+#include <semaphore.h>
 #include <stdlib.h>
 #include <sys/types.h>
 
 #include "fileutils.h"
+#include "open_file.h"
 #include "text.h"
 #include "ui.h"
 
@@ -34,19 +36,21 @@ static Vec2 s_open_file_list_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_buttons_scale_matrix[2] = {0};
 static Vec2 s_slider_background_scale_matrix[2] = {0};
 static Vec2 s_slider_scale_matrix[2] = {0};
+static Vec2 s_list_item_highlight_scale_matrix[2] = {0};
 static UIElements * s_ui_elements;
+static UIInteractiveList s_interactive_list = {0};
+static ThreadControl s_thread_control = {0};
 static unsigned int s_list_lines_number = 0;
-static char ** s_files_list = 0;
+static char * s_files_list = 0;
 static unsigned int s_files_count = 0;
+static unsigned int s_file_index = 0;
 
 static void close_open_file_menu() {
     configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
-    set_ui_elements_visibility(s_ui_elements, 0, 28);
-    for (unsigned int i = 0; i < s_files_count; i++) {
-        dstudio_free(s_files_list[i]);
-    }
+    set_ui_elements_visibility(s_ui_elements, 0, 29);
+
     dstudio_free(s_files_list);
     
     if (s_cancel_callback) {
@@ -60,7 +64,7 @@ static void close_open_file_menu_button_callback(UIElements * ui_elements) {
 }
 
 static int strcoll_proxy(const void * a, const void *b) {
-    return strcoll( *(const char**) a, *(const char **) b);
+    return strcoll( (const char*) a, (const char *) b);
 }
 
 void init_open_menu(
@@ -79,7 +83,8 @@ void init_open_menu(
     UIElements * list_box = &ui_elements[5];
     UIElements * slider_background = &ui_elements[6];
     UIElements * slider = &ui_elements[7];
-    UIElements * list = &ui_elements[8];
+    UIElements * list_highlight = &ui_elements[8];
+    UIElements * list = &ui_elements[9];
     
     s_open_file_prompt_box_scale_matrix[0].x = 1;
     s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
@@ -311,9 +316,57 @@ void init_open_menu(
         1,
         (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2,
         DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
-        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
-        DSTUDIO_FLAG_IS_VISIBLE
+        DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
+        DSTUDIO_FLAG_NONE
     );
+
+    DEFINE_SCALE_MATRIX(
+        s_list_item_highlight_scale_matrix,
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE*8,
+        18
+    )
+
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_TEXTURE_IS_PATTERN,
+        DSTUDIO_PATTERN_SCALE,
+        DSTUDIO_PATTERN_SCALE, 
+        DSTUDIO_LIST_ITEM_HIGHLIGHT_PATTERN_PATH,
+        NULL
+    );
+
+    init_ui_elements(
+        list_highlight,
+        &texture_ids[0],
+        &s_list_item_highlight_scale_matrix[0],
+        DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_POS_X,
+        0.5,
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE*8,
+        18, 
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_PATTERN,
+        DSTUDIO_FLAG_TEXTURE_IS_PATTERN
+    );    
+    
+    init_interactive_list(
+        &s_interactive_list,
+        list_highlight,
+        s_list_lines_number,
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
+        &s_files_count,
+        NULL, /* At this point has not been allocated yet. */
+        &s_thread_control,
+        select_file_from_list,
+        0,
+        DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y
+    );
+    
+    sem_init(&s_thread_control.mutex, 0, 1);
+    s_thread_control.ready = 1;
 }
 
 void open_file_menu(
@@ -325,7 +378,7 @@ void open_file_menu(
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);
-    set_ui_elements_visibility(s_ui_elements, 1, 28);
+    set_ui_elements_visibility(s_ui_elements, 1, 29);
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
     
@@ -335,30 +388,40 @@ void open_file_menu(
     struct dirent *de;
 
     s_files_count = 0;
-    s_files_list = dstudio_alloc( sizeof(char *) * s_list_lines_number);
-    unsigned int allocation_size = sizeof(char *) * s_list_lines_number;
+    s_files_list = dstudio_alloc( DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number);
+    unsigned int allocation_size = DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
     
     while ((de = readdir(dr)) != NULL) {
-        if (s_files_count == (allocation_size / sizeof(char *))) {
-            allocation_size += sizeof(char *) * s_list_lines_number;
+        if (s_files_count == (allocation_size / DSTUDIO_OPEN_FILE_CHAR_PER_LINE)) {
+            allocation_size += DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
             s_files_list = dstudio_realloc(s_files_list, allocation_size);
         }
-        s_files_list[s_files_count] = dstudio_alloc(strlen(de->d_name)+1);
-        strcpy(s_files_list[s_files_count], de->d_name);
+        strncpy(&s_files_list[s_files_count * DSTUDIO_OPEN_FILE_CHAR_PER_LINE], de->d_name, DSTUDIO_OPEN_FILE_CHAR_PER_LINE);
         s_files_count +=1;
     }
     
-    qsort(s_files_list, s_files_count, sizeof(char *), strcoll_proxy);
+    qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
     
     for (unsigned int i=0; i < s_files_count; i++) {
         if (i < s_list_lines_number) {
             update_text(
-                &s_ui_elements[8+i],
-                s_files_list[i],
+                &s_ui_elements[9+i],
+                &s_files_list[i * DSTUDIO_OPEN_FILE_CHAR_PER_LINE],
                 DSTUDIO_OPEN_FILE_CHAR_PER_LINE
             );
+            s_ui_elements[9+i].enabled = 1;
         }
     }
     
     dstudio_free(default_path);
+}
+
+unsigned int select_file_from_list(
+    unsigned int index
+) {
+    if (index != s_file_index && index < s_files_count) {
+        s_file_index = index;
+        return 1;
+    }
+    return 0;
 }
