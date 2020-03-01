@@ -187,10 +187,14 @@ typedef struct ThreadControl_t {
         return -1; \
     }
 
+#define DSTUDIO_ROUND(value, round) \
+    (roundf((value) * round) / round)
+
 #define DSTUDIO_TRACE \
     printf("%s %d\n", __FILE__, __LINE__);
 
 
+    
 extern const char g_application_name[];
 
 /*

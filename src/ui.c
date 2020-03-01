@@ -514,7 +514,6 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
             ) {
                 s_ui_element_index = i;
-                DSTUDIO_TRACE
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                         ui_elements_p->application_callback(ui_elements_p);

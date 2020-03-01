@@ -153,7 +153,7 @@ void init_open_menu(
     );
 
     /* round to avoid rendering glitch */
-    GLfloat buttons_height = -1.0 + roundf((((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y) / g_dstudio_viewport_height) * 1000) / 1000;
+    GLfloat buttons_height = DSTUDIO_ROUND(-1.0 + ((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y) / (GLfloat) g_dstudio_viewport_height, 100);
 
     texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
@@ -187,9 +187,9 @@ void init_open_menu(
         DSTUDIO_UI_ELEMENT_TYPE_BUTTON,
         DSTUDIO_FLAG_NONE
     );
+
     button_cancel->application_callback = close_open_file_menu_button_callback;
 
-    
     texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
@@ -266,7 +266,7 @@ void init_open_menu(
         &texture_ids[0],
         &s_slider_background_scale_matrix[0],
         1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_SLIDER_BACKGROUND_OFFSET_X) / g_dstudio_viewport_width),
-        roundf((((GLfloat) s_list_lines_number*18-9) / (GLfloat) (g_dstudio_viewport_height)) * 1000) / 1000,
+        DSTUDIO_ROUND(((GLfloat) s_list_lines_number*18-9) / (GLfloat) (g_dstudio_viewport_height), 1000),
         18,
         s_list_lines_number*18,
         0,
