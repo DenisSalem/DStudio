@@ -106,7 +106,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_OPEN_FILE_BUTTON_COLUMNS 1
 #define DSTUDIO_OPEN_FILE_BUTTON_COUNT 1
 #define DSTUDIO_OPEN_FILE_BUTTON_OFFSET_X 92
-#define DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y 38
+#define DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y 19
 #define DSTUDIO_OPEN_FILE_BUTTONS_WIDTH 68
 #define DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT 15
 
@@ -186,9 +186,6 @@ typedef struct ThreadControl_t {
         printf("%s:%d !" #value "\n", __FILE__, __LINE__); \
         return -1; \
     }
-
-#define DSTUDIO_ROUND(value, round) \
-    (roundf((value) * round) / round)
 
 #define DSTUDIO_TRACE \
     printf("%s %d\n", __FILE__, __LINE__);

@@ -29,7 +29,7 @@
 #include "ui.h"
 
 const unsigned int g_dstudio_viewport_width = 800;
-const unsigned int g_dstudio_viewport_height = 480;
+const unsigned int g_dstudio_viewport_height = 512;
 const char g_application_name[] = "DSANDGRAINS";
 
 /* Allow generic DStudio UI features (like render loop) to deal with an 

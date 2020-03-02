@@ -57,6 +57,7 @@ void init_voices_interactive_list(
     s_lines_number = lines_number;
     s_string_size = string_size;
     s_item_offset_y = item_offset_y;
+    
     init_interactive_list(
         &g_ui_voices,
         s_ui_elements,

@@ -129,6 +129,8 @@ inline static void init_background() {
         DSANDGRAINS_BACKGROUND_ASSET_PATH,
         background_scale_matrix
     );
+    
+    
 
     init_ui_elements(
         &g_ui_elements_struct.background,
@@ -419,7 +421,8 @@ inline static void init_ressource_usage() {
         &textures_ids[0],
         &ressource_usage_prompt_scale_matrix[0],
         DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_X,
-        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y,
+        /* Add a half-pixel to minimize interpolation */
+        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y - (0.5 / g_dstudio_viewport_height),
         DSTUDIO_RESSOURCE_USAGE_WIDTH,
         DSTUDIO_RESSOURCE_USAGE_HEIGHT,
         0,
@@ -624,7 +627,9 @@ static void init_dsandgrains_ui_elements() {
     init_list_item_highlights();
 
     init_arrow_instance_buttons();
+
     init_background();
+
     init_buttons_management();
     init_instances_list();
     init_knobs();
@@ -642,17 +647,17 @@ static void init_dsandgrains_ui_elements() {
     for (unsigned int i = 4; i < g_menu_background_index; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
+
 }
 
 void * ui_thread(void * arg) {
     (void) arg;
-
+    
     SET_UI_MENU_BACKGROUND_INDEX
     
     init_ui();
-
     init_dsandgrains_ui_elements();
-    
+
     init_ressource_usage_thread(
         DSTUDIO_RESSOURCE_USAGE_STRING_SIZE,
         &g_ui_elements_struct.cpu_usage,
@@ -665,14 +670,14 @@ void * ui_thread(void * arg) {
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
-    
+
     init_voices_interactive_list(
         &g_ui_elements_struct.voices_list_item_highlight,
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
-    
+
     bind_voices_interactive_list(NULL);
 
     init_threaded_ui_element_updater_register(4);

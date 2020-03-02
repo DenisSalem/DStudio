@@ -116,7 +116,8 @@ int load_extensions() {
     GLint extensions_count;
     glGetIntegerv(GL_NUM_EXTENSIONS, &extensions_count);
     printf("Extensions count: %d.\n", extensions_count);
-    for (GLint i=0; i < extensions_count; i++) { 
+
+    for (GLint i=0; i < extensions_count; i++) {
         const char* extension = (const char*) glGetStringi(GL_EXTENSIONS, i);
         printf("Extention\t%d : %s\n", i, extension);
     }

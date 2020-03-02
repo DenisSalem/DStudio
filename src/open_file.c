@@ -152,9 +152,9 @@ void init_open_menu(
         DSTUDIO_FLAG_NONE
     );
 
-    /* round to avoid rendering glitch */
-    GLfloat buttons_height = DSTUDIO_ROUND(-1.0 + ((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y) / (GLfloat) g_dstudio_viewport_height, 100);
-
+    GLfloat buttons_pos_y = -1.0 +((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y) / (GLfloat) (g_dstudio_viewport_height>>1);
+    /* Add a half-pixel to minimize interpolation */
+    buttons_pos_y += 0.5 / (GLfloat) (g_dstudio_viewport_height>>1);
     texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
@@ -176,7 +176,7 @@ void init_open_menu(
         &texture_ids[0],
         &s_open_file_buttons_scale_matrix[0],
         1.0 - (((GLfloat) DSTUDIO_CANCEL_BUTTON_OFFSET_X) / g_dstudio_viewport_width),
-        buttons_height,
+        buttons_pos_y,
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         0,
@@ -211,7 +211,7 @@ void init_open_menu(
         &texture_ids[0],
         &s_open_file_buttons_scale_matrix[0],
         1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_X) / g_dstudio_viewport_width),
-        buttons_height, 
+        buttons_pos_y, 
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         0,
@@ -257,6 +257,9 @@ void init_open_menu(
     );
 
     s_list_lines_number = (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2;
+    #ifdef DSTUDIO_DEBUG
+        printf("Open file menu should have %u lines.\n", s_list_lines_number);
+    #endif
 
     s_slider_background_scale_matrix[0].x = (GLfloat) DSTUDIO_SLIDER_BACKGROUND_WIDTH / (GLfloat) g_dstudio_viewport_width;
     s_slider_background_scale_matrix[1].y = (GLfloat) (DSTUDIO_SLIDER_BACKGROUND_HEIGHT/3) / (GLfloat) g_dstudio_viewport_height;
@@ -266,7 +269,7 @@ void init_open_menu(
         &texture_ids[0],
         &s_slider_background_scale_matrix[0],
         1.0 - (((GLfloat) DSTUDIO_OPEN_FILE_SLIDER_BACKGROUND_OFFSET_X) / g_dstudio_viewport_width),
-        DSTUDIO_ROUND(((GLfloat) s_list_lines_number*18-9) / (GLfloat) (g_dstudio_viewport_height), 1000),
+        ((GLfloat) s_list_lines_number*18-9) / (GLfloat) (g_dstudio_viewport_height),
         18,
         s_list_lines_number*18,
         0,

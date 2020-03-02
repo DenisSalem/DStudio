@@ -2,9 +2,7 @@ cmake_minimum_required (VERSION 3.0.2)
 project(DStudio)
 set(PACKAGE_VERSION "0.0.0")
 
-set(CUSTOM_FLAGS    "-Werror \
-                     -Wall \
-                     -Wextra"
+set(CUSTOM_FLAGS    "-Werror -Wall -Wextra"
 )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -21,9 +19,16 @@ if ( (NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE MATCHES Release))
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined")
     add_definitions(-DDSTUDIO_DEBUG)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined")
+    if(DEFINED FSANITIZE AND FSANITIZE MATCHES Disabled)
+        message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fno-omit-frame-pointer -fsanitize=undefined -fsanitize-address-use-after-scope")
+        set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=undefined -fsanitize-address-use-after-scope")
+    else()
+        message(STATUS "Debug mode. ${CMAKE_C_FLAGS_DEBUG} ${CUSTOM_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize-address-use-after-scope")
+        message("-- /!\\ Please note -fsanitize=address might cause OpenGL to not work as expected.")
+        message("-- /!\\ If this is the case, using -DFSANITIZE=Disabled might help.")
+        set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize-address-use-after-scope")
+    endif()
 endif()
 
 find_package(OpenGL REQUIRED)
