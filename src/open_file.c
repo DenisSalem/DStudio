@@ -155,6 +155,7 @@ void init_open_menu(
     GLfloat buttons_pos_y = -1.0 +((GLfloat) DSTUDIO_OPEN_FILE_BUTTON_OFFSET_Y) / (GLfloat) (g_dstudio_viewport_height>>1);
     /* Add a half-pixel to minimize interpolation */
     buttons_pos_y += 0.5 / (GLfloat) (g_dstudio_viewport_height>>1);
+    
     texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
