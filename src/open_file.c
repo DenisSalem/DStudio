@@ -306,7 +306,7 @@ void init_open_menu(
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
-        DSTUDIO_FLAG_NONE
+        DSTUDIO_FLAG_SLIDER_TO_TOP
     );
 
     GLfloat list_y_pos = ((GLfloat) s_list_lines_number*18 - 18) / (GLfloat) (g_dstudio_viewport_height);
@@ -371,6 +371,11 @@ void init_open_menu(
         select_file_from_list,
         0,
         DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y
+    );
+    
+    bind_scroll_bar(
+        &s_interactive_list,
+        slider
     );
     
     sem_init(&g_open_file_thread_control.mutex, 0, 1);

@@ -160,6 +160,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_FLAG_TEXTURE_IS_PATTERN             16
 #define DSTUDIO_FLAG_IS_VISIBLE                     32
 #define DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING  64
+#define DSTUDIO_FLAG_SLIDER_TO_TOP                  128
 
 #define DSTUDIO_USE_MUTEX                   1
 #define DSTUDIO_DO_NOT_USE_MUTEX            0

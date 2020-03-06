@@ -33,6 +33,7 @@ typedef struct UIElements_t UIElements;
 
 typedef struct UIInteractiveList_t {
     UIElements * highlight;
+    UIElements * scroll_bar;
     UIElements * lines;
     unsigned int lines_number;
     unsigned int string_size;
@@ -50,6 +51,11 @@ typedef struct UIInteractiveList_t {
     unsigned int previous_item_index;
     int index;
 } UIInteractiveList;
+
+void bind_scroll_bar(
+    UIInteractiveList * interactive_list,
+    UIElements * scroll_bar
+);
 
 void init_interactive_list(
     UIInteractiveList * interactive_list,

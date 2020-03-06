@@ -411,6 +411,10 @@ void init_ui_elements(
             else {
                 ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + (j * scale_matrix[0].x * 2) + (x * offset_x);
                 ui_elements_array[i].instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
+                if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
+                    ui_elements_array[i].instance_motions_buffer[j] = \
+                        (GLfloat) (area_height) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
+                }
             }
         }
         
@@ -537,6 +541,9 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         half_height = (ui_elements_p->scale_matrix[1].y * g_dstudio_viewport_height) / 2;
                         s_active_slider_range_min = ui_elements_p->areas.min_area_y + half_height;
                         s_active_slider_range_max = ui_elements_p->areas.max_area_y - half_height;
+                        if (ui_elements_p->interactive_list) {
+                            g_active_interactive_list = ui_elements_p->interactive_list;
+                        }
                         __attribute__ ((fallthrough));
                                                                    
                     case DSTUDIO_UI_ELEMENT_TYPE_KNOB:

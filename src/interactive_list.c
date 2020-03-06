@@ -23,6 +23,11 @@
 #include "instances.h"
 #include "text.h"
 
+inline void bind_scroll_bar(UIInteractiveList * interactive_list, UIElements * scroll_bar) {
+    scroll_bar->interactive_list = interactive_list;
+    interactive_list->scroll_bar = scroll_bar;
+}
+
 void init_interactive_list(
     UIInteractiveList * interactive_list,
     UIElements * ui_elements,
