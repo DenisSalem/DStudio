@@ -20,6 +20,8 @@
 #include<GL/gl.h>
 #include<GL/glx.h>
 
+#include "interactive_list.h"
+
 #ifndef WINDOW_MANAGEMENT_INCLUDED
 #define WINDOW_MANAGEMENT_INCLUDED
 
@@ -27,8 +29,10 @@
 #define DSTUDIO_MOUSE_BUTTON_RIGHT      2
 #define DSTUDIO_MOUSE_BUTTON_PRESS      4
 #define DSTUDIO_MOUSE_BUTTON_RELEASE    8
+#define DSTUDIO_KEY_BOTTOM_ARROW        116
 #define DSTUDIO_KEY_LEFT_ARROW          65361
 #define DSTUDIO_KEY_RIGHT_ARROW         65363
+#define DSTUDIO_KEY_TOP_ARROW           111
 #define DSTUDIO_KEY_CODE_ENTER          36
 #define DSTUDIO_KEY_CODE_ESC            9
 #define DSTUDIO_KEY_CODE_ERASEBACK      65288
@@ -50,5 +54,6 @@ void set_mouse_button_callback(void (*callback)(int xpos, int ypos, int button, 
 void swap_window_buffer();
 
 extern unsigned int g_dstudio_mouse_state;
+extern UIInteractiveList * g_active_interactive_list;
 void (*close_sub_menu_callback)();
 #endif

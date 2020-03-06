@@ -69,8 +69,7 @@ void update_insteractive_list(
     UIInteractiveList * interactive_list
 );
 
-void scroll_down(UIElements * self);
-void scroll_up(UIElements * self);
+void scroll(UIInteractiveList * interactive_list, int direction);
 
 void select_item(
     UIElements * self,

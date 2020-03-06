@@ -28,7 +28,6 @@
 
 #include "common.h"
 #include "interactive_list.h"
-#include "window_management.h"
 
 #define SET_UI_MENU_BACKGROUND_INDEX \
     for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) { \

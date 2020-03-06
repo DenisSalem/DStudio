@@ -32,9 +32,9 @@
 #include "fileutils.h"
 #include "instances.h"
 #include "ui.h"
-//~ #include "voices.h"
 #include "buttons.h"
 #include "text_pointer.h"
+#include "window_management.h"
 
 static struct stat st = {0};
 

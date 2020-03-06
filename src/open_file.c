@@ -26,7 +26,10 @@
 #include "open_file.h"
 #include "text.h"
 #include "ui.h"
+#include "window_management.h"
 
+
+ThreadControl g_open_file_thread_control = {0};
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static void (*s_select_callback)(FILE * file_fd) = 0;
@@ -39,7 +42,6 @@ static Vec2 s_slider_scale_matrix[2] = {0};
 static Vec2 s_list_item_highlight_scale_matrix[2] = {0};
 static UIElements * s_ui_elements;
 static UIInteractiveList s_interactive_list = {0};
-static ThreadControl s_thread_control = {0};
 static unsigned int s_list_lines_number = 0;
 static char * s_files_list = 0;
 static unsigned int s_files_count = 0;
@@ -49,13 +51,13 @@ static void close_open_file_menu() {
     configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
-    set_ui_elements_visibility(s_ui_elements, 0, 29);
-
+    set_ui_elements_visibility(s_ui_elements, 0, DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT + s_list_lines_number);
     dstudio_free(s_files_list);
     
     if (s_cancel_callback) {
         s_cancel_callback(NULL);
     }
+    g_active_interactive_list = 0;
 }
 
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {
@@ -307,12 +309,14 @@ void init_open_menu(
         DSTUDIO_FLAG_NONE
     );
 
+    GLfloat list_y_pos = ((GLfloat) s_list_lines_number*18 - 18) / (GLfloat) (g_dstudio_viewport_height);
+    
     init_ui_elements(
         list,
         &g_charset_8x18_texture_ids[0],
         &g_charset_8x18_scale_matrix[0],
         -1.0 + (((GLfloat)DSTUDIO_OPEN_FILE_LIST_OFFSET_X) / g_dstudio_viewport_width),
-        roundf((((GLfloat) s_list_lines_number*18 - 18) / (GLfloat) (g_dstudio_viewport_height)) * 1000) / 1000,
+        list_y_pos,
         800,
         18,
         0,
@@ -343,7 +347,7 @@ void init_open_menu(
         &texture_ids[0],
         &s_list_item_highlight_scale_matrix[0],
         DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_POS_X,
-        0.5,
+        list_y_pos,
         DSTUDIO_OPEN_FILE_CHAR_PER_LINE*8,
         18, 
         0,
@@ -363,14 +367,14 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
         &s_files_count,
         NULL, /* At this point has not been allocated yet. */
-        &s_thread_control,
+        &g_open_file_thread_control,
         select_file_from_list,
         0,
         DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y
     );
     
-    sem_init(&s_thread_control.mutex, 0, 1);
-    s_thread_control.ready = 1;
+    sem_init(&g_open_file_thread_control.mutex, 0, 1);
+    g_open_file_thread_control.ready = 1;
 }
 
 void open_file_menu(
@@ -382,7 +386,7 @@ void open_file_menu(
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);
-    set_ui_elements_visibility(s_ui_elements, 1, 29);
+    set_ui_elements_visibility(s_ui_elements, 1, DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT + s_list_lines_number);
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
     
@@ -403,6 +407,7 @@ void open_file_menu(
         strncpy(&s_files_list[s_files_count * DSTUDIO_OPEN_FILE_CHAR_PER_LINE], de->d_name, DSTUDIO_OPEN_FILE_CHAR_PER_LINE);
         s_files_count +=1;
     }
+    s_interactive_list.source_data = s_files_list;
     
     qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
     
@@ -416,7 +421,7 @@ void open_file_menu(
             s_ui_elements[9+i].enabled = 1;
         }
     }
-    
+    closedir(dr);    
     dstudio_free(default_path);
 }
 
@@ -428,4 +433,8 @@ unsigned int select_file_from_list(
         return 1;
     }
     return 0;
+}
+
+void update_open_file_ui_list() {
+    update_insteractive_list(&s_interactive_list);
 }

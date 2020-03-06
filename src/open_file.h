@@ -23,6 +23,9 @@
 
 #include "ui.h"
 
+extern ThreadControl g_open_file_thread_control;
+
+
 void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
 
 void open_file_menu(
@@ -33,3 +36,5 @@ void open_file_menu(
 unsigned int select_file_from_list(
     unsigned int index
 );
+
+void update_open_file_ui_list();

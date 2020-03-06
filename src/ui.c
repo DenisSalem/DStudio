@@ -29,6 +29,7 @@
 #include "instances.h"
 #include "text_pointer.h"
 #include "ui.h"
+#include "window_management.h"
 
 GLuint g_charset_8x18_texture_ids[2] = {0};
 GLuint g_charset_4x9_texture_ids[2] = {0};
@@ -489,21 +490,11 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     UIElements * ui_elements_p = 0;
     double timestamp = 0;
     GLfloat half_height;
+    unsigned int clicked_none = 1;
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         clear_text_pointer();
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
-            if (ui_elements_p->type == DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) {
-                printf("%d %d %d %d %d %d %d\n",
-                    xpos > ui_elements_p->areas.min_area_x,
-                    xpos < ui_elements_p->areas.max_area_x,
-                    ypos > ui_elements_p->areas.min_area_y,
-                    ypos < ui_elements_p->areas.max_area_y,
-                    ui_elements_p->enabled,
-                    ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
-                    ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
-                );
-            }
             if (
                 xpos > ui_elements_p->areas.min_area_x &&
                 xpos < ui_elements_p->areas.max_area_x &&
@@ -514,6 +505,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
             ) {
                 s_ui_element_index = i;
+                clicked_none = 0;
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                         ui_elements_p->application_callback(ui_elements_p);
@@ -525,9 +517,9 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         break;
                     
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                        DSTUDIO_TRACE
                         select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
                         s_list_item_click_timestamp = timestamp;
+                        g_active_interactive_list = ui_elements_p->interactive_list;
                         break;
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                         timestamp = get_timestamp();
@@ -538,6 +530,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                             select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
                             s_list_item_click_timestamp = timestamp;
                         }
+                        g_active_interactive_list = ui_elements_p->interactive_list;
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
@@ -556,6 +549,9 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 }
                 break;
             }
+        }
+        if (clicked_none) {
+            g_active_interactive_list = 0;
         }
     }
     else if(action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
@@ -586,7 +582,7 @@ inline void render_loop() {
 
 static void render_sub_menu_region() {
     for (unsigned int i = g_menu_background_index; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].visible) {
+        if (g_ui_elements_array[i].visible && !g_ui_elements_array[i].request_render) {
             glUniformMatrix2fv(
                 g_scale_matrix_id,
                 1,
@@ -684,11 +680,12 @@ void render_viewport(unsigned int render_all) {
             );
             
             render_ui_elements(&g_ui_elements_array[i]);
-            g_ui_elements_array[i].request_render = 0;
                                     
             if (g_menu_background_enabled && i < g_menu_background_index && !g_menu_background_enabled->request_render) {
                 render_sub_menu_region();
             }
+            g_ui_elements_array[i].request_render = 0;
+
         }
     }
 }
@@ -700,6 +697,7 @@ void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, un
         switch(ui_elements[i].type) {
             case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+            case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
                 ui_elements[i].enabled = state;
                 ui_elements[i].texture_index = 0;
                 break;

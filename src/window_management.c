@@ -32,6 +32,7 @@
 #include "window_management.h"
 
 unsigned int g_dstudio_mouse_state = 0;
+UIInteractiveList * g_active_interactive_list = 0;
 
 static void (*cursor_position_callback)(int xpos, int ypos) = 0;
 void (*mouse_button_callback)(int xpos, int ypos, int button, int action) = 0;
@@ -304,6 +305,14 @@ void listen_events() {
             }
             else if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT || x_event.xkey.keycode == DSTUDIO_KEY_CAPS_LOCK) {
                 keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
+            }
+            else if (x_event.xkey.keycode == DSTUDIO_KEY_BOTTOM_ARROW && g_active_interactive_list) {
+                clear_text_pointer();
+                scroll(g_active_interactive_list, 1);
+            }
+            else if (x_event.xkey.keycode == DSTUDIO_KEY_TOP_ARROW && g_active_interactive_list) {
+                clear_text_pointer();
+                scroll(g_active_interactive_list, -1);
             }
             else if(g_text_pointer_context.active) {
                 update_text_box(

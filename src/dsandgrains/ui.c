@@ -47,17 +47,17 @@ Vec2 tiny_button_scale_matrix[2] = {0};
 Vec2 sub_menu_buttons_add_scale_matrix[2] = {0};
 
 inline static void bind_callbacks() {
-    g_ui_elements_struct.button_arrow_top_instances.application_callback = scroll_up;
-    g_ui_elements_struct.button_arrow_top_instances.application_callback_args = (void *) &g_ui_instances;
+    //~ g_ui_elements_struct.button_arrow_top_instances.application_callback = scroll_up;
+    //~ g_ui_elements_struct.button_arrow_top_instances.application_callback_args = (void *) &g_ui_instances;
     
-    g_ui_elements_struct.button_arrow_bottom_instances.application_callback = scroll_down;
-    g_ui_elements_struct.button_arrow_bottom_instances.application_callback_args = (void *) &g_ui_instances;
+    //~ g_ui_elements_struct.button_arrow_bottom_instances.application_callback = scroll_down;
+    //~ g_ui_elements_struct.button_arrow_bottom_instances.application_callback_args = (void *) &g_ui_instances;
 
-    g_ui_elements_struct.button_arrow_top_voices.application_callback = scroll_up;
-    g_ui_elements_struct.button_arrow_top_voices.application_callback_args = (void *) &g_ui_voices;
+    //~ g_ui_elements_struct.button_arrow_top_voices.application_callback = scroll_up;
+    //~ g_ui_elements_struct.button_arrow_top_voices.application_callback_args = (void *) &g_ui_voices;
     
-    g_ui_elements_struct.button_arrow_bottom_voices.application_callback = scroll_down;
-    g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_voices;
+    //~ g_ui_elements_struct.button_arrow_bottom_voices.application_callback = scroll_down;
+    //~ g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_voices;
 
     g_ui_elements_struct.button_add.application_callback = add_sub_menu;
     g_ui_elements_struct.button_add_instance.application_callback = add_instance;
@@ -680,7 +680,7 @@ void * ui_thread(void * arg) {
 
     bind_voices_interactive_list(NULL);
 
-    init_threaded_ui_element_updater_register(4);
+    init_threaded_ui_element_updater_register(5);
     
     register_threaded_ui_elements_updater(
         &g_text_pointer_context.thread_control,
@@ -700,6 +700,11 @@ void * ui_thread(void * arg) {
     register_threaded_ui_elements_updater(
         &g_voices_thread_control,        
         update_voices_ui_list
+    );
+
+    register_threaded_ui_elements_updater(
+        &g_open_file_thread_control,     
+        update_open_file_ui_list
     );
     
     render_loop();

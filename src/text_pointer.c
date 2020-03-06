@@ -25,6 +25,7 @@
 #include "extensions.h"
 #include "text.h"
 #include "text_pointer.h"
+#include "window_management.h"
 
 static Vec2 s_text_pointer_4x9_scale_matrix[2] = {0};
 static Vec2 s_text_pointer_8x18_scale_matrix[2] = {0};
@@ -233,7 +234,7 @@ void update_text_box(unsigned int keycode) {
         }
         string_buffer[g_text_pointer_context.insert_char_index++] = (char) keycode;
     }
-    else {
+    else {printf("%d\n", keycode);
         goto release_mutex;
     }
     compute_text_pointer_coordinates(g_text_pointer_context.insert_char_index);

@@ -40,6 +40,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_RESSOURCE_USAGE_STRING_SIZE 6
 #define DSTUDIO_CHAR_SIZE_DIVISOR 16.0
 #define DSTUDIO_OPEN_FILE_CHAR_PER_LINE ((int) (g_dstudio_viewport_width - 62) / 8)
+#define DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT 9
 
 // PATHS
 #define DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH      "../assets/active_button_add_instance.png"
@@ -113,7 +114,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT (g_dstudio_viewport_height - 76)
 #define DSTUDIO_OPEN_FILE_LIST_OFFSET_X 32
 #define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_POS_X (-0.97 + (GLfloat) (g_dstudio_viewport_width - 62) / (GLfloat) g_dstudio_viewport_width)
-#define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y (18.0 / (GLfloat) (g_dstudio_viewport_height >> 1))
+#define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y (-18.0 / (GLfloat) (g_dstudio_viewport_height >> 1))
 
 #define DSTUDIO_OPEN_FILE_PROMPT_COLUMN 1
 #define DSTUDIO_OPEN_FILE_PROMPT_COUNT 1

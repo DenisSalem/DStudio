@@ -21,6 +21,7 @@
 #include "../open_file.h"
 #include "../ui.h"
 #include "../voices.h"
+#include "../window_management.h"
 
 #include "add.h"
 #include "ui.h"
@@ -69,5 +70,6 @@ void close_add_sub_menu() {
     set_prime_interface(1);
     set_ui_elements_visibility(&g_ui_elements_struct.menu_background, 0, 5);
     g_menu_background_enabled = 0;
+    g_active_interactive_list = 0;
     g_request_render_all = 1;
 }

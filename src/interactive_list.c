@@ -53,39 +53,23 @@ void init_interactive_list(
     interactive_list->highlight_offset_y = ui_elements->instance_offsets_buffer->y;
 }
 
-void scroll_up(UIElements * self) {
-    UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
+void scroll(UIInteractiveList * interactive_list, int direction) {
+    unsigned int do_action = 0;
     sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
     sem_wait(mutex);
-    if (interactive_list->window_offset > 0) {
-        interactive_list->window_offset--;
-        interactive_list->update_request= -1;
-        interactive_list->thread_bound_control->update = 1;
-        if (++interactive_list->index < (int) interactive_list->lines_number && interactive_list->index >= 0) {
-            select_item(
-                &interactive_list->lines[interactive_list->index],
-                DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
-            );
-            *interactive_list->highlight->instance_alphas_buffer = 1;
 
-        }
-        else {
-            interactive_list->update_highlight = 1;
-            *interactive_list->highlight->instance_alphas_buffer = 0;
-        }
+    if (direction > 0) {
+        do_action = interactive_list->window_offset + interactive_list->lines_number < *interactive_list->source_data_count;
     }
-    sem_post(mutex);
-}
-
-void scroll_down(UIElements * self) {
-    UIInteractiveList * interactive_list = (UIInteractiveList *) self->application_callback_args;
-    sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
-    sem_wait(mutex);
-    if (interactive_list->window_offset + interactive_list->lines_number < *interactive_list->source_data_count) {
-        interactive_list->window_offset++;
+    else {
+        do_action = interactive_list->window_offset > 0;
+    }
+    if (do_action) {
+        interactive_list->window_offset += direction;
+        interactive_list->index += -direction;
         interactive_list->update_request= -1;
         interactive_list->thread_bound_control->update = 1;
-        if (--interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
+        if (interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
             select_item(
                 &interactive_list->lines[interactive_list->index],
                 DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
