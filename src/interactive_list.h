@@ -48,6 +48,7 @@ typedef struct UIInteractiveList_t {
     unsigned char update_highlight;
     GLfloat highlight_offset_y;
     GLfloat highlight_step;
+    GLfloat max_scroll_bar_offset;
     unsigned int previous_item_index;
     int index;
 } UIInteractiveList;
@@ -81,5 +82,7 @@ void select_item(
     UIElements * self,
     unsigned int do_not_use_callback
 );
+
+void update_scroll_bar(UIInteractiveList * interactive_list);
 
 #endif

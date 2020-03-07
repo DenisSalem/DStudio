@@ -386,6 +386,7 @@ void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
     void (*select_callback)(FILE * file_fd)
 ) {
+    UIElements * highlight = 0;
     s_cancel_callback = cancel_callback;
     s_select_callback = select_callback;
     configure_input(PointerMotionMask);
@@ -416,18 +417,17 @@ void open_file_menu(
     
     qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
     
-    for (unsigned int i=0; i < s_files_count; i++) {
-        if (i < s_list_lines_number) {
-            update_text(
-                &s_ui_elements[9+i],
-                &s_files_list[i * DSTUDIO_OPEN_FILE_CHAR_PER_LINE],
-                DSTUDIO_OPEN_FILE_CHAR_PER_LINE
-            );
-            s_ui_elements[9+i].enabled = 1;
-        }
-    }
+    highlight = s_interactive_list.highlight;
+    highlight->instance_offsets_buffer->y = s_interactive_list.highlight_offset_y;
+    s_interactive_list.index = 0;
+    s_interactive_list.window_offset = 0;
+    s_interactive_list.update_highlight = 1;
+    highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
+    update_insteractive_list(&s_interactive_list);
+    update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
     closedir(dr);    
     dstudio_free(default_path);
+    g_active_interactive_list = &s_interactive_list;
 }
 
 unsigned int select_file_from_list(

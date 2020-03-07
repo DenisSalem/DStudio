@@ -480,8 +480,10 @@ void manage_cursor_position(int xpos, int ypos) {
             update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-            motion = compute_slider_translation(ypos);
-            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+            if (g_ui_elements_array[s_ui_element_index].enabled) {
+                motion = compute_slider_translation(ypos);
+                update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+            }
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:

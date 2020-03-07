@@ -26,6 +26,7 @@
 inline void bind_scroll_bar(UIInteractiveList * interactive_list, UIElements * scroll_bar) {
     scroll_bar->interactive_list = interactive_list;
     interactive_list->scroll_bar = scroll_bar;
+    interactive_list->max_scroll_bar_offset= scroll_bar->instance_motions_buffer[0];
 }
 
 void init_interactive_list(
@@ -84,6 +85,9 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
             interactive_list->update_highlight = 1;
             *interactive_list->highlight->instance_alphas_buffer = 0;
         }
+    }
+    if (interactive_list->scroll_bar) {
+        update_scroll_bar(interactive_list);
     }
     sem_post(mutex);
 }
@@ -145,6 +149,7 @@ void update_insteractive_list(
             );
         }
     }
+    
     if (interactive_list->update_highlight) {
         glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_offsets);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->highlight->count, interactive_list->highlight->instance_offsets_buffer);
@@ -154,4 +159,12 @@ void update_insteractive_list(
         interactive_list->highlight->request_render = 1;
         interactive_list->update_highlight = 0;
     }
+}
+
+void update_scroll_bar(UIInteractiveList * interactive_list) {
+    UIElements * scroll_bar = interactive_list->scroll_bar;
+    GLfloat relative_position = (GLfloat) interactive_list->window_offset / (GLfloat) (*interactive_list->source_data_count - interactive_list->lines_number);
+    GLfloat height = (scroll_bar->areas.max_area_y - scroll_bar->areas.min_area_y) - scroll_bar->scale_matrix[1].y / (1.0 / (GLfloat) (g_dstudio_viewport_height));
+    relative_position *= height / (GLfloat) (g_dstudio_viewport_height >> 1);
+    update_ui_element_motion(scroll_bar, interactive_list->max_scroll_bar_offset - relative_position);
 }
