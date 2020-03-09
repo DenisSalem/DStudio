@@ -149,7 +149,9 @@ void update_insteractive_list(
             );
         }
     }
-    
+    if (interactive_list->scroll_bar && interactive_list->lines_number >= *interactive_list->source_data_count) {
+        interactive_list->scroll_bar->enabled = 0;
+    }
     if (interactive_list->update_highlight) {
         glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_offsets);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->highlight->count, interactive_list->highlight->instance_offsets_buffer);
