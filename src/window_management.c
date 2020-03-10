@@ -275,6 +275,20 @@ void listen_events() {
                 mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
                 return;
             }
+            else if (g_active_interactive_list) {
+                switch(x_event.xbutton.button) {
+                    case Button4:
+                        scroll(g_active_interactive_list, -1);
+                        break;
+                        
+                    case Button5:
+                        scroll(g_active_interactive_list, 1);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
         }
         else if (x_event.type == ButtonRelease) {
@@ -325,7 +339,7 @@ void listen_events() {
             if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT) {
                 keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
             }
-            if (g_active_interactive_list) {
+            if (g_active_interactive_list && g_active_interactive_list->scroll_bar) {
                 g_active_interactive_list->scroll_bar->enabled = 1;
             }
         }

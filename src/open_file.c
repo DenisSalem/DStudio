@@ -48,16 +48,19 @@ static unsigned int s_files_count = 0;
 static unsigned int s_file_index = 0;
 
 static void close_open_file_menu() {
+    sem_wait(&g_open_file_thread_control.mutex);
+    g_active_interactive_list = 0;
     configure_input(0);
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
     set_ui_elements_visibility(s_ui_elements, 0, DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT + s_list_lines_number);
     dstudio_free(s_files_list);
-    
+    s_files_list = 0;
     if (s_cancel_callback) {
         s_cancel_callback(NULL);
     }
-    g_active_interactive_list = 0;
+    g_open_file_thread_control.update = 0;
+    sem_post(&g_open_file_thread_control.mutex);
 }
 
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {
