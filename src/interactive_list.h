@@ -76,7 +76,14 @@ void update_insteractive_list(
     UIInteractiveList * interactive_list
 );
 
-void scroll(UIInteractiveList * interactive_list, int direction);
+void scroll(
+    UIInteractiveList * interactive_list,
+    int direction
+);
+
+void scroll_by_slider(
+    UIElements * ui_elements
+);
 
 void select_item(
     UIElements * self,

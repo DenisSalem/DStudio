@@ -381,6 +381,8 @@ void init_open_menu(
         slider
     );
     
+    slider->application_callback = scroll_by_slider;
+    
     sem_init(&g_open_file_thread_control.mutex, 0, 1);
     g_open_file_thread_control.ready = 1;
 }

@@ -79,6 +79,17 @@ static inline float compute_knob_rotation(int xpos, int ypos) {
     return rotation;
 }
 
+static inline float compute_slider_percentage_value(int ypos) {
+    if (ypos > s_active_slider_range_max) {
+        ypos = s_active_slider_range_max;
+    }
+    else if (ypos < s_active_slider_range_min) {
+        ypos = s_active_slider_range_min;
+    }
+    
+    return 1.0 - (float) (ypos - s_active_slider_range_min) / (float) (s_active_slider_range_max - s_active_slider_range_min);
+}
+
 static inline float compute_slider_translation(int ypos) {
     if (ypos > s_active_slider_range_max) {
         ypos = s_active_slider_range_max;
@@ -483,6 +494,11 @@ void manage_cursor_position(int xpos, int ypos) {
             if (g_ui_elements_array[s_ui_element_index].enabled) {
                 motion = compute_slider_translation(ypos);
                 update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+                float slider_value = compute_slider_percentage_value(ypos);
+                g_ui_elements_array[s_ui_element_index].application_callback_args = &slider_value;
+                g_ui_elements_array[s_ui_element_index].application_callback(
+                    &g_ui_elements_array[s_ui_element_index]
+                );
             }
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
@@ -527,6 +543,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         s_list_item_click_timestamp = timestamp;
                         g_active_interactive_list = ui_elements_p->interactive_list;
                         break;
+                        
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                         timestamp = get_timestamp();
                         if (ui_elements_p->interactive_list->editable && timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {

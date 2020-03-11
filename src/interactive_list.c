@@ -92,6 +92,20 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
     sem_post(mutex);
 }
 
+void scroll_by_slider(UIElements * ui_elements) {
+    UIInteractiveList * interactive_list = ui_elements->interactive_list;
+    sem_wait(&interactive_list->thread_bound_control->mutex);
+    float slider_value = 1.0 - *(float *) ui_elements->application_callback_args;
+    unsigned int window_offset = (unsigned int) round(slider_value * (*interactive_list->source_data_count - interactive_list->lines_number));
+    
+    interactive_list->index = interactive_list->window_offset - window_offset;
+    interactive_list->window_offset = window_offset;
+    interactive_list->update_request= -1;
+    interactive_list->update_highlight = 1;
+    interactive_list->thread_bound_control->update = 1;
+    sem_post(&interactive_list->thread_bound_control->mutex);
+}
+
 void select_item(
     UIElements * self,
     SelectItemOpt do_not_use_callback
