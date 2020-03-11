@@ -179,8 +179,11 @@ void update_insteractive_list(
 
 void update_scroll_bar(UIInteractiveList * interactive_list) {
     UIElements * scroll_bar = interactive_list->scroll_bar;
+    unsigned int multiplier;
     GLfloat relative_position = (GLfloat) interactive_list->window_offset / (GLfloat) (*interactive_list->source_data_count - interactive_list->lines_number);
     GLfloat height = (scroll_bar->areas.max_area_y - scroll_bar->areas.min_area_y) - scroll_bar->scale_matrix[1].y / (1.0 / (GLfloat) (g_dstudio_viewport_height));
     relative_position *= height / (GLfloat) (g_dstudio_viewport_height >> 1);
+    multiplier = relative_position / (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
+    relative_position = multiplier * (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
     update_ui_element_motion(scroll_bar, interactive_list->max_scroll_bar_offset - relative_position);
 }
