@@ -32,6 +32,7 @@ void main (void) {
     }
     else {
         color = texture(input_texture, fragment_texture_coordinates);
+        //color = vec4(1,1,1,0.5);
     }
     color.a *= alpha;
 } 

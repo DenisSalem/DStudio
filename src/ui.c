@@ -766,6 +766,7 @@ GLuint setup_texture_n_scale_matrix(
         if (text_setting) {
             scale_matrix[0].x /= DSTUDIO_CHAR_SIZE_DIVISOR;
             scale_matrix[1].y /= DSTUDIO_CHAR_SIZE_DIVISOR;
+            printf("text width: %lf %d\n", scale_matrix[0].x, texture_width);
         }
     }
     return texture_id;

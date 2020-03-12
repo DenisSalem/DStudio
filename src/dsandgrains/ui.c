@@ -65,60 +65,6 @@ inline static void bind_callbacks() {
     g_ui_elements_struct.button_add_voice.application_callback = add_voice;
 }
 
-inline static void init_arrow_instance_buttons() {
-    GLuint texture_ids[2] = {0};
-        
-    texture_ids[0] = setup_texture_n_scale_matrix(
-        DSTUDIO_FLAG_USE_ALPHA,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT, 
-        DSTUDIO_ARROW_INSTANCES_ASSET_PATH,
-        arrow_button_scale_matrix
-    );
-    
-    texture_ids[1] = setup_texture_n_scale_matrix(
-        DSTUDIO_FLAG_USE_ALPHA,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT, 
-        DSTUDIO_ACTIVE_ARROW_INSTANCES_ASSET_PATH,
-        arrow_button_scale_matrix
-    );
-    
-    init_ui_elements(
-        &g_ui_elements_struct.button_arrow_top_instances,
-        &texture_ids[0],
-        &arrow_button_scale_matrix[0],
-        DSANDGRAINS_INSTANCES_ARROW_UP_POS_X,
-        DSANDGRAINS_INSTANCES_ARROW_UP_POS_Y,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT,
-        DSANDGRAINS_INSTANCES_OFFSET_X,
-        DSANDGRAINS_INSTANCES_OFFSET_Y,
-        1,
-        3,
-        1,
-        DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
-        DSTUDIO_FLAG_IS_VISIBLE
-    );
-    
-    init_ui_elements(
-        &g_ui_elements_struct.button_arrow_bottom_instances,
-        &texture_ids[0],
-        &arrow_button_scale_matrix[0],
-        DSANDGRAINS_INSTANCES_ARROW_DOWN_X_POS,
-        DSANDGRAINS_INSTANCES_ARROW_DOWN_Y_POS,
-        DSANDGRAINS_ARROW_BUTTON_WIDTH,
-        DSANDGRAINS_ARROW_BUTTON_HEIGHT,
-        DSANDGRAINS_INSTANCES_OFFSET_X,
-        DSANDGRAINS_INSTANCES_OFFSET_Y,
-        1,
-        3,
-        1,
-        DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
-        DSTUDIO_FLAG_FLIP_Y | DSTUDIO_FLAG_IS_VISIBLE
-    );
-}
-
 inline static void init_background() {
     GLuint texture_ids[2] = {0};
     
@@ -625,8 +571,6 @@ static void init_dsandgrains_ui_elements() {
     g_scale_matrix_id = glGetUniformLocation(g_shader_program_id, "scale_matrix");
     init_text();
     init_list_item_highlights();
-
-    init_arrow_instance_buttons();
 
     init_background();
 
