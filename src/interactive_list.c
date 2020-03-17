@@ -95,13 +95,22 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
 
 void scroll_by_slider(UIElements * ui_elements) {
     UIInteractiveList * interactive_list = ui_elements->interactive_list;
-    sem_wait(&interactive_list->thread_bound_control->mutex);
+    ThreadControl * thread_control = interactive_list->thread_bound_control;
+    
+    sem_wait(&thread_control->mutex);
+    
     float slider_value = 1.0 - *(float *) ui_elements->application_callback_args;
     unsigned int window_offset = (unsigned int) round(slider_value * (*interactive_list->source_data_count - interactive_list->lines_number));
     
+    // No actual motion? Just quit then.
+    if (0 == interactive_list->window_offset - window_offset) {
+        sem_post(&thread_control->mutex);
+        return;
+    }
     interactive_list->index += interactive_list->window_offset - window_offset;
     interactive_list->window_offset = window_offset;
     interactive_list->update_request= -1;
+    interactive_list->thread_bound_control->update = 1;
     if (interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
         select_item(
             &interactive_list->lines[interactive_list->index],
@@ -112,8 +121,8 @@ void scroll_by_slider(UIElements * ui_elements) {
         interactive_list->update_highlight = 1;
         *interactive_list->highlight->instance_alphas_buffer = 0;
     }
-    interactive_list->thread_bound_control->update = 1;
-    sem_post(&interactive_list->thread_bound_control->mutex);
+
+    sem_post(&thread_control->mutex);
 }
 
 void select_item(
@@ -175,6 +184,7 @@ void update_insteractive_list(
     }
     if (interactive_list->scroll_bar ) {
         interactive_list->scroll_bar->enabled = *interactive_list->source_data_count <= interactive_list->lines_number ? 0 : 1;
+        update_scroll_bar(interactive_list);
     }
     if (interactive_list->update_highlight) {
         glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_offsets);

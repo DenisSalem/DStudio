@@ -158,6 +158,11 @@ void * instances_management_thread(void * args) {
                 DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
             );
             
+            /* In most situation it's not necessary, but when multiple
+            * instances are pulled before render, some items might be
+            * missing */ 
+            g_ui_instances.update_request = -1;
+            
             new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
 
             g_instances.thread_control.update = 1;
