@@ -66,6 +66,8 @@ inline static void bind_callbacks() {
     g_ui_elements_struct.button_add_voice.application_callback = add_voice;
     
     bind_scroll_bar(&g_ui_instances, &g_ui_elements_struct.instances_list_slider);
+    bind_scroll_bar(&g_ui_voices, &g_ui_elements_struct.voices_list_slider);
+
 }
 
 inline static void init_background() {
@@ -461,6 +463,23 @@ inline static void init_sliders() {
         &s_instances_slider_scale_matrix[0],
         DSANDGRAINS_INSTANCE_SLIDER_POS_X,
         DSANDGRAINS_INSTANCE_SLIDER_POS_Y,
+        DSTUDIO_SLIDER_2_7_AREA_WIDTH,
+        DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_SLIDER_TO_TOP
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.voices_list_slider,
+        &slider_texture_ids[0],
+        &s_instances_slider_scale_matrix[0],
+        DSANDGRAINS_VOICE_SLIDER_POS_X,
+        DSANDGRAINS_VOICE_SLIDER_POS_Y,
         DSTUDIO_SLIDER_2_7_AREA_WIDTH,
         DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
         0,

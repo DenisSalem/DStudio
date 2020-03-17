@@ -61,7 +61,7 @@ void init_voices_interactive_list(
     init_interactive_list(
         &g_ui_voices,
         s_ui_elements,
-        s_lines_number,
+        3,//s_lines_number,
         s_string_size,
         sizeof(VoiceContext),
         &g_current_active_instance->voices.count,

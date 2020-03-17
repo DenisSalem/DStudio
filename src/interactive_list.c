@@ -96,9 +96,10 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
 void scroll_by_slider(UIElements * ui_elements) {
     UIInteractiveList * interactive_list = ui_elements->interactive_list;
     ThreadControl * thread_control = interactive_list->thread_bound_control;
-    
+    printf("PASS? %lu\n", (long unsigned) thread_control);
     sem_wait(&thread_control->mutex);
-    
+    printf("PASS.\n");
+
     float slider_value = 1.0 - *(float *) ui_elements->application_callback_args;
     unsigned int window_offset = (unsigned int) round(slider_value * (*interactive_list->source_data_count - interactive_list->lines_number));
     

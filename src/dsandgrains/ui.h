@@ -133,6 +133,9 @@
 #define DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_Y -0.044921875
 #define DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE 8
 
+#define DSANDGRAINS_VOICE_SLIDER_POS_X 0.95125
+#define DSANDGRAINS_VOICE_SLIDER_POS_Y -0.220703125
+
 typedef struct UIElementsStruct_t {
     UIElements background;
     UIElements ressource_usage_prompt;
@@ -189,6 +192,7 @@ typedef struct UIElementsStruct_t {
     UIElements instances_list_item_9;
     UIElements instances_list_item_10;
     UIElements instances_list_item_11;
+    UIElements voices_list_slider;
     UIElements voices_list_item_highlight;
     UIElements voices_list_item_1;
     UIElements voices_list_item_2;
