@@ -41,7 +41,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_CHAR_SIZE_DIVISOR 16.0
 #define DSTUDIO_OPEN_FILE_CHAR_PER_LINE ((int) (g_dstudio_viewport_width - 62) / 8)
 #define DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT 9
-
+#define DSTUDIO_INSTANCE_NAME_LENGTH 27
 // PATHS
 #define DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH      "../assets/active_button_add_instance.png"
 #define DSTUDIO_ACTIVE_ADD_SAMPLE_ASSET_PATH        "../assets/active_button_add_sample.png"
@@ -65,6 +65,7 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_OPEN_FILE_SLIDER_ASSET_PATH         "../assets/slider2.png"
 #define DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH   "../assets/ressource_usage.png"
 #define DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH         "../assets/slider1.png"
+#define DSTUDIO_SLIDER_2_7x7_TEXTURE_PATH           "../assets/slider3.png"
 #define DSTUDIO_SLIDER_BACKGROUND_ASSET_PATH        "../assets/slider_background.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"
 
@@ -98,9 +99,6 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_KNOB_1_64_HEIGHT 64
 #define DSTUDIO_KNOB_1_64_AREA_WIDTH  DSTUDIO_KNOB_1_64_WIDTH
 #define DSTUDIO_KNOB_1_64_AREA_HEIGHT DSTUDIO_KNOB_1_64_HEIGHT
-
-#define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH 117
-#define DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT 11
 
 #define DSTUDIO_OPEN_FILE_BUTTON_COLUMNS 1
 #define DSTUDIO_OPEN_FILE_BUTTON_COUNT 1
@@ -139,6 +137,11 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_SLIDER_1_10_HEIGHT 10
 #define DSTUDIO_SLIDER_1_10_AREA_WIDTH DSTUDIO_SLIDER_1_10_WIDTH
 #define DSTUDIO_SLIDER_1_10_AREA_HEIGHT 42
+
+#define DSTUDIO_SLIDER_2_7_WIDTH 7
+#define DSTUDIO_SLIDER_2_7_HEIGHT 7
+#define DSTUDIO_SLIDER_2_7_AREA_WIDTH DSTUDIO_SLIDER_1_10_WIDTH
+#define DSTUDIO_SLIDER_2_7_AREA_HEIGHT 95
 
 #define DSTUDIO_SLIDER_BACKGROUND_WIDTH 18
 #define DSTUDIO_SLIDER_BACKGROUND_HEIGHT 27

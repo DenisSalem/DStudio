@@ -24,7 +24,7 @@
 #include "voices.h"
 
 typedef struct InstanceContext_t {
-    char name[33];
+    char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     int identifier;
     Voices voices;
 } InstanceContext;

@@ -179,7 +179,7 @@ void * text_pointer_blink_thread(void * args) {
     return NULL;
 }
 
-/* Beware, there is goto in the following. Do not panic or call the
+/* Beware, there is a goto in the following. Do not panic or call the
  * police, everything is under control. It's just to avoid calling
  * sem_post multiple times. */
 void update_text_box(unsigned int keycode) {
@@ -193,6 +193,7 @@ void update_text_box(unsigned int keycode) {
     }
     
     unsigned int string_size = strlen(g_text_pointer_context.string_buffer);
+    printf("string_size %d\n", string_size);
     char * string_buffer = g_text_pointer_context.string_buffer;
     
     if (keycode == DSTUDIO_KEY_CODE_ERASEBACK) {
@@ -234,7 +235,7 @@ void update_text_box(unsigned int keycode) {
         }
         string_buffer[g_text_pointer_context.insert_char_index++] = (char) keycode;
     }
-    else {printf("%d\n", keycode);
+    else {
         goto release_mutex;
     }
     compute_text_pointer_coordinates(g_text_pointer_context.insert_char_index);

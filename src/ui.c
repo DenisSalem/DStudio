@@ -164,25 +164,6 @@ void create_shader_program(
     #endif
 }
 
-void set_prime_interface(unsigned int state) {
-    for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
-        if (i < g_menu_background_index) {
-            switch (g_ui_elements_array[i].type) {
-                case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-                case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-                case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
-                case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
-                case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
-                case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                    g_ui_elements_array[i].enabled = state;
-                    
-                default:
-                    break;
-            }
-        }
-    }
-}
-
 void gen_gl_buffer(
     GLenum type,
     GLuint * buffer_object_p,
@@ -706,12 +687,36 @@ void render_viewport(unsigned int render_all) {
             );
             
             render_ui_elements(&g_ui_elements_array[i]);
-                                    
+                
             if (g_menu_background_enabled && i < g_menu_background_index && !g_menu_background_enabled->request_render) {
                 render_sub_menu_region();
             }
             g_ui_elements_array[i].request_render = 0;
 
+        }
+    }
+}
+
+void set_prime_interface(unsigned int state) {
+    for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
+        if (i < g_menu_background_index) {
+            switch (g_ui_elements_array[i].type) {
+                case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+                case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+                    if (g_ui_elements_array[i].interactive_list && state) {
+                       g_ui_elements_array[i].enabled = *g_ui_elements_array[i].interactive_list->source_data_count <= g_ui_elements_array[i].interactive_list->lines_number ? 0 : 1;
+                        break;
+                    }
+                    __attribute__ ((fallthrough));
+                case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
+                case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
+                case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+                case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                    g_ui_elements_array[i].enabled = state;
+                    
+                default:
+                    break;
+            }
         }
     }
 }
@@ -766,7 +771,6 @@ GLuint setup_texture_n_scale_matrix(
         if (text_setting) {
             scale_matrix[0].x /= DSTUDIO_CHAR_SIZE_DIVISOR;
             scale_matrix[1].y /= DSTUDIO_CHAR_SIZE_DIVISOR;
-            printf("text width: %lf %d\n", scale_matrix[0].x, texture_width);
         }
     }
     return texture_id;

@@ -45,6 +45,7 @@ Vec2 ressource_usage_prompt_scale_matrix[2] = {0};
 Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 tiny_button_scale_matrix[2] = {0};
 Vec2 sub_menu_buttons_add_scale_matrix[2] = {0};
+Vec2 s_instances_slider_scale_matrix[2] = {0};
 
 inline static void bind_callbacks() {
     //~ g_ui_elements_struct.button_arrow_top_instances.application_callback = scroll_up;
@@ -63,6 +64,8 @@ inline static void bind_callbacks() {
     g_ui_elements_struct.button_add_instance.application_callback = add_instance;
     g_ui_elements_struct.button_add_sample.application_callback = add_sample;
     g_ui_elements_struct.button_add_voice.application_callback = add_voice;
+    
+    bind_scroll_bar(&g_ui_instances, &g_ui_elements_struct.instances_list_slider);
 }
 
 inline static void init_background() {
@@ -128,8 +131,8 @@ inline static void init_instances_list() {
         &g_charset_4x9_scale_matrix[0],
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_X,
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_Y,
-        DSANDGRAINS_ITEM_LIST_WIDTH,
-        DSANDGRAINS_ITEM_LIST_HEIGHT,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT,
         0,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET,
         1,
@@ -145,8 +148,8 @@ inline static void init_instances_list() {
         &g_charset_4x9_scale_matrix[0],
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_X,
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_Y,
-        DSANDGRAINS_ITEM_LIST_WIDTH,
-        DSANDGRAINS_ITEM_LIST_HEIGHT,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT,
         0,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET,
         1,
@@ -267,8 +270,8 @@ inline static void init_list_item_highlights() {
     
     DEFINE_SCALE_MATRIX(
         list_item_highlight_scale_matrix,
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT
+        DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT
     )
     
     texture_ids[0] = setup_texture_n_scale_matrix(
@@ -285,8 +288,8 @@ inline static void init_list_item_highlights() {
         &list_item_highlight_scale_matrix[0],
         DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X,
         DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y,
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT, 
+        DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT, 
         0,
         0,
         1,
@@ -302,8 +305,8 @@ inline static void init_list_item_highlights() {
         &list_item_highlight_scale_matrix[0],
         DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_X,
         DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_Y,
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_WIDTH,
-        DSTUDIO_LIST_ITEM_HIGHLIGHT_1_HEIGHT, 
+        DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT, 
         0,
         0,
         1,
@@ -442,6 +445,31 @@ inline static void init_sliders() {
         1,
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
         DSTUDIO_FLAG_IS_VISIBLE
+    );
+
+    slider_texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSTUDIO_SLIDER_2_7_WIDTH,
+        DSTUDIO_SLIDER_2_7_HEIGHT, 
+        DSTUDIO_SLIDER_2_7x7_TEXTURE_PATH,
+        s_instances_slider_scale_matrix
+    );
+
+    init_ui_elements(
+        &g_ui_elements_struct.instances_list_slider,
+        &slider_texture_ids[0],
+        &s_instances_slider_scale_matrix[0],
+        DSANDGRAINS_INSTANCE_SLIDER_POS_X,
+        DSANDGRAINS_INSTANCE_SLIDER_POS_Y,
+        DSTUDIO_SLIDER_2_7_AREA_WIDTH,
+        DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_SLIDER_TO_TOP
     );
 }
 

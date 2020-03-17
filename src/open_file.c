@@ -380,9 +380,7 @@ void init_open_menu(
         &s_interactive_list,
         slider
     );
-    
-    slider->application_callback = scroll_by_slider;
-    
+        
     sem_init(&g_open_file_thread_control.mutex, 0, 1);
     g_open_file_thread_control.ready = 1;
 }
@@ -411,6 +409,9 @@ void open_file_menu(
     unsigned int allocation_size = DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
     
     while ((de = readdir(dr)) != NULL) {
+        if (strcmp(de->d_name, ".") == 0) {
+            continue;
+        }
         if (s_files_count == (allocation_size / DSTUDIO_OPEN_FILE_CHAR_PER_LINE)) {
             allocation_size += DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
             s_files_list = dstudio_realloc(s_files_list, allocation_size);

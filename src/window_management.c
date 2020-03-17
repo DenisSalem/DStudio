@@ -339,7 +339,7 @@ void listen_events() {
             if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT) {
                 keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
             }
-            if (g_active_interactive_list && g_active_interactive_list->scroll_bar) {
+            if ((x_event.xkey.keycode == DSTUDIO_KEY_BOTTOM_ARROW || x_event.xkey.keycode == DSTUDIO_KEY_TOP_ARROW ) && g_active_interactive_list && g_active_interactive_list && g_active_interactive_list->scroll_bar ) {
                 g_active_interactive_list->scroll_bar->enabled = 1;
             }
         }

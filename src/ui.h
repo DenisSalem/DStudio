@@ -167,10 +167,6 @@ void create_shader_program(
     GLuint * shader_program_id
 );
 
-void set_prime_interface(
-    unsigned int state
-);
-
 void init_opengl_ui_elements(
     int flags,
     UIElements * ui_elements
@@ -244,6 +240,10 @@ void register_threaded_ui_elements_updater(
 void render_loop();
 
 void render_viewport(unsigned int render_all);
+
+void set_prime_interface(
+    unsigned int state
+);
 
 void set_ui_elements_visibility(
     UIElements * ui_elements,

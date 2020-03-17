@@ -82,14 +82,17 @@
 #define DSANDGRAINS_EQUALIZER_SLIDERS_POS_X 0.32
 #define DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y -0.33984375
 
-#define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X 0.81932545
-#define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y 0.435546875
-#define DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_X 0.6775
-#define DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_Y 0.4365234375
-#define DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE 8
+#define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X 0.805
+#define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y 0.439453125
+#define DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_X 0.68
+#define DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_Y 0.439453125
+#define DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE 11
 
-#define DSANDGRAINS_ITEM_LIST_WIDTH 117
-#define DSANDGRAINS_ITEM_LIST_HEIGHT 11
+#define DSANDGRAINS_INSTANCE_SLIDER_POS_X 0.95125
+#define DSANDGRAINS_INSTANCE_SLIDER_POS_Y 0.263671875
+
+#define DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH 105
+#define DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT 9
 
 #define DSANDGRAINS_LFO_KNOBS_COLUMNS 2
 #define DSANDGRAINS_LFO_KNOBS_OFFSET_X 0.12
@@ -115,8 +118,8 @@
 #define DSANDGRAINS_SAMPLE_KNOBS_POS_X -0.8675
 #define DSANDGRAINS_SAMPLE_KNOBS_POS_Y 0.296875
 
-#define DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET -0.046875
-#define DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE 30
+#define DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET -0.03515625
+#define DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE DSTUDIO_INSTANCE_NAME_LENGTH
 
 #define DSANDGRAINS_VOICE_KNOBS_COLUMNS 2
 #define DSANDGRAINS_VOICE_KNOBS_OFFSET_X 0.175
@@ -124,11 +127,11 @@
 #define DSANDGRAINS_VOICE_KNOBS_POS_X 0.3725
 #define DSANDGRAINS_VOICE_KNOBS_POS_Y 0.31640625
 
-#define DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_X 0.92075
-#define DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_Y -0.037109375
-#define DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_X 0.678
-#define DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_Y -0.037109375
-#define DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE 7
+#define DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_X 0.805
+#define DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_Y -0.044921875
+#define DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_X 0.68
+#define DSANDGRAINS_VOICE_SCROLLABLE_LIST_ITEM_POS_Y -0.044921875
+#define DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE 8
 
 typedef struct UIElementsStruct_t {
     UIElements background;
@@ -173,6 +176,7 @@ typedef struct UIElementsStruct_t {
     UIElements slider_equalizer_band_8;
     UIElements button_add;
     UIElements text_pointer;
+    UIElements instances_list_slider;
     UIElements instances_list_item_highlight;
     UIElements instances_list_item_1;
     UIElements instances_list_item_2;
@@ -181,6 +185,10 @@ typedef struct UIElementsStruct_t {
     UIElements instances_list_item_5;
     UIElements instances_list_item_6;
     UIElements instances_list_item_7;
+    UIElements instances_list_item_8;
+    UIElements instances_list_item_9;
+    UIElements instances_list_item_10;
+    UIElements instances_list_item_11;
     UIElements voices_list_item_highlight;
     UIElements voices_list_item_1;
     UIElements voices_list_item_2;
@@ -189,6 +197,10 @@ typedef struct UIElementsStruct_t {
     UIElements voices_list_item_5;
     UIElements voices_list_item_6;
     UIElements voices_list_item_7;
+    UIElements voices_list_item_8;
+    UIElements voices_list_item_9;
+    UIElements voices_list_item_10;
+    UIElements voices_list_item_11;
     //~ UIElements samples_list_item_highlight;
     //~ UIElements dahdsr_target_list_item_highlight;
     UIElements menu_background;
