@@ -668,6 +668,7 @@ void render_viewport(unsigned int render_all) {
     }
     for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
         if (g_ui_elements_array[i].request_render || (render_all && g_ui_elements_array[i].visible)) {
+            
             glScissor(
                 g_ui_elements_array[i].scissor.x,
                 g_ui_elements_array[i].scissor.y,
