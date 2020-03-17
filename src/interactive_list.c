@@ -96,16 +96,15 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
 void scroll_by_slider(UIElements * ui_elements) {
     UIInteractiveList * interactive_list = ui_elements->interactive_list;
     ThreadControl * thread_control = interactive_list->thread_bound_control;
-    printf("PASS? %lu\n", (long unsigned) thread_control);
-    sem_wait(&thread_control->mutex);
-    printf("PASS.\n");
+    sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
+    sem_wait(mutex);
 
     float slider_value = 1.0 - *(float *) ui_elements->application_callback_args;
     unsigned int window_offset = (unsigned int) round(slider_value * (*interactive_list->source_data_count - interactive_list->lines_number));
     
     // No actual motion? Just quit then.
     if (0 == interactive_list->window_offset - window_offset) {
-        sem_post(&thread_control->mutex);
+        sem_post(mutex);
         return;
     }
     interactive_list->index += interactive_list->window_offset - window_offset;
@@ -123,7 +122,7 @@ void scroll_by_slider(UIElements * ui_elements) {
         *interactive_list->highlight->instance_alphas_buffer = 0;
     }
 
-    sem_post(&thread_control->mutex);
+    sem_post(mutex);
 }
 
 void select_item(
