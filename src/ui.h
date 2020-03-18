@@ -271,6 +271,7 @@ typedef struct UIElementsStruct_t UIElementsStruct;
 extern UIElementsStruct g_ui_elements_struct;
 extern UIElements * g_ui_elements_array;
 
+extern Vec2 g_background_scale_matrix[2];
 extern GLuint g_charset_8x18_texture_ids[2];
 extern GLuint g_charset_4x9_texture_ids[2];
 extern Vec2 g_charset_8x18_scale_matrix[2];

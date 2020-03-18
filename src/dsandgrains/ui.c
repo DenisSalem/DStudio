@@ -37,7 +37,6 @@ UIElementsStruct g_ui_elements_struct = {0};
 UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
 
 Vec2 arrow_button_scale_matrix[2] = {0};
-Vec2 background_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
 Vec2 list_item_highlight_scale_matrix[2] = {0};
@@ -78,7 +77,7 @@ inline static void init_background() {
         g_dstudio_viewport_width,
         g_dstudio_viewport_height, 
         DSANDGRAINS_BACKGROUND_ASSET_PATH,
-        background_scale_matrix
+        g_background_scale_matrix
     );
     
     
@@ -86,7 +85,7 @@ inline static void init_background() {
     init_ui_elements(
         &g_ui_elements_struct.background,
         &texture_ids[0],
-        &background_scale_matrix[0],
+        &g_background_scale_matrix[0],
         0,
         0,
         g_dstudio_viewport_width,
@@ -111,7 +110,7 @@ inline static void init_background() {
     init_ui_elements(
         &g_ui_elements_struct.menu_background,
         &texture_ids[0],
-        &background_scale_matrix[0],
+        &g_background_scale_matrix[0],
         0,
         0,
         g_dstudio_viewport_width,
@@ -121,7 +120,7 @@ inline static void init_background() {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_PATTERN,
+        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
         DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );
 }
