@@ -587,9 +587,9 @@ inline void render_loop() {
     }
 };
 
-static void render_sub_menu_region() {
-    for (unsigned int i = g_menu_background_index; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].visible && !g_ui_elements_array[i].request_render) {
+static void render_sub_menu_region(unsigned int from_index, unsigned int to_index) {
+    for (unsigned int i = from_index; i < to_index; i++) {
+        if (g_ui_elements_array[i].visible) {
             glUniformMatrix2fv(
                 g_scale_matrix_id,
                 1,
@@ -648,6 +648,7 @@ void render_viewport(unsigned int render_all) {
         g_ui_elements_array[0].request_render = 0;
     }
     else {
+        // This loop render only required background areas.
         for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
             if (g_ui_elements_array[i].request_render) {
                 glScissor(
@@ -655,7 +656,7 @@ void render_viewport(unsigned int render_all) {
                     g_ui_elements_array[i].scissor.y,
                     g_ui_elements_array[i].scissor.width,
                     g_ui_elements_array[i].scissor.height
-                );
+                ); 
                 glUniformMatrix2fv(
                     g_scale_matrix_id,
                     1,
@@ -663,22 +664,21 @@ void render_viewport(unsigned int render_all) {
                     (float *) g_ui_elements_array[0].scale_matrix
                 );
                 render_ui_elements(&g_ui_elements_array[0]);
+                // If Sub menu is active we need to render any visible element under the current ui elements.
+                if (g_menu_background_enabled && i > g_menu_background_index) {
+                    render_sub_menu_region(0, i);
+                }
             }
         }
     }
     for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
         if (g_ui_elements_array[i].request_render || (render_all && g_ui_elements_array[i].visible)) {
-            
             glScissor(
                 g_ui_elements_array[i].scissor.x,
                 g_ui_elements_array[i].scissor.y,
                 g_ui_elements_array[i].scissor.width,
                 g_ui_elements_array[i].scissor.height
             );
-            
-            if (g_menu_background_enabled && g_ui_elements_array[i].request_render && !render_all && i > g_menu_background_index && !g_menu_background_enabled->request_render) {
-               render_sub_menu_region();
-            }
             
             glUniformMatrix2fv(
                 g_scale_matrix_id,
@@ -690,7 +690,7 @@ void render_viewport(unsigned int render_all) {
             render_ui_elements(&g_ui_elements_array[i]);
                 
             if (g_menu_background_enabled && i < g_menu_background_index && !g_menu_background_enabled->request_render) {
-                render_sub_menu_region();
+                render_sub_menu_region(g_menu_background_index, g_dstudio_ui_element_count);
             }
             g_ui_elements_array[i].request_render = 0;
 
