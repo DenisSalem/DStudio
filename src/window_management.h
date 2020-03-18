@@ -40,6 +40,15 @@
 #define DSTUDIO_KEY_CAPS_LOCK           66           
 #define DSTUDIO_KEY_MAJ_BIT             1
 
+#define DSTUDIO_X11_INPUT_MASKS \
+    (ExposureMask | \
+    KeyPressMask | \
+    KeyReleaseMask | \
+    ButtonPressMask | \
+    ButtonReleaseMask | \
+    VisibilityChangeMask | \
+    ButtonMotionMask)
+
 void configure_input(long mask);
 void destroy_context();
 int do_no_exit_loop();
@@ -56,4 +65,5 @@ void swap_window_buffer();
 extern unsigned int g_dstudio_mouse_state;
 extern UIInteractiveList * g_active_interactive_list;
 void (*close_sub_menu_callback)();
+extern long g_x11_input_mask;
 #endif

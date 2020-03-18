@@ -32,6 +32,7 @@
 #include "window_management.h"
 
 unsigned int g_dstudio_mouse_state = 0;
+long g_x11_input_mask = 0;
 UIInteractiveList * g_active_interactive_list = 0;
 
 static void (*cursor_position_callback)(int xpos, int ypos) = 0;
@@ -40,15 +41,6 @@ void (*mouse_button_callback)(int xpos, int ypos, int button, int action) = 0;
 void (*close_sub_menu_callback)() = NULL;
 
 #ifdef DSTUDIO_RELY_ON_X11
-
-#define DSTUDIO_X11_INPUT_MASKS \
-    (ExposureMask | \
-    KeyPressMask | \
-    KeyReleaseMask | \
-    ButtonPressMask | \
-    ButtonReleaseMask | \
-    VisibilityChangeMask | \
-    ButtonMotionMask)
 
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
@@ -109,7 +101,8 @@ static void creating_color_map(XVisualInfo * vi, Window * root_window, XSetWindo
 void configure_input(long mask) {
     pointer_x = -1;
     pointer_y = -1;
-    XSelectInput(display, window, DSTUDIO_X11_INPUT_MASKS ^ mask);
+    g_x11_input_mask = DSTUDIO_X11_INPUT_MASKS ^ mask;
+    XSelectInput(display, window, g_x11_input_mask);
 }
 
 void destroy_context() {

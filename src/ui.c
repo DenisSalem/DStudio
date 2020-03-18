@@ -54,6 +54,7 @@ static int                  s_ui_element_center_y = 0;
 static int                  s_ui_element_index = -1;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
+static long                 s_x11_input_mask = 0;
 
 static inline float compute_knob_rotation(int xpos, int ypos) {
     float rotation = 0;
@@ -538,6 +539,8 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+                        s_x11_input_mask = g_x11_input_mask;
+                        configure_input(0);
                         half_height = (ui_elements_p->scale_matrix[1].y * g_dstudio_viewport_height) / 2;
                         s_active_slider_range_min = ui_elements_p->areas.min_area_y + half_height;
                         s_active_slider_range_max = ui_elements_p->areas.max_area_y - half_height;
@@ -563,6 +566,9 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     }
     else if(action == DSTUDIO_MOUSE_BUTTON_RELEASE) {
         s_ui_element_index = -1;
+        if (s_x11_input_mask & PointerMotionMask) {
+            configure_input(PointerMotionMask);
+        }
     }
 }
 
@@ -629,6 +635,8 @@ void render_ui_elements(UIElements * ui_elements) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+/* TODO: While it works fine for now,
+it might need serious optimization. */
 void render_viewport(unsigned int render_all) {
     // UI element at index 0 is always background
     if (g_ui_elements_array[0].request_render || render_all) {       
