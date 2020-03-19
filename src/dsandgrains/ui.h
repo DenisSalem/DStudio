@@ -178,7 +178,6 @@ typedef struct UIElementsStruct_t {
     UIElements slider_equalizer_band_7;
     UIElements slider_equalizer_band_8;
     UIElements button_add;
-    UIElements text_pointer;
     UIElements instances_list_slider;
     UIElements instances_list_item_highlight;
     UIElements instances_list_item_1;
@@ -205,6 +204,7 @@ typedef struct UIElementsStruct_t {
     UIElements voices_list_item_9;
     UIElements voices_list_item_10;
     UIElements voices_list_item_11;
+    UIElements text_pointer;
     //~ UIElements samples_list_item_highlight;
     //~ UIElements dahdsr_target_list_item_highlight;
     UIElements menu_background;

@@ -120,7 +120,7 @@ inline static void init_background() {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
+        DSTUDIO_UI_ELEMENT_TYPE_PATTERN_BACKGROUND,
         DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );
 }
@@ -606,7 +606,7 @@ inline static void init_sub_menu_add() {
         DSANDGRAINS_ADD_SUB_MENU_COLUMNS,
         DSANDGRAINS_ADD_SUB_MENU_COUNT,
         29,
-        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
     update_text(&g_ui_elements_struct.add_sub_menu_prompt, "PICK THE ITEM YOU WANT TO ADD", 29);
@@ -696,7 +696,7 @@ void * ui_thread(void * arg) {
         &g_open_file_thread_control,     
         update_open_file_ui_list
     );
-    
+
     render_loop();
     
     dstudio_cut_thread(&g_ressource_usage.thread_control);

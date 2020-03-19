@@ -63,6 +63,7 @@ void add_sub_menu_proxy() {
     set_ui_elements_visibility(&g_ui_elements_struct.menu_background, 1, 5);
     g_menu_background_enabled = &g_ui_elements_struct.menu_background;
     set_close_sub_menu_callback(close_add_sub_menu);
+    g_request_render_all = 1;
 }
 
 void close_add_sub_menu() {

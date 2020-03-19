@@ -60,6 +60,7 @@ static void close_open_file_menu() {
         s_cancel_callback(NULL);
     }
     g_open_file_thread_control.update = 0;
+    g_request_render_all = 1;
     sem_post(&g_open_file_thread_control.mutex);
 }
 
@@ -112,7 +113,7 @@ void init_open_menu(
         1,
         1,
         10,
-        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
+        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
 
@@ -129,7 +130,7 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_PROMPT_COLUMN,
         DSTUDIO_OPEN_FILE_PROMPT_COUNT,
         DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE,
-        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
     update_text(prompt, "OPEN FILE", 9);
@@ -153,7 +154,7 @@ void init_open_menu(
         1,
         1,
         10,
-        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
+        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
 
@@ -250,7 +251,7 @@ void init_open_menu(
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
+        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
 
@@ -433,6 +434,7 @@ void open_file_menu(
     closedir(dr);    
     dstudio_free(default_path);
     g_active_interactive_list = &s_interactive_list;
+    g_request_render_all = 1;
 }
 
 unsigned int select_file_from_list(

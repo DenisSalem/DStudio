@@ -193,7 +193,6 @@ void update_text_box(unsigned int keycode) {
     }
     
     unsigned int string_size = strlen(g_text_pointer_context.string_buffer);
-    printf("string_size %d\n", string_size);
     char * string_buffer = g_text_pointer_context.string_buffer;
     
     if (keycode == DSTUDIO_KEY_CODE_ERASEBACK) {
