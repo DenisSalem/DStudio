@@ -731,8 +731,6 @@ void render_ui_elements(UIElements * ui_elements) {
 // removing edge cases.
 void render_viewport(unsigned int render_all) {    
     int layer_1_index_limit = -1;
-    unsigned int background_rendering_start_index;
-    unsigned int background_rendering_end_index;
 
     /* First of all, we get once every ui elements we want to render
      * in a single list, so we don't have to iterate many times 
@@ -752,6 +750,9 @@ void render_viewport(unsigned int render_all) {
             }
         }
      }
+     if (s_ui_elements_requests_index == 0) {
+        return;
+     }
      if (layer_1_index_limit < 0) {
         layer_1_index_limit = s_ui_elements_requests_index+1;
      }
@@ -764,11 +765,15 @@ void render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer background */
-    background_rendering_start_index = render_all ? 0 : 1;
-    background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
-    for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
-        scissor_n_matrix_setting(i, 0);
+    if (render_all) {
+        scissor_n_matrix_setting(0, 0);
         render_ui_elements(s_ui_elements_requests[0]);
+    }
+    else {
+        for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
+            scissor_n_matrix_setting(i, 0);
+            render_ui_elements(s_ui_elements_requests[0]);
+        }
     }
     
     /* Render first layer ui elements */
@@ -779,36 +784,50 @@ void render_viewport(unsigned int render_all) {
 
     if (g_menu_background_enabled) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
+        /* Render second layer background */
         if (render_all) {
             glScissor(0,0, g_dstudio_viewport_width, g_dstudio_viewport_height);
             glClear(GL_COLOR_BUFFER_BIT);
         }
-        /* Render second layer background */
-        for (unsigned int i = layer_1_index_limit; i <= (unsigned int) s_ui_elements_requests_index; i++) {
+
+        for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (is_background_ui_element(s_ui_elements_requests[i])) {
                 scissor_n_matrix_setting(i, i);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
+        
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         
         /* Render layer 1 and 2 required areas as background */
-        background_rendering_start_index = render_all ? 0 : 1;
-        background_rendering_end_index = render_all ? 1 : (unsigned int) s_ui_elements_requests_index;
-        for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
-            scissor_n_matrix_setting(i, -1);
+        printf("Render layer 1 and 2 required areas as background (All: %d)\n", render_all);
+
+        if (render_all) {
+            scissor_n_matrix_setting(0, -1);
             s_framebuffer_quad.texture_index = 0;
             render_ui_elements(&s_framebuffer_quad);
             s_framebuffer_quad.texture_index = 1;
             render_ui_elements(&s_framebuffer_quad);
         }
+        else {
+            for (unsigned int i = 1; i <= s_ui_elements_requests_index; i++) {
+                printf("\trender type: %d\n", s_ui_elements_requests[i]->type); 
+                scissor_n_matrix_setting(i, -1);
+                s_framebuffer_quad.texture_index = 0;
+                render_ui_elements(&s_framebuffer_quad);
+                s_framebuffer_quad.texture_index = 1;
+                render_ui_elements(&s_framebuffer_quad);
+            }
+        }
         /* Render layer 2 ui elements */
-        //~ for (unsigned int i = layer_1_index_limit+1; i <= s_ui_elements_requests_index; i++) {
-            //~ if (!is_background_ui_element(s_ui_elements_requests[i])) {
-                //~ scissor_n_matrix_setting(i, i);
-                //~ render_ui_elements(s_ui_elements_requests[i]);
-            //~ }
-        //~ }
+        printf("Render layer 2 ui elements\n");
+        for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
+            if (!is_background_ui_element(s_ui_elements_requests[i])) {
+                printf("\trender type: %d\n", s_ui_elements_requests[i]->type); 
+                scissor_n_matrix_setting(i, i);
+                render_ui_elements(s_ui_elements_requests[i]);
+            }
+        }
     }
 }
 

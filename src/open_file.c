@@ -236,7 +236,7 @@ void init_open_menu(
     list_box->color.a = 0.5;
     
     s_open_file_list_box_scale_matrix[0].x = 1;
-    s_open_file_list_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT)/ (GLfloat) g_dstudio_viewport_height;
+    s_open_file_list_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT) / (GLfloat) g_dstudio_viewport_height;
 
     init_ui_elements(
         list_box,
