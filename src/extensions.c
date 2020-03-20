@@ -68,6 +68,7 @@ int load_extensions() {
         DSTUDIO_SET_BINDER_ELEMENT(glBindBuffer),
         DSTUDIO_SET_BINDER_ELEMENT(glBindFramebuffer),
         DSTUDIO_SET_BINDER_ELEMENT(glBindVertexArray),
+        DSTUDIO_SET_BINDER_ELEMENT(glBlendFuncSeparate),
         DSTUDIO_SET_BINDER_ELEMENT(glBufferData),
         DSTUDIO_SET_BINDER_ELEMENT(glBufferSubData),
         DSTUDIO_SET_BINDER_ELEMENT(glCompileShader),
