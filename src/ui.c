@@ -442,6 +442,7 @@ void init_ui() {
     s_ui_elements_requests = dstudio_alloc( sizeof(UIElements *) * g_dstudio_ui_element_count);
 };
 
+// TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE IMPROVEMENT
 void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
@@ -519,9 +520,17 @@ void init_ui_elements(
         }
         
         ui_elements_array[i].scissor.x = min_area_x + computed_area_offset_x;
-        ui_elements_array[i].scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
-        ui_elements_array[i].scissor.width = max_area_x - min_area_x;
-        ui_elements_array[i].scissor.height = max_area_y - min_area_y;
+        ui_elements_array[i].scissor.width = ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? 0 : max_area_x - min_area_x;
+        
+        if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
+            ui_elements_array[i].scissor.y = (1.0 + gl_y - (scale_matrix[1].y)) * (g_dstudio_viewport_height>>1);
+            ui_elements_array[i].scissor.height = scale_matrix[1].y * (g_dstudio_viewport_height);
+            printf("%d %d\n", ui_elements_array[i].scissor.y, ui_elements_array[i].scissor.height);
+        }
+        else {
+            ui_elements_array[i].scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
+            ui_elements_array[i].scissor.height = max_area_y - min_area_y;
+        }
         
         ui_elements_array[i].count = instances_count;
         
@@ -706,7 +715,6 @@ void render_ui_elements(UIElements * ui_elements) {
 
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND:
-            DSTUDIO_TRACE
             glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
             __attribute__ ((fallthrough));
 
@@ -726,10 +734,9 @@ void render_ui_elements(UIElements * ui_elements) {
     ui_elements->request_render = 0;
 }
 
-
-// TODO: There is probably still room for improvement in
-// removing edge cases.
-void render_viewport(unsigned int render_all) {    
+void render_viewport(unsigned int render_all) { 
+    unsigned int background_rendering_start_index = render_all ? 0 : 1;
+    unsigned int background_rendering_end_index;   
     int layer_1_index_limit = -1;
 
     /* First of all, we get once every ui elements we want to render
@@ -765,15 +772,10 @@ void render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer background */
-    if (render_all) {
-        scissor_n_matrix_setting(0, 0);
+    background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
+    for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
+        scissor_n_matrix_setting(i, 0);
         render_ui_elements(s_ui_elements_requests[0]);
-    }
-    else {
-        for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
-            scissor_n_matrix_setting(i, 0);
-            render_ui_elements(s_ui_elements_requests[0]);
-        }
     }
     
     /* Render first layer ui elements */
@@ -800,30 +802,18 @@ void render_viewport(unsigned int render_all) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         
         /* Render layer 1 and 2 required areas as background */
-        printf("Render layer 1 and 2 required areas as background (All: %d)\n", render_all);
-
-        if (render_all) {
-            scissor_n_matrix_setting(0, -1);
+        background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
+        for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
+            scissor_n_matrix_setting(i, -1);
             s_framebuffer_quad.texture_index = 0;
             render_ui_elements(&s_framebuffer_quad);
             s_framebuffer_quad.texture_index = 1;
             render_ui_elements(&s_framebuffer_quad);
         }
-        else {
-            for (unsigned int i = 1; i <= s_ui_elements_requests_index; i++) {
-                printf("\trender type: %d\n", s_ui_elements_requests[i]->type); 
-                scissor_n_matrix_setting(i, -1);
-                s_framebuffer_quad.texture_index = 0;
-                render_ui_elements(&s_framebuffer_quad);
-                s_framebuffer_quad.texture_index = 1;
-                render_ui_elements(&s_framebuffer_quad);
-            }
-        }
+        
         /* Render layer 2 ui elements */
-        printf("Render layer 2 ui elements\n");
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (!is_background_ui_element(s_ui_elements_requests[i])) {
-                printf("\trender type: %d\n", s_ui_elements_requests[i]->type); 
                 scissor_n_matrix_setting(i, i);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
