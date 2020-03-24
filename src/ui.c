@@ -54,6 +54,7 @@ static GLuint               s_framebuffer_objects[2] = {0};
 static GLuint               s_framebuffer_textures[2] = {0};
 static UIElements           s_framebuffer_quad = {0};
 static double               s_list_item_click_timestamp = 0;
+static GLfloat              s_saved_scissor_y;
 static int                  s_ui_element_center_x = 0;
 static int                  s_ui_element_center_y = 0;
 static int                  s_ui_element_index = -1;
@@ -62,7 +63,6 @@ static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
-
 
 #ifdef DSTUDIO_DEBUG
 static void check_frame_buffer_status() {
@@ -134,6 +134,16 @@ static inline float compute_slider_translation(int ypos) {
     }
     float translation = - ypos + s_ui_element_center_y;
     return translation / (g_dstudio_viewport_height >> 1);
+}
+
+static void compute_slider_scissor_y(UIElements * ui_elements) {
+    ui_elements->scissor.y = (\
+        1.0+ \
+        ui_elements->instance_offsets_buffer->y+ \
+        ui_elements->instance_motions_buffer[0] \
+        - (ui_elements->scale_matrix[1].y) \
+    ) * (g_dstudio_viewport_height >> 1);
+    ui_elements->scissor.height = ui_elements->scale_matrix[1].y * g_dstudio_viewport_height;
 }
 
 static int is_background_ui_element(UIElements * ui_element) {
@@ -519,12 +529,13 @@ void init_ui_elements(
             }
         }
         
+        ui_elements_array[i].scale_matrix = scale_matrix;
+        
         ui_elements_array[i].scissor.x = min_area_x + computed_area_offset_x;
         ui_elements_array[i].scissor.width = ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? 0 : max_area_x - min_area_x;
         
         if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
-            ui_elements_array[i].scissor.y = (1.0 + gl_y + *ui_elements_array[i].instance_motions_buffer - (scale_matrix[1].y)) * (g_dstudio_viewport_height>>1);
-            ui_elements_array[i].scissor.height = scale_matrix[1].y * (g_dstudio_viewport_height);
+            compute_slider_scissor_y(&ui_elements_array[i]);
         }
         else {
             ui_elements_array[i].scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
@@ -536,7 +547,6 @@ void init_ui_elements(
         if(texture_ids) {
             memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
         }
-        ui_elements_array[i].scale_matrix = scale_matrix;
         
         ui_elements_array[i].visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
         ui_elements_array[i].request_render = ui_elements_array[i].visible;
@@ -579,9 +589,10 @@ void load_shader(
 
 void manage_cursor_position(int xpos, int ypos) {
     float motion;
-    GLfloat scissor_y;
-    GLfloat previous_scissor_y;
-    GLfloat height;
+    GLint current_scissor_y;
+    GLint previous_scissor_y;
+    GLint new_scissor_y;
+    GLsizei height;
     UIElements * ui_element;
     if (s_ui_element_index < 0) {
         return;
@@ -595,50 +606,34 @@ void manage_cursor_position(int xpos, int ypos) {
             if (g_ui_elements_array[s_ui_element_index].enabled) {
                 ui_element = &g_ui_elements_array[s_ui_element_index];
                 motion = compute_slider_translation(ypos);
-                scissor_y = (\
-                    1.0 + ui_element->instance_offsets_buffer->y \
-                    + motion \
+                
+                current_scissor_y = (\
+                    1.0+ \
+                    ui_element->instance_offsets_buffer->y+ \
+                    motion \
                     - (ui_element->scale_matrix[1].y) \
-                ) * (g_dstudio_viewport_height>>1);
-                
-                previous_scissor_y = ( \
-                    1.0 + ui_element->instance_offsets_buffer->y \
-                    + ui_element->instance_motions_buffer[0] \
-                    - (ui_element->scale_matrix[1].y) \
-                ) * (g_dstudio_viewport_height>>1);
+                ) * (g_dstudio_viewport_height >> 1);
         
-                if (scissor_y - previous_scissor_y == 0 ) {
-                    return;
-                }
-        
-                printf("RENDER REQUEST: %d\n", ui_element->request_render);
-        
+                previous_scissor_y = ui_element->request_render ? s_saved_scissor_y : ui_element->scissor.y;
+                new_scissor_y = (previous_scissor_y < current_scissor_y ? previous_scissor_y : current_scissor_y);
+                height = previous_scissor_y < current_scissor_y ? current_scissor_y - previous_scissor_y : previous_scissor_y - current_scissor_y;
                 
-                height = previous_scissor_y < scissor_y ? scissor_y - previous_scissor_y : previous_scissor_y - scissor_y;
-                height += + ui_element->scale_matrix[1].y * (g_dstudio_viewport_height);
-                
-                scissor_y = (previous_scissor_y < scissor_y ? previous_scissor_y : scissor_y);
-                // prevent areas skipping
+                ui_element->scissor.y = new_scissor_y;
+
                 if (ui_element->request_render) {
-                    height += scissor_y < ui_element->scissor.y ? ui_element->scissor.y - scissor_y : scissor_y - ui_element->scissor.y;
-                    scissor_y = scissor_y < ui_element->scissor.y ? scissor_y : ui_element->scissor.y;
+                    ui_element->scissor.height += height;
+                } else {
+                    s_saved_scissor_y = new_scissor_y;
+                    ui_element->scissor.height = height + ui_element->scale_matrix[1].y * (g_dstudio_viewport_height);
                 }
-                
-                printf("py:%lf y:%lf h:%lf\n",
-                    previous_scissor_y,
-                    scissor_y,
-                    height
-                );
-                
-                ui_element->scissor.y = scissor_y;
-                ui_element->scissor.height = height;
-                
+                printf("%d\n", ui_element->scissor.height);
                 update_ui_element_motion(ui_element, motion);
                 float slider_value = compute_slider_percentage_value(ypos);
                 ui_element->application_callback_args = &slider_value;
-                //~ g_ui_elements_array[s_ui_element_index].application_callback(
-                    //~ &g_ui_elements_array[s_ui_element_index]
-                //~ );
+                
+                g_ui_elements_array[s_ui_element_index].application_callback(
+                    &g_ui_elements_array[s_ui_element_index]
+                );
             }
             break;
         default:
@@ -753,7 +748,6 @@ void render_ui_elements(UIElements * ui_elements) {
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_ROTATION);
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-            printf("RENDER SLIDER\n");
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_SLIDE);
             break;
 
@@ -776,6 +770,14 @@ void render_ui_elements(UIElements * ui_elements) {
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     ui_elements->request_render = 0;
+    
+    /* After any slider movement, scissor must be reset accordingly to
+     * the final motion value.
+     */
+    
+    if (ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
+        compute_slider_scissor_y(ui_elements);
+    }
 }
 
 void render_viewport(unsigned int render_all) { 
