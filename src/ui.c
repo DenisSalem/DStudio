@@ -523,9 +523,8 @@ void init_ui_elements(
         ui_elements_array[i].scissor.width = ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? 0 : max_area_x - min_area_x;
         
         if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
-            ui_elements_array[i].scissor.y = (1.0 + gl_y - (scale_matrix[1].y)) * (g_dstudio_viewport_height>>1);
+            ui_elements_array[i].scissor.y = (1.0 + gl_y + *ui_elements_array[i].instance_motions_buffer - (scale_matrix[1].y)) * (g_dstudio_viewport_height>>1);
             ui_elements_array[i].scissor.height = scale_matrix[1].y * (g_dstudio_viewport_height);
-            printf("%d %d\n", ui_elements_array[i].scissor.y, ui_elements_array[i].scissor.height);
         }
         else {
             ui_elements_array[i].scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
@@ -580,6 +579,10 @@ void load_shader(
 
 void manage_cursor_position(int xpos, int ypos) {
     float motion;
+    GLfloat scissor_y;
+    GLfloat previous_scissor_y;
+    GLfloat height;
+    UIElements * ui_element;
     if (s_ui_element_index < 0) {
         return;
     }
@@ -590,13 +593,52 @@ void manage_cursor_position(int xpos, int ypos) {
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             if (g_ui_elements_array[s_ui_element_index].enabled) {
+                ui_element = &g_ui_elements_array[s_ui_element_index];
                 motion = compute_slider_translation(ypos);
-                update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
-                float slider_value = compute_slider_percentage_value(ypos);
-                g_ui_elements_array[s_ui_element_index].application_callback_args = &slider_value;
-                g_ui_elements_array[s_ui_element_index].application_callback(
-                    &g_ui_elements_array[s_ui_element_index]
+                scissor_y = (\
+                    1.0 + ui_element->instance_offsets_buffer->y \
+                    + motion \
+                    - (ui_element->scale_matrix[1].y) \
+                ) * (g_dstudio_viewport_height>>1);
+                
+                previous_scissor_y = ( \
+                    1.0 + ui_element->instance_offsets_buffer->y \
+                    + ui_element->instance_motions_buffer[0] \
+                    - (ui_element->scale_matrix[1].y) \
+                ) * (g_dstudio_viewport_height>>1);
+        
+                if (scissor_y - previous_scissor_y == 0 ) {
+                    return;
+                }
+        
+                printf("RENDER REQUEST: %d\n", ui_element->request_render);
+        
+                
+                height = previous_scissor_y < scissor_y ? scissor_y - previous_scissor_y : previous_scissor_y - scissor_y;
+                height += + ui_element->scale_matrix[1].y * (g_dstudio_viewport_height);
+                
+                scissor_y = (previous_scissor_y < scissor_y ? previous_scissor_y : scissor_y);
+                // prevent areas skipping
+                if (ui_element->request_render) {
+                    height += scissor_y < ui_element->scissor.y ? ui_element->scissor.y - scissor_y : scissor_y - ui_element->scissor.y;
+                    scissor_y = scissor_y < ui_element->scissor.y ? scissor_y : ui_element->scissor.y;
+                }
+                
+                printf("py:%lf y:%lf h:%lf\n",
+                    previous_scissor_y,
+                    scissor_y,
+                    height
                 );
+                
+                ui_element->scissor.y = scissor_y;
+                ui_element->scissor.height = height;
+                
+                update_ui_element_motion(ui_element, motion);
+                float slider_value = compute_slider_percentage_value(ypos);
+                ui_element->application_callback_args = &slider_value;
+                //~ g_ui_elements_array[s_ui_element_index].application_callback(
+                    //~ &g_ui_elements_array[s_ui_element_index]
+                //~ );
             }
             break;
         default:
@@ -700,6 +742,7 @@ inline void render_loop() {
         g_request_render_all = 0;
         render_viewport(render_all);
         swap_window_buffer();
+        glFinish();
         listen_events();
     }
 };
@@ -710,6 +753,7 @@ void render_ui_elements(UIElements * ui_elements) {
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_ROTATION);
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+            printf("RENDER SLIDER\n");
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_SLIDE);
             break;
 
