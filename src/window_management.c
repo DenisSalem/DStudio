@@ -272,11 +272,11 @@ void listen_events() {
                 switch(x_event.xbutton.button) {
                     case Button4:
                         scroll(g_active_interactive_list, -1);
-                        return;
+                        break;
                         
                     case Button5:
                         scroll(g_active_interactive_list, 1);
-                        return;
+                        break;
                     default:
                         break;
                 }

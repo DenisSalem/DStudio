@@ -28,35 +28,38 @@
 #include "extensions.h"
 #include "instances.h"
 #include "text_pointer.h"
+#include "sliders.h"
 #include "ui.h"
 #include "window_management.h"
 
-Vec2 g_background_scale_matrix[2] = {0};
-GLuint g_charset_8x18_texture_ids[2] = {0};
-GLuint g_charset_4x9_texture_ids[2] = {0};
-Vec2 g_charset_8x18_scale_matrix[2] = {0};
-Vec2 g_charset_4x9_scale_matrix[2] = {0};
-GLuint g_shader_program_id = 0;
-GLuint g_scale_matrix_id = 0;
-GLuint g_motion_type_location = 0;
-GLuint g_no_texture_location = 0;
-GLuint g_ui_element_color_location = 0;
+int     g_active_slider_range_max = 0;
+int     g_active_slider_range_min = 0;
+Vec2    g_background_scale_matrix[2] = {0};
+GLuint  g_charset_8x18_texture_ids[2] = {0};
+GLuint  g_charset_4x9_texture_ids[2] = {0};
+Vec2    g_charset_8x18_scale_matrix[2] = {0};
+Vec2    g_charset_4x9_scale_matrix[2] = {0};
+GLfloat g_saved_scissor_y;
+GLuint  g_shader_program_id = 0;
+GLuint  g_scale_matrix_id = 0;
+GLuint  g_motion_type_location = 0;
+GLuint  g_no_texture_location = 0;
+int     g_ui_element_center_x = 0;
+int     g_ui_element_center_y = 0;
+GLuint  g_ui_element_color_location = 0;
+
 
 unsigned int g_framerate = DSTUDIO_FRAMERATE;
 UIElements * g_menu_background_enabled = 0;
 unsigned int g_menu_background_index = 0;
 unsigned int g_request_render_all = 0;
 
-static int                  s_active_slider_range_max = 0;
-static int                  s_active_slider_range_min = 0;
+
 static Vec2                 s_framebuffer_matrix[2] = {0};
 static GLuint               s_framebuffer_objects[2] = {0};
 static GLuint               s_framebuffer_textures[2] = {0};
 static UIElements           s_framebuffer_quad = {0};
 static double               s_list_item_click_timestamp = 0;
-static GLfloat              s_saved_scissor_y;
-static int                  s_ui_element_center_x = 0;
-static int                  s_ui_element_center_y = 0;
 static int                  s_ui_element_index = -1;
 static UIElements **        s_ui_elements_requests = 0;
 static unsigned int         s_ui_elements_requests_index = 0;
@@ -90,10 +93,10 @@ static void check_frame_buffer_status() {
 }
 #endif
 
-static inline float compute_knob_rotation(int xpos, int ypos) {
-    float rotation = 0;
-    float y = - ypos + s_ui_element_center_y;
-    float x = xpos - s_ui_element_center_x;
+static inline GLfloat compute_knob_rotation(int xpos, int ypos) {
+    GLfloat rotation = 0;
+    GLfloat y = - ypos + g_ui_element_center_y;
+    GLfloat x = xpos - g_ui_element_center_x;
     rotation = -atan(x / y);
 
     if (y < 0) {
@@ -112,38 +115,6 @@ static inline float compute_knob_rotation(int xpos, int ypos) {
     }
 
     return rotation;
-}
-
-static inline float compute_slider_percentage_value(int ypos) {
-    if (ypos > s_active_slider_range_max) {
-        ypos = s_active_slider_range_max;
-    }
-    else if (ypos < s_active_slider_range_min) {
-        ypos = s_active_slider_range_min;
-    }
-    
-    return 1.0 - (float) (ypos - s_active_slider_range_min) / (float) (s_active_slider_range_max - s_active_slider_range_min);
-}
-
-static inline float compute_slider_translation(int ypos) {
-    if (ypos > s_active_slider_range_max) {
-        ypos = s_active_slider_range_max;
-    }
-    else if (ypos < s_active_slider_range_min) {
-        ypos = s_active_slider_range_min;
-    }
-    float translation = - ypos + s_ui_element_center_y;
-    return translation / (g_dstudio_viewport_height >> 1);
-}
-
-static void compute_slider_scissor_y(UIElements * ui_elements) {
-    ui_elements->scissor.y = (\
-        1.0+ \
-        ui_elements->instance_offsets_buffer->y+ \
-        ui_elements->instance_motions_buffer[0] \
-        - (ui_elements->scale_matrix[1].y) \
-    ) * (g_dstudio_viewport_height >> 1);
-    ui_elements->scissor.height = ui_elements->scale_matrix[1].y * g_dstudio_viewport_height;
 }
 
 static int is_background_ui_element(UIElements * ui_element) {
@@ -596,11 +567,7 @@ void load_shader(
 }
 
 void manage_cursor_position(int xpos, int ypos) {
-    float motion;
-    GLint current_scissor_y;
-    GLint previous_scissor_y;
-    GLint new_scissor_y;
-    GLsizei height;
+    GLfloat motion;
     UIElements * ui_element;
     if (s_ui_element_index < 0) {
         return;
@@ -615,25 +582,8 @@ void manage_cursor_position(int xpos, int ypos) {
                 ui_element = &g_ui_elements_array[s_ui_element_index];
                 motion = compute_slider_translation(ypos);
                 
-                current_scissor_y = (\
-                    1.0+ \
-                    ui_element->instance_offsets_buffer->y+ \
-                    motion \
-                    - (ui_element->scale_matrix[1].y) \
-                ) * (g_dstudio_viewport_height >> 1);
-        
-                previous_scissor_y = ui_element->request_render ? s_saved_scissor_y : ui_element->scissor.y;
-                new_scissor_y = (previous_scissor_y < current_scissor_y ? previous_scissor_y : current_scissor_y);
-                height = previous_scissor_y < current_scissor_y ? current_scissor_y - previous_scissor_y : previous_scissor_y - current_scissor_y;
+                compute_slider_in_motion_scissor_y(ui_element, motion);
                 
-                ui_element->scissor.y = new_scissor_y;
-
-                if (ui_element->request_render) {
-                    ui_element->scissor.height += height;
-                } else {
-                    s_saved_scissor_y = new_scissor_y;
-                    ui_element->scissor.height = height + ui_element->scale_matrix[1].y * (g_dstudio_viewport_height);
-                }
                 update_ui_element_motion(ui_element, motion);
                 float slider_value = compute_slider_percentage_value(ypos);
                 ui_element->application_callback_args = &slider_value;
@@ -699,16 +649,16 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         s_x11_input_mask = g_x11_input_mask;
                         configure_input(0);
                         half_height = (ui_elements_p->scale_matrix[1].y * g_dstudio_viewport_height) / 2;
-                        s_active_slider_range_min = ui_elements_p->areas.min_area_y + half_height;
-                        s_active_slider_range_max = ui_elements_p->areas.max_area_y - half_height;
+                        g_active_slider_range_min = ui_elements_p->areas.min_area_y + half_height;
+                        g_active_slider_range_max = ui_elements_p->areas.max_area_y - half_height;
                         if (ui_elements_p->interactive_list) {
                             g_active_interactive_list = ui_elements_p->interactive_list;
                         }
                         __attribute__ ((fallthrough));
                                                                    
                     case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-                        s_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
-                        s_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
+                        g_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
+                        g_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
                         break;
                         
                     default:

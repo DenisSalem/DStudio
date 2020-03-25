@@ -2,8 +2,7 @@ cmake_minimum_required (VERSION 3.0.2)
 project(DStudio)
 set(PACKAGE_VERSION "0.0.0")
 
-set(CUSTOM_FLAGS    "-Werror -Wall -Wextra"
-)
+set(CUSTOM_FLAGS    "-Werror -Wall -Wextra")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_definitions(-DDSTUDIO_RELY_ON_X11)
@@ -52,6 +51,7 @@ add_executable(
     interactive_list.c
     open_file.c
     ressource_usage.c
+    sliders.c
     text.c
     text_pointer.c
     ui.c

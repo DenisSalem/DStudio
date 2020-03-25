@@ -21,6 +21,7 @@
 #include "extensions.h"
 #include "interactive_list.h"
 #include "instances.h"
+#include "sliders.h"
 #include "text.h"
 
 inline void bind_scroll_bar(UIInteractiveList * interactive_list, UIElements * scroll_bar) {
@@ -212,5 +213,7 @@ void update_scroll_bar(UIInteractiveList * interactive_list) {
     relative_position *= height / (GLfloat) (g_dstudio_viewport_height >> 1);
     multiplier = relative_position / (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
     relative_position = multiplier * (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
-    update_ui_element_motion(scroll_bar, interactive_list->max_scroll_bar_offset - relative_position);
+    GLfloat motion = interactive_list->max_scroll_bar_offset - relative_position;
+    compute_slider_in_motion_scissor_y(scroll_bar, motion);
+    update_ui_element_motion(scroll_bar, motion);
 }
