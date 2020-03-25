@@ -147,7 +147,6 @@ void select_item(
                 interactive_list->update_highlight = 1;
                 highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
                 interactive_list->index = i;
-                highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
                 interactive_list->previous_item_index = i;
             }
             break;
@@ -191,12 +190,16 @@ void update_insteractive_list(
         }
     }
     if (interactive_list->update_highlight) {
-        glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_offsets);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * interactive_list->highlight->count, interactive_list->highlight->instance_offsets_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, interactive_list->highlight->instance_alphas);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * interactive_list->highlight->count, interactive_list->highlight->instance_alphas_buffer);
+        UIElements * highlight = interactive_list->highlight;
+        highlight->previous_highlight_scissor_y = highlight->scissor.y;
+        highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_offsets);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * highlight->count, highlight->instance_offsets_buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_alphas);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * highlight->count, highlight->instance_alphas_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        interactive_list->highlight->request_render = 1;
+        highlight->request_render = 1;
         interactive_list->update_highlight = 0;
     }
 }

@@ -147,25 +147,30 @@ static void compute_slider_scissor_y(UIElements * ui_elements) {
 }
 
 static int is_background_ui_element(UIElements * ui_element) {
-    switch (ui_element->type) {
-        case DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_PATTERN_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND:
-        case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
-            return 1;
-        default:
-            return 0;
+    if (ui_element->type & DSTUDIO_ANY_BACKGROUND_TYPE) {
+        return 1;
+    }
+    return 0;
+}
+
+static void render_layers(unsigned int limit) {
+    for (unsigned int index = 0; index < limit; index++) {
+        s_framebuffer_quad.texture_index = index;
+        render_ui_elements(&s_framebuffer_quad);
     }
 }
 
-static void scissor_n_matrix_setting(int scissor_index, int matrix_index) {
+static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags) {
+    Scissor * scissor = &s_ui_elements_requests[scissor_index]->scissor;
     if (scissor_index >=0) {
         glScissor(
-            s_ui_elements_requests[scissor_index]->scissor.x,
-            s_ui_elements_requests[scissor_index]->scissor.y,
-            s_ui_elements_requests[scissor_index]->scissor.width,
-            s_ui_elements_requests[scissor_index]->scissor.height
+            scissor->x,
+            flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
+                s_ui_elements_requests[scissor_index]->previous_highlight_scissor_y : \
+                scissor->y
+            ,
+            scissor->width,
+            scissor->height
         );
     }
     glUniformMatrix2fv(
@@ -547,7 +552,7 @@ void init_ui_elements(
         if(texture_ids) {
             memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
         }
-        if (ui_element_type & DSTUDIO_ANY_TEXT_TYPE) {
+        if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE | DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT)) {
             ui_elements_array[i].texture_index = 1;
         }
         
@@ -658,8 +663,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 ypos > ui_elements_p->areas.min_area_y &&
                 ypos < ui_elements_p->areas.max_area_y &&
                 ui_elements_p->enabled &&
-                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND &&
-                ui_elements_p->type != DSTUDIO_UI_ELEMENT_TYPE_PATTERN
+                !(ui_elements_p->type & (DSTUDIO_ANY_BACKGROUND_TYPE | DSTUDIO_ANY_PATTERN_TYPE))
             ) {
                 s_ui_element_index = i;
                 clicked_none = 0;
@@ -780,20 +784,9 @@ void render_ui_elements(UIElements * ui_elements) {
     if (ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
         compute_slider_scissor_y(ui_elements);
     }
-    /* After any text update we need to update scissor's width accordingly
-     * to the actual text size.
-     */
-    //~ else if (ui_elements->type & DSTUDIO_ANY_TEXT_TYPE) {
-        //~ unsigned int actual_string_size = 0;
-        //~ Vec4 * offsets_buffer = ui_elements->instance_offsets_buffer;
-        //~ while (!(offsets_buffer[actual_string_size].z == 0 && offsets_buffer[actual_string_size].w == 0)) {
-            //~ actual_string_size++;
-        //~ }
-        //~ ui_elements->scissor.width = actual_string_size * ui_elements->scale_matrix[0].x * g_dstudio_viewport_width;
-    //~ }
 }
 
-void render_viewport(unsigned int render_all) { 
+void render_viewport(unsigned int render_all) {
     unsigned int background_rendering_start_index = render_all ? 0 : 1;
     unsigned int background_rendering_end_index;   
     int layer_1_index_limit = -1;
@@ -833,13 +826,17 @@ void render_viewport(unsigned int render_all) {
     /* Render first layer background */
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
-        scissor_n_matrix_setting(i, 0);
+        scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
         render_ui_elements(s_ui_elements_requests[0]);
     }
     
     /* Render first layer ui elements */
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
-        scissor_n_matrix_setting(i, i);
+        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
+            render_ui_elements(s_ui_elements_requests[0]);
+        }
+        scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
         render_ui_elements(s_ui_elements_requests[i]);
     }
 
@@ -853,7 +850,7 @@ void render_viewport(unsigned int render_all) {
 
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (is_background_ui_element(s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, i);
+                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
@@ -863,17 +860,18 @@ void render_viewport(unsigned int render_all) {
         /* Render layer 1 and 2 required areas as background */
         background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
         for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
-            scissor_n_matrix_setting(i, -1);
-            s_framebuffer_quad.texture_index = 0;
-            render_ui_elements(&s_framebuffer_quad);
-            s_framebuffer_quad.texture_index = 1;
-            render_ui_elements(&s_framebuffer_quad);
+            if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
+                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
+                render_layers(2);
+            }
+            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
+            render_layers(2);
         }
         
         /* Render layer 2 ui elements */
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (!is_background_ui_element(s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, i);
+                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }

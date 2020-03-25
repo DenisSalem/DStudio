@@ -338,7 +338,7 @@ void init_open_menu(
         18
     )
 
-    texture_ids[0] = setup_texture_n_scale_matrix(
+    texture_ids[1] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_TEXTURE_IS_PATTERN,
         DSTUDIO_PATTERN_SCALE,
         DSTUDIO_PATTERN_SCALE, 
@@ -359,7 +359,7 @@ void init_open_menu(
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_PATTERN,
+        DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT,
         DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );    
     
