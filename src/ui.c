@@ -365,7 +365,7 @@ void init_opengl_ui_elements(
 }
 
 void init_text() {
-    g_charset_8x18_texture_ids[0] = setup_texture_n_scale_matrix(
+    g_charset_8x18_texture_ids[1] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
         DSTUDIO_CHAR_TABLE_8X18_WIDTH,
         DSTUDIO_CHAR_TABLE_8X18_HEIGHT,
@@ -373,7 +373,7 @@ void init_text() {
         g_charset_8x18_scale_matrix
     );
     
-    g_charset_4x9_texture_ids[0] = setup_texture_n_scale_matrix(
+    g_charset_4x9_texture_ids[1] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_TEXT_SETTING,
         DSTUDIO_CHAR_TABLE_4X9_WIDTH,
         DSTUDIO_CHAR_TABLE_4X9_HEIGHT,
@@ -471,7 +471,7 @@ void init_ui_elements(
 ) {
     GLfloat min_area_x;
     GLfloat min_area_y;
-    if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM)) {
+    if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE)) {
         min_area_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
     }
     else {
@@ -547,12 +547,15 @@ void init_ui_elements(
         if(texture_ids) {
             memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
         }
+        if (ui_element_type & DSTUDIO_ANY_TEXT_TYPE) {
+            ui_elements_array[i].texture_index = 1;
+        }
         
         ui_elements_array[i].visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
         ui_elements_array[i].request_render = ui_elements_array[i].visible;
         
         
-        if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_TEXT | DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND | DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM )) {
+        if (ui_element_type & DSTUDIO_ANY_TEXT_TYPE) {
             flags |= DSTUDIO_FLAG_USE_TEXT_SETTING;
         }
         if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
@@ -626,7 +629,6 @@ void manage_cursor_position(int xpos, int ypos) {
                     s_saved_scissor_y = new_scissor_y;
                     ui_element->scissor.height = height + ui_element->scale_matrix[1].y * (g_dstudio_viewport_height);
                 }
-                printf("%d\n", ui_element->scissor.height);
                 update_ui_element_motion(ui_element, motion);
                 float slider_value = compute_slider_percentage_value(ypos);
                 ui_element->application_callback_args = &slider_value;
@@ -778,6 +780,17 @@ void render_ui_elements(UIElements * ui_elements) {
     if (ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
         compute_slider_scissor_y(ui_elements);
     }
+    /* After any text update we need to update scissor's width accordingly
+     * to the actual text size.
+     */
+    //~ else if (ui_elements->type & DSTUDIO_ANY_TEXT_TYPE) {
+        //~ unsigned int actual_string_size = 0;
+        //~ Vec4 * offsets_buffer = ui_elements->instance_offsets_buffer;
+        //~ while (!(offsets_buffer[actual_string_size].z == 0 && offsets_buffer[actual_string_size].w == 0)) {
+            //~ actual_string_size++;
+        //~ }
+        //~ ui_elements->scissor.width = actual_string_size * ui_elements->scale_matrix[0].x * g_dstudio_viewport_width;
+    //~ }
 }
 
 void render_viewport(unsigned int render_all) { 
@@ -901,7 +914,8 @@ void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, un
             case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
             case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
                 ui_elements[i].enabled = state;
-                ui_elements[i].texture_index = 0;
+                if (!(ui_elements[i].type & DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM)) 
+                    ui_elements[i].texture_index = 0;
                 break;
                 
             default:

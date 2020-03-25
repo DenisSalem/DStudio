@@ -102,6 +102,12 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND = 8192
 } UIElementType;
 
+#define  DSTUDIO_ANY_TEXT_TYPE \
+    (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | \
+    DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM | \
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT | \
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND)
+    
 typedef enum MotionType_t {
     DSTUDIO_MOTION_TYPE_NONE = 0U,
     DSTUDIO_MOTION_TYPE_ROTATION = 1U,
@@ -140,7 +146,16 @@ typedef struct UIElements_t {
     unsigned char               texture_index;
     double                      timestamp;
     GLchar                      vertex_indexes[4];
-    GLuint                      texture_ids[2];
+    /* For any text type there is only one index used for texture because
+     * it's not meant to be changed. The other index is used to store the
+     * previous string size necessary to compute optimized text area.
+     * In this configuration, the first index is the previous text size,
+     * and the second one refer to the texture identifier. The previous 
+     * implies that for textual type texture index is always set to 1.*/
+    union {
+        GLuint                  texture_ids[2];
+        GLuint                  previous_text_size;
+    };
     GLuint                      vertex_array_object;
     GLuint                      vertex_buffer_object;
     GLuint                      index_buffer_object;
