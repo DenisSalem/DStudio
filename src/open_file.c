@@ -98,7 +98,7 @@ void init_open_menu(
     prompt_box->color.r = 0;
     prompt_box->color.g = 0;
     prompt_box->color.b = 0;
-    prompt_box->color.a = 0.0;
+    prompt_box->color.a = 0.5;
     
     init_ui_elements(
         prompt_box,

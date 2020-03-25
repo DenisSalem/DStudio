@@ -743,7 +743,6 @@ inline void render_loop() {
         g_request_render_all = 0;
         render_viewport(render_all);
         swap_window_buffer();
-        glFinish();
         listen_events();
     }
 };
