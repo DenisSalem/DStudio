@@ -17,11 +17,28 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../instances.h"
 #include "samples.h"
 
 SampleContext * g_current_active_sample = 0;
 ThreadControl g_samples_thread_control = {0};
 UIInteractiveList g_ui_samples = {0};
+
+void bind_samples_interactive_list(UIElements * line) {
+    g_ui_samples.update_request = -1;
+    if (line == NULL) {
+        line = g_ui_samples.lines;
+        g_ui_samples.window_offset = 0;
+        update_current_voice(0);
+    }
+    Samples * samples = g_current_active_voice->sub_contexts;
+    g_ui_samples.source_data = (char*) samples->contexts;
+    g_ui_samples.source_data_count = &samples->count;
+    select_item(
+        line,
+        DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+    );
+}
 
 void init_samples_interactive_list(
     UIElements * ui_elements,
@@ -30,15 +47,16 @@ void init_samples_interactive_list(
     GLfloat item_offset_y
 ) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
-    printf("contexts: %lu", (unsigned long) samples->contexts);
+    g_samples_thread_control.shared_mutex = &g_instances.thread_control.mutex;
+
     init_interactive_list(
-        &g_ui_voices,
+        &g_ui_samples,
         ui_elements,
         lines_number,
         string_size,
         sizeof(VoiceContext),
         &samples->count,
-        samples->contexts->name,
+        (char *) samples->contexts,
         &g_samples_thread_control,
         select_voice_from_list,
         1,
@@ -62,4 +80,8 @@ void update_current_sample(unsigned int index) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
     samples->index = index;
     g_current_active_sample = &samples->contexts[index];
+}
+
+void update_samples_ui_list() {
+    update_insteractive_list(&g_ui_samples);
 }

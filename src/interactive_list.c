@@ -29,6 +29,9 @@ inline void bind_scroll_bar(UIInteractiveList * interactive_list, UIElements * s
     interactive_list->scroll_bar = scroll_bar;
     interactive_list->max_scroll_bar_offset= scroll_bar->instance_motions_buffer[0];
     scroll_bar->application_callback = scroll_by_slider;
+    if (interactive_list->source_data == NULL) {
+        scroll_bar->enabled = 0;
+    }
 }
 
 void init_interactive_list(
@@ -100,14 +103,19 @@ void scroll_by_slider(UIElements * ui_elements) {
     sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
     sem_wait(mutex);
 
+    // List empty? Nothing to do then.
+    if (interactive_list->source_data == NULL) {
+        goto exit_scroll_by_slider;
+    }
+
     float slider_value = 1.0 - *(float *) ui_elements->application_callback_args;
     unsigned int window_offset = (unsigned int) round(slider_value * (*interactive_list->source_data_count - interactive_list->lines_number));
     
     // No actual motion? Just quit then.
     if (0 == interactive_list->window_offset - window_offset) {
-        sem_post(mutex);
-        return;
+        goto exit_scroll_by_slider;
     }
+    
     interactive_list->index += interactive_list->window_offset - window_offset;
     interactive_list->window_offset = window_offset;
     interactive_list->update_request= -1;
@@ -122,8 +130,9 @@ void scroll_by_slider(UIElements * ui_elements) {
         interactive_list->update_highlight = 1;
         *interactive_list->highlight->instance_alphas_buffer = 0;
     }
-
-    sem_post(mutex);
+    
+    exit_scroll_by_slider:
+        sem_post(mutex);
 }
 
 void select_item(
@@ -144,7 +153,7 @@ void select_item(
                 interactive_list->lines[interactive_list->previous_item_index].request_render = 1;
                 interactive_list->lines[i].request_render = 1;
                 interactive_list->thread_bound_control->update = 1;
-                *interactive_list->highlight->instance_alphas_buffer = 1;
+                *interactive_list->highlight->instance_alphas_buffer = interactive_list->source_data ? 1 : 0;
                 interactive_list->update_highlight = 1;
                 highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
                 interactive_list->index = i;

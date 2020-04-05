@@ -38,6 +38,8 @@ extern SampleContext * g_current_active_sample;
 extern ThreadControl g_samples_thread_control;
 extern UIInteractiveList g_ui_samples;
 
+void bind_samples_interactive_list(UIElements * line);
+
 void init_samples_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,
@@ -52,5 +54,7 @@ unsigned int select_sample_from_list(
 void update_current_sample(
     unsigned int index
 );
+
+void update_samples_ui_list();
 
 #endif

@@ -711,10 +711,13 @@ void * ui_thread(void * arg) {
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
     );
+    
+    bind_scroll_bar(&g_ui_samples, &g_ui_elements_struct.samples_list_slider);
 
     bind_voices_interactive_list(NULL);
-
-    init_threaded_ui_element_updater_register(5);
+    bind_samples_interactive_list(NULL);
+    
+    init_threaded_ui_element_updater_register(6);
     
     register_threaded_ui_elements_updater(
         &g_text_pointer_context.thread_control,
@@ -739,6 +742,11 @@ void * ui_thread(void * arg) {
     register_threaded_ui_elements_updater(
         &g_open_file_thread_control,     
         update_open_file_ui_list
+    );
+    
+    register_threaded_ui_elements_updater(
+        &g_samples_thread_control,     
+        update_samples_ui_list
     );
 
     render_loop();
