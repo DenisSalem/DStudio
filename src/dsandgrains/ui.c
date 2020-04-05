@@ -31,6 +31,7 @@
 #include "../window_management.h"
 
 #include "add.h"
+#include "samples.h"
 #include "ui.h"
 
 UIElementsStruct g_ui_elements_struct = {0};
@@ -47,18 +48,6 @@ Vec2 sub_menu_buttons_add_scale_matrix[2] = {0};
 Vec2 s_instances_slider_scale_matrix[2] = {0};
 
 inline static void bind_callbacks() {
-    //~ g_ui_elements_struct.button_arrow_top_instances.application_callback = scroll_up;
-    //~ g_ui_elements_struct.button_arrow_top_instances.application_callback_args = (void *) &g_ui_instances;
-    
-    //~ g_ui_elements_struct.button_arrow_bottom_instances.application_callback = scroll_down;
-    //~ g_ui_elements_struct.button_arrow_bottom_instances.application_callback_args = (void *) &g_ui_instances;
-
-    //~ g_ui_elements_struct.button_arrow_top_voices.application_callback = scroll_up;
-    //~ g_ui_elements_struct.button_arrow_top_voices.application_callback_args = (void *) &g_ui_voices;
-    
-    //~ g_ui_elements_struct.button_arrow_bottom_voices.application_callback = scroll_down;
-    //~ g_ui_elements_struct.button_arrow_bottom_voices.application_callback_args = (void *) &g_ui_voices;
-
     g_ui_elements_struct.button_add.application_callback = add_sub_menu;
     g_ui_elements_struct.button_add_instance.application_callback = add_instance;
     g_ui_elements_struct.button_add_sample.application_callback = add_sample;
@@ -66,7 +55,6 @@ inline static void bind_callbacks() {
     
     bind_scroll_bar(&g_ui_instances, &g_ui_elements_struct.instances_list_slider);
     bind_scroll_bar(&g_ui_voices, &g_ui_elements_struct.voices_list_slider);
-
 }
 
 inline static void init_background() {
@@ -153,6 +141,23 @@ inline static void init_instances_list() {
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET,
         1,
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
+        DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM,
+        DSTUDIO_FLAG_IS_VISIBLE
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.samples_list_item_1,
+        &g_charset_4x9_texture_ids[0],
+        &g_charset_4x9_scale_matrix[0],
+        DSANDGRAINS_SAMPLE_SCROLLABLE_LIST_ITEM_POS_X,
+        DSANDGRAINS_SAMPLE_SCROLLABLE_LIST_ITEM_POS_Y,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT,
+        0,
+        DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET,
+        1,
+        DSANDGRAINS_SAMPLE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM,
         DSTUDIO_FLAG_IS_VISIBLE
@@ -304,6 +309,23 @@ inline static void init_list_item_highlights() {
         &list_item_highlight_scale_matrix[0],
         DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_X,
         DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_Y,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
+        DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT, 
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT,
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_TEXTURE_IS_PATTERN
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.samples_list_item_highlight,
+        &texture_ids[0],
+        &list_item_highlight_scale_matrix[0],
+        DSANDGRAINS_SAMPLE_ITEM_LIST_HIGHLIGHT_POS_X,
+        DSANDGRAINS_SAMPLE_ITEM_LIST_HIGHLIGHT_POS_Y,
         DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH,
         DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT, 
         0,
@@ -477,6 +499,23 @@ inline static void init_sliders() {
         &s_instances_slider_scale_matrix[0],
         DSANDGRAINS_VOICE_SLIDER_POS_X,
         DSANDGRAINS_VOICE_SLIDER_POS_Y,
+        DSTUDIO_SLIDER_2_7_AREA_WIDTH,
+        DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_SLIDER_TO_TOP
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.samples_list_slider,
+        &slider_texture_ids[0],
+        &s_instances_slider_scale_matrix[0],
+        DSANDGRAINS_SAMPLE_SLIDER_POS_X,
+        DSANDGRAINS_SAMPLE_SLIDER_POS_Y,
         DSTUDIO_SLIDER_2_7_AREA_WIDTH,
         DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
         0,
@@ -661,6 +700,13 @@ void * ui_thread(void * arg) {
 
     init_voices_interactive_list(
         &g_ui_elements_struct.voices_list_item_highlight,
+        DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
+        DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET
+    );
+    
+    init_samples_interactive_list(
+        &g_ui_elements_struct.samples_list_item_highlight,
         DSANDGRAINS_VOICE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET

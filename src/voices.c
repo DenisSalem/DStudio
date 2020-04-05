@@ -31,6 +31,7 @@ static UIElements * s_ui_elements;
 static unsigned int s_lines_number;
 static unsigned int s_string_size;
 static GLfloat s_item_offset_y;
+static unsigned int s_sub_context_size = 0;
 
 void bind_voices_interactive_list(UIElements * line) {
     g_ui_voices.update_request = -1;
@@ -97,7 +98,9 @@ UIElements * new_voice(unsigned int use_mutex) {
 
     g_current_active_instance->voices.contexts = new_voice_context;
     g_current_active_voice = &g_current_active_instance->voices.contexts[g_current_active_instance->voices.index];
-
+    
+    g_current_active_voice->sub_contexts = dstudio_alloc(s_sub_context_size);
+    
     sprintf(g_current_active_voice->name, "Voice %d", g_current_active_instance->voices.count);
     #ifdef DSTUDIO_DEBUG
     printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
@@ -119,6 +122,7 @@ UIElements * new_voice(unsigned int use_mutex) {
     if(use_mutex) {
         sem_post(g_voices_thread_control.shared_mutex);
     }
+    
     return line;
 }
 
@@ -130,6 +134,10 @@ unsigned int select_voice_from_list(
         return 1;
     }
     return 0;
+}
+
+void setup_voice_sub_context(unsigned int size) {
+    s_sub_context_size = size;
 }
 
 void update_current_voice(unsigned int index) {

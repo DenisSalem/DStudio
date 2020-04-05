@@ -25,8 +25,11 @@
 #include "../instances.h"
 #include "../ressource_usage.h"
 #include "../text_pointer.h"
+#include "../voices.h"
 #include "instances.h"
+#include "samples.h"
 #include "ui.h"
+
 
 const unsigned int g_dstudio_viewport_width = 800;
 const unsigned int g_dstudio_viewport_height = 512;
@@ -41,8 +44,8 @@ const unsigned int g_dstudio_ui_element_count = sizeof(UIElementsStruct) / sizeo
 int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
-    
     dstudio_init_memory_management();
+    setup_voice_sub_context(sizeof(Samples));
     init_text_pointer();
 
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");

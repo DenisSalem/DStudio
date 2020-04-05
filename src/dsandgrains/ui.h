@@ -118,6 +118,15 @@
 #define DSANDGRAINS_SAMPLE_KNOBS_POS_X -0.8675
 #define DSANDGRAINS_SAMPLE_KNOBS_POS_Y 0.296875
 
+#define DSANDGRAINS_SAMPLE_ITEM_LIST_HIGHLIGHT_POS_X 0.8059765625
+#define DSANDGRAINS_SAMPLE_ITEM_LIST_HIGHLIGHT_POS_Y -0.529296875
+#define DSANDGRAINS_SAMPLE_SCROLLABLE_LIST_ITEM_POS_X 0.68
+#define DSANDGRAINS_SAMPLE_SCROLLABLE_LIST_ITEM_POS_Y -0.529296875
+#define DSANDGRAINS_SAMPLE_SCROLLABLE_LIST_SIZE 11
+
+#define DSANDGRAINS_SAMPLE_SLIDER_POS_X 0.95125
+#define DSANDGRAINS_SAMPLE_SLIDER_POS_Y -0.705078125
+
 #define DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET -0.03515625
 #define DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE DSTUDIO_INSTANCE_NAME_LENGTH
 
@@ -204,8 +213,20 @@ typedef struct UIElementsStruct_t {
     UIElements voices_list_item_9;
     UIElements voices_list_item_10;
     UIElements voices_list_item_11;
+    UIElements samples_list_slider;
+    UIElements samples_list_item_highlight;
+    UIElements samples_list_item_1;
+    UIElements samples_list_item_2;
+    UIElements samples_list_item_3;
+    UIElements samples_list_item_4;
+    UIElements samples_list_item_5;
+    UIElements samples_list_item_6;
+    UIElements samples_list_item_7;
+    UIElements samples_list_item_8;
+    UIElements samples_list_item_9;
+    UIElements samples_list_item_10;
+    UIElements samples_list_item_11;
     UIElements text_pointer;
-    //~ UIElements samples_list_item_highlight;
     //~ UIElements dahdsr_target_list_item_highlight;
     UIElements menu_background;
     UIElements add_sub_menu_prompt;

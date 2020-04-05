@@ -588,9 +588,11 @@ void manage_cursor_position(int xpos, int ypos) {
                 float slider_value = compute_slider_percentage_value(ypos);
                 ui_element->application_callback_args = &slider_value;
                 
-                g_ui_elements_array[s_ui_element_index].application_callback(
-                    &g_ui_elements_array[s_ui_element_index]
-                );
+                if (g_ui_elements_array[s_ui_element_index].application_callback) {
+                    g_ui_elements_array[s_ui_element_index].application_callback(
+                        &g_ui_elements_array[s_ui_element_index]
+                    );
+                }
             }
             break;
         default:

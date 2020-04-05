@@ -237,6 +237,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_voices_thread_control.shared_mutex = &g_instances.thread_control.mutex;
         g_instances.thread_control.update = 1;
         new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
+        
     }
     dstudio_free(instance_filename_buffer);
 }

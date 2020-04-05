@@ -17,44 +17,40 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_VOICES_H_INCLUDED
-#define DSTUDIO_VOICES_H_INCLUDED
+#ifndef DSTUDIO_SAMPLES_H_INCLUDED
+#define DSTUDIO_SAMPLES_H_INCLUDED
 
-#include "interactive_list.h"
+#include "../common.h"
+#include "../interactive_list.h"
+#include "../voices.h"
 
-typedef struct VoiceContext_t {
+typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
-    void * sub_contexts;
-} VoiceContext;
+} SampleContext;
 
-typedef struct Voices_t {
-    VoiceContext * contexts;
+typedef struct Samples_t{
+    SampleContext * contexts;
     unsigned int count;
     unsigned int index;
-} Voices;
+} Samples;
 
-extern VoiceContext * g_current_active_voice;
-extern UIInteractiveList g_ui_voices;
-extern ThreadControl g_voices_thread_control;
-void bind_voices_interactive_list(UIElements * line);
+extern SampleContext * g_current_active_sample; 
+extern ThreadControl g_samples_thread_control;
+extern UIInteractiveList g_ui_samples;
 
-void init_voices_interactive_list(
+void init_samples_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,
     unsigned int string_size,
     GLfloat item_offset_y
 );
 
-UIElements * new_voice(unsigned int use_mutex);
-
-unsigned int select_voice_from_list(
+unsigned int select_sample_from_list(
     unsigned int index
 );
 
-void setup_voice_sub_context(
-    unsigned int size
+void update_current_sample(
+    unsigned int index
 );
 
-void update_current_voice(unsigned int index);
-void update_voices_ui_list();
 #endif

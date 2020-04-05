@@ -42,6 +42,7 @@ add_executable(
 	dsandgrains
     dsandgrains/add.c
 	dsandgrains/main.c
+    dsandgrains/samples.c
     dsandgrains/ui.c
     buttons.c
     common.c
