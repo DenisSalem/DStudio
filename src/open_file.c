@@ -32,7 +32,7 @@
 ThreadControl g_open_file_thread_control = {0};
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
-static void (*s_select_callback)(FILE * file_fd) = 0;
+static void (*s_select_callback)(char * filename, FILE * file_fd) = 0;
 static UIElements * s_menu_background;
 static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_list_box_scale_matrix[2] = {0};
@@ -78,7 +78,10 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
             break;
         }
     }
-    printf("Open file bitch: %s\n", &interactive_list->source_data[index*interactive_list->stride]);
+    s_select_callback(
+        &interactive_list->source_data[index*interactive_list->stride],
+        NULL
+    );
 }
 
 static int strcoll_proxy(const void * a, const void *b) {
@@ -404,7 +407,7 @@ void init_open_menu(
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
-    void (*select_callback)(FILE * file_fd)
+    void (*select_callback)(char * filename, FILE * file_fd)
 ) {
     UIElements * highlight = 0;
     s_cancel_callback = cancel_callback;
@@ -433,7 +436,7 @@ void open_file_menu(
             allocation_size += DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
             s_files_list = dstudio_realloc(s_files_list, allocation_size);
         }
-        strncpy(&s_files_list[s_files_count * DSTUDIO_OPEN_FILE_CHAR_PER_LINE], de->d_name, DSTUDIO_OPEN_FILE_CHAR_PER_LINE);
+        strncpy(&s_files_list[s_files_count * DSTUDIO_OPEN_FILE_CHAR_PER_LINE], de->d_name, DSTUDIO_OPEN_FILE_CHAR_PER_LINE-1);
         s_files_count +=1;
     }
     s_interactive_list.source_data = s_files_list;

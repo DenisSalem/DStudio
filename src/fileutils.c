@@ -152,6 +152,13 @@ double get_proc_memory_usage() {
     return -1;
 }
 
+int is_directory(const char *path) {
+   struct stat statbuf;
+   if (stat(path, &statbuf) != 0)
+       return 0;
+   return S_ISDIR(statbuf.st_mode);
+}
+
 void recursive_mkdir(char * directory) {
     char * tmp_str = dstudio_alloc(sizeof(char) * strlen(directory));
     int index = 0;

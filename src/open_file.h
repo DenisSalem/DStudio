@@ -30,7 +30,7 @@ void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
-    void (*select_callback)(FILE * file_fd)
+    void (*select_callback)(char * filename, FILE * file_fd)
 );
 
 unsigned int select_file_from_list(

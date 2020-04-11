@@ -38,4 +38,6 @@ void recursive_mkdir(
     char * directory
 );
 
+int is_directory(const char *path);
+
 int set_physical_memory();
