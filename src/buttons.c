@@ -37,7 +37,7 @@ void * buttons_management_thread(void * args) {
     }
     
     while(1) {
-        usleep(g_framerate * 10);
+        usleep(g_framerate * 2);
         sem_wait(&g_buttons_management.thread_control.mutex);
 
         if (g_buttons_management.thread_control.cut_thread) {

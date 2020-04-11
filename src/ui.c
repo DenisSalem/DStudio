@@ -630,14 +630,20 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         break;
                     
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                        select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
-                        s_list_item_click_timestamp = timestamp;
-                        g_active_interactive_list = ui_elements_p->interactive_list;
+                        timestamp = get_timestamp();
+                        if (ui_elements_p->application_callback && timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                            ui_elements_p->application_callback(ui_elements_p);
+                        }
+                        else {
+                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+                            s_list_item_click_timestamp = timestamp;
+                            g_active_interactive_list = ui_elements_p->interactive_list;
+                        }
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                         timestamp = get_timestamp();
-                        if (ui_elements_p->interactive_list->editable && timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                        if (timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
                             update_text_pointer_context(ui_elements_p);
                         }
                         else {

@@ -69,6 +69,18 @@ static void close_open_file_menu_button_callback(UIElements * ui_elements) {
     close_open_file_menu();
 }
 
+static void open_file_and_consume_callback(UIElements * ui_element) {
+    unsigned int index = 0;
+    UIInteractiveList * interactive_list = ui_element->interactive_list;
+    for (unsigned int i=0; i < interactive_list->lines_number; i++) {
+        if (&interactive_list->lines[i] == ui_element) {
+            index = i+interactive_list->window_offset;
+            break;
+        }
+    }
+    printf("Open file bitch: %s\n", &interactive_list->source_data[index*interactive_list->stride]);
+}
+
 static int strcoll_proxy(const void * a, const void *b) {
     return strcoll( (const char*) a, (const char *) b);
 }
@@ -331,6 +343,10 @@ void init_open_menu(
         DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM,
         DSTUDIO_FLAG_NONE
     );
+    
+    for (unsigned int i = 0; i < (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2; i++) {
+        list[i].application_callback = open_file_and_consume_callback;
+    }
 
     DEFINE_SCALE_MATRIX(
         s_list_item_highlight_scale_matrix,
