@@ -27,9 +27,17 @@ unsigned int count_process(
     const char * process_name
 );
 
-void expand_user(
+void dstudio_canonize_path(
+    char ** src
+);
+
+void dstudio_expand_user(
     char ** dest,
     const char * directory
+);
+
+int dstudio_is_directory(
+    char * path
 );
 
 double get_proc_memory_usage();

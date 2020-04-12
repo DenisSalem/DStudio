@@ -27,7 +27,7 @@
 #include "ui.h"
 
 static void load_sample(char * filename, FILE * file_fd) {
-    printf("%s\n", filename);
+    printf("load sample: %s\n", filename);
     (void) file_fd;
 }
 

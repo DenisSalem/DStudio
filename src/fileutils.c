@@ -107,8 +107,20 @@ unsigned int count_process(const char * process_name) {
     return count;
 }
 
+void dstudio_canonize_path(char ** src) {
+    char * canonized_path = dstudio_alloc(PATH_MAX);
+    char * tmp = realpath(*src, canonized_path);
+    if (tmp == NULL) {
+        free(canonized_path);
+        printf("Can't canonized path. Realpath failed with the following message: %s\n", strerror(errno));
+        return;
+    }
+    dstudio_realloc(*src, strlen(canonized_path)+1);
+    strcpy(*src, canonized_path);
+    dstudio_free(canonized_path);
+}
 
-void expand_user(char ** dest, const char * directory) {
+void dstudio_expand_user(char ** dest, const char * directory) {
     struct passwd * pw = 0;
     if (pw == 0) {
         pw = getpwuid(getuid());
@@ -117,6 +129,12 @@ void expand_user(char ** dest, const char * directory) {
     *dest = dstudio_alloc(sizeof(char) * (strlen(pw->pw_dir) + strlen(tild_ptr))+1);
     strcpy(*dest, pw->pw_dir);
     strcpy(&(*dest)[strlen(pw->pw_dir)], tild_ptr);
+}
+
+int dstudio_is_directory(char * path) {
+    struct stat path_stat;
+    stat(path, &path_stat);
+    return S_ISREG(path_stat.st_mode);
 }
 
 double get_proc_memory_usage() {

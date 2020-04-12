@@ -196,7 +196,7 @@ void new_instance(const char * given_directory, const char * process_name) {
     struct dirent *de;
 
     int processes_count = count_process(process_name);
-    expand_user(&s_instances_directory, given_directory);
+    dstudio_expand_user(&s_instances_directory, given_directory);
     char * instance_filename_buffer = dstudio_alloc(sizeof(char) * 128); 
     FILE * new_instance = 0;
     if (stat(s_instances_directory, &st) == -1) {

@@ -33,6 +33,7 @@ ThreadControl g_open_file_thread_control = {0};
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static void (*s_select_callback)(char * filename, FILE * file_fd) = 0;
+static char * s_current_directory = 0;
 static UIElements * s_menu_background;
 static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
 static Vec2 s_open_file_list_box_scale_matrix[2] = {0};
@@ -69,6 +70,7 @@ static void close_open_file_menu_button_callback(UIElements * ui_elements) {
     close_open_file_menu();
 }
 
+static void refresh_file_list(char * path);
 static void open_file_and_consume_callback(UIElements * ui_element) {
     unsigned int index = 0;
     UIInteractiveList * interactive_list = ui_element->interactive_list;
@@ -78,14 +80,70 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
             break;
         }
     }
-    s_select_callback(
-        &interactive_list->source_data[index*interactive_list->stride],
-        NULL
+    
+    dstudio_realloc(
+        s_current_directory,
+        strlen(s_current_directory) +
+        strlen(&interactive_list->source_data[index*interactive_list->stride]) +
+        2 // separator + Null byte 
     );
+    
+    strcat(s_current_directory, "/");
+    //strcat(s_current_directory, &interactive_list->source_data[index*interactive_list->stride]);    
+    if (dstudio_is_directory(s_current_directory)) {
+        printf("> %s\n", s_current_directory);
+        dstudio_canonize_path(&s_current_directory);
+        printf("> %s\n", s_current_directory);
+        //refresh_file_list(s_current_directory);
+    }
+    else {
+        s_select_callback(
+            &interactive_list->source_data[index*interactive_list->stride],
+            NULL
+        );
+    }
 }
 
 static int strcoll_proxy(const void * a, const void *b) {
     return strcoll( (const char*) a, (const char *) b);
+}
+
+
+static void refresh_file_list(char * path) {
+    DIR * dr = opendir(path);
+    struct dirent *de;
+    UIElements * highlight = 0;
+
+    
+    s_files_count = 0;
+    if (s_files_list != NULL) {
+        free(s_files_list);
+    }
+    s_files_list = dstudio_alloc( DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number);
+    unsigned int allocation_size = DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
+    
+    while ((de = readdir(dr)) != NULL) {
+        if (strcmp(de->d_name, ".") == 0) {
+            continue;
+        }
+        if (s_files_count == (allocation_size / DSTUDIO_OPEN_FILE_CHAR_PER_LINE)) {
+            allocation_size += DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
+            s_files_list = dstudio_realloc(s_files_list, allocation_size);
+        }
+        strncpy(&s_files_list[s_files_count * DSTUDIO_OPEN_FILE_CHAR_PER_LINE], de->d_name, DSTUDIO_OPEN_FILE_CHAR_PER_LINE-1);
+        s_files_count +=1;
+    }
+    s_interactive_list.source_data = s_files_list;
+    qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
+    highlight = s_interactive_list.highlight;
+    highlight->instance_offsets_buffer->y = s_interactive_list.highlight_offset_y;
+    s_interactive_list.index = 0;
+    s_interactive_list.window_offset = 0;
+    s_interactive_list.update_highlight = 1;
+    highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
+    update_insteractive_list(&s_interactive_list);
+    update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
+    closedir(dr);    
 }
 
 void init_open_menu(
@@ -409,7 +467,6 @@ void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
     void (*select_callback)(char * filename, FILE * file_fd)
 ) {
-    UIElements * highlight = 0;
     s_cancel_callback = cancel_callback;
     s_select_callback = select_callback;
     configure_input(PointerMotionMask);
@@ -419,39 +476,9 @@ void open_file_menu(
     set_close_sub_menu_callback(close_open_file_menu);
     g_menu_background_enabled = s_menu_background;
     
-    char * default_path = 0;
-    expand_user(&default_path, "~");
-    DIR * dr = opendir(default_path);
-    struct dirent *de;
-
-    s_files_count = 0;
-    s_files_list = dstudio_alloc( DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number);
-    unsigned int allocation_size = DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
+    dstudio_expand_user(&s_current_directory, "~");
+    refresh_file_list(s_current_directory);
     
-    while ((de = readdir(dr)) != NULL) {
-        if (strcmp(de->d_name, ".") == 0) {
-            continue;
-        }
-        if (s_files_count == (allocation_size / DSTUDIO_OPEN_FILE_CHAR_PER_LINE)) {
-            allocation_size += DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
-            s_files_list = dstudio_realloc(s_files_list, allocation_size);
-        }
-        strncpy(&s_files_list[s_files_count * DSTUDIO_OPEN_FILE_CHAR_PER_LINE], de->d_name, DSTUDIO_OPEN_FILE_CHAR_PER_LINE-1);
-        s_files_count +=1;
-    }
-    s_interactive_list.source_data = s_files_list;
-    
-    qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
-    highlight = s_interactive_list.highlight;
-    highlight->instance_offsets_buffer->y = s_interactive_list.highlight_offset_y;
-    s_interactive_list.index = 0;
-    s_interactive_list.window_offset = 0;
-    s_interactive_list.update_highlight = 1;
-    highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
-    update_insteractive_list(&s_interactive_list);
-    update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
-    closedir(dr);    
-    dstudio_free(default_path);
     g_active_interactive_list = &s_interactive_list;
     g_request_render_all = 1;
 }
