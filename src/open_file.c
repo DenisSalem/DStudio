@@ -89,12 +89,10 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
     );
     
     strcat(s_current_directory, "/");
-    //strcat(s_current_directory, &interactive_list->source_data[index*interactive_list->stride]);    
+    strcat(s_current_directory, &interactive_list->source_data[index*interactive_list->stride]);   
     if (dstudio_is_directory(s_current_directory)) {
-        printf("> %s\n", s_current_directory);
         dstudio_canonize_path(&s_current_directory);
-        printf("> %s\n", s_current_directory);
-        //refresh_file_list(s_current_directory);
+        refresh_file_list(s_current_directory);
     }
     else {
         s_select_callback(

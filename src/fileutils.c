@@ -134,7 +134,7 @@ void dstudio_expand_user(char ** dest, const char * directory) {
 int dstudio_is_directory(char * path) {
     struct stat path_stat;
     stat(path, &path_stat);
-    return S_ISREG(path_stat.st_mode);
+    return S_ISDIR(path_stat.st_mode);
 }
 
 double get_proc_memory_usage() {
