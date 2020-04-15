@@ -236,6 +236,7 @@ typedef struct UIElementsStruct_t {
     UIElements open_file_menu_prompts_box;
     UIElements open_file_menu_prompts;
     UIElements open_file_buttons_box;
+    UIElements open_file_error_message;
     UIElements open_file_button_cancel;
     UIElements open_file_button_open;
     UIElements open_file_list_box;

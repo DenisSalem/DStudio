@@ -115,7 +115,7 @@ void dstudio_canonize_path(char ** src) {
         printf("Can't canonized path. Realpath failed with the following message: %s\n", strerror(errno));
         return;
     }
-    dstudio_realloc(*src, strlen(canonized_path)+1);
+    *src = dstudio_realloc(*src, strlen(canonized_path)+1);
     strcpy(*src, canonized_path);
     dstudio_free(canonized_path);
 }
@@ -133,7 +133,9 @@ void dstudio_expand_user(char ** dest, const char * directory) {
 
 int dstudio_is_directory(char * path) {
     struct stat path_stat;
-    stat(path, &path_stat);
+    if (stat(path, &path_stat) == -1) {
+        return -1;
+    };
     return S_ISDIR(path_stat.st_mode);
 }
 
@@ -168,13 +170,6 @@ double get_proc_memory_usage() {
     }
     fclose(processus_status);
     return -1;
-}
-
-int is_directory(const char *path) {
-   struct stat statbuf;
-   if (stat(path, &statbuf) != 0)
-       return 0;
-   return S_ISDIR(statbuf.st_mode);
 }
 
 void recursive_mkdir(char * directory) {

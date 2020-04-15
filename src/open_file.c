@@ -17,6 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <errno.h>
 #include <dirent.h>
 #include <semaphore.h>
 #include <stdlib.h>
@@ -42,11 +43,13 @@ static Vec2 s_slider_background_scale_matrix[2] = {0};
 static Vec2 s_slider_scale_matrix[2] = {0};
 static Vec2 s_list_item_highlight_scale_matrix[2] = {0};
 static UIElements * s_ui_elements;
+static UIElements * s_error_message;
 static UIInteractiveList s_interactive_list = {0};
 static unsigned int s_list_lines_number = 0;
 static char * s_files_list = 0;
 static unsigned int s_files_count = 0;
 static unsigned int s_file_index = 0;
+static unsigned int s_max_characters_for_error_prompt = 0;
 
 static void close_open_file_menu() {
     sem_wait(&g_open_file_thread_control.mutex);
@@ -70,10 +73,12 @@ static void close_open_file_menu_button_callback(UIElements * ui_elements) {
     close_open_file_menu();
 }
 
-static void refresh_file_list(char * path);
+static unsigned int refresh_file_list(char * path);
 static void open_file_and_consume_callback(UIElements * ui_element) {
     unsigned int index = 0;
     UIInteractiveList * interactive_list = ui_element->interactive_list;
+    char * saved_current_directory = dstudio_alloc(strlen(s_current_directory)+1);
+    strcpy(saved_current_directory, s_current_directory);
     for (unsigned int i=0; i < interactive_list->lines_number; i++) {
         if (&interactive_list->lines[i] == ui_element) {
             index = i+interactive_list->window_offset;
@@ -81,7 +86,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
         }
     }
     
-    dstudio_realloc(
+    s_current_directory = dstudio_realloc(
         s_current_directory,
         strlen(s_current_directory) +
         strlen(&interactive_list->source_data[index*interactive_list->stride]) +
@@ -90,16 +95,30 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
     
     strcat(s_current_directory, "/");
     strcat(s_current_directory, &interactive_list->source_data[index*interactive_list->stride]);   
-    if (dstudio_is_directory(s_current_directory)) {
-        dstudio_canonize_path(&s_current_directory);
-        refresh_file_list(s_current_directory);
+    switch(dstudio_is_directory(s_current_directory)) {
+        case -1:
+            update_text(s_error_message, strerror(errno), s_max_characters_for_error_prompt);
+            break;
+        case 1:
+            dstudio_canonize_path(&s_current_directory);
+            if (refresh_file_list(s_current_directory)) {
+                update_text(s_error_message, "", s_max_characters_for_error_prompt);
+                dstudio_free(saved_current_directory);
+                return;
+            };
+            break;
+        case 0:
+            s_select_callback(
+                &interactive_list->source_data[index*interactive_list->stride],
+                NULL
+            );
+            break;
     }
-    else {
-        s_select_callback(
-            &interactive_list->source_data[index*interactive_list->stride],
-            NULL
-        );
-    }
+    /* In any cases, except for sucessful directory opening, we're
+     * setting path in it's previous state
+     */
+     dstudio_free(s_current_directory);
+     s_current_directory = saved_current_directory;  
 }
 
 static int strcoll_proxy(const void * a, const void *b) {
@@ -107,15 +126,19 @@ static int strcoll_proxy(const void * a, const void *b) {
 }
 
 
-static void refresh_file_list(char * path) {
+static unsigned int refresh_file_list(char * path) {
     DIR * dr = opendir(path);
+    if (dr == NULL) {
+        update_text(s_error_message, strerror(errno), s_max_characters_for_error_prompt);
+        return 0;
+    }
     struct dirent *de;
     UIElements * highlight = 0;
 
     
     s_files_count = 0;
     if (s_files_list != NULL) {
-        free(s_files_list);
+        dstudio_free(s_files_list);
     }
     s_files_list = dstudio_alloc( DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number);
     unsigned int allocation_size = DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
@@ -141,7 +164,8 @@ static void refresh_file_list(char * path) {
     highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
     update_insteractive_list(&s_interactive_list);
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
-    closedir(dr);    
+    closedir(dr);
+    return 1;  
 }
 
 void init_open_menu(
@@ -155,13 +179,14 @@ void init_open_menu(
     UIElements * prompt_box  = ui_elements;
     UIElements * prompt = &ui_elements[1];
     UIElements * buttons_box = &ui_elements[2];
-    UIElements * button_cancel = &ui_elements[3];
-    UIElements * button_open = &ui_elements[4];
-    UIElements * list_box = &ui_elements[5];
-    UIElements * slider_background = &ui_elements[6];
-    UIElements * slider = &ui_elements[7];
-    UIElements * list_highlight = &ui_elements[8];
-    UIElements * list = &ui_elements[9];
+    s_error_message = &ui_elements[3];
+    UIElements * button_cancel = &ui_elements[4];
+    UIElements * button_open = &ui_elements[5];
+    UIElements * list_box = &ui_elements[6];
+    UIElements * slider_background = &ui_elements[7];
+    UIElements * slider = &ui_elements[8];
+    UIElements * list_highlight = &ui_elements[9];
+    UIElements * list = &ui_elements[10];
     
     s_open_file_prompt_box_scale_matrix[0].x = 1;
     s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
@@ -248,6 +273,30 @@ void init_open_menu(
         DSTUDIO_ACTIVE_CANCEL_BUTTON_ASSET_PATH,
         NULL
     ); 
+    
+    
+    s_max_characters_for_error_prompt = ((g_dstudio_viewport_width - DSTUDIO_OPEN_FILE_ERROR_PROMPT_PADDING_RIGHT) / 8)-1;
+    #ifdef DSTUDIO_DEBUG
+        printf("Open file menu should have %u characters for error prompt.\n", s_max_characters_for_error_prompt);
+    #endif
+    init_ui_elements(
+        s_error_message,
+        &g_charset_8x18_texture_ids[0],
+        &g_charset_8x18_scale_matrix[0],
+        -1.0 + (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_OFFSET_X) / g_dstudio_viewport_width),
+        -1.0 + (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_OFFSET_Y) / g_dstudio_viewport_height),
+        DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH,
+        DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT,
+        0,
+        0,
+        DSTUDIO_OPEN_FILE_PROMPT_COLUMN,
+        DSTUDIO_OPEN_FILE_PROMPT_COUNT,
+        s_max_characters_for_error_prompt,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_FLAG_NONE
+    );
+    
+    update_text(s_error_message, "", s_max_characters_for_error_prompt);
     
     init_ui_elements(
         button_cancel,
