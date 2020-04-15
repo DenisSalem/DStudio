@@ -158,10 +158,11 @@ static unsigned int refresh_file_list(char * path) {
     qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
     highlight = s_interactive_list.highlight;
     highlight->instance_offsets_buffer->y = s_interactive_list.highlight_offset_y;
+
     s_interactive_list.index = 0;
     s_interactive_list.window_offset = 0;
     s_interactive_list.update_highlight = 1;
-    highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
+    s_interactive_list.lines->request_render = 1;
     update_insteractive_list(&s_interactive_list);
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
     closedir(dr);

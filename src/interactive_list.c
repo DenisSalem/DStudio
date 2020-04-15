@@ -191,7 +191,6 @@ void update_insteractive_list(
             );
         }
     }
-        
 
     if (interactive_list->scroll_bar) {
         interactive_list->scroll_bar->enabled = *interactive_list->source_data_count <= interactive_list->lines_number ? 0 : 1;
