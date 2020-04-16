@@ -137,19 +137,22 @@ void scroll_by_slider(UIElements * ui_elements) {
 
 void select_item(
     UIElements * self,
-    SelectItemOpt do_not_use_callback
+    SelectItemOpt flag
 ) {
     unsigned int lines_number = self->interactive_list->lines_number;
     UIInteractiveList * interactive_list = self->interactive_list;
     UIElements * highlight = interactive_list->highlight;
     sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
-    if (!do_not_use_callback) {
+    if (flag == DSTUDIO_SELECT_ITEM_WITH_CALLBACK) {
         sem_wait(mutex);
     }
 
     for(unsigned int i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
-            if(do_not_use_callback || interactive_list->select_callback(i+interactive_list->window_offset)) {
+            if(
+                (flag == DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK) ||
+                interactive_list->select_callback(i+interactive_list->window_offset)
+            ) {
                 interactive_list->lines[interactive_list->previous_item_index].request_render = 1;
                 interactive_list->lines[i].request_render = 1;
                 interactive_list->thread_bound_control->update = 1;
@@ -162,7 +165,7 @@ void select_item(
             break;
         }
     }
-    if (!do_not_use_callback){
+    if (flag == DSTUDIO_SELECT_ITEM_WITH_CALLBACK){
         sem_post(mutex);
     }
 }

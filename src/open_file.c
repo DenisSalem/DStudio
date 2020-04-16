@@ -132,10 +132,7 @@ static unsigned int refresh_file_list(char * path) {
         update_text(s_error_message, strerror(errno), s_max_characters_for_error_prompt);
         return 0;
     }
-    struct dirent *de;
-    UIElements * highlight = 0;
-
-    
+    struct dirent *de;   
     s_files_count = 0;
     if (s_files_list != NULL) {
         dstudio_free(s_files_list);
@@ -156,14 +153,9 @@ static unsigned int refresh_file_list(char * path) {
     }
     s_interactive_list.source_data = s_files_list;
     qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
-    highlight = s_interactive_list.highlight;
-    highlight->instance_offsets_buffer->y = s_interactive_list.highlight_offset_y;
-
-    s_interactive_list.index = 0;
-    s_interactive_list.window_offset = 0;
-    s_interactive_list.update_highlight = 1;
-    s_interactive_list.lines->request_render = 1;
-    update_insteractive_list(&s_interactive_list);
+    
+    select_item(s_interactive_list.lines, DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
+    s_file_index = 0;
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
     closedir(dr);
     return 1;  
