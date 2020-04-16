@@ -42,14 +42,18 @@ static Vec2 s_open_file_buttons_scale_matrix[2] = {0};
 static Vec2 s_slider_background_scale_matrix[2] = {0};
 static Vec2 s_slider_scale_matrix[2] = {0};
 static Vec2 s_list_item_highlight_scale_matrix[2] = {0};
-static UIElements * s_ui_elements;
-static UIElements * s_error_message;
+static UIElements * s_prompt = {0};
+static UIElements * s_ui_elements = {0};
+static UIElements * s_error_message = {0};
 static UIInteractiveList s_interactive_list = {0};
 static unsigned int s_list_lines_number = 0;
 static char * s_files_list = 0;
 static unsigned int s_files_count = 0;
 static unsigned int s_file_index = 0;
 static unsigned int s_max_characters_for_error_prompt = 0;
+static unsigned int s_max_prompt_char = 0;
+static char * s_prompt_value = 0;
+static char * s_prompt_cwd_value = 0;
 
 static void close_open_file_menu() {
     sem_wait(&g_open_file_thread_control.mutex);
@@ -77,18 +81,19 @@ static unsigned int refresh_file_list(char * path);
 
 static void open_file_and_consume_callback(UIElements * ui_element) {
     (void) ui_element;
+    char * current_item_value = &s_interactive_list.source_data[s_file_index*s_interactive_list.stride];
     char * saved_current_directory = dstudio_alloc(strlen(s_current_directory)+1);
     strcpy(saved_current_directory, s_current_directory);
-
     s_current_directory = dstudio_realloc(
         s_current_directory,
         strlen(s_current_directory) +
-        strlen(&s_interactive_list.source_data[s_file_index*s_interactive_list.stride]) +
+        strlen(current_item_value) +
         2 // separator + Null byte 
     );
     
     strcat(s_current_directory, "/");
-    strcat(s_current_directory, &s_interactive_list.source_data[s_file_index*s_interactive_list.stride]);   
+    strcat(s_current_directory, current_item_value);
+
     switch(dstudio_is_directory(s_current_directory)) {
         case -1:
             update_text(s_error_message, strerror(errno), s_max_characters_for_error_prompt);
@@ -96,6 +101,8 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
         case 1:
             dstudio_canonize_path(&s_current_directory);
             if (refresh_file_list(s_current_directory)) {
+                strncpy(s_prompt_cwd_value, s_current_directory, s_max_prompt_char-DSTUDIO_PROMPT_CWD_CHAR_OFFSET);
+                update_text(s_prompt, s_prompt_value, s_max_prompt_char);
                 update_text(s_error_message, "", s_max_characters_for_error_prompt);
                 dstudio_free(saved_current_directory);
                 return;
@@ -103,7 +110,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
             break;
         case 0:
             s_select_callback(
-                &s_interactive_list.source_data[s_file_index*s_interactive_list.stride],
+                current_item_value,
                 NULL
             );
             break;
@@ -118,7 +125,6 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
 static int strcoll_proxy(const void * a, const void *b) {
     return strcoll( (const char*) a, (const char *) b);
 }
-
 
 static unsigned int refresh_file_list(char * path) {
     DIR * dr = opendir(path);
@@ -147,9 +153,11 @@ static unsigned int refresh_file_list(char * path) {
     }
     s_interactive_list.source_data = s_files_list;
     qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
+
     s_interactive_list.window_offset = 0;
     select_item(s_interactive_list.lines, DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
     s_file_index = 0;
+    
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
     closedir(dr);
     return 1;  
@@ -164,7 +172,7 @@ void init_open_menu(
     GLuint texture_ids[2] = {0};
     
     UIElements * prompt_box  = ui_elements;
-    UIElements * prompt = &ui_elements[1];
+    s_prompt = &ui_elements[1];
     UIElements * buttons_box = &ui_elements[2];
     s_error_message = &ui_elements[3];
     UIElements * button_cancel = &ui_elements[4];
@@ -200,8 +208,12 @@ void init_open_menu(
         DSTUDIO_FLAG_NONE
     );
 
+    s_max_prompt_char = (g_dstudio_viewport_width - DSTUDIO_OPEN_FILE_PROMPT_PADDING) / 8;
+    s_prompt_value = dstudio_alloc(s_max_prompt_char);
+    strcat(s_prompt_value, "OPEN FILE: ");
+    s_prompt_cwd_value = &s_prompt_value[DSTUDIO_PROMPT_CWD_CHAR_OFFSET];
     init_ui_elements(
-        prompt,
+        s_prompt,
         &g_charset_8x18_texture_ids[0],
         &g_charset_8x18_scale_matrix[0],
         -1.0 + (((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_OFFSET_X) / g_dstudio_viewport_width),
@@ -212,12 +224,12 @@ void init_open_menu(
         0,
         DSTUDIO_OPEN_FILE_PROMPT_COLUMN,
         DSTUDIO_OPEN_FILE_PROMPT_COUNT,
-        DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE,
-        DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND,
+        s_max_prompt_char,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_NONE
     );
-    update_text(prompt, "OPEN FILE", 9);
-    prompt->request_render = 0;
+    update_text(s_prompt, s_prompt_value, s_max_prompt_char);
+    s_prompt->request_render = 0;
 
     buttons_box->color.r = 0;
     buttons_box->color.g = 0;
@@ -516,6 +528,9 @@ void open_file_menu(
     dstudio_expand_user(&s_current_directory, "~");
     refresh_file_list(s_current_directory);
     
+    strncpy(s_prompt_cwd_value, s_current_directory, s_max_prompt_char-DSTUDIO_PROMPT_CWD_CHAR_OFFSET);
+    update_text(s_prompt, s_prompt_value, s_max_prompt_char);
+    
     g_active_interactive_list = &s_interactive_list;
     g_request_render_all = 1;
 }
@@ -523,8 +538,24 @@ void open_file_menu(
 unsigned int select_file_from_list(
     unsigned int index
 ) {
+    unsigned int char_offset = 0;
+    char * path = 0;
     if (index != s_file_index && index < s_files_count) {
+        path = dstudio_alloc(
+            strlen(s_current_directory) +
+            strlen(&s_interactive_list.source_data[s_interactive_list.stride * index]) +
+            2 // slash + null byte
+        );
+        strcat(path, s_current_directory);
+        strcat(path, "/");
+        strcat(path, &s_interactive_list.source_data[s_interactive_list.stride * index]);
+        if (strlen(path) > (s_max_prompt_char - DSTUDIO_PROMPT_CWD_CHAR_OFFSET)) {
+            char_offset = strlen(path) - (s_max_prompt_char - DSTUDIO_PROMPT_CWD_CHAR_OFFSET) + 1;
+        }
+        strcpy(s_prompt_cwd_value, &path[char_offset]);
+        update_text(s_prompt, s_prompt_value, s_max_prompt_char);
         s_file_index = index;
+        dstudio_free(path);
         return 1;
     }
     return 0;

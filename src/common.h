@@ -42,6 +42,8 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_OPEN_FILE_CHAR_PER_LINE ((int) (g_dstudio_viewport_width - 62) / 8)
 #define DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT 10
 #define DSTUDIO_INSTANCE_NAME_LENGTH 27
+#define DSTUDIO_PROMPT_CWD_CHAR_OFFSET 11
+
 // PATHS
 #define DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH      "../assets/active_button_add_instance.png"
 #define DSTUDIO_ACTIVE_ADD_SAMPLE_ASSET_PATH        "../assets/active_button_add_sample.png"
@@ -114,13 +116,14 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_POS_X (-0.97 + (GLfloat) (g_dstudio_viewport_width - 62) / (GLfloat) g_dstudio_viewport_width)
 #define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y (-18.0 / (GLfloat) (g_dstudio_viewport_height >> 1))
 
+#define DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH 72
+#define DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT 18
+#define DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE 9
 #define DSTUDIO_OPEN_FILE_PROMPT_COLUMN 1
 #define DSTUDIO_OPEN_FILE_PROMPT_COUNT 1
 #define DSTUDIO_OPEN_FILE_PROMPT_OFFSET_X 32
 #define DSTUDIO_OPEN_FILE_PROMPT_OFFSET_Y 38
-#define DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH 72
-#define DSTUDIO_OPEN_FILE_PROMPT_AREA_HEIGHT 10
-#define DSTUDIO_OPEN_FILE_PROMPT_BUFFER_SIZE 9
+#define DSTUDIO_OPEN_FILE_PROMPT_PADDING 24
 
 #define DSTUDIO_OPEN_FILE_SLIDER_WIDTH 18
 #define DSTUDIO_OPEN_FILE_SLIDER_HEIGHT 18

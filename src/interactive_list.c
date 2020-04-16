@@ -178,6 +178,7 @@ void update_insteractive_list(
     unsigned int string_size = interactive_list->string_size;
     unsigned int source_data_count = *interactive_list->source_data_count;
     int index = interactive_list->update_request;
+        
     for (unsigned int i = index < 0 ? 0 : index; i < interactive_list->lines_number; i++) {
         if (i < source_data_count) {
             update_text(
