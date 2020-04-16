@@ -74,27 +74,21 @@ static void close_open_file_menu_button_callback(UIElements * ui_elements) {
 }
 
 static unsigned int refresh_file_list(char * path);
+
 static void open_file_and_consume_callback(UIElements * ui_element) {
-    unsigned int index = 0;
-    UIInteractiveList * interactive_list = ui_element->interactive_list;
+    (void) ui_element;
     char * saved_current_directory = dstudio_alloc(strlen(s_current_directory)+1);
     strcpy(saved_current_directory, s_current_directory);
-    for (unsigned int i=0; i < interactive_list->lines_number; i++) {
-        if (&interactive_list->lines[i] == ui_element) {
-            index = i+interactive_list->window_offset;
-            break;
-        }
-    }
-    
+
     s_current_directory = dstudio_realloc(
         s_current_directory,
         strlen(s_current_directory) +
-        strlen(&interactive_list->source_data[index*interactive_list->stride]) +
+        strlen(&s_interactive_list.source_data[s_file_index*s_interactive_list.stride]) +
         2 // separator + Null byte 
     );
     
     strcat(s_current_directory, "/");
-    strcat(s_current_directory, &interactive_list->source_data[index*interactive_list->stride]);   
+    strcat(s_current_directory, &s_interactive_list.source_data[s_file_index*s_interactive_list.stride]);   
     switch(dstudio_is_directory(s_current_directory)) {
         case -1:
             update_text(s_error_message, strerror(errno), s_max_characters_for_error_prompt);
@@ -109,7 +103,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
             break;
         case 0:
             s_select_callback(
-                &interactive_list->source_data[index*interactive_list->stride],
+                &s_interactive_list.source_data[s_file_index*s_interactive_list.stride],
                 NULL
             );
             break;
@@ -153,7 +147,7 @@ static unsigned int refresh_file_list(char * path) {
     }
     s_interactive_list.source_data = s_files_list;
     qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
-    
+    s_interactive_list.window_offset = 0;
     select_item(s_interactive_list.lines, DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
     s_file_index = 0;
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
@@ -342,6 +336,9 @@ void init_open_menu(
         DSTUDIO_UI_ELEMENT_TYPE_BUTTON,
         DSTUDIO_FLAG_NONE
     );
+    
+    button_open->application_callback = open_file_and_consume_callback;
+    button_open->application_callback_args = list;
     
     list_box->color.r = 0;
     list_box->color.g = 0;
