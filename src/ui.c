@@ -56,8 +56,8 @@ unsigned int g_request_render_all = 0;
 
 
 static Vec2                 s_framebuffer_matrix[2] = {0};
-static GLuint               s_framebuffer_objects[3] = {0};
-static GLuint               s_framebuffer_textures[3] = {0};
+static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
+static GLuint               s_framebuffer_textures[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static UIElements           s_framebuffer_quad = {0};
 static double               s_list_item_click_timestamp = 0;
 static int                  s_ui_element_index = -1;
@@ -131,6 +131,7 @@ static void render_layers(unsigned int limit) {
     }
 }
 
+static void update_scale_matrix(Vec2 * scale_matrix);
 static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags) {
     Scissor * scissor = &s_ui_elements_requests[scissor_index]->scissor;
     if (scissor_index >=0) {
@@ -144,11 +145,17 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             scissor->height
         );
     }
+    if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
+        update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->scale_matrix : s_framebuffer_matrix);
+    }
+}
+
+static void update_scale_matrix(Vec2 * scale_matrix) {
     glUniformMatrix2fv(
         g_scale_matrix_id,
         1,
         GL_FALSE,
-        (float *) (matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->scale_matrix : s_framebuffer_matrix)
+        (float *) scale_matrix
     );
 }
 
@@ -400,8 +407,6 @@ void init_ui() {
         check_frame_buffer_status();
     glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
         check_frame_buffer_status();
-    glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[2]);
-        check_frame_buffer_status();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     #endif
 
@@ -430,6 +435,7 @@ void init_ui() {
 
     glEnable(GL_BLEND);
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
     glEnable(GL_SCISSOR_TEST);
     glUseProgram(g_shader_program_id);
     
@@ -529,7 +535,7 @@ void init_ui_elements(
         ui_elements_array[i].count = instances_count;
         
         if(texture_ids) {
-            memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_LAYER ? 3 : 2));
+            memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
         }
         if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE | DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT)) {
             ui_elements_array[i].texture_index = 1;
@@ -753,7 +759,8 @@ void render_ui_elements(UIElements * ui_elements) {
 
 void render_viewport(unsigned int render_all) {
     unsigned int background_rendering_start_index = render_all ? 0 : 1;
-    unsigned int background_rendering_end_index;   
+    unsigned int background_rendering_end_index;
+    unsigned int render_overlap = 0;   
     int layer_1_index_limit = -1;
 
     /* First of all, we get once every ui elements we want to render
@@ -820,30 +827,40 @@ void render_viewport(unsigned int render_all) {
             }
         }
         
-        /* Render third layer remaining ui elements */
-        glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[2]);
-
-        if ((unsigned int) layer_1_index_limit <= s_ui_elements_requests_index) {
-            glScissor(0,0, g_dstudio_viewport_width, g_dstudio_viewport_height);
-            glClear(GL_COLOR_BUFFER_BIT);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
+        /* Render all layers required areas as background */
+        background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
+        for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
+            if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
+                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
+                render_layers((DSTUDIO_FRAMEBUFFER_COUNT));
+            }
+            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
+            render_layers(DSTUDIO_FRAMEBUFFER_COUNT);
+            if (
+                s_ui_elements_requests[i]->overlap_sub_menu_ui_elements &&
+                s_ui_elements_requests[i]->overlap_sub_menu_ui_elements->visible
+            ) {
+                render_overlap = 1;
+                for (unsigned int j = layer_1_index_limit; j <= s_ui_elements_requests_index; j++) {
+                    if (s_ui_elements_requests[j] == s_ui_elements_requests[i]->overlap_sub_menu_ui_elements) {
+                        render_overlap = 0;
+                    }
+                }
+                if (render_overlap) {
+                    update_scale_matrix(s_ui_elements_requests[i]->overlap_sub_menu_ui_elements->scale_matrix);
+                    render_ui_elements(s_ui_elements_requests[i]->overlap_sub_menu_ui_elements);
+                }
+            }
         }
-
+        
+        /* Render remaining ui elements */
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (!is_background_ui_element(s_ui_elements_requests[i])) {
                 scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
-        }
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
-        /* Render all layers required areas as background */
-        for (unsigned int i = 0; i <= s_ui_elements_requests_index; i++) {
-            if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
-                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
-                render_layers((DSTUDIO_FRAMEBUFFER_COUNT-1));
-            }
-            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
-            render_layers(DSTUDIO_FRAMEBUFFER_COUNT);
         }
     }
 }

@@ -421,6 +421,7 @@ inline static void init_ressource_usage() {
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_IS_VISIBLE
     );
+    g_ui_elements_struct.cpu_usage.overlap_sub_menu_ui_elements = &g_ui_elements_struct.open_file_menu_prompts;
 }
 
 inline static void init_sliders() {

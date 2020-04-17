@@ -168,7 +168,7 @@ typedef struct UIElements_t {
      * and the second one refer to the texture identifier. The previous 
      * implies that for textual type texture index is always set to 1.*/
     union {
-        GLuint                  texture_ids[3];
+        GLuint                  texture_ids[2];
         GLuint                  previous_text_size;
         /* Similarly, highlight need to be rendered twice at two location
          different location. The previous one is stored there.*/
@@ -188,6 +188,7 @@ typedef struct UIElements_t {
     Vec4                        color;
     Scissor                     scissor;
     Vec2 *                      scale_matrix;
+    UIElements *                overlap_sub_menu_ui_elements;
     UIElementType               type;
     UIInteractiveList *         interactive_list;
     void *                      application_callback_args;
