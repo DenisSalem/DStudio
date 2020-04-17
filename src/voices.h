@@ -52,7 +52,8 @@ unsigned int select_voice_from_list(
 );
 
 void setup_voice_sub_context(
-    unsigned int size
+    unsigned int size,
+    void (*sub_context_interactive_list_binder)(UIElements * lines)
 );
 
 void update_current_voice(unsigned int index);

@@ -51,6 +51,9 @@ typedef struct UIInteractiveList_t {
     GLfloat max_scroll_bar_offset;
     unsigned int previous_item_index;
     int index;
+    #ifdef DSTUDIO_DEBUG
+        char trace[32];
+    #endif
 } UIInteractiveList;
 
 void bind_scroll_bar(

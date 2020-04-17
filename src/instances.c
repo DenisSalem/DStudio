@@ -89,6 +89,9 @@ void init_instances_management_thread(
         1,
         item_offset_y
     );
+    #ifdef DSTUDIO_DEBUG
+        strcat(&g_ui_instances.trace[0], "g_ui_instances");
+    #endif
     g_instances.thread_control.ready = 1;
 }
 

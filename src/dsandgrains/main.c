@@ -45,7 +45,7 @@ int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
     dstudio_init_memory_management();
-    setup_voice_sub_context(sizeof(Samples));
+    setup_voice_sub_context(sizeof(Samples), bind_samples_interactive_list);
     init_text_pointer();
 
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");

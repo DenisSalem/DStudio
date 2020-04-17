@@ -27,6 +27,7 @@ UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
 ThreadControl g_voices_thread_control = {0};
 
+void (*bind_sub_context_interactive_list)(UIElements * line) = 0;
 static UIElements * s_ui_elements;
 static unsigned int s_lines_number;
 static unsigned int s_string_size;
@@ -72,6 +73,9 @@ void init_voices_interactive_list(
         1,
         s_item_offset_y
     );
+    #ifdef DSTUDIO_DEBUG
+        strcat(&g_ui_voices.trace[0], "g_ui_voices");
+    #endif
 }
 
 UIElements * new_voice(unsigned int use_mutex) {
@@ -98,7 +102,6 @@ UIElements * new_voice(unsigned int use_mutex) {
 
     g_current_active_instance->voices.contexts = new_voice_context;
     g_current_active_voice = &g_current_active_instance->voices.contexts[g_current_active_instance->voices.index];
-    
     g_current_active_voice->sub_contexts = dstudio_alloc(s_sub_context_size);
     
     sprintf(g_current_active_voice->name, "Voice %d", g_current_active_instance->voices.count);
@@ -117,7 +120,9 @@ UIElements * new_voice(unsigned int use_mutex) {
 
     line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
+        DSTUDIO_TRACE;
         bind_voices_interactive_list(line);
+        bind_sub_context_interactive_list(NULL);
     }
     if(use_mutex) {
         sem_post(g_voices_thread_control.shared_mutex);
@@ -136,8 +141,12 @@ unsigned int select_voice_from_list(
     return 0;
 }
 
-void setup_voice_sub_context(unsigned int size) {
+void setup_voice_sub_context(
+    unsigned int size,
+    void (*sub_context_interactive_list_binder)(UIElements * lines)
+) {
     s_sub_context_size = size;
+    bind_sub_context_interactive_list = sub_context_interactive_list_binder;
 }
 
 void update_current_voice(unsigned int index) {

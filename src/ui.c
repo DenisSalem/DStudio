@@ -56,8 +56,8 @@ unsigned int g_request_render_all = 0;
 
 
 static Vec2                 s_framebuffer_matrix[2] = {0};
-static GLuint               s_framebuffer_objects[2] = {0};
-static GLuint               s_framebuffer_textures[2] = {0};
+static GLuint               s_framebuffer_objects[3] = {0};
+static GLuint               s_framebuffer_textures[3] = {0};
 static UIElements           s_framebuffer_quad = {0};
 static double               s_list_item_click_timestamp = 0;
 static int                  s_ui_element_index = -1;
@@ -374,9 +374,15 @@ void init_ui() {
     	
     DSTUDIO_EXIT_IF_FAILURE(load_extensions())
     
-    glGenFramebuffers(2, &s_framebuffer_objects[0]);
-    glGenTextures(2, &s_framebuffer_textures[0]);
-    for (unsigned int i = 0; i < 2; i++) {
+    glGenFramebuffers(
+        DSTUDIO_FRAMEBUFFER_COUNT,
+        &s_framebuffer_objects[0]
+    );
+    glGenTextures(
+        DSTUDIO_FRAMEBUFFER_COUNT,
+        &s_framebuffer_textures[0]
+    );
+    for (unsigned int i = 0; i < DSTUDIO_FRAMEBUFFER_COUNT; i++) {
         glBindTexture(GL_TEXTURE_2D, s_framebuffer_textures[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g_dstudio_viewport_width, g_dstudio_viewport_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -393,7 +399,9 @@ void init_ui() {
     glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
         check_frame_buffer_status();
     glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
-            check_frame_buffer_status();
+        check_frame_buffer_status();
+    glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[2]);
+        check_frame_buffer_status();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     #endif
 
@@ -410,7 +418,7 @@ void init_ui() {
         1,
         1,
         1,
-        DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND,
+        DSTUDIO_UI_ELEMENT_TYPE_LAYER,
         DSTUDIO_FLAG_USE_ALPHA
     );
     
@@ -521,7 +529,7 @@ void init_ui_elements(
         ui_elements_array[i].count = instances_count;
         
         if(texture_ids) {
-            memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
+            memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_LAYER ? 3 : 2));
         }
         if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE | DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT)) {
             ui_elements_array[i].texture_index = 1;
@@ -812,37 +820,48 @@ void render_viewport(unsigned int render_all) {
             }
         }
         
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
-        /* Render layer 1 and 2 required areas as background */
-        background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
-        for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
-            if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
-                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
-                render_layers(2);
-            }
-            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
-            render_layers(2);
+        /* Render third layer remaining ui elements */
+        glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[2]);
+
+        if ((unsigned int) layer_1_index_limit <= s_ui_elements_requests_index) {
+            glScissor(0,0, g_dstudio_viewport_width, g_dstudio_viewport_height);
+            glClear(GL_COLOR_BUFFER_BIT);
         }
-        
-        /* Render layer 2 ui elements */
+
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (!is_background_ui_element(s_ui_elements_requests[i])) {
                 scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
+        /* Render all layers required areas as background */
+        for (unsigned int i = 0; i <= s_ui_elements_requests_index; i++) {
+            if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
+                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
+                render_layers((DSTUDIO_FRAMEBUFFER_COUNT-1));
+            }
+            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
+            render_layers(DSTUDIO_FRAMEBUFFER_COUNT);
+        }
     }
 }
 
 void set_prime_interface(unsigned int state) {
+    sem_t * mutex;
+    UIInteractiveList * interactive_list;
     for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
         if (i < g_menu_background_index) {
             switch (g_ui_elements_array[i].type) {
                 case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
                 case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
                     if (g_ui_elements_array[i].interactive_list && state) {
+                        interactive_list = g_ui_elements_array[i].interactive_list;
+                        mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
+                        sem_wait(mutex);
                         g_ui_elements_array[i].enabled = *g_ui_elements_array[i].interactive_list->source_data_count <= g_ui_elements_array[i].interactive_list->lines_number ? 0 : 1;
+                        sem_post(mutex);
                         break;
                     }
                     __attribute__ ((fallthrough));

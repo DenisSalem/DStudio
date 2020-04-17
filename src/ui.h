@@ -92,15 +92,16 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM = 8,
     DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT = 16,
     DSTUDIO_UI_ELEMENT_TYPE_KNOB = 32,
-    DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 64,
-    DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE = 128,
-    DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND = 256,
-    DSTUDIO_UI_ELEMENT_TYPE_PATTERN = 512,
-    DSTUDIO_UI_ELEMENT_TYPE_PATTERN_BACKGROUND = 1024,
-    DSTUDIO_UI_ELEMENT_TYPE_SLIDER = 2048,
-    DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND = 4096,
-    DSTUDIO_UI_ELEMENT_TYPE_TEXT = 8192,
-    DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND = 16384
+    DSTUDIO_UI_ELEMENT_TYPE_LAYER = 64,
+    DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM = 128,
+    DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE = 256,
+    DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND = 512,
+    DSTUDIO_UI_ELEMENT_TYPE_PATTERN = 1024,
+    DSTUDIO_UI_ELEMENT_TYPE_PATTERN_BACKGROUND = 2048,
+    DSTUDIO_UI_ELEMENT_TYPE_SLIDER = 4096,
+    DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND = 8192,
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT = 16384,
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND = 32768
 } UIElementType;
 
 #define  DSTUDIO_ANY_TEXT_TYPE \
@@ -119,7 +120,8 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND | \
     DSTUDIO_UI_ELEMENT_TYPE_PATTERN_BACKGROUND | \
     DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND | \
-    DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND)
+    DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND | \
+    DSTUDIO_UI_ELEMENT_TYPE_LAYER)
     
 typedef enum MotionType_t {
     DSTUDIO_MOTION_TYPE_NONE = 0U,
@@ -166,11 +168,11 @@ typedef struct UIElements_t {
      * and the second one refer to the texture identifier. The previous 
      * implies that for textual type texture index is always set to 1.*/
     union {
-        GLuint                  texture_ids[2];
+        GLuint                  texture_ids[3];
         GLuint                  previous_text_size;
         /* Similarly, highlight need to be rendered twice at two location
          different location. The previous one is stored there.*/
-        GLint                 previous_highlight_scissor_y;
+        GLint                   previous_highlight_scissor_y;
     };
     GLuint                      vertex_array_object;
     GLuint                      vertex_buffer_object;
