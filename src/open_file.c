@@ -83,6 +83,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
     (void) ui_element;
     char * current_item_value = &s_interactive_list.source_data[s_file_index*s_interactive_list.stride];
     char * saved_current_directory = dstudio_alloc(strlen(s_current_directory)+1);
+    FILE * file_fd = 0;
     strcpy(saved_current_directory, s_current_directory);
     s_current_directory = dstudio_realloc(
         s_current_directory,
@@ -96,23 +97,30 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
 
     switch(dstudio_is_directory(s_current_directory)) {
         case -1:
-            update_text(s_error_message, strerror(errno), s_max_characters_for_error_prompt);
+            update_open_file_error(strerror(errno));
             break;
         case 1:
             dstudio_canonize_path(&s_current_directory);
             if (refresh_file_list(s_current_directory)) {
                 strncpy(s_prompt_cwd_value, s_current_directory, s_max_prompt_char-DSTUDIO_PROMPT_CWD_CHAR_OFFSET);
                 update_text(s_prompt, s_prompt_value, s_max_prompt_char);
+                update_open_file_error("");
                 update_text(s_error_message, "", s_max_characters_for_error_prompt);
                 dstudio_free(saved_current_directory);
                 return;
             };
             break;
         case 0:
+            file_fd = fopen(s_current_directory, "r");
+            if (file_fd == NULL) {
+                update_open_file_error(strerror(errno));
+                return;
+            }
             s_select_callback(
                 current_item_value,
-                NULL
+                file_fd
             );
+            fclose(file_fd);
             break;
     }
     /* In any cases, except for sucessful directory opening, we're
@@ -129,7 +137,7 @@ static int strcoll_proxy(const void * a, const void *b) {
 static unsigned int refresh_file_list(char * path) {
     DIR * dr = opendir(path);
     if (dr == NULL) {
-        update_text(s_error_message, strerror(errno), s_max_characters_for_error_prompt);
+        update_open_file_error(strerror(errno));
         return 0;
     }
     struct dirent *de;   
@@ -295,7 +303,7 @@ void init_open_menu(
         DSTUDIO_FLAG_NONE
     );
     
-    update_text(s_error_message, "", s_max_characters_for_error_prompt);
+    update_open_file_error("");
     
     init_ui_elements(
         button_cancel,
@@ -559,6 +567,10 @@ unsigned int select_file_from_list(
         return 1;
     }
     return 0;
+}
+
+void update_open_file_error(const char * message) {
+    update_text(s_error_message, (char *) message, s_max_characters_for_error_prompt);
 }
 
 void update_open_file_ui_list() {

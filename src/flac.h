@@ -17,26 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <stdio.h>
 
-#include "ui.h"
-
-extern ThreadControl g_open_file_thread_control;
-
-
-void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
-
-void open_file_menu(
-    void (*cancel_callback)(UIElements * ui_elements),
-    void (*select_callback)(char * filename, FILE * file_fd)
+int load_flac(
+    FILE * file,
+    void (*client_error_callback)(const char * message)
 );
-
-unsigned int select_file_from_list(
-    unsigned int index
-);
-
-void update_open_file_error(const char * message);
-
-void update_open_file_ui_list();

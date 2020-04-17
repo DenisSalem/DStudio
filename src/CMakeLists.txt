@@ -30,6 +30,9 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     endif()
 endif()
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
+
+find_package(FLAC REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Threads REQUIRED)
@@ -48,6 +51,7 @@ add_executable(
     common.c
     extensions.c
     fileutils.c
+    flac.c
     instances.c
     interactive_list.c
     open_file.c
@@ -60,8 +64,8 @@ add_executable(
     window_management.c
 )
 
-target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} m)
+target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${FLAC_INCLUDE_DIR})
+target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${FLAC_LIBRARY} m)
 
 if(DEFINED DSTUDIO_RELY_ON_X11)
     target_include_directories(dsandgrains PRIVATE ${X11_INCLUDE_DIR})

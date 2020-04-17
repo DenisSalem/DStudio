@@ -17,6 +17,10 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <ctype.h>
+
+#include "../fileutils.h"
+#include "../flac.h"
 #include "../instances.h"
 #include "../open_file.h"
 #include "../ui.h"
@@ -27,8 +31,8 @@
 #include "ui.h"
 
 static void load_sample(char * filename, FILE * file_fd) {
-    printf("load sample: %s\n", filename);
-    (void) file_fd;
+    (void) filename;
+    load_flac(file_fd, update_open_file_error);
 }
 
 void add_sample(UIElements * ui_elements) {
