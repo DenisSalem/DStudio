@@ -29,11 +29,12 @@ void bind_samples_interactive_list(UIElements * line) {
     if (line == NULL) {
         line = g_ui_samples.lines;
         g_ui_samples.window_offset = 0;
-        update_current_voice(0);
+        update_current_sample(0);
     }
     Samples * samples = g_current_active_voice->sub_contexts;
     g_ui_samples.source_data = (char*) samples->contexts;
     g_ui_samples.source_data_count = &samples->count;
+    DSTUDIO_TRACE
     select_item(
         line,
         DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
@@ -58,10 +59,13 @@ void init_samples_interactive_list(
         &samples->count,
         (char *) samples->contexts,
         &g_samples_thread_control,
-        select_voice_from_list,
+        select_sample_from_list,
         1,
         item_offset_y
     );
+    #ifdef DSTUDIO_DEBUG
+    strcat(g_ui_samples.trace, "g_ui_samples");
+    #endif
 }
 
 UIElements * new_sample(unsigned int use_mutex) {
@@ -89,38 +93,36 @@ UIElements * new_sample(unsigned int use_mutex) {
     if(use_mutex) {
         sem_post(g_voices_thread_control.shared_mutex);
     }
+    samples->index = samples->count++;
+    samples->contexts = new_sample_context;
+    g_current_active_sample = &samples->contexts[samples->index];
+    
+    sprintf(g_current_active_sample->name, "Sample %d", samples->count);
+    #ifdef DSTUDIO_DEBUG
+    printf(
+        "%s %s %s\n",
+        g_current_active_instance->name,
+        g_current_active_voice->name,
+        g_current_active_sample->name
+    );
+    #endif
+
+    if (samples->count > g_ui_samples.lines_number) {
+        g_ui_samples.window_offset = samples->count - g_ui_samples.lines_number;
+        g_ui_samples.update_request = -1;
+    }
+    else {
+        g_ui_samples.update_request = samples->index;
+        g_ui_samples.window_offset = 0;
+    }
+
+    line = &g_ui_samples.lines[samples->index-g_ui_samples.window_offset];
+    bind_samples_interactive_list(line);
+    if(use_mutex) {
+        sem_post(g_voices_thread_control.shared_mutex);
+    }
+    
     return line;
-    //~ g_current_active_instance->voices.index = g_current_active_instance->voices.count++;
-
-    //~ g_current_active_instance->voices.contexts = new_voice_context;
-    //~ g_current_active_voice = &g_current_active_instance->voices.contexts[g_current_active_instance->voices.index];
-    //~ g_current_active_voice->sub_contexts = dstudio_alloc(s_sub_context_size);
-    
-    //~ sprintf(g_current_active_voice->name, "Voice %d", g_current_active_instance->voices.count);
-    //~ #ifdef DSTUDIO_DEBUG
-    //~ printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
-    //~ #endif
-
-    //~ if (g_current_active_instance->voices.count > g_ui_voices.lines_number) {
-        //~ g_ui_voices.window_offset = g_current_active_instance->voices.count - g_ui_voices.lines_number;
-        //~ g_ui_voices.update_request = -1;
-    //~ }
-    //~ else {
-        //~ g_ui_voices.update_request = g_instances.index;
-        //~ g_ui_voices.window_offset = 0;
-    //~ }
-
-    //~ line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
-    //~ if (s_ui_elements) {
-        //~ DSTUDIO_TRACE;
-        //~ bind_voices_interactive_list(line);
-        //~ bind_sub_context_interactive_list(NULL);
-    //~ }
-    //~ if(use_mutex) {
-        //~ sem_post(g_voices_thread_control.shared_mutex);
-    //~ }
-    
-    //~ return line;
 }
 
 unsigned int select_sample_from_list(
@@ -132,6 +134,22 @@ unsigned int select_sample_from_list(
         return 1;
     }
     return 0;
+}
+
+UIElements * set_samples_list_from_parent() {
+    UIElements * line;
+    unsigned int sample_index;
+    Samples * samples = g_current_active_voice->sub_contexts;
+    sample_index = samples->index;
+    if (sample_index < g_ui_samples.lines_number) {
+        line = &g_ui_samples.lines[sample_index];
+        g_ui_samples.window_offset = 0;
+    }
+    else {
+        line = &g_ui_samples.lines[g_ui_voices.lines_number-1];
+        g_ui_samples.window_offset = sample_index - g_ui_samples.lines_number + 1;
+    }
+    return line;
 }
 
 // TODO: the following could be generalized and not implemented by consumer.

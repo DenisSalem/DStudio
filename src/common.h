@@ -199,7 +199,13 @@ typedef struct ThreadControl_t {
     }
 
 #define DSTUDIO_TRACE \
-    printf("%s %d\n", __FILE__, __LINE__);
+    printf("%s %d:\n", __FILE__, __LINE__);
+
+#define DSTUDIO_TRACE_STR(string) \
+    printf("%s %d: " #string "\n", __FILE__, __LINE__);
+
+#define DSTUDIO_TRACE_ARGS(string, ...) \
+    printf("%s %d: " #string "\n", __FILE__, __LINE__, __VA_ARGS__);
 
 
     

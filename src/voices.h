@@ -37,6 +37,8 @@ extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;
 extern ThreadControl g_voices_thread_control;
 void bind_voices_interactive_list(UIElements * line);
+void (*bind_sub_context_interactive_list)(UIElements * line);
+UIElements * (*setup_sub_context_interactive_list)();
 
 void init_voices_interactive_list(
     UIElements * ui_elements,
@@ -53,7 +55,8 @@ unsigned int select_voice_from_list(
 
 void setup_voice_sub_context(
     unsigned int size,
-    void (*sub_context_interactive_list_binder)(UIElements * lines)
+    void (*sub_context_interactive_list_binder)(UIElements * lines),
+    UIElements * (*sub_context_interactive_list_setter)()
 );
 
 void update_current_voice(unsigned int index);

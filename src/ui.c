@@ -804,7 +804,7 @@ void render_viewport(unsigned int render_all) {
     
     /* Render first layer ui elements */
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
-        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active && g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
+        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active &&  g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
             scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
             render_ui_elements(s_ui_elements_requests[0]);
         }
@@ -866,8 +866,9 @@ void render_viewport(unsigned int render_all) {
 }
 
 void set_prime_interface(unsigned int state) {
-    sem_t * mutex;
+    sem_t * mutex = &g_instances.thread_control.mutex;
     UIInteractiveList * interactive_list;
+    sem_wait(mutex);
     for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
         if (i < g_menu_background_index) {
             switch (g_ui_elements_array[i].type) {
@@ -875,10 +876,7 @@ void set_prime_interface(unsigned int state) {
                 case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
                     if (g_ui_elements_array[i].interactive_list && state) {
                         interactive_list = g_ui_elements_array[i].interactive_list;
-                        mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
-                        sem_wait(mutex);
-                        g_ui_elements_array[i].enabled = *g_ui_elements_array[i].interactive_list->source_data_count <= g_ui_elements_array[i].interactive_list->lines_number ? 0 : 1;
-                        sem_post(mutex);
+                        g_ui_elements_array[i].enabled = *interactive_list->source_data_count <= interactive_list->lines_number ? 0 : 1;
                         break;
                     }
                     __attribute__ ((fallthrough));
@@ -893,6 +891,7 @@ void set_prime_interface(unsigned int state) {
             }
         }
     }
+    sem_post(mutex);
 }
 
 void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, unsigned int count) {

@@ -18,6 +18,7 @@
 */
 
 #include <ctype.h>
+#include <unistd.h>
 
 #include "../fileutils.h"
 #include "../flac.h"
@@ -52,7 +53,14 @@ void add_sample(UIElements * ui_elements) {
 
 void add_instance(UIElements * ui_elements) {
     (void) ui_elements;
-    add_instance_file_descriptor();
+    FILE * instance_fd = add_instance_file_descriptor();
+    // TODO: test if instance had been created
+
+    fseek(instance_fd, 0L, SEEK_END);         
+    while(0 == ftell(instance_fd)) {
+        usleep(1000);
+        fseek(instance_fd, 0L, SEEK_END);         
+    }
     close_add_sub_menu();
 }
 

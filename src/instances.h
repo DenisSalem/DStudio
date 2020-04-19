@@ -40,7 +40,7 @@ extern Instances g_instances;
 extern InstanceContext * g_current_active_instance;
 extern UIInteractiveList g_ui_instances;
 
-void add_instance_file_descriptor();
+FILE * add_instance_file_descriptor();
 
 void exit_instances_management_thread();
 

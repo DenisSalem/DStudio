@@ -20,7 +20,7 @@
 #include "common.h"
 #include "instances.h"
 #include "text_pointer.h"
-#include "voices.h"
+#include "voices.h" 
 
 VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
@@ -28,6 +28,8 @@ UIElements * g_ui_elements = {0};
 ThreadControl g_voices_thread_control = {0};
 
 void (*bind_sub_context_interactive_list)(UIElements * line) = 0;
+UIElements * (*setup_sub_context_interactive_list)() = 0;
+
 static UIElements * s_ui_elements;
 static unsigned int s_lines_number;
 static unsigned int s_string_size;
@@ -43,6 +45,7 @@ void bind_voices_interactive_list(UIElements * line) {
     }
     g_ui_voices.source_data = (char*) &g_current_active_instance->voices.contexts->name;
     g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
+    DSTUDIO_TRACE
     select_item(
         line,
         DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
@@ -114,15 +117,15 @@ UIElements * new_voice(unsigned int use_mutex) {
         g_ui_voices.update_request = -1;
     }
     else {
-        g_ui_voices.update_request = g_instances.index;
+        g_ui_voices.update_request = g_current_active_instance->voices.index;
         g_ui_voices.window_offset = 0;
     }
 
     line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
-        DSTUDIO_TRACE;
+        printf("Old address: %lu\n", (unsigned long) g_ui_voices.source_data_count);
         bind_voices_interactive_list(line);
-        bind_sub_context_interactive_list(NULL);
+        printf("New address: %lu\n", (unsigned long) g_ui_voices.source_data_count);
     }
     if(use_mutex) {
         sem_post(g_voices_thread_control.shared_mutex);
@@ -136,6 +139,9 @@ unsigned int select_voice_from_list(
 ) {
     if (index != g_current_active_instance->voices.index && index < g_current_active_instance->voices.count) {
         update_current_voice(index);
+        bind_sub_context_interactive_list(
+            setup_sub_context_interactive_list()
+        );
         return 1;
     }
     return 0;
@@ -143,17 +149,22 @@ unsigned int select_voice_from_list(
 
 void setup_voice_sub_context(
     unsigned int size,
-    void (*sub_context_interactive_list_binder)(UIElements * lines)
+    void (*sub_context_interactive_list_binder)(UIElements * lines),
+    UIElements * (*sub_context_interactive_list_setter)()
 ) {
     s_sub_context_size = size;
     bind_sub_context_interactive_list = sub_context_interactive_list_binder;
+    setup_sub_context_interactive_list = sub_context_interactive_list_setter;
 }
 
 void update_current_voice(unsigned int index) {
     g_current_active_instance->voices.index = index;
     g_current_active_voice = &g_current_active_instance->voices.contexts[index];
+    DSTUDIO_TRACE
+    setup_sub_context_interactive_list();
 }
 
 void update_voices_ui_list() {
+    DSTUDIO_TRACE
     update_insteractive_list(&g_ui_voices);
 }

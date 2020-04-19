@@ -53,6 +53,8 @@ unsigned int select_sample_from_list(
     unsigned int index
 );
 
+UIElements * set_samples_list_from_parent();
+
 void update_current_sample(
     unsigned int index
 );

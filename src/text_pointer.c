@@ -119,7 +119,6 @@ void update_text_pointer_context(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
             interactive_list = ui_elements->interactive_list;
             g_text_pointer_context.ui_text = ui_elements;
-            DSTUDIO_TRACE;
             g_text_pointer_context.highlight = interactive_list->highlight;
             for(unsigned int i = 0; i < interactive_list->lines_number; i++) {
                 if (&interactive_list->lines[i] == ui_elements) {

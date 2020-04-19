@@ -46,10 +46,9 @@ UIInteractiveList g_ui_instances = {0};
 
 static char * s_instances_directory = 0;
 
-void add_instance_file_descriptor() {
+FILE * add_instance_file_descriptor() {
     unsigned int count = 0;
     unsigned int last_id = 0;
-    FILE * new_instance = 0;
     char * instance_filename_buffer = dstudio_alloc(sizeof(char) * 128); 
     char string_representation_of_integer[4] = {0};
 
@@ -58,8 +57,7 @@ void add_instance_file_descriptor() {
     strcat(instance_filename_buffer, "/");
     sprintf(string_representation_of_integer,"%d", last_id+1);
     strcat(instance_filename_buffer, string_representation_of_integer);
-    new_instance = fopen(instance_filename_buffer, "w+");
-    fclose(new_instance);
+    return fopen(instance_filename_buffer, "w+");
 }
 
 void exit_instances_management_thread() {
@@ -97,6 +95,7 @@ void init_instances_management_thread(
 
 void * instances_management_thread(void * args) {
     (void) args;
+    FILE * instance_fd = 0;
     int fd = 0;
     int wd = 0;
     InstanceContext * saved_contexts = 0;
@@ -187,6 +186,25 @@ void * instances_management_thread(void * args) {
 			printf("Remove instance with id=%s\n", event->name);
             #endif
         }
+        g_instances.thread_control.ready = 1;
+        printf("%s/%s\n", s_instances_directory, event->name);
+        char * fd_path = dstudio_alloc(
+            strlen(s_instances_directory) +
+            strlen(event->name) + 
+            2 // slash + null byte
+        );
+        
+        /* We finally write in the related file descriptor that the
+         * current instance has been processed.
+         */
+        strcat(fd_path, s_instances_directory);
+        strcat(fd_path, "/");
+        strcat(fd_path, event->name);
+        instance_fd = fopen(fd_path, "w");
+        fwrite(g_current_active_instance->name, strlen(g_current_active_instance->name), 1, instance_fd);
+        fclose(instance_fd);
+        dstudio_free(fd_path);
+        
         sem_post(&g_instances.thread_control.mutex);
     }
     dstudio_free(event);
@@ -262,6 +280,9 @@ unsigned int select_instance_from_list(
             g_ui_voices.window_offset = voice_index - g_ui_voices.lines_number + 1;
         }
         bind_voices_interactive_list(line);
+        bind_sub_context_interactive_list(
+            setup_sub_context_interactive_list()
+        );
         return 1;
     }
     return 0;
