@@ -47,6 +47,8 @@ void init_samples_interactive_list(
     GLfloat item_offset_y
 );
 
+UIElements * new_sample(unsigned int use_mutex);
+
 unsigned int select_sample_from_list(
     unsigned int index
 );

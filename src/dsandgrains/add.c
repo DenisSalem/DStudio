@@ -28,11 +28,16 @@
 #include "../window_management.h"
 
 #include "add.h"
+#include "samples.h"
 #include "ui.h"
 
-static void load_sample(char * filename, FILE * file_fd) {
+static unsigned int load_sample(char * filename, FILE * file_fd) {
     (void) filename;
-    load_flac(file_fd, update_open_file_error);
+    if (load_flac(file_fd, update_open_file_error)) {
+        new_sample(DSTUDIO_USE_MUTEX);
+        return 1;
+    }
+    return 0;
 }
 
 void add_sample(UIElements * ui_elements) {

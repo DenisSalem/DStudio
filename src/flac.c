@@ -33,9 +33,8 @@ FLAC__StreamDecoderWriteStatus write_callback(
     (void) frame;
     (void) buffer;
     (void) client_data;
-    return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+    return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
-
 void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data) {
 	(void)decoder;
     (void)client_data;
@@ -76,15 +75,20 @@ int load_flac(
     s_client_error_callback = client_error_callback;
 	FLAC__StreamDecoder *decoder = 0;
 	FLAC__StreamDecoderInitStatus init_status;
-
+    FLAC__bool decode_ok = 0;
+    
     DSTUDIO_RETURN_IF_FAILURE((decoder = FLAC__stream_decoder_new()) == NULL)
 	(void)FLAC__stream_decoder_set_md5_checking(decoder, true);
 
 	init_status = FLAC__stream_decoder_init_FILE(decoder, file, write_callback, metadata_callback, error_callback, NULL);
     if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+        client_error_callback(FLAC__StreamDecoderInitStatusString[init_status]);
+        // TODO: GOES TO LOG
 		fprintf(stderr, "ERROR: initializing decoder: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
-        return -1;
+        return 0;
     }
-    FLAC__stream_decoder_process_until_end_of_stream(decoder);
-    return init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK ? -1 : 0;
+        
+    // Test decorder
+    decode_ok = FLAC__stream_decoder_process_until_end_of_stream(decoder);
+    return decode_ok;
 }

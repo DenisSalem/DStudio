@@ -33,7 +33,7 @@
 ThreadControl g_open_file_thread_control = {0};
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
-static void (*s_select_callback)(char * filename, FILE * file_fd) = 0;
+static unsigned int (*s_select_callback)(char * filename, FILE * file_fd) = 0;
 static char * s_current_directory = 0;
 static UIElements * s_menu_background;
 static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
@@ -81,6 +81,7 @@ static unsigned int refresh_file_list(char * path);
 
 static void open_file_and_consume_callback(UIElements * ui_element) {
     (void) ui_element;
+    unsigned int callback_status=0;
     char * current_item_value = &s_interactive_list.source_data[s_file_index*s_interactive_list.stride];
     char * saved_current_directory = dstudio_alloc(strlen(s_current_directory)+1);
     FILE * file_fd = 0;
@@ -116,11 +117,14 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
                 update_open_file_error(strerror(errno));
                 return;
             }
-            s_select_callback(
+            callback_status = s_select_callback(
                 current_item_value,
                 file_fd
             );
             fclose(file_fd);
+            if (callback_status) {
+                close_open_file_menu();
+            }
             break;
     }
     /* In any cases, except for sucessful directory opening, we're
@@ -197,7 +201,7 @@ void init_open_menu(
     prompt_box->color.r = 0;
     prompt_box->color.g = 0;
     prompt_box->color.b = 0;
-    prompt_box->color.a = 0.0;
+    prompt_box->color.a = 0.5;
     
     init_ui_elements(
         prompt_box,
@@ -522,7 +526,7 @@ void init_open_menu(
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
-    void (*select_callback)(char * filename, FILE * file_fd)
+    unsigned int (*select_callback)(char * filename, FILE * file_fd)
 ) {
     s_cancel_callback = cancel_callback;
     s_select_callback = select_callback;
@@ -562,6 +566,7 @@ unsigned int select_file_from_list(
         }
         strcpy(s_prompt_cwd_value, &path[char_offset]);
         update_text(s_prompt, s_prompt_value, s_max_prompt_char);
+        update_text(s_error_message, "", s_max_characters_for_error_prompt);
         s_file_index = index;
         dstudio_free(path);
         return 1;
