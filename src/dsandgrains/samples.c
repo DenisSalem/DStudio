@@ -27,6 +27,7 @@ UIInteractiveList g_ui_samples = {0};
 void bind_samples_interactive_list(UIElements * line) {
     g_ui_samples.update_request = -1;
     if (line == NULL) {
+        DSTUDIO_TRACE
         line = g_ui_samples.lines;
         g_ui_samples.window_offset = 0;
         update_current_sample(0);
@@ -34,7 +35,6 @@ void bind_samples_interactive_list(UIElements * line) {
     Samples * samples = g_current_active_voice->sub_contexts;
     g_ui_samples.source_data = (char*) samples->contexts;
     g_ui_samples.source_data_count = &samples->count;
-    DSTUDIO_TRACE
     select_item(
         line,
         DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
@@ -55,7 +55,7 @@ void init_samples_interactive_list(
         ui_elements,
         lines_number,
         string_size,
-        sizeof(VoiceContext),
+        sizeof(SampleContext),
         &samples->count,
         (char *) samples->contexts,
         &g_samples_thread_control,
@@ -83,6 +83,7 @@ UIElements * new_sample(unsigned int use_mutex) {
             sem_post(g_voices_thread_control.shared_mutex);
         }
         // TODO: LOG FAILURE
+        printf("Failed to import sample\n");
         return 0;
     }
     explicit_bzero(

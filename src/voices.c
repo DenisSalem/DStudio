@@ -123,9 +123,7 @@ UIElements * new_voice(unsigned int use_mutex) {
 
     line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
-        printf("Old address: %lu\n", (unsigned long) g_ui_voices.source_data_count);
         bind_voices_interactive_list(line);
-        printf("New address: %lu\n", (unsigned long) g_ui_voices.source_data_count);
     }
     if(use_mutex) {
         sem_post(g_voices_thread_control.shared_mutex);
