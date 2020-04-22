@@ -717,7 +717,6 @@ void * ui_thread(void * arg) {
 
     bind_voices_interactive_list(NULL);
     
-    DSTUDIO_TRACE_STR("bind samples");
     bind_samples_interactive_list(NULL);
     
     init_threaded_ui_element_updater_register(6);

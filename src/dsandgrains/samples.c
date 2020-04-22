@@ -27,7 +27,6 @@ UIInteractiveList g_ui_samples = {0};
 void bind_samples_interactive_list(UIElements * line) {
     g_ui_samples.update_request = -1;
     if (line == NULL) {
-        DSTUDIO_TRACE
         line = g_ui_samples.lines;
         g_ui_samples.window_offset = 0;
         update_current_sample(0);

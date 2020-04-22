@@ -43,9 +43,9 @@ void bind_voices_interactive_list(UIElements * line) {
         g_ui_voices.window_offset = 0;
         update_current_voice(0);
     }
+    g_current_active_voice = &g_current_active_instance->voices.contexts[g_current_active_instance->voices.index];
     g_ui_voices.source_data = (char*) &g_current_active_instance->voices.contexts->name;
     g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
-    DSTUDIO_TRACE
     select_item(
         line,
         DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
@@ -124,6 +124,10 @@ UIElements * new_voice(unsigned int use_mutex) {
     line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
         bind_voices_interactive_list(line);
+        bind_sub_context_interactive_list(
+            setup_sub_context_interactive_list()
+        );
+
     }
     if(use_mutex) {
         sem_post(g_voices_thread_control.shared_mutex);
@@ -158,11 +162,9 @@ void setup_voice_sub_context(
 void update_current_voice(unsigned int index) {
     g_current_active_instance->voices.index = index;
     g_current_active_voice = &g_current_active_instance->voices.contexts[index];
-    DSTUDIO_TRACE
     setup_sub_context_interactive_list();
 }
 
 void update_voices_ui_list() {
-    DSTUDIO_TRACE
     update_insteractive_list(&g_ui_voices);
 }

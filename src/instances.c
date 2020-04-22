@@ -187,7 +187,6 @@ void * instances_management_thread(void * args) {
             #endif
         }
         g_instances.thread_control.ready = 1;
-        printf("%s/%s\n", s_instances_directory, event->name);
         char * fd_path = dstudio_alloc(
             strlen(s_instances_directory) +
             strlen(event->name) + 
