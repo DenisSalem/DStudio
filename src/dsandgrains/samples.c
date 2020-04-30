@@ -67,7 +67,7 @@ void init_samples_interactive_list(
     #endif
 }
 
-UIElements * new_sample(unsigned int use_mutex) {
+UIElements * new_sample(unsigned int use_mutex, char * filename) {
     UIElements * line = 0;
     if(use_mutex) {
         sem_wait(g_samples_thread_control.shared_mutex);
@@ -97,7 +97,7 @@ UIElements * new_sample(unsigned int use_mutex) {
     samples->contexts = new_sample_context;
     g_current_active_sample = &samples->contexts[samples->index];
     
-    sprintf(g_current_active_sample->name, "Sample %d", samples->count);
+    strncpy(g_current_active_sample->name, filename, g_ui_samples.string_size-1);
     #ifdef DSTUDIO_DEBUG
     printf(
         "%s %s %s\n",

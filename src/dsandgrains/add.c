@@ -33,9 +33,8 @@
 #include "ui.h"
 
 static unsigned int load_sample(char * filename, FILE * file_fd) {
-    (void) filename;
     if (load_flac(file_fd, update_open_file_error)) {
-        new_sample(DSTUDIO_USE_MUTEX);
+        new_sample(DSTUDIO_USE_MUTEX, filename);
         return 1;
     }
     return 0;
