@@ -20,19 +20,24 @@
 #include <FLAC/stream_decoder.h>
 
 #include "common.h"
+#include "flac.h"
 
 void (*s_client_error_callback)(const char * message) = 0;
+
+unsigned call_count = 0;
 
 FLAC__StreamDecoderWriteStatus write_callback(
     const FLAC__StreamDecoder *decoder,
     const FLAC__Frame *frame,
     const FLAC__int32 * const buffer[],
-    void *client_data
+    void * client_data
 ) {
     (void) decoder;
     (void) frame;
     (void) buffer;
     (void) client_data;
+    call_count+=frame->header.number.sample_number;
+    
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data) {
@@ -55,7 +60,8 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
 		fprintf(stderr, "sample rate    : %u Hz\n", sample_rate);
 		fprintf(stderr, "channels       : %u\n", channels);
 		fprintf(stderr, "bits per sample: %u\n", bps);
-		fprintf(stderr, "total samples  : %" PRIu64 "\n", total_samples);
+        // TODO: fprintf(stderr, "total samples  : %" PRIu64 "\n", total_samples)
+		fprintf(stderr, "total samples  : %lu\n", total_samples);
 	}
 }
 
@@ -69,7 +75,8 @@ void error_callback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderError
 
 int load_flac(
     FILE * file,
-    void (*client_error_callback)(const char * message)
+    void (*client_error_callback)(const char * message),
+    SharedSample * shared_sample
 ) {
     (void) file;
     s_client_error_callback = client_error_callback;
@@ -80,7 +87,7 @@ int load_flac(
     DSTUDIO_RETURN_IF_FAILURE((decoder = FLAC__stream_decoder_new()) == NULL)
 	(void)FLAC__stream_decoder_set_md5_checking(decoder, true);
 
-	init_status = FLAC__stream_decoder_init_FILE(decoder, file, write_callback, metadata_callback, error_callback, NULL);
+	init_status = FLAC__stream_decoder_init_FILE(decoder, file, write_callback, metadata_callback, error_callback, shared_sample);
     if(init_status != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
         client_error_callback(FLAC__StreamDecoderInitStatusString[init_status]);
         // TODO: GOES TO LOG
@@ -90,5 +97,6 @@ int load_flac(
         
     // Test decorder
     decode_ok = FLAC__stream_decoder_process_until_end_of_stream(decoder);
+    printf("call_count %u\n", call_count);
     return decode_ok;
 }

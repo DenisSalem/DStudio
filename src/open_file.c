@@ -33,7 +33,7 @@
 ThreadControl g_open_file_thread_control = {0};
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
-static unsigned int (*s_select_callback)(char * filename, FILE * file_fd) = 0;
+static unsigned int (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
 static char * s_current_directory = 0;
 static UIElements * s_menu_background;
 static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
@@ -82,6 +82,7 @@ static unsigned int refresh_file_list(char * path);
 static void open_file_and_consume_callback(UIElements * ui_element) {
     (void) ui_element;
     unsigned int callback_status=0;
+    char * path = 0;
     char * current_item_value = &s_interactive_list.source_data[s_file_index*s_interactive_list.stride];
     char * saved_current_directory = dstudio_alloc(strlen(s_current_directory)+1);
     FILE * file_fd = 0;
@@ -94,6 +95,9 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
     );
     
     strcat(s_current_directory, "/");
+    path = dstudio_alloc(strlen(s_current_directory)+1);
+    strcat(path, s_current_directory);
+    
     strcat(s_current_directory, current_item_value);
 
     switch(dstudio_is_directory(s_current_directory)) {
@@ -108,6 +112,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
                 update_open_file_error("");
                 update_text(s_error_message, "", s_max_characters_for_error_prompt);
                 dstudio_free(saved_current_directory);
+                dstudio_free(path);
                 return;
             };
             break;
@@ -118,6 +123,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
                 return;
             }
             callback_status = s_select_callback(
+                path,
                 current_item_value,
                 file_fd
             );
@@ -131,6 +137,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
      * setting path in it's previous state
      */
      dstudio_free(s_current_directory);
+     dstudio_free(path);
      s_current_directory = saved_current_directory;  
 }
 
@@ -526,7 +533,7 @@ void init_open_menu(
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
-    unsigned int (*select_callback)(char * filename, FILE * file_fd)
+    unsigned int (*select_callback)(char * path, char * filename, FILE * file_fd)
 ) {
     s_cancel_callback = cancel_callback;
     s_select_callback = select_callback;

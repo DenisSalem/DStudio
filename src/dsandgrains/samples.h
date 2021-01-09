@@ -17,15 +17,17 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_SAMPLES_H_INCLUDED
-#define DSTUDIO_SAMPLES_H_INCLUDED
+#ifndef DSANDGRAINS_SAMPLES_H_INCLUDED
+#define DSANDGRAINS_SAMPLES_H_INCLUDED
 
 #include "../common.h"
 #include "../interactive_list.h"
+#include "../samples.h"
 #include "../voices.h"
 
 typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
+    SharedSample shared_sample;
 } SampleContext;
 
 typedef struct Samples_t{

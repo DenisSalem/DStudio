@@ -36,7 +36,7 @@ DSTUDIO_DEF_GL_FUN(void,            AttachShader,               GLuint program, 
 DSTUDIO_DEF_GL_FUN(void,            BindBuffer,                 GLenum target, GLuint buffer)
 DSTUDIO_DEF_GL_FUN(void,            BindFramebuffer,            GLenum target, GLuint framebuffer)
 DSTUDIO_DEF_GL_FUN(void,            BindVertexArray,            GLuint array)
-DSTUDIO_DEF_GL_FUN(void,            BlendFuncSeparate,  	GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
+DSTUDIO_DEF_GL_FUN(void,            BlendFuncSeparate,  	    GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha)
 DSTUDIO_DEF_GL_FUN(void,            BufferData,                 GLenum target, GLsizeiptr size, const GLvoid * data, GLenum usage)
 DSTUDIO_DEF_GL_FUN(void,            BufferSubData,              GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data)
 DSTUDIO_DEF_GL_FUN(void,            CompileShader,              GLuint shader) 

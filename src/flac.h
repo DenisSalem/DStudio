@@ -19,7 +19,10 @@
 
 #include <stdio.h>
 
+#include "samples.h"
+
 int load_flac(
     FILE * file,
-    void (*client_error_callback)(const char * message)
+    void (*client_error_callback)(const char * message),
+    SharedSample * shared_sample
 );

@@ -32,7 +32,6 @@ typedef struct ThreadControl_t {
     sem_t *         shared_mutex;
 } ThreadControl;
 
-
 // MISCELLANEOUS CONSTANTS
 #define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
 #define DSTUDIO_FRAMEBUFFER_COUNT 2
