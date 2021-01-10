@@ -32,7 +32,7 @@ static unsigned int s_allocation_register_index = 0;
 static unsigned int s_allocation_register_size = DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
 static sem_t s_alloc_register_mutex = {0};
 
-void * dstudio_alloc(unsigned int buffer_size) {
+void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal) {
     sem_wait(&s_alloc_register_mutex);
     if (s_allocation_register_index >= s_allocation_register_size) {
         s_allocation_register = realloc(s_allocation_register, sizeof(long unsigned int) * (s_allocation_register_size + DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE));
@@ -41,7 +41,16 @@ void * dstudio_alloc(unsigned int buffer_size) {
         s_allocation_register_size += DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
     }
     s_allocation_register[s_allocation_register_index] = (long unsigned int) malloc(buffer_size);
-    DSTUDIO_EXIT_IF_NULL(s_allocation_register[s_allocation_register_index])
+    if (s_allocation_register[s_allocation_register_index] == 0) {
+        if(failure_is_fatal) {
+            // https://stackoverflow.com/questions/3126149/what-operating-systems-wont-free-memory-on-program-exit 
+            DSTUDIO_EXIT_IF_NULL(NULL)
+        }
+        else {
+            sem_post(&s_alloc_register_mutex);
+            return NULL;
+        }
+    }
     explicit_bzero((void *) s_allocation_register[s_allocation_register_index], buffer_size);
     sem_post(&s_alloc_register_mutex);
     return (void *) s_allocation_register[s_allocation_register_index++];
@@ -99,7 +108,7 @@ void dstudio_init_memory_management() {
 
 void * dstudio_realloc(void * buffer, unsigned int new_size) {
     if (buffer == NULL) {
-        return dstudio_alloc(new_size);
+        return dstudio_alloc(new_size, DSTUDIO_FAILURE_IS_FATAL);
     }
     void * new_buffer = 0;
     sem_wait(&s_alloc_register_mutex);

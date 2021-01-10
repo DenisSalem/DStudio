@@ -17,6 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef DSANDGRAINS_UI_H_INCLUDED
+#define DSANDGRAINS_UI_H_INCLUDED
+
 #include "../ui.h"
 
 #define DSANDGRAINS_ADD_BUTTON_POS_X -0.435
@@ -268,3 +271,5 @@ typedef struct UIElementsStruct_t {
 } UIElementsStruct;
 
 void * ui_thread(void * arg);
+
+#endif

@@ -105,7 +105,10 @@ UIElements * new_voice(unsigned int use_mutex) {
 
     g_current_active_instance->voices.contexts = new_voice_context;
     g_current_active_voice = &g_current_active_instance->voices.contexts[g_current_active_instance->voices.index];
-    g_current_active_voice->sub_contexts = dstudio_alloc(s_sub_context_size);
+    g_current_active_voice->sub_contexts = dstudio_alloc(
+        s_sub_context_size,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     
     sprintf(g_current_active_voice->name, "Voice %d", g_current_active_instance->voices.count);
     #ifdef DSTUDIO_DEBUG

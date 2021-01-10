@@ -57,8 +57,14 @@ void count_instances(const char * directory, unsigned int * count, unsigned int 
 unsigned int count_process(const char * process_name) {
     DIR * dr = 0;
     struct dirent *de;
-    char * processus_status_path = dstudio_alloc(sizeof(char) * 128);
-    char * line_buffer = dstudio_alloc(sizeof(char) * 64);
+    char * processus_status_path = dstudio_alloc(
+        sizeof(char) * 128,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+    char * line_buffer = dstudio_alloc(
+        sizeof(char) * 64,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     size_t line_buffer_size = 64;
     explicit_bzero(processus_status_path, sizeof(char) * 128);
     int count = 0;
@@ -108,7 +114,10 @@ unsigned int count_process(const char * process_name) {
 }
 
 void dstudio_canonize_path(char ** src) {
-    char * canonized_path = dstudio_alloc(PATH_MAX);
+    char * canonized_path = dstudio_alloc(
+        PATH_MAX,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     char * tmp = realpath(*src, canonized_path);
     if (tmp == NULL) {
         free(canonized_path);
@@ -126,7 +135,10 @@ void dstudio_expand_user(char ** dest, const char * directory) {
         pw = getpwuid(getuid());
     }
     char * tild_ptr = strrchr(directory, '~') + 1;
-    *dest = dstudio_alloc(sizeof(char) * (strlen(pw->pw_dir) + strlen(tild_ptr))+1);
+    *dest = dstudio_alloc(
+        sizeof(char) * (strlen(pw->pw_dir) + strlen(tild_ptr))+1,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     strcpy(*dest, pw->pw_dir);
     strcpy(&(*dest)[strlen(pw->pw_dir)], tild_ptr);
 }
@@ -173,7 +185,10 @@ double get_proc_memory_usage() {
 }
 
 void recursive_mkdir(char * directory) {
-    char * tmp_str = dstudio_alloc(sizeof(char) * strlen(directory));
+    char * tmp_str = dstudio_alloc(
+        sizeof(char) * strlen(directory),
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     int index = 0;
     int previous_index = 0;
     while (1) {

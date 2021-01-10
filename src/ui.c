@@ -246,7 +246,10 @@ int get_png_pixel(
     image.version = PNG_IMAGE_VERSION;
     if (png_image_begin_read_from_file(&image, filename) != 0) {
         image.format = format;
-        *buffer = dstudio_alloc(PNG_IMAGE_SIZE(image));
+        *buffer = dstudio_alloc(
+            PNG_IMAGE_SIZE(image),
+            DSTUDIO_FAILURE_IS_FATAL
+        );
         if (*buffer != NULL && png_image_finish_read(&image, NULL, *buffer, 0, NULL) != 0) {
             return PNG_IMAGE_SIZE(image);
         }
@@ -366,7 +369,10 @@ void init_text() {
 }
 
 void init_threaded_ui_element_updater_register(unsigned int updater_count) {
-    s_updater_register = dstudio_alloc(updater_count * sizeof(UpdaterRegister));
+    s_updater_register = dstudio_alloc(
+        updater_count * sizeof(UpdaterRegister),
+        DSTUDIO_FAILURE_IS_FATAL
+    );
 }
 
 void init_ui() {    
@@ -439,7 +445,10 @@ void init_ui() {
     glEnable(GL_SCISSOR_TEST);
     glUseProgram(g_shader_program_id);
     
-    s_ui_elements_requests = dstudio_alloc( sizeof(UIElements *) * g_dstudio_ui_element_count);
+    s_ui_elements_requests = dstudio_alloc(
+        sizeof(UIElements *) * g_dstudio_ui_element_count,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
 };
 
 // TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE IMPROVEMENT
@@ -493,9 +502,18 @@ void init_ui_elements(
         
         ui_elements_array[i].type = ui_element_type;
         
-        ui_elements_array[i].instance_alphas_buffer = dstudio_alloc(sizeof(GLfloat) * instances_count);        
-        ui_elements_array[i].instance_motions_buffer = dstudio_alloc(sizeof(GLfloat) * instances_count);
-        ui_elements_array[i].instance_offsets_buffer = dstudio_alloc(sizeof(Vec4) * instances_count);
+        ui_elements_array[i].instance_alphas_buffer = dstudio_alloc(
+            sizeof(GLfloat) * instances_count,
+            DSTUDIO_FAILURE_IS_FATAL
+        );        
+        ui_elements_array[i].instance_motions_buffer = dstudio_alloc(
+            sizeof(GLfloat) * instances_count,
+            DSTUDIO_FAILURE_IS_FATAL
+        );
+        ui_elements_array[i].instance_offsets_buffer = dstudio_alloc(
+            sizeof(Vec4) * instances_count,
+            DSTUDIO_FAILURE_IS_FATAL
+        );
         
         for (unsigned int j = 0; j < instances_count; j++) {
             ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
@@ -568,7 +586,10 @@ void load_shader(
         printf("Failed to open \"%s\" with errno: %d.\n", filename, errno);
         exit(-1);
     }
-    (*shader_buffer) = dstudio_alloc(4096 * sizeof(GLchar));
+    (*shader_buffer) = dstudio_alloc(
+        4096 * sizeof(GLchar),
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     GLchar * local_shader_buffer = (*shader_buffer);
     for (int i=0; i < 4096; i++) {
         local_shader_buffer[i] = (GLchar ) fgetc(shader);

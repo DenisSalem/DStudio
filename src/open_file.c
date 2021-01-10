@@ -84,7 +84,10 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
     unsigned int callback_status=0;
     char * path = 0;
     char * current_item_value = &s_interactive_list.source_data[s_file_index*s_interactive_list.stride];
-    char * saved_current_directory = dstudio_alloc(strlen(s_current_directory)+1);
+    char * saved_current_directory = dstudio_alloc(
+        strlen(s_current_directory)+1,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     FILE * file_fd = 0;
     strcpy(saved_current_directory, s_current_directory);
     s_current_directory = dstudio_realloc(
@@ -95,7 +98,10 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
     );
     
     strcat(s_current_directory, "/");
-    path = dstudio_alloc(strlen(s_current_directory)+1);
+    path = dstudio_alloc(
+        strlen(s_current_directory)+1,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     strcat(path, s_current_directory);
     
     strcat(s_current_directory, current_item_value);
@@ -156,7 +162,10 @@ static unsigned int refresh_file_list(char * path) {
     if (s_files_list != NULL) {
         dstudio_free(s_files_list);
     }
-    s_files_list = dstudio_alloc( DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number);
+    s_files_list = dstudio_alloc(
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     unsigned int allocation_size = DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
     
     while ((de = readdir(dr)) != NULL) {
@@ -228,7 +237,10 @@ void init_open_menu(
     );
 
     s_max_prompt_char = (g_dstudio_viewport_width - DSTUDIO_OPEN_FILE_PROMPT_PADDING) / 8;
-    s_prompt_value = dstudio_alloc(s_max_prompt_char);
+    s_prompt_value = dstudio_alloc(
+        s_max_prompt_char,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
     strcat(s_prompt_value, "OPEN FILE: ");
     s_prompt_cwd_value = &s_prompt_value[DSTUDIO_PROMPT_CWD_CHAR_OFFSET];
     init_ui_elements(
@@ -563,7 +575,8 @@ unsigned int select_file_from_list(
         path = dstudio_alloc(
             strlen(s_current_directory) +
             strlen(&s_interactive_list.source_data[s_interactive_list.stride * index]) +
-            2 // slash + null byte
+            2, // slash + null byte
+            DSTUDIO_FAILURE_IS_FATAL
         );
         strcat(path, s_current_directory);
         strcat(path, "/");

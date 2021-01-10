@@ -67,7 +67,7 @@ void init_samples_interactive_list(
     #endif
 }
 
-UIElements * new_sample(unsigned int use_mutex, char * filename) {
+UIElements * new_sample(unsigned int use_mutex, char * filename, SharedSample shared_sample) {
     UIElements * line = 0;
     if(use_mutex) {
         sem_wait(g_samples_thread_control.shared_mutex);
@@ -89,6 +89,8 @@ UIElements * new_sample(unsigned int use_mutex, char * filename) {
         &new_sample_context[samples->count],
         sizeof(SampleContext)
     );
+
+    memcpy(&shared_sample, &new_sample_context->shared_sample, sizeof(SharedSample));
 
     if(use_mutex) {
         sem_post(g_voices_thread_control.shared_mutex);

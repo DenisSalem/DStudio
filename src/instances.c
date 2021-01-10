@@ -49,7 +49,10 @@ static char * s_instances_directory = 0;
 FILE * add_instance_file_descriptor() {
     unsigned int count = 0;
     unsigned int last_id = 0;
-    char * instance_filename_buffer = dstudio_alloc(sizeof(char) * 128); 
+    char * instance_filename_buffer = dstudio_alloc(
+        sizeof(char) * 128,
+        DSTUDIO_FAILURE_IS_FATAL
+    ); 
     char string_representation_of_integer[4] = {0};
 
     count_instances(s_instances_directory, &count, &last_id);
@@ -116,7 +119,10 @@ void * instances_management_thread(void * args) {
         exit(-1);
     }
 
-	struct inotify_event * event = dstudio_alloc(sizeof(struct inotify_event) + 16 + 1);
+	struct inotify_event * event = dstudio_alloc(
+        sizeof(struct inotify_event) + 16 + 1,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
 
     while(1) {
         if(read(fd, event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
@@ -190,7 +196,8 @@ void * instances_management_thread(void * args) {
         char * fd_path = dstudio_alloc(
             strlen(s_instances_directory) +
             strlen(event->name) + 
-            2 // slash + null byte
+            2, // slash + null byte
+            DSTUDIO_FAILURE_IS_FATAL
         );
         
         /* We finally write in the related file descriptor that the
@@ -217,7 +224,10 @@ void new_instance(const char * given_directory, const char * process_name) {
 
     int processes_count = count_process(process_name);
     dstudio_expand_user(&s_instances_directory, given_directory);
-    char * instance_filename_buffer = dstudio_alloc(sizeof(char) * 128); 
+    char * instance_filename_buffer = dstudio_alloc(
+        sizeof(char) * 128,
+        DSTUDIO_FAILURE_IS_FATAL
+    ); 
     FILE * new_instance = 0;
     if (stat(s_instances_directory, &st) == -1) {
         // Permission error
@@ -248,7 +258,10 @@ void new_instance(const char * given_directory, const char * process_name) {
         strcat(instance_filename_buffer, "/1");
         new_instance = fopen(instance_filename_buffer, "w+");
         fclose(new_instance);
-        g_instances.contexts = dstudio_alloc( sizeof(InstanceContext) );
+        g_instances.contexts = dstudio_alloc(
+            sizeof(InstanceContext),
+            DSTUDIO_FAILURE_IS_FATAL
+        );
         g_instances.count +=1;
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];

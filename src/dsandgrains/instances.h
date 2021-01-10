@@ -17,4 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef DSANDGRAINS_INSTANCES_H_INCLUDED
+#define DSANDGRAINS_INSTANCES_H_INCLUDED
+
 #define DSANDGRAINS_INSTANCES_DIRECTORY "~/.local/share/DStudio/instances/dsandgrains"
+
+#endif

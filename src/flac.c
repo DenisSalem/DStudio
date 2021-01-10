@@ -35,38 +35,75 @@ FLAC__StreamDecoderWriteStatus write_callback(
     (void) decoder;
     (void) frame;
     (void) buffer;
-    (void) client_data;
-    call_count+=frame->header.number.sample_number;
     
+    SharedSample * shared_sample =  (SharedSample *) client_data; 
+    
+    if (shared_sample->error_code) {
+        return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+    }
+    unsigned sample_index_offset = frame->header.number.sample_number;
+    if (shared_sample->bps == 16) {
+        short * left = shared_sample->left16;
+        short * right = shared_sample->right16;
+        for (unsigned i = 0; i < frame->header.blocksize; i++) {
+            left[sample_index_offset+i] = (short) buffer[0][i];
+            right[sample_index_offset+i] = (short) buffer[1][i];
+        }
+    }
+    //~ else if (shared_sample->bps == 24){
+        //~ // TODO
+    //~ }
+        
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
+
 void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client_data) {
 	(void)decoder;
-    (void)client_data;
 
-    FLAC__uint64 total_samples = 0;
-    unsigned sample_rate = 0;
-    unsigned channels = 0;
-    unsigned bps = 0;
+    SharedSample * shared_sample = (SharedSample *) client_data;
 
-	/* print some stats */
 	if(metadata->type == FLAC__METADATA_TYPE_STREAMINFO) {
-		/* save for later */
-		total_samples = metadata->data.stream_info.total_samples;
-		sample_rate = metadata->data.stream_info.sample_rate;
-		channels = metadata->data.stream_info.channels;
-		bps = metadata->data.stream_info.bits_per_sample;
+		shared_sample->bps = metadata->data.stream_info.bits_per_sample;
+        shared_sample->size = metadata->data.stream_info.total_samples;
+        shared_sample->rate = metadata->data.stream_info.sample_rate;
+        switch (metadata->data.stream_info.channels) {
+            case 1:
+            case 2:
+                shared_sample->is_stereo = metadata->data.stream_info.channels;
+                break;
+                
+            default:
+                s_client_error_callback("Audio file has more than two channels.");
+                shared_sample->error_code = DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED;
+                break;
+        }
+        unsigned size = shared_sample->size * (shared_sample->bps >> 3); // Binary rotation is equivalent to divide by 8
+        shared_sample->left = dstudio_alloc(
+            size,
+            DSTUDIO_FAILURE_IS_NOT_FATAL
+        );
+        shared_sample->right = dstudio_alloc(
+            size,
+            DSTUDIO_FAILURE_IS_NOT_FATAL
+        );
+        if (shared_sample->left == NULL || shared_sample->right == NULL) {
+            s_client_error_callback("Memory allocation failed.");
+            shared_sample->error_code = DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED;
+        }
 
-		fprintf(stderr, "sample rate    : %u Hz\n", sample_rate);
-		fprintf(stderr, "channels       : %u\n", channels);
-		fprintf(stderr, "bits per sample: %u\n", bps);
+        #ifdef DSTUDIO_DEBUG
+		fprintf(stderr, "sample rate    : %u Hz\n", shared_sample->rate);
+		fprintf(stderr, "stereo       : %u\n", shared_sample->is_stereo);
+		fprintf(stderr, "bits per sample: %u\n", shared_sample->bps);
         // TODO: fprintf(stderr, "total samples  : %" PRIu64 "\n", total_samples)
-		fprintf(stderr, "total samples  : %lu\n", total_samples);
+		fprintf(stderr, "total samples  : %lu\n", shared_sample->size);
+        #endif
 	}
 }
 
 void error_callback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data) {
-	(void)decoder, (void)client_data;
+	(void)decoder;
+    (void)client_data;
     if (s_client_error_callback) {
         s_client_error_callback(FLAC__StreamDecoderErrorStatusString[status]);
     }

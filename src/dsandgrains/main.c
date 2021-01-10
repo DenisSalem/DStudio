@@ -17,6 +17,11 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * TODO :
+ *      - Make type size explicit and not platform dependant.
+ */
+
 #include <pthread.h>
 #include <semaphore.h>
 

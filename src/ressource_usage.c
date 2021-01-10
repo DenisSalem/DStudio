@@ -61,7 +61,6 @@ void * update_ressource_usage_thread(void * args) {
         double cpu_usage = (((double) (clock() - cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
         explicit_bzero(g_ressource_usage.cpu_string_buffer, g_ressource_usage.string_size);
         sprintf(g_ressource_usage.cpu_string_buffer, "%0.1lf%%", cpu_usage);
-        
         double mem_usage = get_proc_memory_usage();
         if (mem_usage != -1) {
             explicit_bzero(g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);

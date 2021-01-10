@@ -37,14 +37,13 @@ static unsigned int load_sample(char * path, char * filename, FILE * file_fd) {
     printf("Current active sample %llu\n", (long long unsigned) g_current_active_sample);
     if (load_flac(file_fd, update_open_file_error, &shared_sample)) {
         shared_sample.identifier = dstudio_alloc(
-            strlen(path)+
-            strlen(filename)+
-            1 // nullbyte
+            strlen(path)+strlen(filename)+1, // nullbyte
+            DSTUDIO_FAILURE_IS_FATAL
         );
         strcat(shared_sample.identifier, path);
         strcat(shared_sample.identifier, filename);
         printf("Sample identifier %s\n", shared_sample.identifier);
-        new_sample(DSTUDIO_USE_MUTEX, filename);
+        new_sample(DSTUDIO_USE_MUTEX, filename, shared_sample);
         return 1;
     }
     return 0;

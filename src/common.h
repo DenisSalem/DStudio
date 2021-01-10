@@ -170,6 +170,9 @@ typedef struct ThreadControl_t {
 #define DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS          256
 #define DSTUDIO_FLAG_OVERLAP                        512
 
+#define DSTUDIO_FAILURE_IS_FATAL 1
+#define DSTUDIO_FAILURE_IS_NOT_FATAL 0
+
 #define DSTUDIO_USE_MUTEX                   1
 #define DSTUDIO_DO_NOT_USE_MUTEX            0
 
@@ -211,9 +214,9 @@ typedef struct ThreadControl_t {
 extern const char g_application_name[];
 
 /*
- * Safely allocate and initialize memory. Automatically stop the program on failure.
+ * Safely allocate and initialize memory.
  */
-void * dstudio_alloc(unsigned int buffer_size);
+void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal);
 void   dstudio_cut_thread(ThreadControl * thread_control);
 void   dstudio_free(void * buffer);
 void dstudio_init_memory_management();
