@@ -131,9 +131,8 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
             callback_status = s_select_callback(
                 path,
                 current_item_value,
-                file_fd
+                file_fd // file_fd must be closed by consumer
             );
-            fclose(file_fd);
             if (callback_status) {
                 close_open_file_menu();
             }
