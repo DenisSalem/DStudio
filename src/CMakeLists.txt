@@ -1,3 +1,6 @@
+# TODO:
+#   - Make Jack optionnal
+
 cmake_minimum_required (VERSION 3.0.2)
 project(DStudio)
 set(PACKAGE_VERSION "0.0.0")
@@ -33,6 +36,8 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
 
 find_package(FLAC REQUIRED)
+find_package(Jack REQUIRED)
+
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED OpenGL GLX) 
 find_package(PNG REQUIRED)
@@ -55,6 +60,7 @@ add_executable(
     flac.c
     instances.c
     interactive_list.c
+    jack.c
     open_file.c
     ressource_usage.c
     sliders.c
@@ -66,7 +72,7 @@ add_executable(
 )
 
 target_include_directories(dsandgrains PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${FLAC_INCLUDE_DIR})
-target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${FLAC_LIBRARY} m)
+target_link_libraries(dsandgrains ${PNG_LIBRARY} ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${FLAC_LIBRARY} ${JACK_LIBRARY} m)
 
 if(DEFINED DSTUDIO_RELY_ON_X11)
     target_include_directories(dsandgrains PRIVATE ${X11_INCLUDE_DIR})

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Denis Salem
+ * Copyright 2019, 2021 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -79,6 +79,7 @@ unsigned int count_process(const char * process_name) {
         process_id = strtol(de->d_name, NULL, 10);
         if (process_id != 0) {
             strcat(processus_status_path, "/proc/");
+            printf("PROC de->d_name: %s\n", de->d_name); 
             strcat(processus_status_path, de->d_name);
             strcat(processus_status_path, "/status");
             processus_status = fopen(processus_status_path, "r");
@@ -86,6 +87,7 @@ unsigned int count_process(const char * process_name) {
                 #ifdef DSTUDIO_DEBUG
                 printf("count_process(): %s: %s\n", processus_status_path, strerror(errno));
                 #endif
+                explicit_bzero(processus_status_path, sizeof(char) * 64);
                 continue;
             }
             while(getline(&line_buffer, &line_buffer_size, processus_status) > 0) {

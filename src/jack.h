@@ -17,11 +17,6 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_TEXT_H_INCLUDED
-#define DSTUDIO_TEXT_H_INCLUDED
 
-#include "ui.h"
 
-void update_text(UIElements * text, char * string_value, unsigned int buffer_size);
-
-#endif
+void * jack_client(void * arg);
