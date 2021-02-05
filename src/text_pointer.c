@@ -156,7 +156,7 @@ void * text_pointer_blink_thread(void * args) {
     (void) args;
     GLfloat * text_pointer_alphas_buffer = g_text_pointer_context.text_pointer->instance_alphas_buffer;
     while (1) {
-        usleep(125000);
+        usleep(250000);
         sem_wait(&g_text_pointer_context.thread_control.mutex);
         if (*text_pointer_alphas_buffer == 1.0) {
             *text_pointer_alphas_buffer = 0.0;

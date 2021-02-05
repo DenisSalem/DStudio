@@ -132,8 +132,11 @@ static void render_layers(unsigned int limit) {
 }
 
 static void update_scale_matrix(Vec2 * scale_matrix);
+
 static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags) {
     Scissor * scissor = &s_ui_elements_requests[scissor_index]->scissor;
+    // TODO: use g_text_pointer_context to fix text width rendering 
+    
     if (scissor_index >=0) {
         glScissor(
             scissor->x,
@@ -145,6 +148,19 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             scissor->height
         );
     }
+    /*
+    printf("%d %d %d %d %d %d\n", 
+            scissor_index,
+            scissor->x,
+            flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
+                s_ui_elements_requests[scissor_index]->previous_highlight_scissor_y : \
+                scissor->y
+            ,
+            scissor->width,
+            scissor->height,
+            s_ui_elements_requests[scissor_index]->type
+    );
+    */
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
         update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->scale_matrix : s_framebuffer_matrix);
     }
@@ -636,6 +652,7 @@ void manage_cursor_position(int xpos, int ypos) {
 }
 
 void manage_mouse_button(int xpos, int ypos, int button, int action) {
+    DSTUDIO_TRACE
     UIElements * ui_elements_p = 0;
     double timestamp = 0;
     GLfloat half_height;
@@ -711,6 +728,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
             }
         }
         if (clicked_none) {
+            DSTUDIO_TRACE
             g_active_interactive_list = 0;
         }
     }
@@ -729,14 +747,15 @@ void register_threaded_ui_elements_updater(ThreadControl * thread_control, void 
 
 inline void render_loop() {
     while (do_no_exit_loop()) {
-        usleep(g_framerate);
         update_threaded_ui_element();
         unsigned int render_all = need_to_redraw_all();
+        DSTUDIO_TRACE_ARGS("render_all: %d, g_request_render_all: %d", render_all, g_request_render_all);
         render_all |= g_request_render_all;
         g_request_render_all = 0;
         render_viewport(render_all);
         swap_window_buffer();
         listen_events();
+        usleep(g_framerate);
     }
 };
 
@@ -808,6 +827,8 @@ void render_viewport(unsigned int render_all) {
      if (layer_1_index_limit < 0) {
         layer_1_index_limit = s_ui_elements_requests_index+1;
      }
+     
+     DSTUDIO_TRACE_ARGS("TRACE: ui element to render: %d, render_all: %d", layer_1_index_limit, render_all)
     
     /* To avoid unnecessary OpenGL calls and rendering process we're
      * Rendering once required ui elements in a framebuffer if submenu
@@ -817,21 +838,28 @@ void render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer background */
+    
+    //~ printf("BEGIN FIRST BACKGROUND\n");
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
         scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
         render_ui_elements(s_ui_elements_requests[0]);
     }
-    
+
     /* Render first layer ui elements */
+    //~ printf("BEGIN FIRST LAYER\n");
+
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
+        // Refresh  interactive list background and/or highligh1 when unselected 
         if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active &&  g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
             scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
             render_ui_elements(s_ui_elements_requests[0]);
         }
         scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
         render_ui_elements(s_ui_elements_requests[i]);
+
     }
+    //~ printf("END FIRST LAYER\n\n");
 
     if (g_menu_background_enabled) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);

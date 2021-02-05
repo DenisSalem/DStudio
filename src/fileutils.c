@@ -79,7 +79,6 @@ unsigned int count_process(const char * process_name) {
         process_id = strtol(de->d_name, NULL, 10);
         if (process_id != 0) {
             strcat(processus_status_path, "/proc/");
-            printf("PROC de->d_name: %s\n", de->d_name); 
             strcat(processus_status_path, de->d_name);
             strcat(processus_status_path, "/status");
             processus_status = fopen(processus_status_path, "r");
