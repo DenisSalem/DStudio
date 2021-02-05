@@ -17,6 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -247,6 +248,26 @@ void init_context(const char * window_name, int width, int height) {
 
 void listen_events() {
     void (*close_sub_menu_callback_swap)() = NULL;
+    
+    // The good way to process event
+    //~ struct pollfd fds = {0};
+    //~ fds.fd = ConnectionNumber(display);
+    //~ fds.events = POLLIN;
+    //~ int ret = 0;
+    //~ while (1) {
+        //~ ret = poll(&fds, 1, 2500);
+        //~ if (ret != 0) {
+            //~ printf("EVENT %d\n", ret);
+            //~ while(XPending(display)) {
+                //~ XNextEvent(display, &x_event);
+            //~ }
+            
+        //~ }
+        //~ else {
+            //~ printf("POLL%d\n", ret);
+        //~ }
+    //~ }
+        
     while(XPending(display)) {
         XNextEvent(display, &x_event);
         if(x_event.type == ClientMessage) {
@@ -303,7 +324,6 @@ void listen_events() {
                     close_sub_menu_callback_swap = close_sub_menu_callback;
                     close_sub_menu_callback = NULL;
                     close_sub_menu_callback_swap();
-                    DSTUDIO_TRACE_STR("SET REFRESH ALL TO 1")
                     refresh_all = 1;
                 }
                 clear_text_pointer();
@@ -342,7 +362,6 @@ void listen_events() {
 }
 
 int need_to_redraw_all() {
-    DSTUDIO_TRACE_ARGS("refresh all: %d", refresh_all)
     if (refresh_all) {
         refresh_all = 0;
         if (g_menu_background_enabled) {
@@ -354,7 +373,6 @@ int need_to_redraw_all() {
 }
 
 void send_expose_event() {
-    DSTUDIO_TRACE_STR("SOME ASSHOLE SEND EXPOSE EVENT")
     memset(&x_sent_expose_event, 0, sizeof(x_sent_expose_event));
     x_sent_expose_event.xexpose.serial = clock();
     x_sent_expose_event.type = Expose;

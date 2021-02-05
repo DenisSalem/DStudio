@@ -20,7 +20,8 @@
 /*
  * TODO :
  *      - Make type size explicit and not platform dependant.
- *      - Investigate OpenGL ES for better performance.
+ *      - Avoid as much as possible mutex usage.
+ *      
  */
 
 #include <pthread.h>
