@@ -20,8 +20,6 @@
 #ifndef DSTUDIO_RESSOURCE_USAGE_H_INCLUDED
 #define DSTUDIO_RESSOURCE_USAGE_H_INCLUDED
 
-#include <semaphore.h>
-
 #include "common.h"
 #include "ui.h"
 #include "text.h"
@@ -30,12 +28,11 @@ typedef struct RessourceUsage_t {
     unsigned int    string_size;
     char            cpu_string_buffer[7];
     char            mem_string_buffer[7];
-    ThreadControl   thread_control;
 } RessourceUsage;
 
 extern RessourceUsage g_ressource_usage;
 
-void init_ressource_usage_thread(
+void init_ressource_usage_backend(
     unsigned int string_size,
     UIElements * cpu_usage,
     UIElements * mem_usage
