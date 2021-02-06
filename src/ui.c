@@ -745,6 +745,7 @@ void register_ui_elements_updater(void (*updater)()) {
 
 inline void render_loop() {
     unsigned int framerate_limiter = g_framerate * 1000;
+
     while (do_no_exit_loop()) {
         listen_events();
 
@@ -752,9 +753,9 @@ inline void render_loop() {
         unsigned int render_all = need_to_redraw_all();
         render_all |= g_request_render_all;
         g_request_render_all = 0;
-        render_viewport(render_all);
-        swap_window_buffer();
-        
+        if (render_viewport(render_all)) {
+            swap_window_buffer();
+        }
         usleep(framerate_limiter);
     }
 };
@@ -797,7 +798,7 @@ void render_ui_elements(UIElements * ui_elements) {
     }
 }
 
-void render_viewport(unsigned int render_all) {
+unsigned int render_viewport(unsigned int render_all) {
     unsigned int background_rendering_start_index = render_all ? 0 : 1;
     unsigned int background_rendering_end_index;
     unsigned int render_overlap = 0;   
@@ -822,7 +823,7 @@ void render_viewport(unsigned int render_all) {
         }
      }
      if (s_ui_elements_requests_index == 0) {
-        return;
+        return 0;
      }
      if (layer_1_index_limit < 0) {
         layer_1_index_limit = s_ui_elements_requests_index+1;
@@ -837,7 +838,6 @@ void render_viewport(unsigned int render_all) {
 
     /* Render first layer background */
     
-    //~ printf("BEGIN FIRST BACKGROUND\n");
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
         scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
@@ -845,7 +845,6 @@ void render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer ui elements */
-    //~ printf("BEGIN FIRST LAYER\n");
 
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
         // Refresh  interactive list background and/or highligh1 when unselected 
@@ -857,7 +856,6 @@ void render_viewport(unsigned int render_all) {
         render_ui_elements(s_ui_elements_requests[i]);
 
     }
-    //~ printf("END FIRST LAYER\n\n");
 
     if (g_menu_background_enabled) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
@@ -910,6 +908,7 @@ void render_viewport(unsigned int render_all) {
             }
         }
     }
+    return 1;
 }
 
 void set_prime_interface(unsigned int state) {
@@ -999,19 +998,8 @@ GLuint setup_texture_n_scale_matrix(
 }
 
 void update_threaded_ui_element() {
-    //~ sem_t * mutex = 0;
-    //~ ThreadControl * thread_control = 0;
     for (unsigned int i = 0; i < s_updater_register_index; i++) {
-        //~ thread_control = s_updater_register[i].thread_control;
-        //~ mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
-        //~ sem_wait(mutex);
-        //~ if (!thread_control->update ) {
-            //~ sem_post(mutex);
-            //~ continue;
-        //~ }
         s_updater_register[i].updater();
-        //~ thread_control->update = 0;
-        //~ sem_post(mutex);
     }
 }
 
