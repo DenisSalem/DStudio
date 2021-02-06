@@ -254,7 +254,7 @@ void listen_events() {
     fds.fd = ConnectionNumber(display);
     fds.events = POLLIN;
     
-    if (poll(&fds, 1, g_framerate) > 0) {
+    if (poll(&fds, 1, /*g_framerate*/ 2500) > 0) {
         while(XPending(display)) {
             XNextEvent(display, &x_event);
             if(x_event.type == ClientMessage) {

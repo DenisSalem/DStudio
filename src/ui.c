@@ -744,18 +744,18 @@ void register_ui_elements_updater(void (*updater)()) {
 }
 
 inline void render_loop() {
+    unsigned int framerate_limiter = g_framerate * 1000;
     while (do_no_exit_loop()) {
         listen_events();
 
         update_threaded_ui_element();
-        
         unsigned int render_all = need_to_redraw_all();
         render_all |= g_request_render_all;
         g_request_render_all = 0;
         render_viewport(render_all);
         swap_window_buffer();
         
-        //usleep(g_framerate);
+        usleep(framerate_limiter);
     }
 };
 
