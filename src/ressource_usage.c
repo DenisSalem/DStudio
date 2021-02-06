@@ -48,11 +48,11 @@ void init_ressource_usage_backend(
 
 void update_ui_ressource_usage() {
     double timestamp = get_timestamp();
-    if (timestamp - s_previous_timestamp < 0.5) {
+    if (timestamp - s_previous_timestamp < 0.25) {
         return;
     }
 
-    double cpu_usage = (((double) (clock() - s_previous_cpu_time) / (double) CLOCKS_PER_SEC) / 0.5) * 100.0;
+    double cpu_usage = (((double) (clock() - s_previous_cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
     explicit_bzero(g_ressource_usage.cpu_string_buffer, g_ressource_usage.string_size);
     sprintf(g_ressource_usage.cpu_string_buffer, "%0.1lf%%", cpu_usage);
     DSTUDIO_TRACE_ARGS("%s", g_ressource_usage.cpu_string_buffer)

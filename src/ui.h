@@ -274,7 +274,8 @@ void register_ui_elements_updater(
 
 void render_loop();
 
-void render_viewport(unsigned int render_all);
+/* Non zero value returned means that swap buffering is required */
+unsigned int render_viewport(unsigned int render_all);
 
 void set_prime_interface(
     unsigned int state
