@@ -249,116 +249,101 @@ void init_context(const char * window_name, int width, int height) {
 void listen_events() {
     void (*close_sub_menu_callback_swap)() = NULL;
     
-    // The good way to process event
-    //~ struct pollfd fds = {0};
-    //~ fds.fd = ConnectionNumber(display);
-    //~ fds.events = POLLIN;
-    //~ int ret = 0;
-    //~ while (1) {
-        //~ ret = poll(&fds, 1, 2500);
-        //~ if (ret != 0) {
-            //~ printf("EVENT %d\n", ret);
-            //~ while(XPending(display)) {
-                //~ XNextEvent(display, &x_event);
-            //~ }
-            
-        //~ }
-        //~ else {
-            //~ printf("POLL%d\n", ret);
-        //~ }
-    //~ }
-        
-    while(XPending(display)) {
-        XNextEvent(display, &x_event);
-        if(x_event.type == ClientMessage) {
-            window_alive = 0;
-            return;
-        }
-        else if (x_event.type == ButtonPress) {
-            DSTUDIO_TRACE
-            if (x_event.xbutton.button == Button1) {
-                g_dstudio_mouse_state = 1;
-                DSTUDIO_TRACE
-                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
+    //~ // The good way to process event
+    struct pollfd fds = {0};
+    fds.fd = ConnectionNumber(display);
+    fds.events = POLLIN;
+    
+    if (poll(&fds, 1, 20) > 0) {
+        while(XPending(display)) {
+            XNextEvent(display, &x_event);
+            if(x_event.type == ClientMessage) {
+                window_alive = 0;
                 return;
             }
-            else if (x_event.xbutton.button == Button3) {
-                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
-                return;
+            else if (x_event.type == ButtonPress) {
+                if (x_event.xbutton.button == Button1) {
+                    g_dstudio_mouse_state = 1;
+                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
+                    return;
+                }
+                else if (x_event.xbutton.button == Button3) {
+                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
+                    return;
+                }
+                else if (g_active_interactive_list) {
+                    switch(x_event.xbutton.button) {
+                        case Button4:
+                            scroll(g_active_interactive_list, -1);
+                            break;
+                            
+                        case Button5:
+                            scroll(g_active_interactive_list, 1);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                
+                cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
             }
-            else if (g_active_interactive_list) {
-                switch(x_event.xbutton.button) {
-                    case Button4:
-                        scroll(g_active_interactive_list, -1);
-                        break;
-                        
-                    case Button5:
-                        scroll(g_active_interactive_list, 1);
-                        break;
-                    default:
-                        break;
+            else if (x_event.type == ButtonRelease) {
+                if (x_event.xbutton.button == Button1) {
+                    g_dstudio_mouse_state = 0;
+                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_RELEASE);
+                    return;
+                }
+                else if (x_event.xbutton.button == Button3) {
+                    mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_RELEASE);
+                    return;
                 }
             }
-            
-            cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
-        }
-        else if (x_event.type == ButtonRelease) {
-            if (x_event.xbutton.button == Button1) {
-                g_dstudio_mouse_state = 0;
-                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_RELEASE);
-                return;
+            else if(x_event.type == MotionNotify) {
+                pointer_x = x_event.xmotion.x;
+                pointer_y = x_event.xmotion.y;
+                cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
             }
-            else if (x_event.xbutton.button == Button3) {
-                mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_RELEASE);
-                return;
-            }
-        }
-        else if(x_event.type == MotionNotify) {
-            pointer_x = x_event.xmotion.x;
-            pointer_y = x_event.xmotion.y;
-            cursor_position_callback(x_event.xbutton.x, x_event.xbutton.y);
-        }
-        else if(x_event.type == KeyPress) {
-            if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
-                if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && close_sub_menu_callback != NULL) {
-                    close_sub_menu_callback_swap = close_sub_menu_callback;
-                    close_sub_menu_callback = NULL;
-                    close_sub_menu_callback_swap();
-                    refresh_all = 1;
+            else if(x_event.type == KeyPress) {
+                if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
+                    if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && close_sub_menu_callback != NULL) {
+                        close_sub_menu_callback_swap = close_sub_menu_callback;
+                        close_sub_menu_callback = NULL;
+                        close_sub_menu_callback_swap();
+                        refresh_all = 1;
+                    }
+                    clear_text_pointer();
                 }
-                clear_text_pointer();
+                else if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT || x_event.xkey.keycode == DSTUDIO_KEY_CAPS_LOCK) {
+                    keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
+                }
+                else if (x_event.xkey.keycode == DSTUDIO_KEY_BOTTOM_ARROW && g_active_interactive_list) {
+                    clear_text_pointer();
+                    g_active_interactive_list->scroll_bar->enabled = 0;
+                    scroll(g_active_interactive_list, 1);
+                }
+                else if (x_event.xkey.keycode == DSTUDIO_KEY_TOP_ARROW && g_active_interactive_list) {
+                    clear_text_pointer();
+                    scroll(g_active_interactive_list, -1);
+                }
+                else if(g_text_pointer_context.active) {
+                    update_text_box(
+                        XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
+                    );
+                }
             }
-            else if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT || x_event.xkey.keycode == DSTUDIO_KEY_CAPS_LOCK) {
-                keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
+            else if(x_event.type == KeyRelease)  {
+                if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT) {
+                    keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
+                }
+                if ((x_event.xkey.keycode == DSTUDIO_KEY_BOTTOM_ARROW || x_event.xkey.keycode == DSTUDIO_KEY_TOP_ARROW ) && g_active_interactive_list && g_active_interactive_list && g_active_interactive_list->scroll_bar ) {
+                    g_active_interactive_list->scroll_bar->enabled = 1;
+                }
             }
-            else if (x_event.xkey.keycode == DSTUDIO_KEY_BOTTOM_ARROW && g_active_interactive_list) {
-                clear_text_pointer();
-                g_active_interactive_list->scroll_bar->enabled = 0;
-                scroll(g_active_interactive_list, 1);
+            else if(x_event.type == VisibilityNotify) {
+                //printf("Should freeze render if obscured.\n");
             }
-            else if (x_event.xkey.keycode == DSTUDIO_KEY_TOP_ARROW && g_active_interactive_list) {
-                clear_text_pointer();
-                scroll(g_active_interactive_list, -1);
-            }
-            else if(g_text_pointer_context.active) {
-                update_text_box(
-                    XLookupKeysym(&x_event.xkey, keyboard_chars_map_mode)
-                );
-            }
-        }
-        else if(x_event.type == KeyRelease)  {
-            if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_SHIFT) {
-                keyboard_chars_map_mode ^= DSTUDIO_KEY_MAJ_BIT;
-            }
-            if ((x_event.xkey.keycode == DSTUDIO_KEY_BOTTOM_ARROW || x_event.xkey.keycode == DSTUDIO_KEY_TOP_ARROW ) && g_active_interactive_list && g_active_interactive_list && g_active_interactive_list->scroll_bar ) {
-                g_active_interactive_list->scroll_bar->enabled = 1;
-            }
-        }
-        else if(x_event.type == VisibilityNotify) {
-            //printf("Should freeze render if obscured.\n");
         }
     }
-    XPeekEvent(display, &x_event);    
 }
 
 int need_to_redraw_all() {

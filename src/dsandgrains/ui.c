@@ -686,7 +686,7 @@ void * ui_thread(void * arg) {
     init_ui();
     init_dsandgrains_ui_elements();
 
-    init_ressource_usage_thread(
+    init_ressource_usage_backend(
         DSTUDIO_RESSOURCE_USAGE_STRING_SIZE,
         &g_ui_elements_struct.cpu_usage,
         &g_ui_elements_struct.mem_usage
@@ -719,41 +719,39 @@ void * ui_thread(void * arg) {
     
     bind_samples_interactive_list(NULL);
     
-    init_threaded_ui_element_updater_register(6);
+    init_ui_element_updater_register(6);
     
-    register_threaded_ui_elements_updater(
-        &g_text_pointer_context.thread_control,
-        update_text_pointer
-    );
+    //~ register_threaded_ui_elements_updater(
+        //~ &g_text_pointer_context.thread_control,
+        //~ update_text_pointer
+    //~ );
     
-    register_threaded_ui_elements_updater(
-        &g_ressource_usage.thread_control,
+    register_ui_elements_updater(
         update_ui_ressource_usage
     );
 
-    register_threaded_ui_elements_updater(
-        &g_instances.thread_control,
-        update_instances_ui_list
-    );
+    //~ register_threaded_ui_elements_updater(
+        //~ &g_instances.thread_control,
+        //~ update_instances_ui_list
+    //~ );
     
-    register_threaded_ui_elements_updater(
-        &g_voices_thread_control,        
-        update_voices_ui_list
-    );
+    //~ register_threaded_ui_elements_updater(
+        //~ &g_voices_thread_control,        
+        //~ update_voices_ui_list
+    //~ );
 
-    register_threaded_ui_elements_updater(
-        &g_open_file_thread_control,     
-        update_open_file_ui_list
-    );
+    //~ register_threaded_ui_elements_updater(
+        //~ &g_open_file_thread_control,     
+        //~ update_open_file_ui_list
+    //~ );
     
-    register_threaded_ui_elements_updater(
-        &g_samples_thread_control,     
-        update_samples_ui_list
-    );
+    //~ register_threaded_ui_elements_updater(
+        //~ &g_samples_thread_control,     
+        //~ update_samples_ui_list
+    //~ );
 
     render_loop();
     
-    dstudio_cut_thread(&g_ressource_usage.thread_control);
     dstudio_cut_thread(&g_buttons_management.thread_control);
     dstudio_cut_thread(&g_instances.thread_control);
     

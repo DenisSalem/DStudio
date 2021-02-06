@@ -81,7 +81,6 @@ typedef struct Scissor_t {
 } Scissor;
 
 typedef struct UpdaterRegister_t {
-    ThreadControl * thread_control;
     void (*updater)();
 } UpdaterRegister;
 
@@ -211,7 +210,7 @@ void init_opengl_ui_elements(
 
 void init_text();
 
-void init_threaded_ui_element_updater_register(
+void init_ui_element_updater_register(
     unsigned int updater_count
 );
 
@@ -269,14 +268,14 @@ void render_ui_elements(
     UIElements * ui_elements
 );
 
-void register_threaded_ui_elements_updater(
-    ThreadControl * thread_control,
+void register_ui_elements_updater(
     void (*updater)()
 );
 
 void render_loop();
 
-void render_viewport(unsigned int render_all);
+/* Non zero value returned means that swap buffering is required */
+unsigned int render_viewport(unsigned int render_all);
 
 void set_prime_interface(
     unsigned int state

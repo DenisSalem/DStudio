@@ -384,7 +384,7 @@ void init_text() {
     );
 }
 
-void init_threaded_ui_element_updater_register(unsigned int updater_count) {
+void init_ui_element_updater_register(unsigned int updater_count) {
     s_updater_register = dstudio_alloc(
         updater_count * sizeof(UpdaterRegister),
         DSTUDIO_FAILURE_IS_FATAL
@@ -652,7 +652,6 @@ void manage_cursor_position(int xpos, int ypos) {
 }
 
 void manage_mouse_button(int xpos, int ypos, int button, int action) {
-    DSTUDIO_TRACE
     UIElements * ui_elements_p = 0;
     double timestamp = 0;
     GLfloat half_height;
@@ -740,22 +739,24 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     }
 }
 
-void register_threaded_ui_elements_updater(ThreadControl * thread_control, void (*updater)()) {
-    s_updater_register[s_updater_register_index].thread_control = thread_control;
+void register_ui_elements_updater(void (*updater)()) {
     s_updater_register[s_updater_register_index++].updater = updater;
 }
 
 inline void render_loop() {
+    unsigned int framerate_limiter = g_framerate * 1000;
+    
     while (do_no_exit_loop()) {
+        listen_events();
+
         update_threaded_ui_element();
         unsigned int render_all = need_to_redraw_all();
-        DSTUDIO_TRACE_ARGS("render_all: %d, g_request_render_all: %d", render_all, g_request_render_all);
         render_all |= g_request_render_all;
         g_request_render_all = 0;
-        render_viewport(render_all);
-        swap_window_buffer();
-        listen_events();
-        usleep(g_framerate);
+        if (render_viewport(render_all)) {
+            swap_window_buffer();
+        }
+        usleep(framerate_limiter);
     }
 };
 
@@ -797,7 +798,7 @@ void render_ui_elements(UIElements * ui_elements) {
     }
 }
 
-void render_viewport(unsigned int render_all) {
+unsigned int render_viewport(unsigned int render_all) {
     unsigned int background_rendering_start_index = render_all ? 0 : 1;
     unsigned int background_rendering_end_index;
     unsigned int render_overlap = 0;   
@@ -822,14 +823,12 @@ void render_viewport(unsigned int render_all) {
         }
      }
      if (s_ui_elements_requests_index == 0) {
-        return;
+        return 0;
      }
      if (layer_1_index_limit < 0) {
         layer_1_index_limit = s_ui_elements_requests_index+1;
      }
-     
-     DSTUDIO_TRACE_ARGS("TRACE: ui element to render: %d, render_all: %d", layer_1_index_limit, render_all)
-    
+         
     /* To avoid unnecessary OpenGL calls and rendering process we're
      * Rendering once required ui elements in a framebuffer if submenu
      * is enabled. */
@@ -839,7 +838,6 @@ void render_viewport(unsigned int render_all) {
 
     /* Render first layer background */
     
-    //~ printf("BEGIN FIRST BACKGROUND\n");
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
         scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
@@ -847,7 +845,6 @@ void render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer ui elements */
-    //~ printf("BEGIN FIRST LAYER\n");
 
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
         // Refresh  interactive list background and/or highligh1 when unselected 
@@ -859,7 +856,6 @@ void render_viewport(unsigned int render_all) {
         render_ui_elements(s_ui_elements_requests[i]);
 
     }
-    //~ printf("END FIRST LAYER\n\n");
 
     if (g_menu_background_enabled) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
@@ -912,6 +908,7 @@ void render_viewport(unsigned int render_all) {
             }
         }
     }
+    return 1;
 }
 
 void set_prime_interface(unsigned int state) {
@@ -1001,19 +998,8 @@ GLuint setup_texture_n_scale_matrix(
 }
 
 void update_threaded_ui_element() {
-    sem_t * mutex = 0;
-    ThreadControl * thread_control = 0;
     for (unsigned int i = 0; i < s_updater_register_index; i++) {
-        thread_control = s_updater_register[i].thread_control;
-        mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
-        sem_wait(mutex);
-        if (!thread_control->update) {
-            sem_post(mutex);
-            continue;
-        }
         s_updater_register[i].updater();
-        thread_control->update = 0;
-        sem_post(mutex);
     }
 }
 
