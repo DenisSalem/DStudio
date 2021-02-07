@@ -17,8 +17,8 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include<GL/gl.h>
-#include<GL/glx.h>
+#include <GL/gl.h>
+#include <GL/glx.h>
 
 #include "interactive_list.h"
 

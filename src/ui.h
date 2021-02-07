@@ -103,6 +103,12 @@ typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND = 32768
 } UIElementType;
 
+typedef enum UIElementRenderState_t {
+    DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED = 0,
+    DSTUDIO_UI_ELEMENT_RENDER_REQUESTED = 1,
+    DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED = 2
+} UIElementRenderState;
+
 #define  DSTUDIO_ANY_TEXT_TYPE \
     (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | \
     DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM | \
@@ -134,8 +140,8 @@ typedef enum MotionType_t {
  * 
  * - count:             specify the number of instance. Should be set
  *                      to 1 by default except for text.
- * - render:            is a boolean allowing ui_element to be rendered
- *                      if set to 1.
+ * - render_state:      Store value from UIElementRenderState enumeration
+ *                      and tell engine what to do.
  * - enabled:           is a boolean allowing element to be interactive.
  * - texture_index:     Point to the current texture id in textures_ids.
  * - interactive_list:  Some elements are part of meta element, like
@@ -154,11 +160,14 @@ typedef struct UIInteractiveList_t UIInteractiveList;
 
 typedef struct UIElements_t {
     unsigned char               count;
-    unsigned char               request_render;
+    unsigned char               render_state;
     unsigned char               visible;
     unsigned char               enabled;
     unsigned char               texture_index;
-    double                      timestamp;
+    union {
+        double                      timestamp;
+        unsigned int                text_buffer_size;
+    };
     GLchar                      vertex_indexes[4];
     /* For any text type there is only one index used for texture because
      * it's not meant to be changed. The other index is used to store the
@@ -293,6 +302,10 @@ GLuint setup_texture_n_scale_matrix(
     GLuint texture_height,
     const char * texture_filename,
     Vec2 * scale_matrix
+);
+
+void update_gpu_buffer(
+    UIElements * ui_element
 );
 
 void update_threaded_ui_element();

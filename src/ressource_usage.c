@@ -61,7 +61,6 @@ void update_ui_ressource_usage() {
         explicit_bzero(g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);
         sprintf(g_ressource_usage.mem_string_buffer, "%0.1lf%%", mem_usage);
     }
-    
     update_text(s_cpu_usage, g_ressource_usage.cpu_string_buffer, g_ressource_usage.string_size);
     update_text(s_mem_usage, g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);
     

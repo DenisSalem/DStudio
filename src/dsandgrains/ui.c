@@ -648,7 +648,7 @@ inline static void init_sub_menu_add() {
         DSTUDIO_FLAG_NONE
     );
     update_text(&g_ui_elements_struct.add_sub_menu_prompt, "PICK THE ITEM YOU WANT TO ADD", 29);
-    g_ui_elements_struct.add_sub_menu_prompt.request_render = 0;
+    g_ui_elements_struct.add_sub_menu_prompt.render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
 }
 
 static void init_dsandgrains_ui_elements() {

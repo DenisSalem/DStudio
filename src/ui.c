@@ -148,19 +148,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             scissor->height
         );
     }
-    /*
-    printf("%d %d %d %d %d %d\n", 
-            scissor_index,
-            scissor->x,
-            flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
-                s_ui_elements_requests[scissor_index]->previous_highlight_scissor_y : \
-                scissor->y
-            ,
-            scissor->width,
-            scissor->height,
-            s_ui_elements_requests[scissor_index]->type
-    );
-    */
+
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
         update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->scale_matrix : s_framebuffer_matrix);
     }
@@ -576,7 +564,7 @@ void init_ui_elements(
         }
         
         ui_elements_array[i].visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
-        ui_elements_array[i].request_render = ui_elements_array[i].visible;
+        ui_elements_array[i].render_state = ui_elements_array[i].visible ? DSTUDIO_UI_ELEMENT_RENDER_REQUESTED : DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
         
         
         if (ui_element_type & DSTUDIO_ANY_TEXT_TYPE) {
@@ -727,7 +715,6 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
             }
         }
         if (clicked_none) {
-            DSTUDIO_TRACE
             g_active_interactive_list = 0;
         }
     }
@@ -753,10 +740,10 @@ inline void render_loop() {
         unsigned int render_all = need_to_redraw_all();
         render_all |= g_request_render_all;
         g_request_render_all = 0;
+        usleep(framerate_limiter);
         if (render_viewport(render_all)) {
             swap_window_buffer();
         }
-        usleep(framerate_limiter);
     }
 };
 
@@ -787,7 +774,7 @@ void render_ui_elements(UIElements * ui_elements) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
-    ui_elements->request_render = 0;
+    ui_elements->render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
     
     /* After any slider movement, scissor must be reset accordingly to
      * the final motion value.
@@ -815,7 +802,7 @@ unsigned int render_viewport(unsigned int render_all) {
      
      // Then we're gathering required ui_elements and defining layer 1 index limit
      for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].request_render || (render_all && g_ui_elements_array[i].visible)) {
+        if (g_ui_elements_array[i].render_state || (render_all && g_ui_elements_array[i].visible)) {
             s_ui_elements_requests[++s_ui_elements_requests_index] = &g_ui_elements_array[i];
             if (layer_1_index_limit < 0 && g_menu_background_enabled && s_ui_elements_requests[s_ui_elements_requests_index] >= g_menu_background_enabled) {
                 layer_1_index_limit = s_ui_elements_requests_index;
@@ -828,10 +815,19 @@ unsigned int render_viewport(unsigned int render_all) {
      if (layer_1_index_limit < 0) {
         layer_1_index_limit = s_ui_elements_requests_index+1;
      }
-         
+
+    /* Before rendering anything we're updating once buffer in GPU */
+    // TODO: Could be done on the fly.
+    for ( unsigned int i = 0; i <= s_ui_elements_requests_index; i++) {
+        if (s_ui_elements_requests[i]->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
+            update_gpu_buffer(s_ui_elements_requests[i]);
+        }
+    }
+
     /* To avoid unnecessary OpenGL calls and rendering process we're
      * Rendering once required ui elements in a framebuffer if submenu
      * is enabled. */
+     
     if (g_menu_background_enabled) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
     }
@@ -942,7 +938,7 @@ void set_prime_interface(unsigned int state) {
 
 void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, unsigned int count) {
     for (unsigned int i = 0; i < count; i++) {
-        ui_elements[i].request_render = state;
+        ui_elements[i].render_state = state ? DSTUDIO_UI_ELEMENT_RENDER_REQUESTED : DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
         ui_elements[i].visible = state;
         switch(ui_elements[i].type) {
             case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
@@ -997,6 +993,26 @@ GLuint setup_texture_n_scale_matrix(
     return texture_id;
 }
 
+void update_gpu_buffer(UIElements * ui_element_p) {
+    switch (ui_element_p->type) {
+        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_element_p->count, ui_element_p->instance_motions_buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            break;
+
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, ui_element_p->text_buffer_size * sizeof(Vec4), ui_element_p->instance_offsets_buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            break;
+            
+        default:
+            break;
+    }
+}
+
 void update_threaded_ui_element() {
     for (unsigned int i = 0; i < s_updater_register_index; i++) {
         s_updater_register[i].updater();
@@ -1008,8 +1024,5 @@ void update_ui_element_motion(
     float motion
 ) {
     *ui_elements_p->instance_motions_buffer = motion;
-    glBindBuffer(GL_ARRAY_BUFFER, ui_elements_p->instance_motions);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_elements_p->count, ui_elements_p->instance_motions_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    ui_elements_p->request_render = 1;
+    ui_elements_p->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
 }

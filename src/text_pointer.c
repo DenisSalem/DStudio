@@ -100,7 +100,7 @@ void init_ui_text_pointer(UIElements * text_pointer) {
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
         DSTUDIO_FLAG_NONE
     );
-    text_pointer->request_render = 0;
+    text_pointer->render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
     
     g_text_pointer_context.text_pointer = text_pointer;
 }
@@ -127,7 +127,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
                         sem_post(&g_text_pointer_context.thread_control.mutex);
                         return;
                     }
-                    ui_elements->request_render = 1;
+                    ui_elements->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
                     g_text_pointer_context.string_buffer = &interactive_list->source_data[index*interactive_list->stride];
                     g_text_pointer_context.buffer_size = interactive_list->string_size;
                     g_text_pointer_context.text_pointer_height = (g_dstudio_viewport_height) * ui_elements->scale_matrix[1].y;
@@ -163,14 +163,14 @@ void * text_pointer_blink_thread(void * args) {
         }
         else {
             if (!g_text_pointer_context.active) {
-                g_text_pointer_context.text_pointer->request_render = 1;
+                g_text_pointer_context.text_pointer->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                 g_text_pointer_context.thread_control.update = 1;
                 send_expose_event();
                 break;
             }
             *text_pointer_alphas_buffer = 1.0;
         }
-        g_text_pointer_context.text_pointer->request_render = 1;
+        g_text_pointer_context.text_pointer->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         g_text_pointer_context.thread_control.update = 1;
         send_expose_event();
         sem_post(&g_text_pointer_context.thread_control.mutex);
@@ -249,15 +249,15 @@ void update_text_box(unsigned int keycode) {
 }
 
 void update_text_pointer() {    
-    glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_offsets);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4), g_text_pointer_context.text_pointer->instance_offsets_buffer);
+    //~ glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_offsets);
+        //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4), g_text_pointer_context.text_pointer->instance_offsets_buffer);
     
-    glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_alphas);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), g_text_pointer_context.text_pointer->instance_alphas_buffer);
+    //~ glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_alphas);
+        //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), g_text_pointer_context.text_pointer->instance_alphas_buffer);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
     if (g_text_pointer_context.highlight && g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
-        g_text_pointer_context.highlight->request_render = 1;
+        g_text_pointer_context.highlight->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
     }
-    g_text_pointer_context.ui_text->request_render = 1;
+    g_text_pointer_context.ui_text->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
 }

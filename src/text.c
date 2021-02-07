@@ -21,11 +21,14 @@
 #include "extensions.h"
 #include "text.h"
 
+
+/* TODO : The whole mutex droping might need to completely update the way
+ * buffer update is done before rendering for this ui element type.
+ */
 void update_text(UIElements * text, char * string_value, unsigned int buffer_size) {
     Vec4 * offset_buffer = (Vec4 *) text->instance_offsets_buffer;
     int linear_coordinate = 0;
     int padding = 0;
-    int request_update = 0;
     size_t current_strlen = strlen(string_value);
     text->scissor.width = text->scale_matrix[0].x * g_dstudio_viewport_width;
     text->scissor.width *= current_strlen > text->previous_text_size ? \
@@ -36,7 +39,7 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
     for (unsigned int i = 0; i < buffer_size; i++) {
         if (padding || string_value[i] == 0) {
             if (offset_buffer[i].z || offset_buffer[i].w) {
-                request_update = 1;
+                text->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
             }
             offset_buffer[i].z = 0;
             offset_buffer[i].w = 0;
@@ -48,20 +51,17 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
         }
         GLfloat z = (GLfloat) (linear_coordinate % (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
         GLfloat w = (linear_coordinate / (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
-        if (request_update || z != offset_buffer[i].z || w != offset_buffer[i].w) {
+        if (text->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED || z != offset_buffer[i].z || w != offset_buffer[i].w) {
             offset_buffer[i].z = z;
             offset_buffer[i].w = w;
-            request_update = 1;
+            text->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         }
     }
     
-    if(request_update) {
-        glBindBuffer(GL_ARRAY_BUFFER, text->instance_offsets);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, buffer_size * sizeof(Vec4), offset_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        text->request_render = 1;
+    if(text->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
+        text->text_buffer_size = buffer_size;
         if (text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
-            text->interactive_list->highlight->request_render = 1;
+            text->interactive_list->highlight->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
         }
     }
 }
