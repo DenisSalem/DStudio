@@ -41,7 +41,7 @@ typedef struct UIInteractiveList_t {
     unsigned int stride;
     unsigned int * source_data_count;
     char * source_data;
-    ThreadControl * thread_bound_control;
+    //ThreadControl * thread_bound_control;
     int update_request;
     unsigned int (*select_callback)(unsigned int index);
     unsigned char editable;

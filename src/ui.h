@@ -308,7 +308,7 @@ void update_gpu_buffer(
     UIElements * ui_element
 );
 
-void update_threaded_ui_element();
+void update_ui_elements();
 
 void update_ui_element_motion(
     UIElements * ui_elements_p,

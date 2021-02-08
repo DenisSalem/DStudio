@@ -53,12 +53,14 @@ int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
     dstudio_init_memory_management();
+    
     setup_voice_sub_context(
         sizeof(Samples),
         bind_samples_interactive_list,
         set_samples_list_from_parent
     );
-    init_text_pointer();
+    
+    //init_text_pointer();
 
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     pthread_t ui_thread_id;

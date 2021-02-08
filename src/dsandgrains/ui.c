@@ -734,8 +734,7 @@ void * ui_thread(void * arg) {
         update_ui_bouncing_buttons
     );
 
-    //~ register_threaded_ui_elements_updater(
-        //~ &g_instances.thread_control,
+    //~ register_ui_elements_updater(
         //~ update_instances_ui_list
     //~ );
     
@@ -755,11 +754,8 @@ void * ui_thread(void * arg) {
     //~ );
 
     render_loop();
-    
-    dstudio_cut_thread(&g_instances.thread_control);
-    
-    exit_instances_management_thread();
-    clear_text_pointer();
+    remove_main_instance();
+    //clear_text_pointer();
     destroy_context();
     return NULL;
 }
