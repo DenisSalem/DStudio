@@ -64,13 +64,13 @@ void compute_slider_in_motion_scissor_y(UIElements * slider, GLfloat motion) {
         - (slider->scale_matrix[1].y) \
     ) * (g_dstudio_viewport_height >> 1);
 
-    previous_scissor_y = slider->request_render ? g_saved_scissor_y : slider->scissor.y;
+    previous_scissor_y = slider->render_state ? g_saved_scissor_y : slider->scissor.y;
     new_scissor_y = (previous_scissor_y < current_scissor_y ? previous_scissor_y : current_scissor_y);
     height = previous_scissor_y < current_scissor_y ? current_scissor_y - previous_scissor_y : previous_scissor_y - current_scissor_y;
     
     slider->scissor.y = new_scissor_y;
 
-    if (slider->request_render) {
+    if (slider->render_state) {
         slider->scissor.height += height;
     } else {
         g_saved_scissor_y = new_scissor_y;

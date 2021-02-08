@@ -153,8 +153,8 @@ void select_item(
                 (flag == DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK) ||
                 interactive_list->select_callback(i+interactive_list->window_offset)
             ) {
-                interactive_list->lines[interactive_list->previous_item_index].request_render = 1;
-                interactive_list->lines[i].request_render = 1;
+                interactive_list->lines[interactive_list->previous_item_index].render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;;
+                interactive_list->lines[i].render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                 interactive_list->thread_bound_control->update = 1;
                 *interactive_list->highlight->instance_alphas_buffer = interactive_list->source_data ? 1 : 0;
                 interactive_list->update_highlight = 1;
@@ -198,7 +198,7 @@ void update_insteractive_list(
 
     if (interactive_list->scroll_bar) {
         interactive_list->scroll_bar->enabled = *interactive_list->source_data_count <= interactive_list->lines_number ? 0 : 1;
-        if(!interactive_list->scroll_bar->request_render) {
+        if(!interactive_list->scroll_bar->render_state) {
             update_scroll_bar(interactive_list);
         }
     }
@@ -207,12 +207,13 @@ void update_insteractive_list(
         highlight->previous_highlight_scissor_y = highlight->scissor.y;
         highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
 
-        glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_offsets);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * highlight->count, highlight->instance_offsets_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_alphas);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * highlight->count, highlight->instance_alphas_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        highlight->request_render = 1;
+        //~ glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_offsets);
+            //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * highlight->count, highlight->instance_offsets_buffer);
+        //~ glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_alphas);
+            //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * highlight->count, highlight->instance_alphas_buffer);
+        //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
+        highlight->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         interactive_list->update_highlight = 0;
     }
 }

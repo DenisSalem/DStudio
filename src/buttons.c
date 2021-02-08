@@ -58,7 +58,7 @@ void * buttons_management_thread(void * args) {
                         g_ui_elements_array[i].timestamp = 0;
                         continue;
                     }
-                    if (g_ui_elements_array[i].texture_index == 1 && g_dstudio_mouse_state == 0 && g_ui_elements_array[i].request_render == 0) {
+                    if (g_ui_elements_array[i].texture_index == 1 && g_dstudio_mouse_state == 0 && g_ui_elements_array[i].render_state == DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED) {
                         update_button(&g_ui_elements_array[i]);
                         send_expose_event();
                     }
@@ -104,5 +104,5 @@ void update_button(UIElements * buttons_p) {
         buttons_p->texture_index = 1;
     }
     buttons_p->timestamp = get_timestamp();
-    buttons_p->request_render = 1;
+    buttons_p->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
 }

@@ -259,7 +259,7 @@ void init_open_menu(
         DSTUDIO_FLAG_NONE
     );
     update_text(s_prompt, s_prompt_value, s_max_prompt_char);
-    s_prompt->request_render = 0;
+    s_prompt->render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
 
     buttons_box->color.r = 0;
     buttons_box->color.g = 0;

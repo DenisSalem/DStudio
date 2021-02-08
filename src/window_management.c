@@ -134,11 +134,12 @@ static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
     for (int i=0; i<fbcount; ++i) {
         visual_info = glXGetVisualFromFBConfig( display, frame_buffer_config[i] );
         if (visual_info) {
-            int samp_buf, samples;
-            glXGetFBConfigAttrib( display, frame_buffer_config[i], GLX_SAMPLE_BUFFERS, &samp_buf );
-            glXGetFBConfigAttrib( display, frame_buffer_config[i], GLX_SAMPLES       , &samples  );
+            int samp_buf, samples, swap_buffer;
+            glXGetFBConfigAttrib( display, frame_buffer_config[i], GLX_SAMPLE_BUFFERS,  &samp_buf );
+            glXGetFBConfigAttrib( display, frame_buffer_config[i], GLX_SAMPLES        , &samples  );
+            glXGetFBConfigAttrib( display, frame_buffer_config[i], GLX_SWAP_METHOD_OML, &swap_buffer );
             #ifdef DSTUDIO_DEBUG
-                printf("Matching fbconfig %d, visual ID 0x%2lux: SAMPLE_BUFFERS = %d, SAMPLES = %d\n", i, visual_info->visualid, samp_buf, samples );
+                printf("Matching fbconfig %d, visual ID 0x%2lux: SAMPLE_BUFFERS = %d, SAMPLES = %d SWAP_BUFFER = %x\n", i, visual_info->visualid, samp_buf, samples, swap_buffer );
             #endif
             if ( best_frame_buffer_config_index < 0 || (samp_buf && samples > best_num_samp)) {
                 best_frame_buffer_config_index = i; 
@@ -211,7 +212,11 @@ void init_context(const char * window_name, int width, int height) {
     const char *glx_exts = glXQueryExtensionsString(display, DefaultScreen( display ));
     glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
     glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc) glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
-
+    
+    #ifdef DSTUDIO_DEBUG
+    printf("GLX_EXTS: %s\n", glx_exts);
+    #endif
+    
     if ( !is_extension_supported( glx_exts, "GLX_ARB_create_context" ) || !glXCreateContextAttribsARB ) {
         #ifdef DSTUDIO_DEBUG
             printf("glXCreateContextAttribsARB() not found. Using old-style GLX context.\n");
@@ -231,6 +236,7 @@ void init_context(const char * window_name, int width, int height) {
     }
     
     // Sync to ensure any errors generated are processed.
+    
     XSync(display, 0);
     DSTUDIO_EXIT_IF_FAILURE( ctx_error_occurred && opengl_context == 0)
     XSetErrorHandler(old_handler);
@@ -243,6 +249,7 @@ void init_context(const char * window_name, int width, int height) {
             printf("Direct GLX rendering context obtained\n");
         }
     #endif
+    
     glXMakeCurrent(display, window, opengl_context);
 }
 
@@ -261,6 +268,12 @@ void listen_events() {
             if(x_event.type == ClientMessage) {
                 window_alive = 0;
                 return;
+            }
+            else if (x_event.type == Expose) {
+                refresh_all = 1;
+            }
+            else if(x_event.type == VisibilityNotify) {
+                refresh_all = 1;
             }
             else if (x_event.type == ButtonPress) {
                 if (x_event.xbutton.button == Button1) {
@@ -340,9 +353,6 @@ void listen_events() {
                     g_active_interactive_list->scroll_bar->enabled = 1;
                 }
             }
-            else if(x_event.type == VisibilityNotify) {
-                //printf("Should freeze render if obscured.\n");
-            }
         }
     }
 }
@@ -351,7 +361,7 @@ int need_to_redraw_all() {
     if (refresh_all) {
         refresh_all = 0;
         if (g_menu_background_enabled) {
-            g_menu_background_enabled->request_render = 1;
+            g_menu_background_enabled->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
         }
         return 1;
     }
