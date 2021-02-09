@@ -59,6 +59,7 @@ static XEvent               x_event;
 static XEvent               x_sent_expose_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
+      GLX_SWAP_METHOD_OML , 0x8062, // Might prevent glitching with default desired setting.
       GLX_X_RENDERABLE    , True,
       GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
       GLX_RENDER_TYPE     , GLX_RGBA_BIT,
@@ -69,7 +70,7 @@ static int visual_attribs[] = {
       GLX_ALPHA_SIZE      , 8,
       GLX_DEPTH_SIZE      , 24,
       GLX_STENCIL_SIZE    , 8,
-      GLX_DOUBLEBUFFER    , False,
+      GLX_DOUBLEBUFFER    , True,
       None
 };
 
@@ -123,12 +124,42 @@ void get_pointer_coordinates(int * x, int * y) {
 
 static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
     int fbcount;
+    int best_frame_buffer_config_index = -1;
+    int worst_fbc = -1;
+    int best_num_samp = -1;
+    int worst_num_samp = 999;
     
     GLXFBConfig * frame_buffer_config = glXChooseFBConfig(display, DefaultScreen(display), visual_attribs, &fbcount);
-    
-    DSTUDIO_EXIT_IF_NULL(frame_buffer_config)
-    /* Pick the first entry solve performance issue on some video card without impacting rendering expectation */
-    *best_frame_buffer_config = frame_buffer_config[0];
+    if (frame_buffer_config == NULL) {
+        visual_attribs[1] = 0x8063; // Set GLX_SWAP_METHOD_OML to GLX_SWAP_UNDEFINED_OML
+        frame_buffer_config = glXChooseFBConfig(display, DefaultScreen(display), visual_attribs, &fbcount);
+        DSTUDIO_EXIT_IF_NULL(frame_buffer_config)
+        for (int i=0; i<fbcount; ++i) {
+            visual_info = glXGetVisualFromFBConfig( display, frame_buffer_config[i] );
+            if (visual_info) {
+                int samp_buf, samples;
+                glXGetFBConfigAttrib( display, frame_buffer_config[i], GLX_SAMPLE_BUFFERS, &samp_buf );
+                glXGetFBConfigAttrib( display, frame_buffer_config[i], GLX_SAMPLES       , &samples  );
+                #ifdef DSTUDIO_DEBUG
+                    printf("Matching fbconfig %d, visual ID 0x%2lux: SAMPLE_BUFFERS = %d, SAMPLES = %d\n", i, visual_info->visualid, samp_buf, samples );
+                #endif
+                if ( best_frame_buffer_config_index < 0 || (samp_buf && samples > best_num_samp)) {
+                    best_frame_buffer_config_index = i; 
+                    best_num_samp = samples;
+                }
+                if ( worst_fbc < 0 || !samp_buf || samples < worst_num_samp ) {
+                    worst_fbc = i;
+                    worst_num_samp = samples;
+                }
+            }
+            XFree(visual_info);
+        }
+        *best_frame_buffer_config = frame_buffer_config[ best_frame_buffer_config_index ];
+    }
+    else {
+        *best_frame_buffer_config = frame_buffer_config[ 0 ];
+    }
+
     XFree( frame_buffer_config );
     
     // Get a visual
@@ -224,7 +255,6 @@ void init_context(const char * window_name, int width, int height) {
             printf("Direct GLX rendering context obtained\n");
         }
     #endif
-    
     glXMakeCurrent(display, window, opengl_context);
 }
 
