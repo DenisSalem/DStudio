@@ -59,7 +59,6 @@ static XEvent               x_event;
 static XEvent               x_sent_expose_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
-      GLX_SWAP_METHOD_OML , 0x8062, // Might prevent glitching with default desired setting.
       GLX_X_RENDERABLE    , True,
       GLX_DRAWABLE_TYPE   , GLX_WINDOW_BIT,
       GLX_RENDER_TYPE     , GLX_RGBA_BIT,
@@ -71,6 +70,7 @@ static int visual_attribs[] = {
       GLX_DEPTH_SIZE      , 24,
       GLX_STENCIL_SIZE    , 8,
       GLX_DOUBLEBUFFER    , True,
+      GLX_SWAP_METHOD_OML , 0x8062, // Might prevent glitching with default desired setting.
       None
 };
 
@@ -130,8 +130,14 @@ static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
     int worst_num_samp = 999;
     
     GLXFBConfig * frame_buffer_config = glXChooseFBConfig(display, DefaultScreen(display), visual_attribs, &fbcount);
-    if (frame_buffer_config == NULL) {
-        visual_attribs[1] = 0x8063; // Set GLX_SWAP_METHOD_OML to GLX_SWAP_UNDEFINED_OML
+    if (frame_buffer_config == NULL) { 
+        const char *glx_exts = glXQueryExtensionsString(display, DefaultScreen( display ));
+        if (is_extension_supported( glx_exts, "GLX_OML_swap_method" )) {
+            visual_attribs[23] = 0x8063; // Set GLX_SWAP_METHOD_OML to GLX_SWAP_UNDEFINED_OML
+        }
+        else {
+            visual_attribs[20] = 0;
+        }
         frame_buffer_config = glXChooseFBConfig(display, DefaultScreen(display), visual_attribs, &fbcount);
         DSTUDIO_EXIT_IF_NULL(frame_buffer_config)
         for (int i=0; i<fbcount; ++i) {
