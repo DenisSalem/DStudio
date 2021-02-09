@@ -733,7 +733,7 @@ void register_ui_elements_updater(void (*updater)()) {
 inline void render_loop() {
     double framerate_limiter = 0;
     double framerate_limiter_timestamp = 0;
-        
+    
     while (do_no_exit_loop()) {
         framerate_limiter_timestamp = get_timestamp();
         listen_events();
@@ -744,8 +744,6 @@ inline void render_loop() {
         
         if (render_viewport(render_all)) {
             swap_window_buffer();
-            glFinish();
-
         }
         framerate_limiter = (g_framerate * 1000) - (get_timestamp() - framerate_limiter_timestamp) * 1000000;
         usleep((unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0));
