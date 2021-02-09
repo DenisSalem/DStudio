@@ -731,19 +731,26 @@ void register_ui_elements_updater(void (*updater)()) {
 }
 
 inline void render_loop() {
-    unsigned int framerate_limiter = g_framerate * 1000;
-
+    double framerate_limiter = 0;
+    double framerate_limiter_timestamp = 0;
+    
     while (do_no_exit_loop()) {
+        framerate_limiter_timestamp = get_timestamp();
         listen_events();
-
-        update_threaded_ui_element();
+        update_ui_elements();
+        
         unsigned int render_all = need_to_redraw_all();
         render_all |= g_request_render_all;
-        g_request_render_all = 0;
-        usleep(framerate_limiter);
+        
         if (render_viewport(render_all)) {
             swap_window_buffer();
         }
+        framerate_limiter = (g_framerate * 1000) - (get_timestamp() - framerate_limiter_timestamp) * 1000000;
+        usleep((unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0));
+        
+        // DSTUDIO_TRACE_ARGS("FPS: %lf FPS limiter: %u", 1/(get_timestamp() - framerate_limiter_timestamp), (unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0))
+
+        g_request_render_all = 0;
     }
 };
 
@@ -1008,12 +1015,19 @@ void update_gpu_buffer(UIElements * ui_element_p) {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             break;
             
+        case DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT:
+            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_element_p->count, ui_element_p->instance_offsets_buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_element_p->count, ui_element_p->instance_alphas_buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            
         default:
             break;
     }
 }
 
-void update_threaded_ui_element() {
+void update_ui_elements() {
     for (unsigned int i = 0; i < s_updater_register_index; i++) {
         s_updater_register[i].updater();
     }

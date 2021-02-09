@@ -33,19 +33,19 @@ static Vec2 s_text_pointer_8x18_scale_matrix[2] = {0};
 UITextPointerContext g_text_pointer_context = {0}; 
 
 void clear_text_pointer() {
-    sem_wait(&g_text_pointer_context.thread_control.mutex);
+    //sem_wait(&g_text_pointer_context.thread_control.mutex);
 
     if (g_text_pointer_context.active) {
         g_text_pointer_context.active = 0;
         *g_text_pointer_context.text_pointer->instance_alphas_buffer = 0.0;
         g_text_pointer_context.thread_control.update = 1;
         if (g_text_pointer_context.blink_thread_id != 0) {
-            sem_post(&g_text_pointer_context.thread_control.mutex);
-            DSTUDIO_EXIT_IF_FAILURE(pthread_join(g_text_pointer_context.blink_thread_id, NULL))
+            //sem_post(&g_text_pointer_context.thread_control.mutex);
+            //DSTUDIO_EXIT_IF_FAILURE(pthread_join(g_text_pointer_context.blink_thread_id, NULL))
             return;
         }
     }
-    sem_post(&g_text_pointer_context.thread_control.mutex);
+    //sem_post(&g_text_pointer_context.thread_control.mutex);
 
 }
 
@@ -183,21 +183,22 @@ void * text_pointer_blink_thread(void * args) {
  * police, everything is under control. It's just to avoid calling
  * sem_post multiple times. */
 void update_text_box(unsigned int keycode) {
-    sem_t * mutex = 0;
-    if (g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
-        mutex = g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex ? g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex : &g_text_pointer_context.ui_text->interactive_list->thread_bound_control->mutex;
-    }
+    //~ sem_t * mutex = 0;
+    //~ if (g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
+        //~ mutex = g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex ? g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex : &g_text_pointer_context.ui_text->interactive_list->thread_bound_control->mutex;
+    //~ }
     
-    if(mutex) {
-        sem_wait(mutex);
-    }
+    //~ if(mutex) {
+        //~ sem_wait(mutex);
+    //~ }
     
     unsigned int string_size = strlen(g_text_pointer_context.string_buffer);
     char * string_buffer = g_text_pointer_context.string_buffer;
     
     if (keycode == DSTUDIO_KEY_CODE_ERASEBACK) {
         if (g_text_pointer_context.insert_char_index == 0) {
-            goto release_mutex;
+            return;
+            //goto release_mutex;
         }
         
         if (g_text_pointer_context.insert_char_index == string_size) {
@@ -213,19 +214,22 @@ void update_text_box(unsigned int keycode) {
     }
     else if (keycode == DSTUDIO_KEY_LEFT_ARROW){
         if (g_text_pointer_context.insert_char_index <= 0) {
-            goto release_mutex;
+            return;
+            //goto release_mutex;
         }
         g_text_pointer_context.insert_char_index--;
     }
     else if (keycode == DSTUDIO_KEY_RIGHT_ARROW){
         if (g_text_pointer_context.insert_char_index >= string_size) {
-            goto release_mutex;
+            return;
+            //goto release_mutex;
         }
         g_text_pointer_context.insert_char_index++;
     }
     else if (keycode >= 32 && keycode <= 126) {
         if (string_size + 1 >= g_text_pointer_context.buffer_size) {
-            goto release_mutex;
+            return;
+            //goto release_mutex;
         }
         if (string_size > 0) {
             for (unsigned int i = string_size; i > g_text_pointer_context.insert_char_index; i--) {
@@ -235,16 +239,17 @@ void update_text_box(unsigned int keycode) {
         string_buffer[g_text_pointer_context.insert_char_index++] = (char) keycode;
     }
     else {
-        goto release_mutex;
+        return;
+        //goto release_mutex;
     }
     compute_text_pointer_coordinates(g_text_pointer_context.insert_char_index);
     update_text(g_text_pointer_context.ui_text, string_buffer, g_text_pointer_context.buffer_size);
     
     // See? Everything is fine. Shhh, no more tears. Only dreams now.
-    release_mutex:
-    if(mutex) {
-        sem_post(mutex);
-    }
+    //~ release_mutex:
+    //~ if(mutex) {
+        //~ sem_post(mutex);
+    //~ }
     
 }
 

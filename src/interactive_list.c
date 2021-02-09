@@ -47,6 +47,7 @@ void init_interactive_list(
     unsigned int editable,
     GLfloat highlight_step
 ) {
+    (void) thread_bound_control;
     interactive_list->lines_number = lines_number;
     interactive_list->string_size = string_size;
     interactive_list->highlight = ui_elements;
@@ -57,7 +58,7 @@ void init_interactive_list(
     interactive_list->stride = stride;
     interactive_list->source_data_count = source_data_count;
     interactive_list->source_data = source_data;
-    interactive_list->thread_bound_control = thread_bound_control;
+    //interactive_list->thread_bound_control = thread_bound_control;
     interactive_list->select_callback = select_callback;
     interactive_list->editable = editable;
     interactive_list->highlight_step = highlight_step;
@@ -66,8 +67,8 @@ void init_interactive_list(
 
 void scroll(UIInteractiveList * interactive_list, int direction) {
     unsigned int do_action = 0;
-    sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
-    sem_wait(mutex);
+    //~ sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
+    //~ sem_wait(mutex);
 
     if (direction > 0) {
         do_action = interactive_list->window_offset + interactive_list->lines_number < *interactive_list->source_data_count;
@@ -79,7 +80,7 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
         interactive_list->window_offset += direction;
         interactive_list->index += -direction;
         interactive_list->update_request= -1;
-        interactive_list->thread_bound_control->update = 1;
+        //interactive_list->thread_bound_control->update = 1;
         if (interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
             select_item(
                 &interactive_list->lines[interactive_list->index],
@@ -94,18 +95,19 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
     if (interactive_list->scroll_bar) {
         update_scroll_bar(interactive_list);
     }
-    sem_post(mutex);
+    //sem_post(mutex);
 }
 
 void scroll_by_slider(UIElements * ui_elements) {
     UIInteractiveList * interactive_list = ui_elements->interactive_list;
-    ThreadControl * thread_control = interactive_list->thread_bound_control;
-    sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
-    sem_wait(mutex);
+    //~ ThreadControl * thread_control = interactive_list->thread_bound_control;
+    //~ sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
+    //~ sem_wait(mutex);
 
     // List empty? Nothing to do then.
     if (interactive_list->source_data == NULL) {
-        goto exit_scroll_by_slider;
+        return;
+        //goto exit_scroll_by_slider;
     }
 
     float slider_value = 1.0 - *(float *) ui_elements->application_callback_args;
@@ -113,13 +115,14 @@ void scroll_by_slider(UIElements * ui_elements) {
     
     // No actual motion? Just quit then.
     if (0 == interactive_list->window_offset - window_offset) {
-        goto exit_scroll_by_slider;
+        return;
+        //goto exit_scroll_by_slider;
     }
     
     interactive_list->index += interactive_list->window_offset - window_offset;
     interactive_list->window_offset = window_offset;
     interactive_list->update_request= -1;
-    interactive_list->thread_bound_control->update = 1;
+    //interactive_list->thread_bound_control->update = 1;
     if (interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
         select_item(
             &interactive_list->lines[interactive_list->index],
@@ -131,8 +134,8 @@ void scroll_by_slider(UIElements * ui_elements) {
         *interactive_list->highlight->instance_alphas_buffer = 0;
     }
     
-    exit_scroll_by_slider:
-        sem_post(mutex);
+    //exit_scroll_by_slider:
+        //sem_post(mutex);
 }
 
 void select_item(
@@ -142,10 +145,10 @@ void select_item(
     unsigned int lines_number = self->interactive_list->lines_number;
     UIInteractiveList * interactive_list = self->interactive_list;
     UIElements * highlight = interactive_list->highlight;
-    sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
-    if (flag == DSTUDIO_SELECT_ITEM_WITH_CALLBACK) {
-        sem_wait(mutex);
-    }
+    //sem_t * mutex = interactive_list->thread_bound_control->shared_mutex ? interactive_list->thread_bound_control->shared_mutex : &interactive_list->thread_bound_control->mutex;
+    //~ if (flag == DSTUDIO_SELECT_ITEM_WITH_CALLBACK) {
+        //~ sem_wait(mutex);
+    //~ }
 
     for(unsigned int i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
@@ -155,7 +158,7 @@ void select_item(
             ) {
                 interactive_list->lines[interactive_list->previous_item_index].render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;;
                 interactive_list->lines[i].render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-                interactive_list->thread_bound_control->update = 1;
+                //interactive_list->thread_bound_control->update = 1;
                 *interactive_list->highlight->instance_alphas_buffer = interactive_list->source_data ? 1 : 0;
                 interactive_list->update_highlight = 1;
                 highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
@@ -165,9 +168,9 @@ void select_item(
             break;
         }
     }
-    if (flag == DSTUDIO_SELECT_ITEM_WITH_CALLBACK){
-        sem_post(mutex);
-    }
+    //~ if (flag == DSTUDIO_SELECT_ITEM_WITH_CALLBACK){
+        //~ sem_post(mutex);
+    //~ }
 }
 
 void update_insteractive_list(
@@ -178,7 +181,6 @@ void update_insteractive_list(
     unsigned int string_size = interactive_list->string_size;
     unsigned int source_data_count = *interactive_list->source_data_count;
     int index = interactive_list->update_request;
-        
     for (unsigned int i = index < 0 ? 0 : index; i < interactive_list->lines_number; i++) {
         if (i < source_data_count) {
             update_text(
@@ -206,13 +208,6 @@ void update_insteractive_list(
         UIElements * highlight = interactive_list->highlight;
         highlight->previous_highlight_scissor_y = highlight->scissor.y;
         highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
-
-        //~ glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_offsets);
-            //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * highlight->count, highlight->instance_offsets_buffer);
-        //~ glBindBuffer(GL_ARRAY_BUFFER, highlight->instance_alphas);
-            //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * highlight->count, highlight->instance_alphas_buffer);
-        //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
-        
         highlight->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         interactive_list->update_highlight = 0;
     }

@@ -25,15 +25,10 @@
 
 #include "ui.h"
 
-typedef struct ButtonsManagement_t {
-    ThreadControl thread_control;
-} ButtonsManagement;
-
-void * buttons_management_thread(void * args);
+void update_ui_bouncing_buttons();
     
 void init_buttons_management();
 
 void update_button(UIElements * button_p);
 
-extern ButtonsManagement g_buttons_management;
 #endif

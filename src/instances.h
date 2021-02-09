@@ -42,7 +42,7 @@ extern UIInteractiveList g_ui_instances;
 
 FILE * add_instance_file_descriptor();
 
-void exit_instances_management_thread();
+void remove_main_instance();
 
 void init_instances_management_thread(
     UIElements * ui_elements,

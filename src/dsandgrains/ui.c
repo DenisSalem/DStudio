@@ -719,7 +719,7 @@ void * ui_thread(void * arg) {
     
     bind_samples_interactive_list(NULL);
     
-    init_ui_element_updater_register(6);
+    init_ui_element_updater_register(7);
     
     //~ register_threaded_ui_elements_updater(
         //~ &g_text_pointer_context.thread_control,
@@ -729,9 +729,12 @@ void * ui_thread(void * arg) {
     register_ui_elements_updater(
         update_ui_ressource_usage
     );
+    
+    register_ui_elements_updater(
+        update_ui_bouncing_buttons
+    );
 
-    //~ register_threaded_ui_elements_updater(
-        //~ &g_instances.thread_control,
+    //~ register_ui_elements_updater(
         //~ update_instances_ui_list
     //~ );
     
@@ -751,12 +754,8 @@ void * ui_thread(void * arg) {
     //~ );
 
     render_loop();
-    
-    dstudio_cut_thread(&g_buttons_management.thread_control);
-    dstudio_cut_thread(&g_instances.thread_control);
-    
-    exit_instances_management_thread();
-    clear_text_pointer();
+    remove_main_instance();
+    //clear_text_pointer();
     destroy_context();
     return NULL;
 }

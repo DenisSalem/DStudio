@@ -63,12 +63,11 @@ FILE * add_instance_file_descriptor() {
     return fopen(instance_filename_buffer, "w+");
 }
 
-void exit_instances_management_thread() {
-    sem_wait(&g_instances.thread_control.mutex);
+// TODO: Is really usefull?
+void remove_main_instance() {
     char instance_path[128] = {0};
     sprintf(instance_path, "%s/%d", s_instances_directory, g_current_active_instance->identifier);
     unlink(instance_path);
-    sem_post(&g_instances.thread_control.mutex);
 }
 
 void init_instances_management_thread(
@@ -266,7 +265,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
         strcpy(g_current_active_instance->name, "Instance 1");
-        g_ui_voices.thread_bound_control = &g_voices_thread_control;
+        //g_ui_voices.thread_bound_control = &g_voices_thread_control;
         g_voices_thread_control.shared_mutex = &g_instances.thread_control.mutex;
         g_instances.thread_control.update = 1;
         new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
