@@ -125,9 +125,6 @@ void get_pointer_coordinates(int * x, int * y) {
 static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
     int fbcount;
     int best_frame_buffer_config_index = -1;
-    int worst_fbc = -1;
-    int best_num_samp = -1;
-    int worst_num_samp = 999;
     
     GLXFBConfig * frame_buffer_config = glXChooseFBConfig(display, DefaultScreen(display), visual_attribs, &fbcount);
     if (frame_buffer_config == NULL) { 
@@ -149,16 +146,13 @@ static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {
                 #ifdef DSTUDIO_DEBUG
                     printf("Matching fbconfig %d, visual ID 0x%2lux: SAMPLE_BUFFERS = %d, SAMPLES = %d\n", i, visual_info->visualid, samp_buf, samples );
                 #endif
-                if ( best_frame_buffer_config_index < 0 || (samp_buf && samples > best_num_samp)) {
+                // Minimal settings are fine enough.
+                if ( samp_buf >= 1 && samples >= 1) {
                     best_frame_buffer_config_index = i; 
-                    best_num_samp = samples;
-                }
-                if ( worst_fbc < 0 || !samp_buf || samples < worst_num_samp ) {
-                    worst_fbc = i;
-                    worst_num_samp = samples;
+                    XFree(visual_info);
+                    break;
                 }
             }
-            XFree(visual_info);
         }
         *best_frame_buffer_config = frame_buffer_config[ best_frame_buffer_config_index ];
     }
