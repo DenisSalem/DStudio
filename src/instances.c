@@ -178,7 +178,7 @@ void instances_management() {
         send_expose_event();
         
         #ifdef DSTUDIO_DEBUG
-        printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * g_instances.count);
+        printf("Create instance with id=%s. Allocated memory is now %ld.\n", s_event->name, sizeof(InstanceContext) * g_instances.count);
         printf("Currents instances:\n");
         for(unsigned int i = 0; i < g_instances.count; i++) {
             printf("\t%s\n", g_instances.contexts[i].name);
@@ -190,7 +190,7 @@ void instances_management() {
         g_instances.index--;
         // TODO: Move context data in memory and then realloc
         #ifdef DSTUDIO_DEBUG
-        printf("Remove instance with id=%s\n", event->name);
+        printf("Remove instance with id=%s\n", s_event->name);
         #endif
     }
     char * fd_path = dstudio_alloc(
@@ -210,8 +210,6 @@ void instances_management() {
     fwrite(g_current_active_instance->name, strlen(g_current_active_instance->name), 1, s_instance_fd);
     fclose(s_instance_fd);
     dstudio_free(fd_path);
-
-    dstudio_free(s_event);
 }
 
 void new_instance(const char * given_directory, const char * process_name) {
