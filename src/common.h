@@ -24,13 +24,13 @@
 
 #include "extensions.h"
 
-typedef struct ThreadControl_t {
-    unsigned int    ready;
-    unsigned int    update;
-    unsigned int    cut_thread;
-    sem_t           mutex;
-    sem_t *         shared_mutex;
-} ThreadControl;
+//~ typedef struct ThreadControl_t {
+    //~ unsigned int    ready;
+    //~ unsigned int    update;
+    //~ unsigned int    cut_thread;
+    //~ sem_t           mutex;
+    //~ sem_t *         shared_mutex;
+//~ } ThreadControl;
 
 // MISCELLANEOUS CONSTANTS
 #define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
@@ -217,7 +217,7 @@ extern const char g_application_name[];
  * Safely allocate and initialize memory.
  */
 void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal);
-void   dstudio_cut_thread(ThreadControl * thread_control);
+//~ void   dstudio_cut_thread(ThreadControl * thread_control);
 void   dstudio_free(void * buffer);
 void dstudio_init_memory_management();
 void * dstudio_realloc(void * buffer, unsigned int new_size);

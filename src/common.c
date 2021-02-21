@@ -56,12 +56,12 @@ void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal) {
     return (void *) s_allocation_register[s_allocation_register_index++];
 }
 
-void dstudio_cut_thread(ThreadControl * thread_control) {
-    sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
-    sem_wait(mutex);
-    thread_control->cut_thread = 1;
-    sem_post(mutex);
-} 
+//~ void dstudio_cut_thread(ThreadControl * thread_control) {
+    //~ sem_t * mutex = thread_control->shared_mutex ? thread_control->shared_mutex : &thread_control->mutex;
+    //~ sem_wait(mutex);
+    //~ thread_control->cut_thread = 1;
+    //~ sem_post(mutex);
+//~ } 
 
 void dstudio_free(void * buffer) {
     sem_wait(&s_alloc_register_mutex);

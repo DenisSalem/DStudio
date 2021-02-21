@@ -691,8 +691,9 @@ void * ui_thread(void * arg) {
         &g_ui_elements_struct.cpu_usage,
         &g_ui_elements_struct.mem_usage
     );
+    init_instance_management_backend();
 
-    init_instances_management_thread(
+    init_instances_interactive_list(
         &g_ui_elements_struct.instances_list_item_highlight,
         DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_SIZE,
         DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE,
@@ -734,9 +735,9 @@ void * ui_thread(void * arg) {
         update_ui_bouncing_buttons
     );
 
-    //~ register_ui_elements_updater(
-        //~ update_instances_ui_list
-    //~ );
+    register_ui_elements_updater(
+        update_ui_instances_list
+    );
     
     //~ register_threaded_ui_elements_updater(
         //~ &g_voices_thread_control,        

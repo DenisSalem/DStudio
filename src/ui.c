@@ -748,7 +748,7 @@ inline void render_loop() {
         framerate_limiter = (g_framerate * 1000) - (get_timestamp() - framerate_limiter_timestamp) * 1000000;
         usleep((unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0));
         
-        DSTUDIO_TRACE_ARGS("FPS: %lf FPS limiter: %u", 1/(get_timestamp() - framerate_limiter_timestamp), (unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0))
+        //DSTUDIO_TRACE_ARGS("FPS: %lf FPS limiter: %u", 1/(get_timestamp() - framerate_limiter_timestamp), (unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0))
 
         g_request_render_all = 0;
     }
@@ -915,9 +915,9 @@ unsigned int render_viewport(unsigned int render_all) {
 }
 
 void set_prime_interface(unsigned int state) {
-    sem_t * mutex = &g_instances.thread_control.mutex;
+    //~ sem_t * mutex = &g_instances.thread_control.mutex;
     UIInteractiveList * interactive_list;
-    sem_wait(mutex);
+    //~ sem_wait(mutex);
     for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
         if (i < g_menu_background_index) {
             switch (g_ui_elements_array[i].type) {
@@ -940,7 +940,7 @@ void set_prime_interface(unsigned int state) {
             }
         }
     }
-    sem_post(mutex);
+    //~ sem_post(mutex);
 }
 
 void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, unsigned int count) {

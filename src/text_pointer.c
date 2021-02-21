@@ -38,7 +38,7 @@ void clear_text_pointer() {
     if (g_text_pointer_context.active) {
         g_text_pointer_context.active = 0;
         *g_text_pointer_context.text_pointer->instance_alphas_buffer = 0.0;
-        g_text_pointer_context.thread_control.update = 1;
+        //~ g_text_pointer_context.thread_control.update = 1;
         if (g_text_pointer_context.blink_thread_id != 0) {
             //sem_post(&g_text_pointer_context.thread_control.mutex);
             //DSTUDIO_EXIT_IF_FAILURE(pthread_join(g_text_pointer_context.blink_thread_id, NULL))
@@ -66,12 +66,12 @@ void compute_text_pointer_coordinates(unsigned int index) {
     g_text_pointer_context.text_pointer->scissor.y = half_viewport_height + half_viewport_height * g_text_pointer_context.text_pointer->instance_offsets_buffer->y - (g_text_pointer_context.text_pointer_height >>1 ) - 1;
     g_text_pointer_context.text_pointer->scissor.width = 1;
     g_text_pointer_context.text_pointer->scissor.height = g_text_pointer_context.text_pointer_height;
-    g_text_pointer_context.thread_control.update = 1;
+    //~ g_text_pointer_context.thread_control.update = 1;
 }
 
-void init_text_pointer() {
-    sem_init(&g_text_pointer_context.thread_control.mutex, 0, 1);
-}
+//~ void init_text_pointer() {
+    //~ sem_init(&g_text_pointer_context.thread_control.mutex, 0, 1);
+//~ }
 
 void init_ui_text_pointer(UIElements * text_pointer) {
     s_text_pointer_4x9_scale_matrix[0].x = (DSTUDIO_TEXT_POINTER_WIDTH / (float) g_dstudio_viewport_width);
@@ -107,14 +107,14 @@ void init_ui_text_pointer(UIElements * text_pointer) {
 
 void update_text_pointer_context(UIElements * ui_elements) {
     UIInteractiveList * interactive_list = 0;
-    sem_wait(&g_text_pointer_context.thread_control.mutex);
+    //~ sem_wait(&g_text_pointer_context.thread_control.mutex);
     g_text_pointer_context.active = 0;
-    sem_post(&g_text_pointer_context.thread_control.mutex);
-    if (g_text_pointer_context.blink_thread_id != 0) {
-        pthread_join(g_text_pointer_context.blink_thread_id, NULL);
-    }
+    //~ sem_post(&g_text_pointer_context.thread_control.mutex);
+    //~ if (g_text_pointer_context.blink_thread_id != 0) {
+        //~ pthread_join(g_text_pointer_context.blink_thread_id, NULL);
+    //~ }
 
-    sem_wait(&g_text_pointer_context.thread_control.mutex);
+    //~ sem_wait(&g_text_pointer_context.thread_control.mutex);
     switch(ui_elements->type) {
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
             interactive_list = ui_elements->interactive_list;
@@ -124,7 +124,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
                 if (&interactive_list->lines[i] == ui_elements) {
                     unsigned int index = i+interactive_list->window_offset;
                     if (index >= *interactive_list->source_data_count) {
-                        sem_post(&g_text_pointer_context.thread_control.mutex);
+                        //~ sem_post(&g_text_pointer_context.thread_control.mutex);
                         return;
                     }
                     ui_elements->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
@@ -136,7 +136,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
             }
             break;
         default:
-            sem_post(&g_text_pointer_context.thread_control.mutex);
+            //~ sem_post(&g_text_pointer_context.thread_control.mutex);
             return;
     }
 
@@ -147,9 +147,9 @@ void update_text_pointer_context(UIElements * ui_elements) {
 
     if (!g_text_pointer_context.active) {
         g_text_pointer_context.active = 1;
-        pthread_create( &g_text_pointer_context.blink_thread_id, NULL, text_pointer_blink_thread, NULL);
+        //~ pthread_create( &g_text_pointer_context.blink_thread_id, NULL, text_pointer_blink_thread, NULL);
     }
-    sem_post(&g_text_pointer_context.thread_control.mutex);
+    //~ sem_post(&g_text_pointer_context.thread_control.mutex);
 }
 
 void * text_pointer_blink_thread(void * args) {
@@ -157,25 +157,25 @@ void * text_pointer_blink_thread(void * args) {
     GLfloat * text_pointer_alphas_buffer = g_text_pointer_context.text_pointer->instance_alphas_buffer;
     while (1) {
         usleep(250000);
-        sem_wait(&g_text_pointer_context.thread_control.mutex);
+        //~ sem_wait(&g_text_pointer_context.thread_control.mutex);
         if (*text_pointer_alphas_buffer == 1.0) {
             *text_pointer_alphas_buffer = 0.0;
         }
         else {
             if (!g_text_pointer_context.active) {
                 g_text_pointer_context.text_pointer->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-                g_text_pointer_context.thread_control.update = 1;
+                //~ g_text_pointer_context.thread_control.update = 1;
                 send_expose_event();
                 break;
             }
             *text_pointer_alphas_buffer = 1.0;
         }
         g_text_pointer_context.text_pointer->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-        g_text_pointer_context.thread_control.update = 1;
+        //~ g_text_pointer_context.thread_control.update = 1;
         send_expose_event();
-        sem_post(&g_text_pointer_context.thread_control.mutex);
+        //~ sem_post(&g_text_pointer_context.thread_control.mutex);
     }
-    sem_post(&g_text_pointer_context.thread_control.mutex);
+    //~ sem_post(&g_text_pointer_context.thread_control.mutex);
     return NULL;
 }
 

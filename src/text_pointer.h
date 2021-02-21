@@ -31,7 +31,7 @@ typedef struct UITextPointerContext_t {
     UIElements *    highlight;
     char *          string_buffer;
     unsigned int    buffer_size;
-    ThreadControl   thread_control;
+    //~ ThreadControl   thread_control;
     unsigned int    active;
     unsigned int    insert_char_index;
     pthread_t       blink_thread_id;

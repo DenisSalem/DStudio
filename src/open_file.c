@@ -30,7 +30,7 @@
 #include "window_management.h"
 
 
-ThreadControl g_open_file_thread_control = {0};
+//~ ThreadControl g_open_file_thread_control = {0};
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static unsigned int (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
@@ -56,7 +56,7 @@ static char * s_prompt_value = 0;
 static char * s_prompt_cwd_value = 0;
 
 static void close_open_file_menu() {
-    sem_wait(&g_open_file_thread_control.mutex);
+    //~ sem_wait(&g_open_file_thread_control.mutex);
     g_active_interactive_list = 0;
     configure_input(0);
     set_prime_interface(1);
@@ -67,9 +67,9 @@ static void close_open_file_menu() {
     if (s_cancel_callback) {
         s_cancel_callback(NULL);
     }
-    g_open_file_thread_control.update = 0;
+    //~ g_open_file_thread_control.update = 0;
     g_request_render_all = 1;
-    sem_post(&g_open_file_thread_control.mutex);
+    //~ sem_post(&g_open_file_thread_control.mutex);
 }
 
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {
@@ -527,7 +527,7 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
         &s_files_count,
         NULL, /* At this point has not been allocated yet. */
-        &g_open_file_thread_control,
+        //~ &g_open_file_thread_control,
         select_file_from_list,
         0,
         DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y
@@ -538,8 +538,8 @@ void init_open_menu(
         slider
     );
         
-    sem_init(&g_open_file_thread_control.mutex, 0, 1);
-    g_open_file_thread_control.ready = 1;
+    //~ sem_init(&g_open_file_thread_control.mutex, 0, 1);
+    //~ g_open_file_thread_control.ready = 1;
 }
 
 void open_file_menu(

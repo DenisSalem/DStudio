@@ -19,6 +19,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <poll.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,6 +46,11 @@ Instances g_instances = {0};
 UIInteractiveList g_ui_instances = {0};
 
 static char * s_instances_directory = 0;
+static FILE * s_instance_fd = 0;
+static int s_fd = 0;
+static InstanceContext * s_saved_contexts = 0;
+static struct inotify_event * s_event = 0;
+static struct pollfd s_fds = {0};
 
 FILE * add_instance_file_descriptor() {
     unsigned int count = 0;
@@ -70,7 +76,7 @@ void remove_main_instance() {
     unlink(instance_path);
 }
 
-void init_instances_management_thread(
+void init_instances_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,
     unsigned int string_size,
@@ -84,7 +90,6 @@ void init_instances_management_thread(
         sizeof(InstanceContext),
         &g_instances.count,
         g_instances.contexts->name,
-        &g_instances.thread_control,
         select_instance_from_list,
         1,
         item_offset_y
@@ -92,132 +97,124 @@ void init_instances_management_thread(
     #ifdef DSTUDIO_DEBUG
         strcat(&g_ui_instances.trace[0], "g_ui_instances");
     #endif
-    g_instances.thread_control.ready = 1;
 }
 
-void * instances_management_thread(void * args) {
-    (void) args;
-    FILE * instance_fd = 0;
-    int fd = 0;
+void init_instance_management_backend() {
     int wd = 0;
-    InstanceContext * saved_contexts = 0;
-    
-    while(!g_instances.thread_control.ready) {
-        usleep(1000);
-    }
 
-    fd = inotify_init();
-    if (errno != 0 && fd == -1) {
+    s_fd = inotify_init();
+    if (errno != 0 && s_fd == -1) {
         printf("inotify_init(): failed\n");
         exit(-1);
     }
     
-    wd = inotify_add_watch(fd, s_instances_directory, IN_CREATE | IN_DELETE);
+    wd = inotify_add_watch(s_fd, s_instances_directory, IN_CREATE | IN_DELETE);
+
     if (errno != 0 && wd == 0) {
         printf("inotify_add_watch(): failed\n");
         exit(-1);
     }
 
-	struct inotify_event * event = dstudio_alloc(
+	s_event = dstudio_alloc(
         sizeof(struct inotify_event) + 16 + 1,
         DSTUDIO_FAILURE_IS_FATAL
     );
+    
+    s_fds.fd = s_fd;
+    s_fds.events = POLLIN;
+}
 
-    while(1) {
-        if(read(fd, event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
-            continue;
-        }
-        sem_wait(&g_instances.thread_control.mutex);
-        if (g_instances.thread_control.cut_thread) {
-            sem_post(&g_instances.thread_control.mutex);
-            break;
+void instances_management() {
+    int poll_result = poll(&s_fds, 1, 0);
+    
+    if (poll_result <= 0) {
+        // TODO: Handle negative value and check errno;
+        return;
+    }
+    
+    if(read(s_fd, s_event, sizeof(struct inotify_event) + 16 + 1) < 0 && errno != 0) {
+        return;
+    }
+    
+    if (s_event->mask == IN_CREATE) {
+        clear_text_pointer();
+        g_instances.count++;
+        s_saved_contexts = g_instances.contexts;
+        g_instances.contexts = dstudio_realloc(g_instances.contexts, sizeof(InstanceContext) * g_instances.count);
+        if (g_instances.contexts == NULL) {
+            g_instances.contexts = s_saved_contexts;
+            g_instances.count--;
+            // TODO SEND LOG TO GUI
+            printf("New instance creation has failed.\n");
+            return;
         }
         
-		if (event->mask == IN_CREATE) {
-            clear_text_pointer();
-            g_instances.count++;
-            saved_contexts = g_instances.contexts;
-            g_instances.contexts = dstudio_realloc(g_instances.contexts, sizeof(InstanceContext) * g_instances.count);
-            if (g_instances.contexts == NULL) {
-                g_instances.contexts = saved_contexts;
-                g_instances.count--;
-                sem_post(&g_instances.thread_control.mutex);
-                // TODO SEND LOG TO GUI
-                printf("New instance creation has failed.\n");
-                continue;
-            }
-            
-            explicit_bzero(&g_instances.contexts[g_instances.count-1], sizeof(InstanceContext));
-            g_current_active_instance = &g_instances.contexts[g_instances.count-1];
-            g_instances.index = g_instances.count - 1;
-            g_current_active_instance->identifier = 1;
-            strcat(g_current_active_instance->name, "Instance ");
-            strcat(g_current_active_instance->name, event->name);
-            if (g_instances.count > g_ui_instances.lines_number) {
-                g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
-                g_ui_instances.update_request = -1;
-            }
-            else {
-                g_ui_instances.update_request = g_instances.index;
-            }
-            select_item(
-                &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
-                DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
-            );
-            
-            /* In most situation it's not necessary, but when multiple
-            * instances are pulled before render, some items might be
-            * missing */ 
+        explicit_bzero(&g_instances.contexts[g_instances.count-1], sizeof(InstanceContext));
+        g_current_active_instance = &g_instances.contexts[g_instances.count-1];
+        g_instances.index = g_instances.count - 1;
+        g_current_active_instance->identifier = 1;
+        strcat(g_current_active_instance->name, "Instance ");
+        strcat(g_current_active_instance->name, s_event->name);
+        if (g_instances.count > g_ui_instances.lines_number) {
+            g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
             g_ui_instances.update_request = -1;
-            
-            new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
-
-            g_instances.thread_control.update = 1;
-            send_expose_event();
-            
-            #ifdef DSTUDIO_DEBUG
-			printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * g_instances.count);
-            printf("Currents instances:\n");
-            for(unsigned int i = 0; i < g_instances.count; i++) {
-                printf("\t%s\n", g_instances.contexts[i].name);
-            }
-            #endif
         }
-		else if (event->mask == IN_DELETE) {
-            g_instances.count--;
-            g_instances.index--;
-            // TODO: Move context data in memory and then realloc
-            #ifdef DSTUDIO_DEBUG
-			printf("Remove instance with id=%s\n", event->name);
-            #endif
+        else {
+            g_ui_instances.update_request = g_instances.index;
         }
-        g_instances.thread_control.ready = 1;
-        char * fd_path = dstudio_alloc(
-            strlen(s_instances_directory) +
-            strlen(event->name) + 
-            2, // slash + null byte
-            DSTUDIO_FAILURE_IS_FATAL
+        select_item(
+            &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
+            DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
         );
         
-        /* We finally write in the related file descriptor that the
-         * current instance has been processed.
-         */
-        strcat(fd_path, s_instances_directory);
-        strcat(fd_path, "/");
-        strcat(fd_path, event->name);
-        instance_fd = fopen(fd_path, "w");
-        fwrite(g_current_active_instance->name, strlen(g_current_active_instance->name), 1, instance_fd);
-        fclose(instance_fd);
-        dstudio_free(fd_path);
+        /* In most situation it's not necessary, but when multiple
+        * instances are pulled before render, some items might be
+        * missing */ 
+        g_ui_instances.update_request = -1;
         
-        sem_post(&g_instances.thread_control.mutex);
+        new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
+
+        //~ g_instances.thread_control.update = 1;
+        send_expose_event();
+        
+        #ifdef DSTUDIO_DEBUG
+        printf("Create instance with id=%s. Allocated memory is now %ld.\n", event->name, sizeof(InstanceContext) * g_instances.count);
+        printf("Currents instances:\n");
+        for(unsigned int i = 0; i < g_instances.count; i++) {
+            printf("\t%s\n", g_instances.contexts[i].name);
+        }
+        #endif
     }
-    dstudio_free(event);
-    return NULL;
+    else if (s_event->mask == IN_DELETE) {
+        g_instances.count--;
+        g_instances.index--;
+        // TODO: Move context data in memory and then realloc
+        #ifdef DSTUDIO_DEBUG
+        printf("Remove instance with id=%s\n", event->name);
+        #endif
+    }
+    char * fd_path = dstudio_alloc(
+        strlen(s_instances_directory) +
+        strlen(s_event->name) + 
+        2, // slash + null byte
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+    
+    /* We finally write in the related file descriptor that the
+     * current instance has been processed.
+     */
+    strcat(fd_path, s_instances_directory);
+    strcat(fd_path, "/");
+    strcat(fd_path, s_event->name);
+    s_instance_fd = fopen(fd_path, "w");
+    fwrite(g_current_active_instance->name, strlen(g_current_active_instance->name), 1, s_instance_fd);
+    fclose(s_instance_fd);
+    dstudio_free(fd_path);
+
+    dstudio_free(s_event);
 }
 
 void new_instance(const char * given_directory, const char * process_name) {
-    sem_init(&g_instances.thread_control.mutex, 0, 1);
     DIR * dr = 0;
     struct dirent *de;
 
@@ -265,10 +262,8 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
         strcpy(g_current_active_instance->name, "Instance 1");
-        //g_ui_voices.thread_bound_control = &g_voices_thread_control;
-        g_voices_thread_control.shared_mutex = &g_instances.thread_control.mutex;
-        g_instances.thread_control.update = 1;
-        new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
+
+        new_voice();
     }
     dstudio_free(instance_filename_buffer);
 }
@@ -304,7 +299,10 @@ void update_current_instance(unsigned int index) {
     g_current_active_instance = &g_instances.contexts[index];
 }
 
-void update_instances_ui_list() {
-    g_ui_instances.source_data = g_instances.contexts->name;
-    update_insteractive_list(&g_ui_instances);
+void update_ui_instances_list() {
+    instances_management();
+    if (g_ui_instances.update_request) {
+        g_ui_instances.source_data = g_instances.contexts->name;
+        update_insteractive_list(&g_ui_instances);
+    }
 }

@@ -25,7 +25,7 @@
 VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
-ThreadControl g_voices_thread_control = {0};
+//~ ThreadControl g_voices_thread_control = {0};
 
 void (*bind_sub_context_interactive_list)(UIElements * line) = 0;
 UIElements * (*setup_sub_context_interactive_list)() = 0;
@@ -71,7 +71,7 @@ void init_voices_interactive_list(
         sizeof(VoiceContext),
         &g_current_active_instance->voices.count,
         g_current_active_instance->voices.contexts->name,
-        &g_voices_thread_control,
+        //~ &g_voices_thread_control,
         select_voice_from_list,
         1,
         s_item_offset_y
@@ -81,19 +81,14 @@ void init_voices_interactive_list(
     #endif
 }
 
-UIElements * new_voice(unsigned int use_mutex) {
+UIElements * new_voice() {
     UIElements * line = 0;
-    if(use_mutex) {
-        sem_wait(g_voices_thread_control.shared_mutex);
-    }
+
     VoiceContext * new_voice_context = dstudio_realloc(
         g_current_active_instance->voices.contexts,
         (g_current_active_instance->voices.count + 1) * sizeof(VoiceContext)
     );
     if (new_voice_context == NULL) {
-        if(use_mutex) {
-            sem_post(g_voices_thread_control.shared_mutex);
-        }
         return 0;
     }
     explicit_bzero(
@@ -132,9 +127,9 @@ UIElements * new_voice(unsigned int use_mutex) {
         );
 
     }
-    if(use_mutex) {
-        sem_post(g_voices_thread_control.shared_mutex);
-    }
+    //~ if(use_mutex) {
+        //~ sem_post(g_voices_thread_control.shared_mutex);
+    //~ }
     
     return line;
 }

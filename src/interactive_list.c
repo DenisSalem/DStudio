@@ -42,12 +42,12 @@ void init_interactive_list(
     unsigned int stride,
     unsigned int * source_data_count,
     char * source_data,
-    ThreadControl * thread_bound_control,
+    //~ ThreadControl * thread_bound_control,
     unsigned int (*select_callback)(unsigned int index),
     unsigned int editable,
     GLfloat highlight_step
 ) {
-    (void) thread_bound_control;
+    //~ (void) thread_bound_control;
     interactive_list->lines_number = lines_number;
     interactive_list->string_size = string_size;
     interactive_list->highlight = ui_elements;

@@ -37,7 +37,7 @@ typedef struct Samples_t{
 } Samples;
 
 extern SampleContext * g_current_active_sample; 
-extern ThreadControl g_samples_thread_control;
+//~ extern ThreadControl g_samples_thread_control;
 extern UIInteractiveList g_ui_samples;
 
 void bind_samples_interactive_list(UIElements * line);
@@ -49,7 +49,7 @@ void init_samples_interactive_list(
     GLfloat item_offset_y
 );
 
-UIElements * new_sample(unsigned int use_mutex, char * filename, SharedSample shared_sample);
+UIElements * new_sample(char * filename, SharedSample shared_sample);
 
 unsigned int select_sample_from_list(
     unsigned int index

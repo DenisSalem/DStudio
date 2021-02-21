@@ -21,7 +21,7 @@
 #include "samples.h"
 
 SampleContext * g_current_active_sample = 0;
-ThreadControl g_samples_thread_control = {0};
+//~ ThreadControl g_samples_thread_control = {0};
 UIInteractiveList g_ui_samples = {0};
 
 void bind_samples_interactive_list(UIElements * line) {
@@ -47,7 +47,7 @@ void init_samples_interactive_list(
     GLfloat item_offset_y
 ) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
-    g_samples_thread_control.shared_mutex = &g_instances.thread_control.mutex;
+    //~ g_samples_thread_control.shared_mutex = &g_instances.thread_control.mutex;
 
     init_interactive_list(
         &g_ui_samples,
@@ -57,7 +57,6 @@ void init_samples_interactive_list(
         sizeof(SampleContext),
         &samples->count,
         (char *) samples->contexts,
-        &g_samples_thread_control,
         select_sample_from_list,
         1,
         item_offset_y
@@ -67,20 +66,20 @@ void init_samples_interactive_list(
     #endif
 }
 
-UIElements * new_sample(unsigned int use_mutex, char * filename, SharedSample shared_sample) {
+UIElements * new_sample(char * filename, SharedSample shared_sample) {
     UIElements * line = 0;
-    if(use_mutex) {
-        sem_wait(g_samples_thread_control.shared_mutex);
-    }
+    //~ if(use_mutex) {
+        //~ sem_wait(g_samples_thread_control.shared_mutex);
+    //~ }
     Samples * samples = g_current_active_voice->sub_contexts;
     SampleContext * new_sample_context = dstudio_realloc(
         samples->contexts,
         (samples->count + 1) * sizeof(SampleContext)
     );
     if (new_sample_context == NULL) {
-        if(use_mutex) {
-            sem_post(g_voices_thread_control.shared_mutex);
-        }
+        //~ if(use_mutex) {
+            //~ sem_post(g_voices_thread_control.shared_mutex);
+        //~ }
         // TODO: LOG FAILURE
         printf("Failed to import sample\n");
         return 0;
@@ -92,9 +91,9 @@ UIElements * new_sample(unsigned int use_mutex, char * filename, SharedSample sh
 
     memcpy(&shared_sample, &new_sample_context->shared_sample, sizeof(SharedSample));
 
-    if(use_mutex) {
-        sem_post(g_voices_thread_control.shared_mutex);
-    }
+    //~ if(use_mutex) {
+        //~ sem_post(g_voices_thread_control.shared_mutex);
+    //~ }
     samples->index = samples->count++;
     samples->contexts = new_sample_context;
     g_current_active_sample = &samples->contexts[samples->index];
@@ -120,9 +119,9 @@ UIElements * new_sample(unsigned int use_mutex, char * filename, SharedSample sh
 
     line = &g_ui_samples.lines[samples->index-g_ui_samples.window_offset];
     bind_samples_interactive_list(line);
-    if(use_mutex) {
-        sem_post(g_voices_thread_control.shared_mutex);
-    }
+    //~ if(use_mutex) {
+        //~ sem_post(g_voices_thread_control.shared_mutex);
+    //~ }
     
     return line;
 }

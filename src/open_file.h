@@ -23,7 +23,7 @@
 
 #include "ui.h"
 
-extern ThreadControl g_open_file_thread_control;
+//~ extern ThreadControl g_open_file_thread_control;
 
 void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
 

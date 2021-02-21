@@ -43,7 +43,7 @@ static unsigned int load_sample(char * path, char * filename, FILE * file_fd) {
         strcat(shared_sample.identifier, path);
         strcat(shared_sample.identifier, filename);
         printf("Sample identifier %s\n", shared_sample.identifier);
-        new_sample(DSTUDIO_USE_MUTEX, filename, shared_sample);
+        new_sample(filename, shared_sample);
         return 1;
     }
     return 0;

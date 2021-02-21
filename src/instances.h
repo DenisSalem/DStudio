@@ -33,7 +33,7 @@ typedef struct Instances_t {
     InstanceContext * contexts;
     unsigned int count;
     unsigned int index;
-    ThreadControl thread_control;
+    unsigned char update;
 } Instances;
 
 extern Instances g_instances;
@@ -44,13 +44,17 @@ FILE * add_instance_file_descriptor();
 
 void remove_main_instance();
 
-void init_instances_management_thread(
+
+void init_instances_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,
     unsigned int string_size,
     GLfloat item_offset_y
 );
-void * instances_management_thread(void * args);
+
+void init_instance_management_backend();
+
+void instances_management();
 
 void new_instance(
     const char * given_directory,
@@ -59,7 +63,7 @@ void new_instance(
 
 unsigned int select_instance_from_list(unsigned int index);
 
-void update_instances_ui_list();
+void update_ui_instances_list();
 
 void update_current_instance(unsigned int index);
 #endif
