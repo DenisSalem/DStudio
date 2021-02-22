@@ -35,7 +35,6 @@ typedef struct Voices_t {
 
 extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;
-//~ extern ThreadControl g_voices_thread_control;
 void bind_voices_interactive_list(UIElements * line);
 void (*bind_sub_context_interactive_list)(UIElements * line);
 UIElements * (*setup_sub_context_interactive_list)();

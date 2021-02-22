@@ -40,12 +40,13 @@ typedef struct UIInteractiveList_t {
     unsigned int window_offset;
     unsigned int stride;
     unsigned int * source_data_count;
-    char * source_data;
-    //ThreadControl * thread_bound_control;
-    int update_request;
+    int update_index;
     unsigned int (*select_callback)(unsigned int index);
     unsigned char editable;
     unsigned char update_highlight;
+    unsigned char update_request;
+    char * source_data;
+    
     GLfloat highlight_offset_y;
     GLfloat highlight_step;
     GLfloat max_scroll_bar_offset;

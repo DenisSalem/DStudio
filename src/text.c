@@ -36,8 +36,6 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
         text->previous_text_size;
     text->previous_text_size = current_strlen;
 
-    //DSTUDIO_TRACE_ARGS("%s\n", string_value)
-
     for (unsigned int i = 0; i < buffer_size; i++) {
         if (padding || string_value[i] == 0) {
             if (offset_buffer[i].z || offset_buffer[i].w) {

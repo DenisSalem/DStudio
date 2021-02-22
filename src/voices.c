@@ -25,7 +25,6 @@
 VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
-//~ ThreadControl g_voices_thread_control = {0};
 
 void (*bind_sub_context_interactive_list)(UIElements * line) = 0;
 UIElements * (*setup_sub_context_interactive_list)() = 0;
@@ -37,7 +36,7 @@ static GLfloat s_item_offset_y;
 static unsigned int s_sub_context_size = 0;
 
 void bind_voices_interactive_list(UIElements * line) {
-    g_ui_voices.update_request = -1;
+    g_ui_voices.update_index = -1;
     if (line == NULL) {
         line = g_ui_voices.lines;
         g_ui_voices.window_offset = 0;
@@ -112,10 +111,10 @@ UIElements * new_voice() {
 
     if (g_current_active_instance->voices.count > g_ui_voices.lines_number) {
         g_ui_voices.window_offset = g_current_active_instance->voices.count - g_ui_voices.lines_number;
-        g_ui_voices.update_request = -1;
+        g_ui_voices.update_index = -1;
     }
     else {
-        g_ui_voices.update_request = g_current_active_instance->voices.index;
+        g_ui_voices.update_index = g_current_active_instance->voices.index;
         g_ui_voices.window_offset = 0;
     }
 
@@ -127,10 +126,7 @@ UIElements * new_voice() {
         );
 
     }
-    //~ if(use_mutex) {
-        //~ sem_post(g_voices_thread_control.shared_mutex);
-    //~ }
-    
+    g_ui_voices.update_request = 1;
     return line;
 }
 
@@ -164,5 +160,8 @@ void update_current_voice(unsigned int index) {
 }
 
 void update_voices_ui_list() {
-    update_insteractive_list(&g_ui_voices);
+    if (g_ui_voices.update_request) {
+        update_insteractive_list(&g_ui_voices);
+        g_ui_voices.update_request = 0;
+    }
 }

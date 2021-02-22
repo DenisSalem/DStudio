@@ -739,10 +739,9 @@ void * ui_thread(void * arg) {
         update_ui_instances_list
     );
     
-    //~ register_threaded_ui_elements_updater(
-        //~ &g_voices_thread_control,        
-        //~ update_voices_ui_list
-    //~ );
+    register_ui_elements_updater(
+        update_voices_ui_list
+    );
 
     //~ register_threaded_ui_elements_updater(
         //~ &g_open_file_thread_control,     

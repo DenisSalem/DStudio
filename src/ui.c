@@ -726,6 +726,10 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     }
 }
 
+
+/* TODO: A better approach might be to pair updater and request together,
+ * so consummer only call the updater if necessary.
+*/
 void register_ui_elements_updater(void (*updater)()) {
     s_updater_register[s_updater_register_index++].updater = updater;
 }
@@ -1010,6 +1014,7 @@ void update_gpu_buffer(UIElements * ui_element_p) {
             break;
 
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, ui_element_p->text_buffer_size * sizeof(Vec4), ui_element_p->instance_offsets_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, 0);

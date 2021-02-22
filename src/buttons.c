@@ -46,7 +46,6 @@ void update_ui_bouncing_buttons() {
                 }
                 if (g_ui_elements_array[i].texture_index == 1 && g_dstudio_mouse_state == 0 && g_ui_elements_array[i].render_state == DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED) {
                     update_button(&g_ui_elements_array[i]);
-                    //send_expose_event();
                 }
             }
         }
@@ -66,7 +65,6 @@ void update_ui_bouncing_buttons() {
     
             if (texture_index != g_ui_elements_array[i].texture_index) {
                 update_button(&g_ui_elements_array[i]);
-                //send_expose_event();
             }
         }
     }

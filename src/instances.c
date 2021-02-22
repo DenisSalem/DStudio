@@ -157,10 +157,10 @@ void instances_management() {
         strcat(g_current_active_instance->name, s_event->name);
         if (g_instances.count > g_ui_instances.lines_number) {
             g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
-            g_ui_instances.update_request = -1;
+            g_ui_instances.update_index = -1;
         }
         else {
-            g_ui_instances.update_request = g_instances.index;
+            g_ui_instances.update_index = g_instances.index;
         }
         select_item(
             &g_ui_instances.lines[g_instances.index-g_ui_instances.window_offset],
@@ -170,12 +170,12 @@ void instances_management() {
         /* In most situation it's not necessary, but when multiple
         * instances are pulled before render, some items might be
         * missing */ 
-        g_ui_instances.update_request = -1;
+        //g_ui_instances.update_index = -1;
         
         new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
 
-        //~ g_instances.thread_control.update = 1;
-        send_expose_event();
+        g_ui_instances.update_request = 1;
+
         
         #ifdef DSTUDIO_DEBUG
         printf("Create instance with id=%s. Allocated memory is now %ld.\n", s_event->name, sizeof(InstanceContext) * g_instances.count);
@@ -262,6 +262,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         strcpy(g_current_active_instance->name, "Instance 1");
 
         new_voice();
+        g_ui_instances.update_request = 1;
     }
     dstudio_free(instance_filename_buffer);
 }
@@ -302,5 +303,6 @@ void update_ui_instances_list() {
     if (g_ui_instances.update_request) {
         g_ui_instances.source_data = g_instances.contexts->name;
         update_insteractive_list(&g_ui_instances);
+        g_ui_instances.update_request = 0;
     }
 }
