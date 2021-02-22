@@ -303,6 +303,5 @@ void update_ui_instances_list() {
     if (g_ui_instances.update_request) {
         g_ui_instances.source_data = g_instances.contexts->name;
         update_insteractive_list(&g_ui_instances);
-        g_ui_instances.update_request = 0;
     }
 }

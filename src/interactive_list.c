@@ -75,6 +75,8 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
         interactive_list->window_offset += direction;
         interactive_list->index += -direction;
         interactive_list->update_index= -1;
+        interactive_list->update_request= 1;
+
         if (interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
             select_item(
                 &interactive_list->lines[interactive_list->index],
@@ -110,6 +112,7 @@ void scroll_by_slider(UIElements * ui_elements) {
     interactive_list->index += interactive_list->window_offset - window_offset;
     interactive_list->window_offset = window_offset;
     interactive_list->update_index= -1;
+    interactive_list->update_request = 1;
     if (interactive_list->index >= 0 && interactive_list->index < (int) interactive_list->lines_number) {
         select_item(
             &interactive_list->lines[interactive_list->index],
@@ -188,7 +191,7 @@ void update_insteractive_list(
         highlight->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         interactive_list->update_highlight = 0;
     }
-    interactive_list->update_index = 0;
+    interactive_list->update_request = 0;
 }
 
 void update_scroll_bar(UIInteractiveList * interactive_list) {
