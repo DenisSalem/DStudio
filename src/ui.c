@@ -951,6 +951,7 @@ void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, un
     for (unsigned int i = 0; i < count; i++) {
         ui_elements[i].render_state = state ? DSTUDIO_UI_ELEMENT_RENDER_REQUESTED : DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
         ui_elements[i].visible = state;
+        
         switch(ui_elements[i].type) {
             case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
@@ -1015,6 +1016,7 @@ void update_gpu_buffer(UIElements * ui_element_p) {
 
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, ui_element_p->text_buffer_size * sizeof(Vec4), ui_element_p->instance_offsets_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
