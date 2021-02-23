@@ -724,10 +724,9 @@ void * ui_thread(void * arg) {
     
     init_ui_element_updater_register(7);
     
-    //~ register_threaded_ui_elements_updater(
-        //~ &g_text_pointer_context.thread_control,
-        //~ update_text_pointer
-    //~ );
+    register_ui_elements_updater(
+        text_pointer_blink
+    );
     
     register_ui_elements_updater(
         update_ui_ressource_usage
@@ -745,10 +744,9 @@ void * ui_thread(void * arg) {
         update_voices_ui_list
     );
 
-    //~ register_threaded_ui_elements_updater(
-        //~ &g_open_file_thread_control,     
-        //~ update_open_file_ui_list
-    //~ );
+    register_ui_elements_updater(
+        update_open_file_ui_list
+    );
     
     //~ register_threaded_ui_elements_updater(
         //~ &g_samples_thread_control,     

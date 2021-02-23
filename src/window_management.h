@@ -56,7 +56,6 @@ void get_pointer_coordinates(int * x, int * y);
 void init_context(const char * window_name, int width, int height);
 void listen_events();
 int need_to_redraw_all();
-void send_expose_event();
 void set_close_sub_menu_callback(void (*callback)());
 void set_cursor_position_callback(void (*callback)(int xpos, int ypos));
 void set_mouse_button_callback(void (*callback)(int xpos, int ypos, int button, int action));

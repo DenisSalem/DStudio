@@ -163,7 +163,7 @@ void update_insteractive_list(
     int index = interactive_list->update_index;
     for (unsigned int i = index < 0 ? 0 : index; i < interactive_list->lines_number; i++) {
         if (i < source_data_count) {
-            update_text(
+              update_text(
                 &interactive_list->lines[i],
                 &interactive_list->source_data[stride * (i + window_offset)],
                 string_size

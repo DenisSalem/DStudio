@@ -183,6 +183,7 @@ static unsigned int refresh_file_list(char * path) {
 
     s_interactive_list.window_offset = 0;
     select_item(s_interactive_list.lines, DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
+    
     s_file_index = 0;
     
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
@@ -527,7 +528,6 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
         &s_files_count,
         NULL, /* At this point has not been allocated yet. */
-        //~ &g_open_file_thread_control,
         select_file_from_list,
         0,
         DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y
@@ -537,9 +537,6 @@ void init_open_menu(
         &s_interactive_list,
         slider
     );
-        
-    //~ sem_init(&g_open_file_thread_control.mutex, 0, 1);
-    //~ g_open_file_thread_control.ready = 1;
 }
 
 void open_file_menu(
@@ -598,5 +595,7 @@ void update_open_file_error(const char * message) {
 }
 
 void update_open_file_ui_list() {
-    update_insteractive_list(&s_interactive_list);
+    if (s_interactive_list.update_request) {
+        update_insteractive_list(&s_interactive_list);
+    }
 }

@@ -21,10 +21,6 @@
 #include "extensions.h"
 #include "text.h"
 
-
-/* TODO : The whole mutex droping might need to completely update the way
- * buffer update is done before rendering for this ui element type.
- */
 void update_text(UIElements * text, char * string_value, unsigned int buffer_size) {
     Vec4 * offset_buffer = (Vec4 *) text->instance_offsets_buffer;
     int linear_coordinate = 0;

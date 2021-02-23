@@ -60,20 +60,15 @@ int main(int argc, char ** argv) {
         set_samples_list_from_parent
     );
     
-    //init_text_pointer();
-
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     pthread_t ui_thread_id;
-    //~ pthread_t instances_management_thread_id;
     //~ pthread_t jack_client_thread_id;
 
     // TODO: Investigate thread priority.
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
-    //~ DSTUDIO_RETURN_IF_FAILURE(pthread_create( &instances_management_thread_id, NULL, instances_management_thread, NULL))
     //~ DSTUDIO_RETURN_IF_FAILURE(pthread_create( &jack_client_thread_id, NULL, jack_client, NULL))
 
     //~ DSTUDIO_RETURN_IF_FAILURE(pthread_join(jack_client_thread_id, NULL))
-    //~ DSTUDIO_RETURN_IF_FAILURE(pthread_join(instances_management_thread_id, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
     
     dstudio_free(0);

@@ -31,7 +31,6 @@ typedef struct UITextPointerContext_t {
     UIElements *    highlight;
     char *          string_buffer;
     unsigned int    buffer_size;
-    //~ ThreadControl   thread_control;
     unsigned int    active;
     unsigned int    insert_char_index;
     pthread_t       blink_thread_id;
@@ -46,7 +45,7 @@ void compute_text_pointer_coordinates(unsigned int index);
 void init_text_pointer();
 void init_ui_text_pointer(UIElements * text_pointer);
 
-void * text_pointer_blink_thread(void * args);
+void text_pointer_blink();
 
 void update_text_pointer();
 

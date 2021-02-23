@@ -1008,27 +1008,34 @@ void update_gpu_buffer(UIElements * ui_element_p) {
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_element_p->count, ui_element_p->instance_motions_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
             break;
 
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
+        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, ui_element_p->text_buffer_size * sizeof(Vec4), ui_element_p->instance_offsets_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            break;
+            
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
+            glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_offsets);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4), g_text_pointer_context.text_pointer->instance_offsets_buffer);
+            
+            glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_alphas);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), g_text_pointer_context.text_pointer->instance_alphas_buffer);
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_element_p->count, ui_element_p->instance_offsets_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_element_p->count, ui_element_p->instance_alphas_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_element_p->count, ui_element_p->instance_alphas_buffer);            
+        
         default:
             break;
     }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void update_ui_elements() {

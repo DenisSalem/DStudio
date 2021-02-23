@@ -29,24 +29,16 @@
 
 static Vec2 s_text_pointer_4x9_scale_matrix[2] = {0};
 static Vec2 s_text_pointer_8x18_scale_matrix[2] = {0};
+static double s_timestamp = 0;
 
 UITextPointerContext g_text_pointer_context = {0}; 
 
 void clear_text_pointer() {
-    //sem_wait(&g_text_pointer_context.thread_control.mutex);
-
     if (g_text_pointer_context.active) {
         g_text_pointer_context.active = 0;
         *g_text_pointer_context.text_pointer->instance_alphas_buffer = 0.0;
-        //~ g_text_pointer_context.thread_control.update = 1;
-        if (g_text_pointer_context.blink_thread_id != 0) {
-            //sem_post(&g_text_pointer_context.thread_control.mutex);
-            //DSTUDIO_EXIT_IF_FAILURE(pthread_join(g_text_pointer_context.blink_thread_id, NULL))
-            return;
-        }
+        update_text_pointer();
     }
-    //sem_post(&g_text_pointer_context.thread_control.mutex);
-
 }
 
 void compute_text_pointer_coordinates(unsigned int index) {
@@ -66,12 +58,7 @@ void compute_text_pointer_coordinates(unsigned int index) {
     g_text_pointer_context.text_pointer->scissor.y = half_viewport_height + half_viewport_height * g_text_pointer_context.text_pointer->instance_offsets_buffer->y - (g_text_pointer_context.text_pointer_height >>1 ) - 1;
     g_text_pointer_context.text_pointer->scissor.width = 1;
     g_text_pointer_context.text_pointer->scissor.height = g_text_pointer_context.text_pointer_height;
-    //~ g_text_pointer_context.thread_control.update = 1;
 }
-
-//~ void init_text_pointer() {
-    //~ sem_init(&g_text_pointer_context.thread_control.mutex, 0, 1);
-//~ }
 
 void init_ui_text_pointer(UIElements * text_pointer) {
     s_text_pointer_4x9_scale_matrix[0].x = (DSTUDIO_TEXT_POINTER_WIDTH / (float) g_dstudio_viewport_width);
@@ -107,14 +94,8 @@ void init_ui_text_pointer(UIElements * text_pointer) {
 
 void update_text_pointer_context(UIElements * ui_elements) {
     UIInteractiveList * interactive_list = 0;
-    //~ sem_wait(&g_text_pointer_context.thread_control.mutex);
     g_text_pointer_context.active = 0;
-    //~ sem_post(&g_text_pointer_context.thread_control.mutex);
-    //~ if (g_text_pointer_context.blink_thread_id != 0) {
-        //~ pthread_join(g_text_pointer_context.blink_thread_id, NULL);
-    //~ }
 
-    //~ sem_wait(&g_text_pointer_context.thread_control.mutex);
     switch(ui_elements->type) {
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
             interactive_list = ui_elements->interactive_list;
@@ -124,19 +105,18 @@ void update_text_pointer_context(UIElements * ui_elements) {
                 if (&interactive_list->lines[i] == ui_elements) {
                     unsigned int index = i+interactive_list->window_offset;
                     if (index >= *interactive_list->source_data_count) {
-                        //~ sem_post(&g_text_pointer_context.thread_control.mutex);
                         return;
                     }
-                    ui_elements->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
                     g_text_pointer_context.string_buffer = &interactive_list->source_data[index*interactive_list->stride];
                     g_text_pointer_context.buffer_size = interactive_list->string_size;
                     g_text_pointer_context.text_pointer_height = (g_dstudio_viewport_height) * ui_elements->scale_matrix[1].y;
+                    s_timestamp = get_timestamp();
+                    update_text_pointer();
                     break;
                 }
             }
             break;
         default:
-            //~ sem_post(&g_text_pointer_context.thread_control.mutex);
             return;
     }
 
@@ -147,58 +127,33 @@ void update_text_pointer_context(UIElements * ui_elements) {
 
     if (!g_text_pointer_context.active) {
         g_text_pointer_context.active = 1;
-        //~ pthread_create( &g_text_pointer_context.blink_thread_id, NULL, text_pointer_blink_thread, NULL);
     }
-    //~ sem_post(&g_text_pointer_context.thread_control.mutex);
 }
 
-void * text_pointer_blink_thread(void * args) {
-    (void) args;
+void text_pointer_blink() {
+    double now = get_timestamp();
     GLfloat * text_pointer_alphas_buffer = g_text_pointer_context.text_pointer->instance_alphas_buffer;
-    while (1) {
-        usleep(250000);
-        //~ sem_wait(&g_text_pointer_context.thread_control.mutex);
-        if (*text_pointer_alphas_buffer == 1.0) {
-            *text_pointer_alphas_buffer = 0.0;
-        }
-        else {
-            if (!g_text_pointer_context.active) {
-                g_text_pointer_context.text_pointer->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-                //~ g_text_pointer_context.thread_control.update = 1;
-                send_expose_event();
-                break;
-            }
-            *text_pointer_alphas_buffer = 1.0;
-        }
-        g_text_pointer_context.text_pointer->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-        //~ g_text_pointer_context.thread_control.update = 1;
-        send_expose_event();
-        //~ sem_post(&g_text_pointer_context.thread_control.mutex);
+
+    if (now - s_timestamp < 0.125 || !g_text_pointer_context.active) {
+        return;
     }
-    //~ sem_post(&g_text_pointer_context.thread_control.mutex);
-    return NULL;
+    s_timestamp = now;
+    if (*text_pointer_alphas_buffer == 1.0) {
+        *text_pointer_alphas_buffer = 0.0;
+    }
+    else {
+        *text_pointer_alphas_buffer = 1.0;
+    }
+    update_text_pointer();
 }
 
-/* Beware, there is a goto in the following. Do not panic or call the
- * police, everything is under control. It's just to avoid calling
- * sem_post multiple times. */
-void update_text_box(unsigned int keycode) {
-    //~ sem_t * mutex = 0;
-    //~ if (g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
-        //~ mutex = g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex ? g_text_pointer_context.ui_text->interactive_list->thread_bound_control->shared_mutex : &g_text_pointer_context.ui_text->interactive_list->thread_bound_control->mutex;
-    //~ }
-    
-    //~ if(mutex) {
-        //~ sem_wait(mutex);
-    //~ }
-    
+void update_text_box(unsigned int keycode) {   
     unsigned int string_size = strlen(g_text_pointer_context.string_buffer);
     char * string_buffer = g_text_pointer_context.string_buffer;
     
     if (keycode == DSTUDIO_KEY_CODE_ERASEBACK) {
         if (g_text_pointer_context.insert_char_index == 0) {
             return;
-            //goto release_mutex;
         }
         
         if (g_text_pointer_context.insert_char_index == string_size) {
@@ -215,21 +170,18 @@ void update_text_box(unsigned int keycode) {
     else if (keycode == DSTUDIO_KEY_LEFT_ARROW){
         if (g_text_pointer_context.insert_char_index <= 0) {
             return;
-            //goto release_mutex;
         }
         g_text_pointer_context.insert_char_index--;
     }
     else if (keycode == DSTUDIO_KEY_RIGHT_ARROW){
         if (g_text_pointer_context.insert_char_index >= string_size) {
             return;
-            //goto release_mutex;
         }
         g_text_pointer_context.insert_char_index++;
     }
     else if (keycode >= 32 && keycode <= 126) {
         if (string_size + 1 >= g_text_pointer_context.buffer_size) {
             return;
-            //goto release_mutex;
         }
         if (string_size > 0) {
             for (unsigned int i = string_size; i > g_text_pointer_context.insert_char_index; i--) {
@@ -240,29 +192,15 @@ void update_text_box(unsigned int keycode) {
     }
     else {
         return;
-        //goto release_mutex;
     }
     compute_text_pointer_coordinates(g_text_pointer_context.insert_char_index);
-    update_text(g_text_pointer_context.ui_text, string_buffer, g_text_pointer_context.buffer_size);
-    
-    // See? Everything is fine. Shhh, no more tears. Only dreams now.
-    //~ release_mutex:
-    //~ if(mutex) {
-        //~ sem_post(mutex);
-    //~ }
-    
+    update_text(g_text_pointer_context.ui_text, string_buffer, g_text_pointer_context.buffer_size);    
 }
 
-void update_text_pointer() {    
-    //~ glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_offsets);
-        //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4), g_text_pointer_context.text_pointer->instance_offsets_buffer);
-    
-    //~ glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_alphas);
-        //~ glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), g_text_pointer_context.text_pointer->instance_alphas_buffer);
-
-    //~ glBindBuffer(GL_ARRAY_BUFFER, 0);
+void update_text_pointer() {
+    g_text_pointer_context.text_pointer->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
     if (g_text_pointer_context.highlight && g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
         g_text_pointer_context.highlight->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
     }
-    g_text_pointer_context.ui_text->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+    g_text_pointer_context.ui_text->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
 }

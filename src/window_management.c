@@ -56,7 +56,6 @@ static Window               window;
 static XVisualInfo          * visual_info;
 static Colormap             color_map;
 static XEvent               x_event;
-static XEvent               x_sent_expose_event;
 static GLXContext           opengl_context;
 static int visual_attribs[] = {
       GLX_X_RENDERABLE    , True,
@@ -373,16 +372,6 @@ int need_to_redraw_all() {
     return 0;    
 }
 
-void send_expose_event() {
-    memset(&x_sent_expose_event, 0, sizeof(x_sent_expose_event));
-    x_sent_expose_event.xexpose.serial = clock();
-    x_sent_expose_event.type = Expose;
-    x_sent_expose_event.xexpose.send_event = 1;
-    x_sent_expose_event.xexpose.display = display;
-    XSendEvent(display, window, 1, ExposureMask, &x_sent_expose_event);
-    XFlush(display);
-}
-
 void set_close_sub_menu_callback(void (*callback)()) {
     close_sub_menu_callback = callback;
 }
@@ -401,4 +390,3 @@ void swap_window_buffer() {
 }
 
 #endif
-

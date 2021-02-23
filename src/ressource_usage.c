@@ -56,7 +56,7 @@ void update_ui_ressource_usage() {
     double cpu_usage = (((double) (clock() - s_previous_cpu_time) / (double) CLOCKS_PER_SEC) / 0.25) * 100.0;
     explicit_bzero(g_ressource_usage.cpu_string_buffer, g_ressource_usage.string_size);
     sprintf(g_ressource_usage.cpu_string_buffer, "%0.1lf%%", cpu_usage);
-    //DSTUDIO_TRACE_ARGS("%s", g_ressource_usage.cpu_string_buffer)
+    //~ DSTUDIO_TRACE_ARGS("%s", g_ressource_usage.cpu_string_buffer)
     double mem_usage = get_proc_memory_usage();
     if (mem_usage != -1) {
         explicit_bzero(g_ressource_usage.mem_string_buffer, g_ressource_usage.string_size);
