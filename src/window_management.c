@@ -82,6 +82,14 @@ static int pointer_x = 0;
 static int pointer_y = 0;
 int (*default_error_handler)(Display*, XErrorEvent*);
 
+// Window states monitoring
+static Atom s_wmState;
+static Atom s_ret_type;
+static int s_ret_format;
+static unsigned long s_atom_iItem, s_atom_nItem, s_atom_bytesAfter;
+static unsigned char *s_atom_properties = NULL;
+static char * s_atom_name = 0;
+
 static int ctx_error_handler( Display *dpy, XErrorEvent *ev ) {
     (void) dpy;
     (void) ev;
@@ -193,6 +201,7 @@ void init_context(const char * window_name, int width, int height) {
     root_window = RootWindow(display, visual_info->screen);
     creating_color_map(visual_info, &root_window, &swa);
 
+    // TODO: Investigate necessity to set CW* flags
     window = XCreateWindow(display, root_window, 0, 0, width, height, 0, visual_info->depth, InputOutput, visual_info->visual, CWBorderPixel|CWColormap|CWEventMask, &swa);
     
     DSTUDIO_EXIT_IF_NULL(window)
@@ -258,20 +267,55 @@ void init_context(const char * window_name, int width, int height) {
         }
     #endif
     glXMakeCurrent(display, window, opengl_context);
+    s_wmState = XInternAtom(display, "_NET_WM_STATE", True);
 }
 
 int is_window_focus() {
     return s_focus_type == FocusIn? 1 : 0; 
 }
 
+// Based on this
+// discussion https://www.linuxquestions.org/questions/programming-9/how-to-read-the-state-by-using-_net_wm_state-in-xlib-836879/
+int is_window_visible() {    
+    XGetWindowProperty(
+        display,
+        window,
+        s_wmState,
+        0,
+        (~0L),
+        False,
+        AnyPropertyType,
+        &s_ret_type,
+        &s_ret_format,
+        &s_atom_nItem,
+        &s_atom_bytesAfter,
+        &s_atom_properties
+    );
+    int ret = 1;
+    for (s_atom_iItem = 0; s_atom_iItem < s_atom_nItem; ++s_atom_iItem) {
+        s_atom_name = XGetAtomName(display,((Atom*)(s_atom_properties))[s_atom_iItem]);
+        if (strcmp("_NET_WM_STATE_SHADED", s_atom_name) == 0 || strcmp("_NET_WM_STATE_HIDDEN", s_atom_name) == 0) {
+            ret = 0;
+            break;
+        }
+    }
+    XFree(s_atom_properties);
+    return ret;
+}
+
+
 void listen_events() {
     void (*close_sub_menu_callback_swap)() = NULL;
+    
+    if (!is_window_visible()) {
+        XFlush(display);
+        return;
+    }
     
     //~ // The good way to process event
     struct pollfd fds = {0};
     fds.fd = ConnectionNumber(display);
     fds.events = POLLIN;
-    
 
     if (poll(&fds, 1, 20) > 0) {
         while(XPending(display)) {
@@ -281,9 +325,6 @@ void listen_events() {
                 return;
             }
             else if (x_event.type == Expose) {
-                refresh_all = 1;
-            }
-            else if(x_event.type == VisibilityNotify) {
                 refresh_all = 1;
             }
             else if(x_event.type == FocusIn || x_event.type == FocusOut ) {

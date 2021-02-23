@@ -753,22 +753,32 @@ inline void render_loop() {
     double framerate_limiter_timestamp = 0;
     
     while (do_no_exit_loop()) {
-        framerate_limiter_timestamp = get_timestamp();
-        listen_events();
-        update_ui_elements();
-        
-        unsigned int render_all = need_to_redraw_all();
-        render_all |= g_request_render_all;
-        
-        if (render_viewport(render_all)) {
-            swap_window_buffer();
+
+        if (is_window_visible()) {
+            framerate_limiter_timestamp = get_timestamp();
+            listen_events();
+    
+            update_ui_elements();
+    
+            unsigned int render_all = need_to_redraw_all();
+            render_all |= g_request_render_all;
+            
+            if (render_viewport(render_all)) {
+                swap_window_buffer();
+            }
+            g_request_render_all = 0;
+            framerate_limiter = (g_framerate * 1000) - (get_timestamp() - framerate_limiter_timestamp) * 1000000;
         }
-        framerate_limiter = (g_framerate * 1000) - (get_timestamp() - framerate_limiter_timestamp) * 1000000;
+        else {
+            framerate_limiter = 200000;
+            update_ui_elements();
+        }
+        
+        
         usleep((unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0));
         
         //DSTUDIO_TRACE_ARGS("FPS: %lf FPS limiter: %u", 1/(get_timestamp() - framerate_limiter_timestamp), (unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0))
 
-        g_request_render_all = 0;
     }
 };
 

@@ -41,14 +41,13 @@
 #define DSTUDIO_KEY_MAJ_BIT             1
 
 #define DSTUDIO_X11_INPUT_MASKS \
-    (ExposureMask | \
-    KeyPressMask | \
-    KeyReleaseMask | \
+    (ButtonMotionMask | \
     ButtonPressMask | \
     ButtonReleaseMask | \
+    ExposureMask | \
     FocusChangeMask | \
-    VisibilityChangeMask | \
-    ButtonMotionMask)
+    KeyPressMask | \
+    KeyReleaseMask)
 
 void configure_input(long mask);
 void destroy_context();
@@ -56,6 +55,7 @@ int do_no_exit_loop();
 void get_pointer_coordinates(int * x, int * y);
 void init_context(const char * window_name, int width, int height);
 int is_window_focus();
+int is_window_visible();
 void listen_events();
 int need_to_redraw_all();
 void set_close_sub_menu_callback(void (*callback)());
