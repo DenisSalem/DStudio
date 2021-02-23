@@ -34,6 +34,9 @@
 
 unsigned int g_dstudio_mouse_state = 0;
 long g_x11_input_mask = 0;
+
+static int s_focus_type;
+
 UIInteractiveList * g_active_interactive_list = 0;
 
 static void (*cursor_position_callback)(int xpos, int ypos) = 0;
@@ -257,6 +260,10 @@ void init_context(const char * window_name, int width, int height) {
     glXMakeCurrent(display, window, opengl_context);
 }
 
+int is_window_focus() {
+    return s_focus_type == FocusIn? 1 : 0; 
+}
+
 void listen_events() {
     void (*close_sub_menu_callback_swap)() = NULL;
     
@@ -278,6 +285,10 @@ void listen_events() {
             }
             else if(x_event.type == VisibilityNotify) {
                 refresh_all = 1;
+            }
+            else if(x_event.type == FocusIn || x_event.type == FocusOut ) {
+                s_focus_type = x_event.type;
+                g_x11_input_mask = DSTUDIO_X11_INPUT_MASKS ^ PointerMotionMask;
             }
             else if (x_event.type == ButtonPress) {
                 if (x_event.xbutton.button == Button1) {

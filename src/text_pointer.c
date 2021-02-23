@@ -44,7 +44,8 @@ void clear_text_pointer() {
 void compute_text_pointer_coordinates(unsigned int index) {
     unsigned int half_viewport_width = g_dstudio_viewport_width >> 1;
     unsigned int half_viewport_height = g_dstudio_viewport_height >> 1;
-    *g_text_pointer_context.text_pointer->instance_alphas_buffer = 1.0;
+    // Will trigger alpha switch to force text pointer to be visible while typing
+    *g_text_pointer_context.text_pointer->instance_alphas_buffer = 0.0;
 
     // We need to compute coordinates in such way that the pointer will be perfectly aligned with pixels.
     GLfloat x_inc = 1.0 / (GLfloat) half_viewport_width;
@@ -134,7 +135,7 @@ void text_pointer_blink() {
     double now = get_timestamp();
     GLfloat * text_pointer_alphas_buffer = g_text_pointer_context.text_pointer->instance_alphas_buffer;
 
-    if (now - s_timestamp < 0.125 || !g_text_pointer_context.active) {
+    if (now - s_timestamp < 0.5 || !g_text_pointer_context.active || !is_window_focus()) {
         return;
     }
     s_timestamp = now;
@@ -202,5 +203,8 @@ void update_text_pointer() {
     if (g_text_pointer_context.highlight && g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
         g_text_pointer_context.highlight->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
     }
-    g_text_pointer_context.ui_text->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
+
+    if (g_text_pointer_context.ui_text->render_state != DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
+        g_text_pointer_context.ui_text->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
+    }
 }

@@ -134,17 +134,31 @@ static void render_layers(unsigned int limit) {
 static void update_scale_matrix(Vec2 * scale_matrix);
 
 static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags) {
-    Scissor * scissor = &s_ui_elements_requests[scissor_index]->scissor;
-    // TODO: use g_text_pointer_context to fix text width rendering 
+    UIElements * ui_element = s_ui_elements_requests[scissor_index];
+    Scissor * scissor = &ui_element->scissor;
+    UIElementType type = ui_element->type;
+    int is_active_text_pointer_overing = \
+        g_text_pointer_context.active && \
+        g_text_pointer_context.ui_text->render_state != DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED && \
+        ( \
+           type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT || \
+           type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM \
+        ) && \
+        (
+            g_text_pointer_context.highlight == ui_element || \
+            g_text_pointer_context.ui_text == ui_element \
+        );
+    
+    //DSTUDIO_TRACE_ARGS("%d %d", is_active_text_pointer_overing, type);
     
     if (scissor_index >=0) {
         glScissor(
             scissor->x,
             flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
-                s_ui_elements_requests[scissor_index]->previous_highlight_scissor_y : \
+                ui_element->previous_highlight_scissor_y : \
                 scissor->y
             ,
-            scissor->width,
+            is_active_text_pointer_overing ? 1 : scissor->width ,
             scissor->height
         );
     }
@@ -844,7 +858,7 @@ unsigned int render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer background */
-    
+
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
         scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
@@ -852,10 +866,9 @@ unsigned int render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer ui elements */
-
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
         // Refresh  interactive list background and/or highligh1 when unselected 
-        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active &&  g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
+        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active && g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
             scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
             render_ui_elements(s_ui_elements_requests[0]);
         }

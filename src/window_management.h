@@ -46,6 +46,7 @@
     KeyReleaseMask | \
     ButtonPressMask | \
     ButtonReleaseMask | \
+    FocusChangeMask | \
     VisibilityChangeMask | \
     ButtonMotionMask)
 
@@ -54,6 +55,7 @@ void destroy_context();
 int do_no_exit_loop();
 void get_pointer_coordinates(int * x, int * y);
 void init_context(const char * window_name, int width, int height);
+int is_window_focus();
 void listen_events();
 int need_to_redraw_all();
 void set_close_sub_menu_callback(void (*callback)());
