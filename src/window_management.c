@@ -276,7 +276,13 @@ int is_window_focus() {
 
 // Based on this
 // discussion https://www.linuxquestions.org/questions/programming-9/how-to-read-the-state-by-using-_net_wm_state-in-xlib-836879/
-int is_window_visible() {    
+int is_window_visible() {
+    int ret = 1;
+    XWindowAttributes xwa;    
+    XGetWindowAttributes(display, window, &xwa);
+    if (xwa.map_state != IsViewable) {
+        return 0;
+    }
     XGetWindowProperty(
         display,
         window,
@@ -291,7 +297,6 @@ int is_window_visible() {
         &s_atom_bytesAfter,
         &s_atom_properties
     );
-    int ret = 1;
     for (s_atom_iItem = 0; s_atom_iItem < s_atom_nItem; ++s_atom_iItem) {
         s_atom_name = XGetAtomName(display,((Atom*)(s_atom_properties))[s_atom_iItem]);
         if (strcmp("_NET_WM_STATE_SHADED", s_atom_name) == 0 || strcmp("_NET_WM_STATE_HIDDEN", s_atom_name) == 0) {

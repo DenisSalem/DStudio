@@ -753,7 +753,6 @@ inline void render_loop() {
     double framerate_limiter_timestamp = 0;
     
     while (do_no_exit_loop()) {
-
         if (is_window_visible()) {
             framerate_limiter_timestamp = get_timestamp();
             listen_events();
@@ -771,6 +770,8 @@ inline void render_loop() {
         }
         else {
             framerate_limiter = 200000;
+            /* TODO: Rename or rewrite method because it may do more than just update ui elements.
+            For instance it keep monitoring for instance creation and compute ressource usage. */
             update_ui_elements();
         }
         
