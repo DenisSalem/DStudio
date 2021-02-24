@@ -89,6 +89,9 @@ static int s_ret_format;
 static unsigned long s_atom_iItem, s_atom_nItem, s_atom_bytesAfter;
 static unsigned char *s_atom_properties = NULL;
 static char * s_atom_name = 0;
+static XWindowAttributes s_xwa;
+static double s_wa_update_timestamp=0;
+static int s_is_visible = 1;
 
 static int ctx_error_handler( Display *dpy, XErrorEvent *ev ) {
     (void) dpy;
@@ -277,35 +280,42 @@ int is_window_focus() {
 // Based on this
 // discussion https://www.linuxquestions.org/questions/programming-9/how-to-read-the-state-by-using-_net_wm_state-in-xlib-836879/
 int is_window_visible() {
-    int ret = 1;
-    XWindowAttributes xwa;    
-    XGetWindowAttributes(display, window, &xwa);
-    if (xwa.map_state != IsViewable) {
-        return 0;
-    }
-    XGetWindowProperty(
-        display,
-        window,
-        s_wmState,
-        0,
-        (~0L),
-        False,
-        AnyPropertyType,
-        &s_ret_type,
-        &s_ret_format,
-        &s_atom_nItem,
-        &s_atom_bytesAfter,
-        &s_atom_properties
-    );
-    for (s_atom_iItem = 0; s_atom_iItem < s_atom_nItem; ++s_atom_iItem) {
-        s_atom_name = XGetAtomName(display,((Atom*)(s_atom_properties))[s_atom_iItem]);
-        if (strcmp("_NET_WM_STATE_SHADED", s_atom_name) == 0 || strcmp("_NET_WM_STATE_HIDDEN", s_atom_name) == 0) {
-            ret = 0;
-            break;
+    double timestamp = get_timestamp();
+
+    if ( (timestamp - s_wa_update_timestamp) * 1000000 > DSTUDIO_WINDOW_IDLING_TIMEOUT) {
+        s_is_visible = 1;
+        XGetWindowAttributes(display, window, &s_xwa);
+        s_wa_update_timestamp = timestamp;
+        if (s_xwa.map_state != IsViewable) {
+            s_is_visible = 0;
         }
+    
+        // TODO: Is it redundant?
+        XGetWindowProperty(
+            display,
+            window,
+            s_wmState,
+            0,
+            (~0L),
+            False,
+            AnyPropertyType,
+            &s_ret_type,
+            &s_ret_format,
+            &s_atom_nItem,
+            &s_atom_bytesAfter,
+            &s_atom_properties
+        );
+        
+        for (s_atom_iItem = 0; s_atom_iItem < s_atom_nItem; ++s_atom_iItem) {
+            s_atom_name = XGetAtomName(display,((Atom*)(s_atom_properties))[s_atom_iItem]);
+            if (strcmp("_NET_WM_STATE_SHADED", s_atom_name) == 0 || strcmp("_NET_WM_STATE_HIDDEN", s_atom_name) == 0) {
+                s_is_visible = 0;
+                break;
+            }
+        }
+        XFree(s_atom_properties);
     }
-    XFree(s_atom_properties);
-    return ret;
+    return s_is_visible;
 }
 
 

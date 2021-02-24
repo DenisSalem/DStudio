@@ -769,7 +769,7 @@ inline void render_loop() {
             framerate_limiter = (g_framerate * 1000) - (get_timestamp() - framerate_limiter_timestamp) * 1000000;
         }
         else {
-            framerate_limiter = 200000;
+            framerate_limiter = DSTUDIO_WINDOW_IDLING_TIMEOUT;
             /* TODO: Rename or rewrite method because it may do more than just update ui elements.
             For instance it keep monitoring for instance creation and compute ressource usage. */
             update_ui_elements();

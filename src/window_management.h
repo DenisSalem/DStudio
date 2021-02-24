@@ -49,6 +49,8 @@
     KeyPressMask | \
     KeyReleaseMask)
 
+#define DSTUDIO_WINDOW_IDLING_TIMEOUT 200000.0
+
 void configure_input(long mask);
 void destroy_context();
 int do_no_exit_loop();

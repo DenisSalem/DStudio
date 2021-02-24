@@ -44,8 +44,7 @@ void clear_text_pointer() {
 void compute_text_pointer_coordinates(unsigned int index) {
     unsigned int half_viewport_width = g_dstudio_viewport_width >> 1;
     unsigned int half_viewport_height = g_dstudio_viewport_height >> 1;
-    // Will trigger alpha switch to force text pointer to be visible while typing
-    *g_text_pointer_context.text_pointer->instance_alphas_buffer = 0.0;
+    *g_text_pointer_context.text_pointer->instance_alphas_buffer = 1.0;
 
     // We need to compute coordinates in such way that the pointer will be perfectly aligned with pixels.
     GLfloat x_inc = 1.0 / (GLfloat) half_viewport_width;
@@ -95,7 +94,6 @@ void init_ui_text_pointer(UIElements * text_pointer) {
 
 void update_text_pointer_context(UIElements * ui_elements) {
     UIInteractiveList * interactive_list = 0;
-    g_text_pointer_context.active = 0;
 
     switch(ui_elements->type) {
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
@@ -116,19 +114,18 @@ void update_text_pointer_context(UIElements * ui_elements) {
                     break;
                 }
             }
+            unsigned int last_char_index = strlen(g_text_pointer_context.string_buffer);
+            g_text_pointer_context.insert_char_index = last_char_index;
+            compute_text_pointer_coordinates(last_char_index);
+            g_text_pointer_context.active = 1;
             break;
+            
         default:
+            g_text_pointer_context.active = 0;
             return;
     }
 
-    unsigned int last_char_index = strlen(g_text_pointer_context.string_buffer);
-    g_text_pointer_context.insert_char_index = last_char_index;
 
-    compute_text_pointer_coordinates(last_char_index);
-
-    if (!g_text_pointer_context.active) {
-        g_text_pointer_context.active = 1;
-    }
 }
 
 void text_pointer_blink() {
@@ -151,7 +148,8 @@ void text_pointer_blink() {
 void update_text_box(unsigned int keycode) {   
     unsigned int string_size = strlen(g_text_pointer_context.string_buffer);
     char * string_buffer = g_text_pointer_context.string_buffer;
-    
+    GLfloat * text_pointer_alphas_buffer = g_text_pointer_context.text_pointer->instance_alphas_buffer;
+
     if (keycode == DSTUDIO_KEY_CODE_ERASEBACK) {
         if (g_text_pointer_context.insert_char_index == 0) {
             return;
@@ -194,7 +192,9 @@ void update_text_box(unsigned int keycode) {
     else {
         return;
     }
+    *text_pointer_alphas_buffer = 1.0;
     compute_text_pointer_coordinates(g_text_pointer_context.insert_char_index);
+    update_text_pointer();
     update_text(g_text_pointer_context.ui_text, string_buffer, g_text_pointer_context.buffer_size);    
 }
 
