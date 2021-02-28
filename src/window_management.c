@@ -340,7 +340,6 @@ void listen_events() {
     struct pollfd fds = {0};
     fds.fd = ConnectionNumber(display);
     fds.events = POLLIN;
-
     if (poll(&fds, 1, 20) > 0) {
         while(XPending(display)) {
             XNextEvent(display, &x_event);

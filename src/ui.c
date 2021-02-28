@@ -786,11 +786,9 @@ inline void render_loop() {
             update_ui_elements();
         }
         
-        
         usleep((unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0));
         
         //DSTUDIO_TRACE_ARGS("FPS: %lf FPS limiter: %u", 1/(get_timestamp() - framerate_limiter_timestamp), (unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0))
-
     }
 };
 
@@ -880,7 +878,6 @@ unsigned int render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer background */
-
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
         scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
