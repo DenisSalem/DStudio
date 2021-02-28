@@ -20,6 +20,7 @@
 #include <GL/gl.h>
 #include <GL/glx.h>
 
+#include "common.h"
 #include "interactive_list.h"
 
 #ifndef WINDOW_MANAGEMENT_INCLUDED
@@ -55,6 +56,7 @@ void configure_input(long mask);
 void destroy_context();
 int do_no_exit_loop();
 void get_pointer_coordinates(int * x, int * y);
+WindowScale get_window_scale();
 void init_context(const char * window_name, int width, int height);
 int is_window_focus();
 int is_window_visible();

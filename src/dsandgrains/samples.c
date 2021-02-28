@@ -161,5 +161,7 @@ void update_current_sample(unsigned int index) {
 }
 
 void update_samples_ui_list() {
-    update_insteractive_list(&g_ui_samples);
+    if (g_ui_samples.update_request) {
+        update_insteractive_list(&g_ui_samples);
+    }
 }

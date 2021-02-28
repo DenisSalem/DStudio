@@ -89,6 +89,7 @@ static int s_ret_format;
 static unsigned long s_atom_iItem, s_atom_nItem, s_atom_bytesAfter;
 static unsigned char *s_atom_properties = NULL;
 static char * s_atom_name = 0;
+// Is periodically updated with is_window_visible method
 static XWindowAttributes s_xwa;
 static double s_wa_update_timestamp=0;
 static int s_is_visible = 1;
@@ -133,6 +134,14 @@ int do_no_exit_loop() {
 void get_pointer_coordinates(int * x, int * y) {
     *x = pointer_x;
     *y = pointer_y;
+}
+
+WindowScale get_window_scale() {
+    WindowScale window_scale = {
+        s_xwa.width,
+        s_xwa.height
+    };
+    return window_scale;
 }
 
 static void get_visual_info(GLXFBConfig * best_frame_buffer_config) {

@@ -24,14 +24,6 @@
 
 #include "extensions.h"
 
-//~ typedef struct ThreadControl_t {
-    //~ unsigned int    ready;
-    //~ unsigned int    update;
-    //~ unsigned int    cut_thread;
-    //~ sem_t           mutex;
-    //~ sem_t *         shared_mutex;
-//~ } ThreadControl;
-
 // MISCELLANEOUS CONSTANTS
 #define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
 #define DSTUDIO_FRAMEBUFFER_COUNT 2
@@ -209,7 +201,10 @@
 #define DSTUDIO_TRACE_ARGS(string, ...) \
     printf("%s %d: " #string "\n", __FILE__, __LINE__, __VA_ARGS__);
 
-
+typedef struct WindowScale_t {
+    int width;
+    int height;
+} WindowScale;
     
 extern const char g_application_name[];
 
@@ -217,7 +212,6 @@ extern const char g_application_name[];
  * Safely allocate and initialize memory.
  */
 void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal);
-//~ void   dstudio_cut_thread(ThreadControl * thread_control);
 void   dstudio_free(void * buffer);
 void dstudio_init_memory_management();
 void * dstudio_realloc(void * buffer, unsigned int new_size);

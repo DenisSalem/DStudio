@@ -315,6 +315,9 @@ void update_ui_element_motion(
     float motion
 );
 
+// Used when window is forced to be resized
+void update_ui_elements_offsets(WindowScale window_scale);
+
 // Must be defined by consumer
 typedef struct UIElementsStruct_t UIElementsStruct;
 extern UIElementsStruct g_ui_elements_struct;

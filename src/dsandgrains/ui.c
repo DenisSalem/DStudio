@@ -748,14 +748,12 @@ void * ui_thread(void * arg) {
         update_open_file_ui_list
     );
     
-    //~ register_threaded_ui_elements_updater(
-        //~ &g_samples_thread_control,     
-        //~ update_samples_ui_list
-    //~ );
+    register_ui_elements_updater(
+        update_samples_ui_list
+    );
 
     render_loop();
     remove_main_instance();
-    //clear_text_pointer();
     destroy_context();
     return NULL;
 }

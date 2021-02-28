@@ -66,7 +66,7 @@ static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
-
+static WindowScale          s_previous_window_scale = {800,512};
 #ifdef DSTUDIO_DEBUG
 static void check_frame_buffer_status() {
     switch(glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
@@ -751,16 +751,27 @@ void register_ui_elements_updater(void (*updater)()) {
 inline void render_loop() {
     double framerate_limiter = 0;
     double framerate_limiter_timestamp = 0;
-    
+    WindowScale current_window_scale = {0};
+
     while (do_no_exit_loop()) {
         if (is_window_visible()) {
             framerate_limiter_timestamp = get_timestamp();
             listen_events();
     
-            update_ui_elements();
-    
             unsigned int render_all = need_to_redraw_all();
             render_all |= g_request_render_all;
+            current_window_scale = get_window_scale();
+            if (
+                (current_window_scale.width != s_previous_window_scale.width) || 
+                (current_window_scale.height != s_previous_window_scale.height)
+            ) {
+                s_previous_window_scale.width = current_window_scale.width;
+                s_previous_window_scale.height = current_window_scale.height;
+                render_all |= 1;
+                update_ui_elements_offsets(current_window_scale);
+            }
+            
+            update_ui_elements();
             
             if (render_viewport(render_all)) {
                 swap_window_buffer();
@@ -1075,3 +1086,38 @@ void update_ui_element_motion(
     *ui_elements_p->instance_motions_buffer = motion;
     ui_elements_p->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
 }
+
+void update_ui_elements_offsets(WindowScale window_scale) {
+    GLfloat offset_x = 0.0;
+    GLfloat offset_y = 0.0;
+    UIElements * ui_elements = 0;
+    if (window_scale.width <= (int) g_dstudio_viewport_width && window_scale.height <= (int) g_dstudio_viewport_height) {
+        return;
+    }
+    if (window_scale.width > (int) g_dstudio_viewport_width) {
+        offset_x = ( ((GLfloat) (window_scale.width - g_dstudio_viewport_width)) / ((GLfloat) window_scale.width) ) / 2;
+    }
+    if (window_scale.height > (int) g_dstudio_viewport_height) {
+        offset_y = ( ((GLfloat) (window_scale.height - g_dstudio_viewport_height)) / ((GLfloat) window_scale.height) )/2;
+    }
+    
+    for (unsigned int i=0; i < g_dstudio_ui_element_count; i++) {
+        ui_elements = &g_ui_elements_array[i];
+        for (unsigned int j=0; j < ui_elements->count; j++) {
+            if (offset_x) {
+                ui_elements->instance_offsets_buffer[j].x += offset_x;
+            }
+            if (offset_y) {
+                ui_elements->instance_offsets_buffer[j].y += offset_y;
+            }
+            if (ui_elements->visible && (offset_y || offset_x)) {
+                DSTUDIO_TRACE_ARGS("%f %f", offset_x, offset_y)
+                if (ui_elements->render_state == DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED && ui_elements->visible) {
+                    ui_elements->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
+                }
+            }
+        }
+    }
+    
+}
+    
