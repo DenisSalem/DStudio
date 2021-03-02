@@ -36,6 +36,8 @@ endif()
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules")
 
 find_package(FLAC REQUIRED)
+
+add_definitions(-DDSTUDIO_USE_JACK_AUDIO_CONNECTION_KIT)
 find_package(Jack REQUIRED)
 
 set(OpenGL_GL_PREFERENCE GLVND)
@@ -53,6 +55,7 @@ add_executable(
 	dsandgrains/main.c
     dsandgrains/samples.c
     dsandgrains/ui.c
+    audio_api.c
     buttons.c
     common.c
     extensions.c
@@ -60,7 +63,6 @@ add_executable(
     flac.c
     instances.c
     interactive_list.c
-    jack.c
     open_file.c
     ressource_usage.c
     sliders.c

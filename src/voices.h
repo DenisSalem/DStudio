@@ -20,11 +20,13 @@
 #ifndef DSTUDIO_VOICES_H_INCLUDED
 #define DSTUDIO_VOICES_H_INCLUDED
 
+#include "audio_api.h"
 #include "interactive_list.h"
 
 typedef struct VoiceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     void * sub_contexts;
+    OutputPort output_port;
 } VoiceContext;
 
 typedef struct Voices_t {

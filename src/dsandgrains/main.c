@@ -30,7 +30,7 @@
 #include "../buttons.h"
 #include "../common.h"
 #include "../instances.h"
-#include "../jack.h"
+#include "../audio_api.h"
 #include "../ressource_usage.h"
 #include "../text_pointer.h"
 #include "../voices.h"

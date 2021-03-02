@@ -22,11 +22,8 @@
 
 #include <jack/jack.h>
 
-#include "common.h"
-
 static jack_client_t * s_client;
 static jack_status_t s_jack_status;
-jack_port_t * output_port;
 
 void jack_shutdown(void *arg) {
     (void) arg;
@@ -37,13 +34,13 @@ void jack_shutdown(void *arg) {
 
 int process(jack_nframes_t nframes, void *arg) {
         (void) arg;
+        (void) nframes;
         
-        jack_default_audio_sample_t * out;                      // type float. Correspond au format de l'échantillons
-        out = jack_port_get_buffer(output_port, nframes);       // on récupère l'addresse de la mémoire tampons pour les échantillons
-                                                                // out est un tableau de 1024 entrée.
+        //~ jack_default_audio_sample_t * out;                      // type float. Correspond au format de l'échantillons
+        //~ out = jack_port_get_buffer(output_port, nframes);       // on récupère l'addresse de la mémoire tampons pour les échantillons
+                                                                //~ // out est un tableau de 1024 entrée.
  
-        (void) out;       
-        //memcpy(out, SOMETHING, 1024 * sizeof(jack_default_audio_sample_t));
+        //~ memcpy(out, SOMETHING, 1024 * sizeof(jack_default_audio_sample_t));
         return 0;
 }
 
@@ -66,21 +63,18 @@ DStudioAudioAPIError init_audio_api_client() {
             return DSTUDIO_AUDIO_API_CANNOT_ENABLE_CLIENT;
         }
         
-        //~ output_port = jack_port_register(s_client, "Main Signal L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
-        //~ output_port = jack_port_register(s_client, "Main Signal R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
+        //~ g_audio_api_default_output_port_L = jack_port_register(s_client, "Instance 1 > Voice 1 > Left", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
+        //~ g_audio_api_default_output_port_R = jack_port_register(s_client, "Instance 1 > Voice 1 > Right", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
     
-        //~ if (output_port == NULL)
-                //~ return -2; 
-
-        //~ if (error)
-                //~ return -3; 
-
         return DSTUDIO_AUDIO_API_NO_ERROR;
-        
-        //~ if (error == -2) {
-                //~ printf("Main output signal port cannot be create.\n");
-        //~ }
-        //~ else if (error == -3) {
-                //~ printf("Cannot activate jack client.\n");
-        //~ }
+}
+
+DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name) {
+        output_port->left = jack_port_register(s_client, left_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
+        output_port->right = jack_port_register(s_client, right_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
+
+        if (output_port->left == NULL || output_port->right == NULL) {
+            return DSTUDIO_AUDIO_API_OUTPUT_PORT_CANNOT_BE_CREATED;
+        }
+        return DSTUDIO_AUDIO_API_NO_ERROR;
 }

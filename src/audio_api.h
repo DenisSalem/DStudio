@@ -17,30 +17,25 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_COMMON_H_INCLUDED
-#define DSTUDIO_COMMON_H_INCLUDED
+#ifndef DSTUDIO_AUDIO_API_H_INCLUDED
+#define DSTUDIO_AUDIO_API_H_INCLUDED
 
-#include <semaphore.h>
+#include "common.h"
 
-#include "constants.h"
-#include "extensions.h"
-#include "macros.h"
-#include "paths.h"
+typedef enum DStudioAudioAPIError_t {
+    DSTUDIO_AUDIO_API_NO_ERROR,
+    DSTUDIO_AUDIO_API_CLIENT_CANNOT_CONNECT_TO_SERVER,
+    DSTUDIO_AUDIO_API_CANNOT_ENABLE_CLIENT,
+    DSTUDIO_AUDIO_API_OUTPUT_PORT_CANNOT_BE_CREATED
+} DStudioAudioAPIError;
 
-typedef struct WindowScale_t {
-    int width;
-    int height;
-} WindowScale;
+typedef struct OutputPort_t {
+    void * left;
+    void * right;
+} OutputPort;
 
-extern const char g_application_name[];
-
-/*
- * Safely allocate and initialize memory.
- */
-void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal);
-void   dstudio_free(void * buffer);
-void dstudio_init_memory_management();
-void * dstudio_realloc(void * buffer, unsigned int new_size);
-double get_timestamp();
+// Must be implemented for each kind of API
+DStudioAudioAPIError init_audio_api_client();
+DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name);
 
 #endif
