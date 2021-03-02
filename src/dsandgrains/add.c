@@ -54,7 +54,7 @@ void add_sample(UIElements * ui_elements) {
     close_add_sub_menu();
     
     open_file_menu(
-        NULL,
+        add_sub_menu_proxy,
         load_sample
     );
 }

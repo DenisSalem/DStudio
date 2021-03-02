@@ -52,7 +52,7 @@ static unsigned int s_max_prompt_char = 0;
 static char * s_prompt_value = 0;
 static char * s_prompt_cwd_value = 0;
 
-static void close_open_file_menu() {
+static void close_open_file_menu(int has_cancel) {
     g_active_interactive_list = 0;
     configure_input(0);
     set_prime_interface(1);
@@ -60,8 +60,7 @@ static void close_open_file_menu() {
     set_ui_elements_visibility(s_ui_elements, 0, DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT + s_list_lines_number);
     dstudio_free(s_files_list);
     s_files_list = 0;
-    if (s_cancel_callback) {
-        DSTUDIO_TRACE
+    if (has_cancel && s_cancel_callback) {
         s_cancel_callback(NULL);
     }
     g_request_render_all = 1;
@@ -69,7 +68,7 @@ static void close_open_file_menu() {
 
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {
     (void) ui_elements;
-    close_open_file_menu();
+    close_open_file_menu(DSTUDIO_OPEN_FILE_MENU_CONSUME_CANCEL_CALLBACK);
 }
 
 static unsigned int refresh_file_list(char * path);
@@ -129,7 +128,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
                 file_fd // file_fd must be closed by consumer
             );
             if (callback_status) {
-                close_open_file_menu();
+                close_open_file_menu(DSTUDIO_OPEN_FILE_MENU_CONSUME_NO_CALLBACK);
             }
             break;
     }

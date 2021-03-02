@@ -29,6 +29,8 @@ UIElements * g_ui_elements = {0};
 void (*bind_sub_context_interactive_list)(UIElements * line) = 0;
 UIElements * (*setup_sub_context_interactive_list)() = 0;
 
+char s_audio_port_name_left_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
+char s_audio_port_name_right_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
 static UIElements * s_ui_elements;
 static unsigned int s_lines_number;
 static unsigned int s_string_size;
@@ -126,6 +128,22 @@ UIElements * new_voice() {
         );
 
     }
+    
+    strcpy((char *) &s_audio_port_name_left_buffer, g_current_active_instance->name);
+    strcpy((char *) &s_audio_port_name_right_buffer, g_current_active_instance->name);
+    strcat((char *) &s_audio_port_name_left_buffer, " > ");
+    strcat((char *) &s_audio_port_name_right_buffer, " > ");
+    strcat((char *) &s_audio_port_name_left_buffer, g_current_active_voice->name);
+    strcat((char *) &s_audio_port_name_right_buffer, g_current_active_voice->name);
+    strcat((char *) &s_audio_port_name_left_buffer, " L");
+    strcat((char *) &s_audio_port_name_right_buffer, " R");
+            
+    register_stereo_output_port(
+        &g_current_active_voice->output_port,
+        (const char *) &s_audio_port_name_left_buffer,
+        (const char *) &s_audio_port_name_right_buffer
+    );
+    
     g_ui_voices.update_request = 1;
     return line;
 }

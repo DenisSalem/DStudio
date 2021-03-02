@@ -25,14 +25,16 @@
 static jack_client_t * s_client;
 static jack_status_t s_jack_status;
 
-void jack_shutdown(void *arg) {
+static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) {
     (void) arg;
-    DSTUDIO_TRACE_STR("JACK server has shutdown.")
+    (void) code;
+    DSTUDIO_TRACE_ARGS("JACK server has shutdown: %s.", reason)
+    // Should be called outside the function
     jack_client_close(s_client);
     //TODO: Start thread trying to restart client, waiting for server
 }
 
-int process(jack_nframes_t nframes, void *arg) {
+static int process(jack_nframes_t nframes, void *arg) {
         (void) arg;
         (void) nframes;
         
@@ -56,16 +58,12 @@ DStudioAudioAPIError init_audio_api_client() {
         }
                 
         jack_set_process_callback(s_client, process, 0); 
-        jack_on_shutdown(s_client, jack_shutdown, 0);
-        
+        jack_on_info_shutdown(s_client, on_info_shutdown, 0); 	
         if(jack_activate(s_client)) {
             DSTUDIO_TRACE_STR("Cannot activate jack client.")
             return DSTUDIO_AUDIO_API_CANNOT_ENABLE_CLIENT;
         }
-        
-        //~ g_audio_api_default_output_port_L = jack_port_register(s_client, "Instance 1 > Voice 1 > Left", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
-        //~ g_audio_api_default_output_port_R = jack_port_register(s_client, "Instance 1 > Voice 1 > Right", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
-    
+            
         return DSTUDIO_AUDIO_API_NO_ERROR;
 }
 
