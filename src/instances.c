@@ -69,13 +69,6 @@ FILE * add_instance_file_descriptor() {
     return fopen(instance_filename_buffer, "w+");
 }
 
-// TODO: Is really usefull?
-void remove_main_instance() {
-    char instance_path[128] = {0};
-    sprintf(instance_path, "%s/%d", s_instances_directory, g_current_active_instance->identifier);
-    unlink(instance_path);
-}
-
 void init_instances_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,

@@ -753,7 +753,6 @@ void * ui_thread(void * arg) {
     );
 
     render_loop();
-    remove_main_instance();
     destroy_context();
     return NULL;
 }

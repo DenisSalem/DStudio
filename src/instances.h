@@ -42,9 +42,6 @@ extern UIInteractiveList g_ui_instances;
 
 FILE * add_instance_file_descriptor();
 
-void remove_main_instance();
-
-
 void init_instances_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,

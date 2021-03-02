@@ -29,9 +29,6 @@
 #include "ui.h"
 #include "window_management.h"
 
-
-//~ ThreadControl g_open_file_thread_control = {0};
-
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static unsigned int (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
 static char * s_current_directory = 0;
@@ -56,7 +53,6 @@ static char * s_prompt_value = 0;
 static char * s_prompt_cwd_value = 0;
 
 static void close_open_file_menu() {
-    //~ sem_wait(&g_open_file_thread_control.mutex);
     g_active_interactive_list = 0;
     configure_input(0);
     set_prime_interface(1);
@@ -65,11 +61,10 @@ static void close_open_file_menu() {
     dstudio_free(s_files_list);
     s_files_list = 0;
     if (s_cancel_callback) {
+        DSTUDIO_TRACE
         s_cancel_callback(NULL);
     }
-    //~ g_open_file_thread_control.update = 0;
     g_request_render_all = 1;
-    //~ sem_post(&g_open_file_thread_control.mutex);
 }
 
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {

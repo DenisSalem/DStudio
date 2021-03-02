@@ -17,6 +17,6 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "common.h"
 
-
-void * jack_client(void * arg);
+DStudioAudioAPIError init_audio_api_client();

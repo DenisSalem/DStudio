@@ -24,11 +24,15 @@
 
 #include "common.h"
 
-jack_client_t * client;
+static jack_client_t * s_client;
+static jack_status_t s_jack_status;
 jack_port_t * output_port;
 
 void jack_shutdown(void *arg) {
     (void) arg;
+    DSTUDIO_TRACE_STR("JACK server has shutdown.")
+    jack_client_close(s_client);
+    //TODO: Start thread trying to restart client, waiting for server
 }
 
 int process(jack_nframes_t nframes, void *arg) {
@@ -38,59 +42,45 @@ int process(jack_nframes_t nframes, void *arg) {
         out = jack_port_get_buffer(output_port, nframes);       // on récupère l'addresse de la mémoire tampons pour les échantillons
                                                                 // out est un tableau de 1024 entrée.
  
-         (void) out;       
-        // memcpy(out, SOMETHING, 1024 * sizeof(jack_default_audio_sample_t));
+        (void) out;       
+        //memcpy(out, SOMETHING, 1024 * sizeof(jack_default_audio_sample_t));
         return 0;
 }
 
-static int init_jack_client(
-    jack_options_t options,
-    jack_status_t * status,
-    char *server_name)
-{
-        client = jack_client_open(g_application_name, options, status, server_name);
+DStudioAudioAPIError init_audio_api_client() {
+        s_client = jack_client_open(g_application_name, JackNullOption, &s_jack_status, NULL);
     
-        if (client == NULL)
-                return -1;
+        if (s_client == NULL) {
+            DSTUDIO_TRACE_STR("jack_client_open() failed.")
+            if (s_jack_status & JackServerFailed) {
+                DSTUDIO_TRACE_STR("Unable to connect to JACK server.")
+            }
+            return DSTUDIO_AUDIO_API_CLIENT_CANNOT_CONNECT_TO_SERVER;
+        }
                 
-        jack_set_process_callback(client, process, 0); 
-        jack_on_shutdown(client, jack_shutdown,0);
-
-        output_port = jack_port_register(client, "Main Signal", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
+        jack_set_process_callback(s_client, process, 0); 
+        jack_on_shutdown(s_client, jack_shutdown, 0);
+        
+        if(jack_activate(s_client)) {
+            DSTUDIO_TRACE_STR("Cannot activate jack client.")
+            return DSTUDIO_AUDIO_API_CANNOT_ENABLE_CLIENT;
+        }
+        
+        //~ output_port = jack_port_register(s_client, "Main Signal L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
+        //~ output_port = jack_port_register(s_client, "Main Signal R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
     
-        if (output_port == NULL)
-                return -2; 
+        //~ if (output_port == NULL)
+                //~ return -2; 
 
-        if (jack_activate(client))
-                return -3; 
+        //~ if (error)
+                //~ return -3; 
 
-        return 0;
-}
-
-void * jack_client(void * arg) {
-        (void) arg;
+        return DSTUDIO_AUDIO_API_NO_ERROR;
         
-        jack_status_t status;
-        char * server_name = NULL;
-        int error = 0;
-        
-        error = init_jack_client(JackNullOption, &status, server_name);
-
-        // TODO: Store error in arg to handle later
-        if (error == -1){
-                printf("jack_client_open() failed.\n");
-                if (status & JackServerFailed) {
-                        printf ("Unable to connect to JACK server.\n");
-                }
-        }
-        else if (error == -2) {
-                printf("Main output signal port cannot be create.\n");
-        }
-        else if (error == -3) {
-                printf("Cannot activate jack client.\n");
-        }
-        
-        //jack_client_close(client);
-        
-        return NULL;
+        //~ if (error == -2) {
+                //~ printf("Main output signal port cannot be create.\n");
+        //~ }
+        //~ else if (error == -3) {
+                //~ printf("Cannot activate jack client.\n");
+        //~ }
 }

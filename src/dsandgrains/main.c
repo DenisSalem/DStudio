@@ -59,18 +59,15 @@ int main(int argc, char ** argv) {
         bind_samples_interactive_list,
         set_samples_list_from_parent
     );
+
+    init_audio_api_client();
     
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     pthread_t ui_thread_id;
-    //~ pthread_t jack_client_thread_id;
 
-    // TODO: Investigate thread priority.
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
-    //~ DSTUDIO_RETURN_IF_FAILURE(pthread_create( &jack_client_thread_id, NULL, jack_client, NULL))
-
-    //~ DSTUDIO_RETURN_IF_FAILURE(pthread_join(jack_client_thread_id, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
-    
+
     dstudio_free(0);
     return 0;
 }

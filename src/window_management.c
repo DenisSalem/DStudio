@@ -321,6 +321,7 @@ int is_window_visible() {
                 s_is_visible = 0;
                 break;
             }
+            XFree(s_atom_name);
         }
         XFree(s_atom_properties);
     }
