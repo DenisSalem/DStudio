@@ -67,7 +67,8 @@ int main(int argc, char ** argv) {
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
-
+    stop_audio_api_client();
+    
     dstudio_free(0);
     return 0;
 }

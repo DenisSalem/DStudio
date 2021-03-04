@@ -37,5 +37,5 @@ typedef struct OutputPort_t {
 // Must be implemented for each kind of API
 DStudioAudioAPIError init_audio_api_client();
 DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name);
-
+DStudioAudioAPIError stop_audio_api_client();
 #endif

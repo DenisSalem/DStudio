@@ -58,6 +58,8 @@ static void close_open_file_menu(int has_cancel) {
     set_prime_interface(1);
     set_ui_elements_visibility(s_menu_background, 0, 1);
     set_ui_elements_visibility(s_ui_elements, 0, DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT + s_list_lines_number);
+    g_menu_background_enabled = 0;
+    g_active_interactive_list = 0;
     dstudio_free(s_files_list);
     s_files_list = 0;
     if (has_cancel && s_cancel_callback) {

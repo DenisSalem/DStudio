@@ -76,3 +76,10 @@ DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const
         }
         return DSTUDIO_AUDIO_API_NO_ERROR;
 }
+
+DStudioAudioAPIError stop_audio_api_client() {
+    // TODO: Handle errors if any
+    jack_deactivate(s_client);
+    jack_client_close(s_client);
+    return DSTUDIO_AUDIO_API_NO_ERROR;
+}
