@@ -22,14 +22,18 @@
 
 #include <dlfcn.h>
 #include <GL/gl.h>
-#include<GL/glx.h>
+#include <GL/glx.h>
 
 typedef struct Binder_t {
     void * function_pointer;
     const char name[32];
 } Binder;
 
-#define DSTUDIO_DEF_GL_FUN(ret, name, ...) typedef ret name##proc(__VA_ARGS__); name##proc * gl##name;
+#define DSTUDIO_DEF_GL_FUN(ret, name, ...) \
+    typedef ret name##proc(__VA_ARGS__); \
+    extern name##proc * gl##name;
+
+#define DSTUDIO_DECLARE_GL_FUN(name) name##proc * gl##name;
 
 #define DSTUDIO_SET_BINDER_ELEMENT(name) {&name, #name}
 

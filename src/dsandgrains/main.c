@@ -37,7 +37,7 @@
 #include "instances.h"
 #include "samples.h"
 #include "ui.h"
-
+#include "../extensions.h"
 
 const unsigned int g_dstudio_viewport_width = 800;
 const unsigned int g_dstudio_viewport_height = 512;

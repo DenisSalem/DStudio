@@ -22,6 +22,42 @@
 
 #include "extensions.h"
 
+DSTUDIO_DECLARE_GL_FUN(AttachShader)
+DSTUDIO_DECLARE_GL_FUN(BindBuffer)
+DSTUDIO_DECLARE_GL_FUN(BindFramebuffer)
+DSTUDIO_DECLARE_GL_FUN(BindVertexArray)
+DSTUDIO_DECLARE_GL_FUN(BlendFuncSeparate)
+DSTUDIO_DECLARE_GL_FUN(BufferData)
+DSTUDIO_DECLARE_GL_FUN(BufferSubData)
+DSTUDIO_DECLARE_GL_FUN(CompileShader)
+DSTUDIO_DECLARE_GL_FUN(CreateProgram)
+DSTUDIO_DECLARE_GL_FUN(CreateShader)
+DSTUDIO_DECLARE_GL_FUN(DeleteShader)
+DSTUDIO_DECLARE_GL_FUN(DrawElementsInstanced)
+DSTUDIO_DECLARE_GL_FUN(EnableVertexAttribArray)
+DSTUDIO_DECLARE_GL_FUN(FramebufferTexture2D)
+DSTUDIO_DECLARE_GL_FUN(GenBuffers)
+DSTUDIO_DECLARE_GL_FUN(GenerateMipmap)
+DSTUDIO_DECLARE_GL_FUN(GenFramebuffers)
+DSTUDIO_DECLARE_GL_FUN(GenVertexArrays)
+DSTUDIO_DECLARE_GL_FUN(GetUniformLocation)
+DSTUDIO_DECLARE_GL_FUN(LinkProgram)
+DSTUDIO_DECLARE_GL_FUN(ShaderSource)     
+DSTUDIO_DECLARE_GL_FUN(UniformMatrix2fv)
+DSTUDIO_DECLARE_GL_FUN(Uniform1ui)
+DSTUDIO_DECLARE_GL_FUN(Uniform4fv)
+DSTUDIO_DECLARE_GL_FUN(UseProgram)
+DSTUDIO_DECLARE_GL_FUN(VertexAttribDivisor)
+DSTUDIO_DECLARE_GL_FUN(VertexAttribPointer)
+
+#ifdef DSTUDIO_DEBUG
+DSTUDIO_DECLARE_GL_FUN(CheckFramebufferStatus)
+DSTUDIO_DECLARE_GL_FUN(GetProgramInfoLog)
+DSTUDIO_DECLARE_GL_FUN(GetProgramiv)
+DSTUDIO_DECLARE_GL_FUN(GetShaderInfoLog)
+DSTUDIO_DECLARE_GL_FUN(GetStringi)
+#endif
+
 // https://www.khronos.org/opengl/wiki/Tutorial:_OpenGL_3.0_Context_Creation_(GLX)
 int is_extension_supported(const char * list, const char * extension) {
     const char *start;

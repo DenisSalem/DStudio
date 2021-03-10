@@ -69,6 +69,6 @@ void swap_window_buffer();
 
 extern unsigned int g_dstudio_mouse_state;
 extern UIInteractiveList * g_active_interactive_list;
-void (*close_sub_menu_callback)();
+extern void (*close_sub_menu_callback)();
 extern long g_x11_input_mask;
 #endif

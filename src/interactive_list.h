@@ -70,7 +70,6 @@ void init_interactive_list(
     unsigned int stride,
     unsigned int * source_data_count,
     char * source_data,
-    //~ ThreadControl * thread_bound_control,
     unsigned int (*select_callback)(unsigned int index),
     unsigned int editable,
     GLfloat highlight_step

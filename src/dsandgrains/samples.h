@@ -37,7 +37,6 @@ typedef struct Samples_t{
 } Samples;
 
 extern SampleContext * g_current_active_sample; 
-//~ extern ThreadControl g_samples_thread_control;
 extern UIInteractiveList g_ui_samples;
 
 void bind_samples_interactive_list(UIElements * line);
