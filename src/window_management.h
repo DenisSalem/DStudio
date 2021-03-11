@@ -62,7 +62,7 @@ int is_window_focus();
 int is_window_visible();
 void listen_events();
 int need_to_redraw_all();
-void set_close_sub_menu_callback(void (*callback)());
+extern void set_close_sub_menu_callback(void (*callback)());
 void set_cursor_position_callback(void (*callback)(int xpos, int ypos));
 void set_mouse_button_callback(void (*callback)(int xpos, int ypos, int button, int action));
 void swap_window_buffer();
