@@ -28,8 +28,8 @@
 #include "paths.h"
 
 typedef struct WindowScale_t {
-    int width;
-    int height;
+    unsigned int width;
+    unsigned int height;
 } WindowScale;
 
 extern const char g_application_name[];
