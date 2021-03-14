@@ -149,23 +149,23 @@
 #define DSANDGRAINS_VOICE_SLIDER_POS_Y -0.220703125
 
 typedef struct UIElementsStruct_t {
-    UIElements background;
+    UIElements background;                                          // 0
     UIElements ressource_usage_prompt;
     UIElements cpu_usage;
     UIElements mem_usage;
-    UIElements knob_sample_start;
+    UIElements knob_sample_start;                                   // 4
     UIElements knob_sample_end;
     UIElements knob_sample_grain_size;
     UIElements knob_sample_transient_thresold;
-    UIElements knob_sample_loop_duration;
-    UIElements knob_sample_cloud_size;
+    UIElements knob_sample_loop_duration;                           // 9
+    UIElements knob_sample_cloud_size;                              
     UIElements knob_sample_distribution_balance;
     UIElements knob_sample_smooth_transition;
-    UIElements knob_sample_amount;
+    UIElements knob_sample_amount;                                  //14
     UIElements knob_sample_pitch;
     UIElements knob_voice_volume;
     UIElements knob_voice_pan;
-    UIElements knob_voice_influence;
+    UIElements knob_voice_influence;                                //19
     UIElements knob_voice_density;
     UIElements knob_sample_lfo_tune;
     UIElements knob_sample_lfo_phase;

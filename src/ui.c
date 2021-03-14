@@ -48,12 +48,11 @@ int     g_ui_element_center_x = 0;
 int     g_ui_element_center_y = 0;
 GLuint  g_ui_element_color_location = 0;
 
-
 unsigned int g_framerate = DSTUDIO_FRAMERATE;
 UIElements * g_menu_background_enabled = 0;
 unsigned int g_menu_background_index = 0;
 unsigned int g_request_render_all = 0;
-
+WindowScale                 g_previous_window_scale = {0,0};
 
 static Vec2                 s_framebuffer_matrix[2] = {0};
 static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
@@ -66,9 +65,10 @@ static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
-static WindowScale          s_previous_window_scale = {0,0};
 static GLfloat              s_previous_offset_x = 0;
 static GLfloat              s_previous_offset_y = 0;
+static Vec2 **              s_known_scale_matrices = 0;
+static unsigned int         s_known_scale_matrices_count = 0;
 
 #ifdef DSTUDIO_DEBUG
 static void check_frame_buffer_status() {
@@ -151,9 +151,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             g_text_pointer_context.highlight == ui_element || \
             g_text_pointer_context.ui_text == ui_element \
         );
-    
-    //DSTUDIO_TRACE_ARGS("%d %d", is_active_text_pointer_overing, type);
-    
+        
     if (scissor_index >=0) {
         glScissor(
             scissor->x,
@@ -397,8 +395,8 @@ void init_ui_element_updater_register(unsigned int updater_count) {
 }
 
 void init_ui() {
-    s_previous_window_scale.width = g_dstudio_viewport_width;
-    s_previous_window_scale.height = g_dstudio_viewport_height;
+    g_previous_window_scale.width = g_dstudio_viewport_width;
+    g_previous_window_scale.height = g_dstudio_viewport_height;
     
     init_context(
         g_application_name,
@@ -492,6 +490,25 @@ void init_ui_elements(
     UIElementType ui_element_type,
     int flags
 ) {
+    // Keep track of scales matrices for updating them while window is resized.
+    int new_scale_matrix = 1;
+    if (s_known_scale_matrices_count == 0) {
+        s_known_scale_matrices = dstudio_alloc(sizeof(Vec2 *), DSTUDIO_FAILURE_IS_FATAL);
+        s_known_scale_matrices[s_known_scale_matrices_count++] = scale_matrix;
+    }
+    else {
+        for(unsigned int i = 0; i<s_known_scale_matrices_count; i++) {
+            if (scale_matrix == s_known_scale_matrices[i]) {
+                new_scale_matrix = 0;
+                break;
+            } 
+        }
+        if (new_scale_matrix) {
+            s_known_scale_matrices = dstudio_realloc(s_known_scale_matrices, sizeof(Vec2 *) * (s_known_scale_matrices_count + 1));
+            s_known_scale_matrices[s_known_scale_matrices_count++] = scale_matrix;
+        }
+    }
+    
     GLfloat min_area_x;
     GLfloat min_area_y;
     if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE)) {
@@ -768,13 +785,13 @@ inline void render_loop() {
             render_all |= g_request_render_all;
             current_window_scale = get_window_scale();
             if (
-                (current_window_scale.width != s_previous_window_scale.width) || 
-                (current_window_scale.height != s_previous_window_scale.height)
+                (current_window_scale.width != g_previous_window_scale.width) || 
+                (current_window_scale.height != g_previous_window_scale.height)
             ) {
                 render_all |= 1;
                 update_ui_elements_offsets(current_window_scale);
-                s_previous_window_scale.width = current_window_scale.width;
-                s_previous_window_scale.height = current_window_scale.height;
+                g_previous_window_scale.width = current_window_scale.width;
+                g_previous_window_scale.height = current_window_scale.height;
             }
 
             update_ui_elements();
@@ -1104,32 +1121,28 @@ void update_ui_elements_offsets(WindowScale window_scale) {
     
     for (unsigned int i=0; i < g_dstudio_ui_element_count; i++) {
         ui_elements = &g_ui_elements_array[i];
-        for (unsigned int j=0; j < ui_elements->count; j++) {
-            // TODO: NEED TO BE COMPUTED PROPERLY
-            //ui_elements->instance_offsets_buffer[j].x += (s_previous_offset_x + offset_x);
-            //ui_elements->instance_offsets_buffer[j].y += (s_previous_offset_y + offset_y);
-        }
-        if (&g_background_scale_matrix[0] != &(ui_elements->scale_matrix[0]) || i == 0) {
-            ui_elements->scale_matrix[0].x *= (GLfloat) s_previous_window_scale.width;
-            ui_elements->scale_matrix[0].x /= (GLfloat) window_scale.width;
-        
-            ui_elements->scale_matrix[1].y *= (GLfloat) s_previous_window_scale.height;
-            ui_elements->scale_matrix[1].y /= (GLfloat) window_scale.height;
+        for (unsigned int j=0; j < ui_elements->count; j++) {            
+            ui_elements->instance_offsets_buffer[j].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
+            ui_elements->instance_offsets_buffer[j].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
+    
         }
         
         // TODO: NEED TO BE COMPUTED PROPERLY
-        ui_elements->scissor.x += (int) ((s_previous_offset_x ) * s_previous_window_scale.width + offset_x * window_scale.width)/2;
-        ui_elements->scissor.y += (int) ((s_previous_offset_y ) * s_previous_window_scale.height + offset_y * window_scale.height)/2;
-        
+        ui_elements->scissor.x += ((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2;
+        ui_elements->scissor.y += ((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2;  
+              
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_elements->count, ui_elements->instance_offsets_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
     }
-    
-    s_framebuffer_matrix[0].x *= (GLfloat) s_previous_window_scale.width;
+    for (unsigned int i=0; i < s_known_scale_matrices_count; i++) {
+        s_known_scale_matrices[i][0].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;        
+        s_known_scale_matrices[i][1].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
+    }
+    s_framebuffer_matrix[0].x *= (GLfloat) g_previous_window_scale.width;
     s_framebuffer_matrix[0].x /= (GLfloat) window_scale.width;
     
-    s_framebuffer_matrix[1].y *= (GLfloat) s_previous_window_scale.height;
+    s_framebuffer_matrix[1].y *= (GLfloat) g_previous_window_scale.height;
     s_framebuffer_matrix[1].y /= (GLfloat) window_scale.height;
     
     glViewport(0,0,window_scale.width, window_scale.height);

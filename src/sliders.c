@@ -47,8 +47,9 @@ void compute_slider_scissor_y(UIElements * ui_elements) {
         ui_elements->instance_offsets_buffer->y+ \
         ui_elements->instance_motions_buffer[0] \
         - (ui_elements->scale_matrix[1].y) \
-    ) * (g_dstudio_viewport_height >> 1);
-    ui_elements->scissor.height = ui_elements->scale_matrix[1].y * g_dstudio_viewport_height;
+    ) * (g_previous_window_scale.height >> 1);
+    
+    ui_elements->scissor.height = ui_elements->scale_matrix[1].y * g_previous_window_scale.height;
 }
 
 void compute_slider_in_motion_scissor_y(UIElements * slider, GLfloat motion) {
@@ -58,11 +59,11 @@ void compute_slider_in_motion_scissor_y(UIElements * slider, GLfloat motion) {
     GLsizei height;
     
     current_scissor_y = (\
-        1.0+ \
+        DSTUDIO_SLIDER_SCISSOR_SAFE_OFFSET+ \
         slider->instance_offsets_buffer->y+ \
         motion \
         - (slider->scale_matrix[1].y) \
-    ) * (g_dstudio_viewport_height >> 1);
+    ) * (g_previous_window_scale.height >> 1);
 
     previous_scissor_y = slider->render_state ? g_saved_scissor_y : slider->scissor.y;
     new_scissor_y = (previous_scissor_y < current_scissor_y ? previous_scissor_y : current_scissor_y);
