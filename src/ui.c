@@ -54,6 +54,7 @@ unsigned int g_menu_background_index = 0;
 unsigned int g_request_render_all = 0;
 WindowScale                 g_previous_window_scale = {0,0};
 
+static Vec2                 s_framebuffer_scale_matrix[2] = {1.0, 0.0,0.0,-1.0};
 static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static GLuint               s_framebuffer_textures[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static UIElements           s_framebuffer_quad = {0};
@@ -164,7 +165,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
     }
 
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
-        update_scale_matrix(s_ui_elements_requests[matrix_index]->scale_matrix);
+        update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->scale_matrix : s_framebuffer_scale_matrix);
     }
 }
 
@@ -1123,7 +1124,6 @@ void update_ui_elements_offsets(WindowScale window_scale) {
         for (unsigned int j=0; j < ui_elements->count; j++) {            
             ui_elements->instance_offsets_buffer[j].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
             ui_elements->instance_offsets_buffer[j].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
-    
         }
         
         // TODO: NEED TO BE COMPUTED PROPERLY
