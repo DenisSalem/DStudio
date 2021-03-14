@@ -54,7 +54,6 @@ unsigned int g_menu_background_index = 0;
 unsigned int g_request_render_all = 0;
 WindowScale                 g_previous_window_scale = {0,0};
 
-static Vec2                 s_framebuffer_matrix[2] = {0};
 static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static GLuint               s_framebuffer_textures[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static UIElements           s_framebuffer_quad = {0};
@@ -165,7 +164,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
     }
 
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
-        update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->scale_matrix : s_framebuffer_matrix);
+        update_scale_matrix(s_ui_elements_requests[matrix_index]->scale_matrix);
     }
 }
 
@@ -428,7 +427,7 @@ void init_ui() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-    DEFINE_SCALE_MATRIX(s_framebuffer_matrix, g_dstudio_viewport_width, (int) -g_dstudio_viewport_height)
+    //DEFINE_SCALE_MATRIX(s_framebuffer_matrix, g_dstudio_viewport_width, (int) -g_dstudio_viewport_height)
     
     #ifdef DSTUDIO_DEBUG
     glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
@@ -1139,11 +1138,6 @@ void update_ui_elements_offsets(WindowScale window_scale) {
         s_known_scale_matrices[i][0].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;        
         s_known_scale_matrices[i][1].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
     }
-    s_framebuffer_matrix[0].x *= (GLfloat) g_previous_window_scale.width;
-    s_framebuffer_matrix[0].x /= (GLfloat) window_scale.width;
-    
-    s_framebuffer_matrix[1].y *= (GLfloat) g_previous_window_scale.height;
-    s_framebuffer_matrix[1].y /= (GLfloat) window_scale.height;
     
     glViewport(0,0,window_scale.width, window_scale.height);
     glScissor(0,0,window_scale.width, window_scale.height);
