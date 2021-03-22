@@ -54,7 +54,7 @@ unsigned int g_menu_background_index = 0;
 unsigned int g_request_render_all = 0;
 WindowScale                 g_previous_window_scale = {0,0};
 
-static Vec2                 s_framebuffer_scale_matrix[2] = {1.0, 0.0,0.0,-1.0};
+static Vec2                 s_framebuffer_scale_matrix[2] = {{1.0, 0.0},{0.0,-1.0}};
 static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static GLuint               s_framebuffer_textures[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static UIElements           s_framebuffer_quad = {0};
@@ -138,7 +138,7 @@ static void update_scale_matrix(Vec2 * scale_matrix);
 
 static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags) {
     UIElements * ui_element = s_ui_elements_requests[scissor_index];
-    Scissor * scissor = &ui_element->scissor;
+    Scissor * scissor = &ui_element->coordinates_settings.scissor;
     UIElementType type = ui_element->type;
     int is_active_text_pointer_overing = \
         g_text_pointer_context.active && \
@@ -165,7 +165,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
     }
 
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
-        update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->scale_matrix : s_framebuffer_scale_matrix);
+        update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->coordinates_settings.scale_matrix : s_framebuffer_scale_matrix);
     }
 }
 
@@ -332,15 +332,15 @@ void init_opengl_ui_elements(
         vertex_attributes[3].w /= (GLfloat) 3.0;
     }
     else if (texture_is_pattern) {
-        vertex_attributes[1].w *= ((GLfloat) ui_elements->scale_matrix[1].y * g_dstudio_viewport_height) / DSTUDIO_PATTERN_SCALE;
-        vertex_attributes[2].z *= ((GLfloat) ui_elements->scale_matrix[0].x * g_dstudio_viewport_width) / DSTUDIO_PATTERN_SCALE;
-        vertex_attributes[3].z *= ((GLfloat) ui_elements->scale_matrix[0].x * g_dstudio_viewport_width) / DSTUDIO_PATTERN_SCALE;
-        vertex_attributes[3].w *= ((GLfloat) ui_elements->scale_matrix[1].y * g_dstudio_viewport_height) / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[1].w *= ((GLfloat) ui_elements->coordinates_settings.scale_matrix[1].y * g_dstudio_viewport_height) / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[2].z *= ((GLfloat) ui_elements->coordinates_settings.scale_matrix[0].x * g_dstudio_viewport_width) / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[3].z *= ((GLfloat) ui_elements->coordinates_settings.scale_matrix[0].x * g_dstudio_viewport_width) / DSTUDIO_PATTERN_SCALE;
+        vertex_attributes[3].w *= ((GLfloat) ui_elements->coordinates_settings.scale_matrix[1].y * g_dstudio_viewport_height) / DSTUDIO_PATTERN_SCALE;
     }
     
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->vertex_buffer_object, vertex_attributes, GL_STATIC_DRAW, sizeof(Vec4) * 4);
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_motions, ui_elements->instance_motions_buffer, GL_DYNAMIC_DRAW, ui_elements->count * sizeof(GLfloat) );
-    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->instance_offsets_buffer, GL_STATIC_DRAW, ui_elements->count * sizeof(Vec4));
+    gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_offsets, ui_elements->coordinates_settings.instance_offsets_buffer, GL_STATIC_DRAW, ui_elements->count * sizeof(Vec4));
     gen_gl_buffer(GL_ARRAY_BUFFER, &ui_elements->instance_alphas, ui_elements->instance_alphas_buffer, GL_STATIC_DRAW, ui_elements->count * sizeof(GLfloat));
 
     // Setting vertex array
@@ -551,7 +551,7 @@ void init_ui_elements(
             sizeof(GLfloat) * instances_count,
             DSTUDIO_FAILURE_IS_FATAL
         );
-        ui_elements_array[i].instance_offsets_buffer = dstudio_alloc(
+        ui_elements_array[i].coordinates_settings.instance_offsets_buffer = dstudio_alloc(
             sizeof(Vec4) * instances_count,
             DSTUDIO_FAILURE_IS_FATAL
         );
@@ -559,18 +559,18 @@ void init_ui_elements(
         for (unsigned int j = 0; j < instances_count; j++) {
             ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
             if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
-                ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + (x * offset_x);
-                ui_elements_array[i].instance_offsets_buffer[j].y = gl_y - (j * scale_matrix[1].y * 2) + (y * offset_y);
+                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + (x * offset_x);
+                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y - (j * scale_matrix[1].y * 2) + (y * offset_y);
                 if (j == instances_count-1) {
-                    ui_elements_array[i].instance_offsets_buffer[j].w = 2.0/3.0;
+                    ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].w = 2.0/3.0;
                 }
                 else if (j != 0) {
-                    ui_elements_array[i].instance_offsets_buffer[j].w = 1.0/3.0;
+                    ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].w = 1.0/3.0;
                 }
             }
             else {
-                ui_elements_array[i].instance_offsets_buffer[j].x = gl_x + (j * scale_matrix[0].x * 2) + (x * offset_x);
-                ui_elements_array[i].instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
+                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + (j * scale_matrix[0].x * 2) + (x * offset_x);
+                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
                 if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
                     ui_elements_array[i].instance_motions_buffer[j] = \
                         (GLfloat) (area_height) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
@@ -578,17 +578,17 @@ void init_ui_elements(
             }
         }
         
-        ui_elements_array[i].scale_matrix = scale_matrix;
+        ui_elements_array[i].coordinates_settings.scale_matrix = scale_matrix;
         
-        ui_elements_array[i].scissor.x = min_area_x + computed_area_offset_x;
-        ui_elements_array[i].scissor.width = ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? 0 : max_area_x - min_area_x;
+        ui_elements_array[i].coordinates_settings.scissor.x = min_area_x + computed_area_offset_x;
+        ui_elements_array[i].coordinates_settings.scissor.width = ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? 0 : max_area_x - min_area_x;
         
         if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
             compute_slider_scissor_y(&ui_elements_array[i]);
         }
         else {
-            ui_elements_array[i].scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
-            ui_elements_array[i].scissor.height = max_area_y - min_area_y;
+            ui_elements_array[i].coordinates_settings.scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
+            ui_elements_array[i].coordinates_settings.scissor.height = max_area_y - min_area_y;
         }
         
         ui_elements_array[i].count = instances_count;
@@ -732,7 +732,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                     case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
                         s_x11_input_mask = g_x11_input_mask;
                         configure_input(0);
-                        half_height = (ui_elements_p->scale_matrix[1].y * g_dstudio_viewport_height) / 2;
+                        half_height = (ui_elements_p->coordinates_settings.scale_matrix[1].y * g_dstudio_viewport_height) / 2;
                         g_active_slider_range_min = ui_elements_p->areas.min_area_y + half_height;
                         g_active_slider_range_max = ui_elements_p->areas.max_area_y - half_height;
                         if (ui_elements_p->interactive_list) {
@@ -789,12 +789,30 @@ inline void render_loop() {
                 (current_window_scale.height != g_previous_window_scale.height)
             ) {
                 render_all |= 1;
+                //~ DSTUDIO_TRACE_ARGS("BEFORE scissor x y w h: %d %d %d %d, scale x y: %f %f",
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.x,
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.y,
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.width,
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.height,
+                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[0].x,
+                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[1].y
+                //~ ) 
                 update_ui_elements_offsets(current_window_scale);
                 g_previous_window_scale.width = current_window_scale.width;
                 g_previous_window_scale.height = current_window_scale.height;
+                update_ui_elements();
+                //~ DSTUDIO_TRACE_ARGS("AFTER scissor x y w h: %d %d %d %d, scale x y: %f %f",
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.x,
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.y,
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.width,
+                    //~ g_ui_elements_array[3].coordinates_settings.scissor.height,
+                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[0].x,
+                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[1].y
+                //~ )
             }
-
-            update_ui_elements();
+            else {
+                update_ui_elements();
+            }
 
             if (render_viewport(render_all)) {
                 swap_window_buffer();
@@ -955,7 +973,7 @@ unsigned int render_viewport(unsigned int render_all) {
                     }
                 }
                 if (render_overlap) {
-                    update_scale_matrix(s_ui_elements_requests[i]->overlap_sub_menu_ui_elements->scale_matrix);
+                    update_scale_matrix(s_ui_elements_requests[i]->overlap_sub_menu_ui_elements->coordinates_settings.scale_matrix);
                     render_ui_elements(s_ui_elements_requests[i]->overlap_sub_menu_ui_elements);
                 }
             }
@@ -1069,12 +1087,12 @@ void update_gpu_buffer(UIElements * ui_element_p) {
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
         case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, ui_element_p->text_buffer_size * sizeof(Vec4), ui_element_p->instance_offsets_buffer);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, ui_element_p->text_buffer_size * sizeof(Vec4), ui_element_p->coordinates_settings.instance_offsets_buffer);
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
             glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_offsets);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4), g_text_pointer_context.text_pointer->instance_offsets_buffer);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4), g_text_pointer_context.text_pointer->coordinates_settings.instance_offsets_buffer);
             
             glBindBuffer(GL_ARRAY_BUFFER, g_text_pointer_context.text_pointer->instance_alphas);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), g_text_pointer_context.text_pointer->instance_alphas_buffer);
@@ -1082,7 +1100,7 @@ void update_gpu_buffer(UIElements * ui_element_p) {
             
         case DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_element_p->count, ui_element_p->instance_offsets_buffer);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_element_p->count, ui_element_p->coordinates_settings.instance_offsets_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_element_p->count, ui_element_p->instance_alphas_buffer);            
         
@@ -1119,26 +1137,30 @@ void update_ui_elements_offsets(WindowScale window_scale) {
         offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height)) / ((GLfloat) window_scale.height);
     }
     
+   
+
     for (unsigned int i=0; i < g_dstudio_ui_element_count; i++) {
         ui_elements = &g_ui_elements_array[i];
         for (unsigned int j=0; j < ui_elements->count; j++) {            
-            ui_elements->instance_offsets_buffer[j].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
-            ui_elements->instance_offsets_buffer[j].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
+            ui_elements->coordinates_settings.instance_offsets_buffer[j].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
+            ui_elements->coordinates_settings.instance_offsets_buffer[j].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
         }
         
         // TODO: NEED TO BE COMPUTED PROPERLY
-        ui_elements->scissor.x += ((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2;
-        ui_elements->scissor.y += ((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2;  
+        ui_elements->coordinates_settings.scissor.x += ((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2;
+        ui_elements->coordinates_settings.scissor.y += ((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2;  
+           
+
               
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_elements->count, ui_elements->instance_offsets_buffer);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_elements->count, ui_elements->coordinates_settings.instance_offsets_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
     }
     for (unsigned int i=0; i < s_known_scale_matrices_count; i++) {
         s_known_scale_matrices[i][0].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;        
         s_known_scale_matrices[i][1].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
     }
-    
+       
     glViewport(0,0,window_scale.width, window_scale.height);
     glScissor(0,0,window_scale.width, window_scale.height);
     glClearColor(0.0,0.0,0.0,1.0);

@@ -59,7 +59,7 @@ void init_interactive_list(
     interactive_list->select_callback = select_callback;
     interactive_list->editable = editable;
     interactive_list->highlight_step = highlight_step;
-    interactive_list->highlight_offset_y = ui_elements->instance_offsets_buffer->y;
+    interactive_list->highlight_offset_y = ui_elements->coordinates_settings.instance_offsets_buffer->y;
 }
 
 void scroll(UIInteractiveList * interactive_list, int direction) {
@@ -144,7 +144,7 @@ void select_item(
                 interactive_list->update_request = 1;
                 *interactive_list->highlight->instance_alphas_buffer = interactive_list->source_data ? 1 : 0;
                 interactive_list->update_highlight = 1;
-                highlight->instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
+                highlight->coordinates_settings.instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
                 interactive_list->index = i;
                 interactive_list->previous_item_index = i;
             }
@@ -186,8 +186,8 @@ void update_insteractive_list(
     }
     if (interactive_list->update_highlight) {
         UIElements * highlight = interactive_list->highlight;
-        highlight->previous_highlight_scissor_y = highlight->scissor.y;
-        highlight->scissor.y = (1 + highlight->instance_offsets_buffer->y - highlight->scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
+        highlight->previous_highlight_scissor_y = highlight->coordinates_settings.scissor.y;
+        highlight->coordinates_settings.scissor.y = (1 + highlight->coordinates_settings.instance_offsets_buffer->y - highlight->coordinates_settings.scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
         highlight->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         interactive_list->update_highlight = 0;
     }
@@ -198,7 +198,7 @@ void update_scroll_bar(UIInteractiveList * interactive_list) {
     UIElements * scroll_bar = interactive_list->scroll_bar;
     unsigned int multiplier;
     GLfloat relative_position = (GLfloat) interactive_list->window_offset / (GLfloat) (*interactive_list->source_data_count - interactive_list->lines_number);
-    GLfloat height = (scroll_bar->areas.max_area_y - scroll_bar->areas.min_area_y) - scroll_bar->scale_matrix[1].y / (1.0 / (GLfloat) (g_dstudio_viewport_height));
+    GLfloat height = (scroll_bar->areas.max_area_y - scroll_bar->areas.min_area_y) - scroll_bar->coordinates_settings.scale_matrix[1].y / (1.0 / (GLfloat) (g_dstudio_viewport_height));
     relative_position *= height / (GLfloat) (g_dstudio_viewport_height >> 1);
     multiplier = relative_position / (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
     relative_position = multiplier * (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));

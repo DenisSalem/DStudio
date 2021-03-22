@@ -49,15 +49,15 @@ void compute_text_pointer_coordinates(unsigned int index) {
     // We need to compute coordinates in such way that the pointer will be perfectly aligned with pixels.
     GLfloat x_inc = 1.0 / (GLfloat) half_viewport_width;
     GLfloat y_inc = 1.0 / (GLfloat) half_viewport_height;
-    int x_multiplier = g_text_pointer_context.ui_text->instance_offsets_buffer[index].x / x_inc;
-    g_text_pointer_context.text_pointer->instance_offsets_buffer->x = (x_multiplier - (g_text_pointer_context.char_width) - 1) * x_inc;        
-    g_text_pointer_context.text_pointer->instance_offsets_buffer->y = g_text_pointer_context.ui_text->instance_offsets_buffer[index].y + y_inc;
+    int x_multiplier = g_text_pointer_context.ui_text->coordinates_settings.instance_offsets_buffer[index].x / x_inc;
+    g_text_pointer_context.text_pointer->coordinates_settings.instance_offsets_buffer->x = (x_multiplier - (g_text_pointer_context.char_width) - 1) * x_inc;        
+    g_text_pointer_context.text_pointer->coordinates_settings.instance_offsets_buffer->y = g_text_pointer_context.ui_text->coordinates_settings.instance_offsets_buffer[index].y + y_inc;
     
     // We compute the exact amount of pixel to render.
-    g_text_pointer_context.text_pointer->scissor.x = half_viewport_width + half_viewport_width * g_text_pointer_context.text_pointer->instance_offsets_buffer->x - 1;
-    g_text_pointer_context.text_pointer->scissor.y = half_viewport_height + half_viewport_height * g_text_pointer_context.text_pointer->instance_offsets_buffer->y - (g_text_pointer_context.text_pointer_height >>1 ) - 1;
-    g_text_pointer_context.text_pointer->scissor.width = 1;
-    g_text_pointer_context.text_pointer->scissor.height = g_text_pointer_context.text_pointer_height;
+    g_text_pointer_context.text_pointer->coordinates_settings.scissor.x = half_viewport_width + half_viewport_width * g_text_pointer_context.text_pointer->coordinates_settings.instance_offsets_buffer->x - 1;
+    g_text_pointer_context.text_pointer->coordinates_settings.scissor.y = half_viewport_height + half_viewport_height * g_text_pointer_context.text_pointer->coordinates_settings.instance_offsets_buffer->y - (g_text_pointer_context.text_pointer_height >>1 ) - 1;
+    g_text_pointer_context.text_pointer->coordinates_settings.scissor.width = 1;
+    g_text_pointer_context.text_pointer->coordinates_settings.scissor.height = g_text_pointer_context.text_pointer_height;
 }
 
 void init_ui_text_pointer(UIElements * text_pointer) {
@@ -108,7 +108,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
                     }
                     g_text_pointer_context.string_buffer = &interactive_list->source_data[index*interactive_list->stride];
                     g_text_pointer_context.buffer_size = interactive_list->string_size;
-                    g_text_pointer_context.text_pointer_height = (g_dstudio_viewport_height) * ui_elements->scale_matrix[1].y;
+                    g_text_pointer_context.text_pointer_height = (g_dstudio_viewport_height) * ui_elements->coordinates_settings.scale_matrix[1].y;
                     s_timestamp = get_timestamp();
                     update_text_pointer();
                     break;

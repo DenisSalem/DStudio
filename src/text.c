@@ -22,14 +22,14 @@
 #include "text.h"
 
 void update_text(UIElements * text, char * string_value, unsigned int buffer_size) {
-    Vec4 * offset_buffer = (Vec4 *) text->instance_offsets_buffer;
+    Vec4 * offset_buffer = (Vec4 *) text->coordinates_settings.instance_offsets_buffer;
     int linear_coordinate = 0;
     int padding = 0;
     size_t current_strlen = strlen(string_value);
-    text->scissor.width = text->scale_matrix[0].x * g_dstudio_viewport_width;
-    text->scissor.width *= current_strlen > text->previous_text_size ? \
+    
+    text->coordinates_settings.scissor.width = lroundf(text->coordinates_settings.scale_matrix[0].x * (g_previous_window_scale.width * (current_strlen > text->previous_text_size ? \
         current_strlen: \
-        text->previous_text_size;
+        text->previous_text_size)));
     text->previous_text_size = current_strlen;
 
     for (unsigned int i = 0; i < buffer_size; i++) {

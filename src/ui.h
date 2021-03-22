@@ -158,6 +158,12 @@ typedef enum MotionType_t {
 typedef struct UIElements_t UIElements;
 typedef struct UIInteractiveList_t UIInteractiveList;
 
+typedef struct UIElementsCoordinatesSettings_t {
+    Vec2 *                      scale_matrix;
+    Vec4 *                      instance_offsets_buffer;
+    Scissor                     scissor;
+} UIElementsCoordinatesSettings;
+
 typedef struct UIElements_t {
     unsigned char               count;
     unsigned char               render_state;
@@ -190,12 +196,10 @@ typedef struct UIElements_t {
     GLuint                      instance_offsets;
     GLfloat *                   instance_alphas_buffer; 
     GLfloat *                   instance_motions_buffer;
-    Vec4 *                      instance_offsets_buffer; 
     Vec4                        vertex_attributes[4];
+    UIElementsCoordinatesSettings coordinates_settings;
     Vec4                        areas;
     Vec4                        color;
-    Scissor                     scissor;
-    Vec2 *                      scale_matrix;
     UIElements *                overlap_sub_menu_ui_elements;
     UIElementType               type;
     UIInteractiveList *         interactive_list;

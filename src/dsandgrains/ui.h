@@ -157,31 +157,31 @@ typedef struct UIElementsStruct_t {
     UIElements knob_sample_end;
     UIElements knob_sample_grain_size;
     UIElements knob_sample_transient_thresold;
-    UIElements knob_sample_loop_duration;                           // 9
+    UIElements knob_sample_loop_duration;                           // 8
     UIElements knob_sample_cloud_size;                              
     UIElements knob_sample_distribution_balance;
     UIElements knob_sample_smooth_transition;
-    UIElements knob_sample_amount;                                  //14
+    UIElements knob_sample_amount;                                  //12
     UIElements knob_sample_pitch;
     UIElements knob_voice_volume;
     UIElements knob_voice_pan;
-    UIElements knob_voice_influence;                                //19
+    UIElements knob_voice_influence;                                //16
     UIElements knob_voice_density;
     UIElements knob_sample_lfo_tune;
     UIElements knob_sample_lfo_phase;
-    UIElements knob_sample_lfo_depth;
+    UIElements knob_sample_lfo_depth;                               //20
     UIElements knob_sample_lfo_signal;
     UIElements knob_sample_lfo_pitch_tune;
     UIElements knob_sample_lfo_pitch_phase;
-    UIElements knob_sample_lfo_pitch_depth;
+    UIElements knob_sample_lfo_pitch_depth;                         //24
     UIElements knob_sample_lfo_pitch_signal;
     UIElements slider_delay;
     UIElements slider_attack;
-    UIElements slider_hold;
+    UIElements slider_hold;                                         //28
     UIElements slider_decay;
     UIElements slider_sustain;
     UIElements slider_release;
-    UIElements slider_equalizer_band_1;
+    UIElements slider_equalizer_band_1;                             //32
     UIElements slider_equalizer_band_2;
     UIElements slider_equalizer_band_3;
     UIElements slider_equalizer_band_4;
