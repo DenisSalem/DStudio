@@ -789,30 +789,13 @@ inline void render_loop() {
                 (current_window_scale.height != g_previous_window_scale.height)
             ) {
                 render_all |= 1;
-                //~ DSTUDIO_TRACE_ARGS("BEFORE scissor x y w h: %d %d %d %d, scale x y: %f %f",
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.x,
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.y,
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.width,
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.height,
-                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[0].x,
-                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[1].y
-                //~ ) 
+
                 update_ui_elements_offsets(current_window_scale);
                 g_previous_window_scale.width = current_window_scale.width;
                 g_previous_window_scale.height = current_window_scale.height;
-                update_ui_elements();
-                //~ DSTUDIO_TRACE_ARGS("AFTER scissor x y w h: %d %d %d %d, scale x y: %f %f",
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.x,
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.y,
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.width,
-                    //~ g_ui_elements_array[3].coordinates_settings.scissor.height,
-                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[0].x,
-                    //~ g_ui_elements_array[3].coordinates_settings.scale_matrix[1].y
-                //~ )
             }
-            else {
-                update_ui_elements();
-            }
+            
+            update_ui_elements();
 
             if (render_viewport(render_all)) {
                 swap_window_buffer();
@@ -1137,8 +1120,6 @@ void update_ui_elements_offsets(WindowScale window_scale) {
         offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height)) / ((GLfloat) window_scale.height);
     }
     
-   
-
     for (unsigned int i=0; i < g_dstudio_ui_element_count; i++) {
         ui_elements = &g_ui_elements_array[i];
         for (unsigned int j=0; j < ui_elements->count; j++) {            
@@ -1146,12 +1127,9 @@ void update_ui_elements_offsets(WindowScale window_scale) {
             ui_elements->coordinates_settings.instance_offsets_buffer[j].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
         }
         
-        // TODO: NEED TO BE COMPUTED PROPERLY
-        ui_elements->coordinates_settings.scissor.x += ((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2;
-        ui_elements->coordinates_settings.scissor.y += ((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2;  
+        ui_elements->coordinates_settings.scissor.x += lroundf(((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2);
+        ui_elements->coordinates_settings.scissor.y += lroundf(((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2);  
            
-
-              
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_elements->count, ui_elements->coordinates_settings.instance_offsets_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);

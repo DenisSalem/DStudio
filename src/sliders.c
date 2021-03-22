@@ -42,12 +42,12 @@ inline float compute_slider_translation(int ypos) {
 }
 
 void compute_slider_scissor_y(UIElements * ui_elements) {
-    ui_elements->coordinates_settings.scissor.y = (\
-        1.0+ \
+    ui_elements->coordinates_settings.scissor.y = lroundf(\
+        (1.0 + \
         ui_elements->coordinates_settings.instance_offsets_buffer->y+ \
         ui_elements->instance_motions_buffer[0] \
         - (ui_elements->coordinates_settings.scale_matrix[1].y) \
-    ) * (g_previous_window_scale.height >> 1);
+    ) * (g_previous_window_scale.height >> 1));
     
     ui_elements->coordinates_settings.scissor.height = ui_elements->coordinates_settings.scale_matrix[1].y * g_previous_window_scale.height;
 }
@@ -58,7 +58,7 @@ void compute_slider_in_motion_scissor_y(UIElements * slider, GLfloat motion) {
     GLint new_scissor_y;
     GLsizei height;
     
-    current_scissor_y = (\
+    current_scissor_y = lroundf(\
         DSTUDIO_SLIDER_SCISSOR_SAFE_OFFSET+ \
         slider->coordinates_settings.instance_offsets_buffer->y+ \
         motion \
