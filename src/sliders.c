@@ -75,6 +75,6 @@ void compute_slider_in_motion_scissor_y(UIElements * slider, GLfloat motion) {
         slider->coordinates_settings.scissor.height += height;
     } else {
         g_saved_scissor_y = new_scissor_y;
-        slider->coordinates_settings.scissor.height = height + slider->coordinates_settings.scale_matrix[1].y * (g_previous_window_scale.height);
+        slider->coordinates_settings.scissor.height = lroundf(height + slider->coordinates_settings.scale_matrix[1].y * (g_previous_window_scale.height));
     }
 }

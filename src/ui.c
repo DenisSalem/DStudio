@@ -441,7 +441,7 @@ void init_ui() {
     init_ui_elements(
         &s_framebuffer_quad,
         &s_framebuffer_textures[0],
-        &g_background_scale_matrix[0],
+        (Vec2 *) &s_framebuffer_scale_matrix[0],
         0,
         0,
         g_dstudio_viewport_width,
@@ -784,19 +784,21 @@ inline void render_loop() {
             unsigned int render_all = need_to_redraw_all();
             render_all |= g_request_render_all;
             current_window_scale = get_window_scale();
+            
             if (
                 (current_window_scale.width != g_previous_window_scale.width) || 
                 (current_window_scale.height != g_previous_window_scale.height)
             ) {
                 render_all |= 1;
-
                 update_ui_elements_offsets(current_window_scale);
                 g_previous_window_scale.width = current_window_scale.width;
                 g_previous_window_scale.height = current_window_scale.height;
+                
             }
             
             update_ui_elements();
-
+            
+            // TODO: Investigate multiple unnessary render_viewport call
             if (render_viewport(render_all)) {
                 swap_window_buffer();
             }
@@ -853,10 +855,14 @@ void render_ui_elements(UIElements * ui_elements) {
     }
 }
 
+
+/* TODO: Implement efficient overlap mechanism. Use case:
+ * What if text is rendered below slicer ?
+ * Could add additionnal frame_buffer?
+ */
 unsigned int render_viewport(unsigned int render_all) {
     unsigned int background_rendering_start_index = render_all ? 0 : 1;
     unsigned int background_rendering_end_index;
-    unsigned int render_overlap = 0;   
     int layer_1_index_limit = -1;
 
     /* First of all, we get once every ui elements we want to render
@@ -897,6 +903,7 @@ unsigned int render_viewport(unsigned int render_all) {
      * is enabled. */
      
     if (g_menu_background_enabled) {
+        //glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height); 
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
     }
 
@@ -923,7 +930,7 @@ unsigned int render_viewport(unsigned int render_all) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
         /* Render second layer background */
         if (render_all) {
-            glScissor(0,0, g_dstudio_viewport_width, g_dstudio_viewport_height);
+            glScissor(0,0, g_previous_window_scale.width, g_previous_window_scale.height);
             glClear(GL_COLOR_BUFFER_BIT);
         }
 
@@ -935,7 +942,8 @@ unsigned int render_viewport(unsigned int render_all) {
         }
         
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
+        glViewport(0,0, g_previous_window_scale.width, g_previous_window_scale.height);  
+
         /* Render all layers required areas as background */
         background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
         for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
@@ -945,21 +953,6 @@ unsigned int render_viewport(unsigned int render_all) {
             }
             scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
             render_layers(DSTUDIO_FRAMEBUFFER_COUNT);
-            if (
-                s_ui_elements_requests[i]->overlap_sub_menu_ui_elements &&
-                s_ui_elements_requests[i]->overlap_sub_menu_ui_elements->visible
-            ) {
-                render_overlap = 1;
-                for (unsigned int j = layer_1_index_limit; j <= s_ui_elements_requests_index; j++) {
-                    if (s_ui_elements_requests[j] == s_ui_elements_requests[i]->overlap_sub_menu_ui_elements) {
-                        render_overlap = 0;
-                    }
-                }
-                if (render_overlap) {
-                    update_scale_matrix(s_ui_elements_requests[i]->overlap_sub_menu_ui_elements->coordinates_settings.scale_matrix);
-                    render_ui_elements(s_ui_elements_requests[i]->overlap_sub_menu_ui_elements);
-                }
-            }
         }
         
         /* Render remaining ui elements */
@@ -1122,7 +1115,10 @@ void update_ui_elements_offsets(WindowScale window_scale) {
     
     for (unsigned int i=0; i < g_dstudio_ui_element_count; i++) {
         ui_elements = &g_ui_elements_array[i];
-        for (unsigned int j=0; j < ui_elements->count; j++) {            
+        //~ if (g_menu_background_enabled && g_menu_background_enabled <= ui_elements) {
+            //~ continue;
+        //~ }
+        for (unsigned int j=0; j < ui_elements->count; j++) {      
             ui_elements->coordinates_settings.instance_offsets_buffer[j].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
             ui_elements->coordinates_settings.instance_offsets_buffer[j].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
         }
@@ -1134,15 +1130,16 @@ void update_ui_elements_offsets(WindowScale window_scale) {
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_elements->count, ui_elements->coordinates_settings.instance_offsets_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
     }
+    
+    GLfloat new_width_ratio = (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
+    GLfloat new_height_ratio = (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
+    
     for (unsigned int i=0; i < s_known_scale_matrices_count; i++) {
-        s_known_scale_matrices[i][0].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;        
-        s_known_scale_matrices[i][1].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
+        s_known_scale_matrices[i][0].x *= new_width_ratio;        
+        s_known_scale_matrices[i][1].y *= new_height_ratio;
     }
-       
-    glViewport(0,0,window_scale.width, window_scale.height);
-    glScissor(0,0,window_scale.width, window_scale.height);
-    glClearColor(0.0,0.0,0.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+
+    glViewport(0, 0, window_scale.width, window_scale.height);
     s_previous_offset_x = -offset_x;
     s_previous_offset_y = -offset_y;
 }

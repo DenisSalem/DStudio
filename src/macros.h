@@ -17,11 +17,11 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEFINE_SCALE_MATRIX(scale_matrix, width, height) \
-        scale_matrix[0].x = (GLfloat) width / (GLfloat) g_dstudio_viewport_width;\
+#define DEFINE_SCALE_MATRIX(scale_matrix, w, h) \
+        scale_matrix[0].x = (GLfloat) w / (GLfloat) g_previous_window_scale.width;\
         scale_matrix[0].y = 0; \
         scale_matrix[1].x = 0; \
-        scale_matrix[1].y = (GLfloat) height / (GLfloat) g_dstudio_viewport_height;
+        scale_matrix[1].y = (GLfloat) h / (GLfloat) g_previous_window_scale.height;
 
 #define DSTUDIO_EXIT_IF_FAILURE(value) \
     if ((value) != 0) { \
