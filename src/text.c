@@ -27,7 +27,7 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
     int padding = 0;
     size_t current_strlen = strlen(string_value);
     
-    text->coordinates_settings.scissor.width = lroundf(text->coordinates_settings.scale_matrix[0].x * (g_previous_window_scale.width * (current_strlen > text->previous_text_size ? \
+    text->coordinates_settings.scissor.width = lroundf(text->coordinates_settings.scale_matrix[0].x * (g_dstudio_viewport_width * (current_strlen > text->previous_text_size ? \
         current_strlen: \
         text->previous_text_size)));
     text->previous_text_size = current_strlen;

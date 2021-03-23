@@ -67,6 +67,8 @@ static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
 static GLfloat              s_previous_offset_x = 0;
 static GLfloat              s_previous_offset_y = 0;
+static int                  s_scissor_offset_x = 0;
+static int                  s_scissor_offset_y = 0;
 static Vec2 **              s_known_scale_matrices = 0;
 static unsigned int         s_known_scale_matrices_count = 0;
 
@@ -136,7 +138,7 @@ static void render_layers(unsigned int limit) {
 
 static void update_scale_matrix(Vec2 * scale_matrix);
 
-static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags) {
+static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags, int scissor_offset_x, int scissor_offset_y) {
     UIElements * ui_element = s_ui_elements_requests[scissor_index];
     Scissor * scissor = &ui_element->coordinates_settings.scissor;
     UIElementType type = ui_element->type;
@@ -154,10 +156,10 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
         
     if (scissor_index >=0) {
         glScissor(
-            scissor->x,
-            flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
+            scissor_offset_x + scissor->x,
+            scissor_offset_y + (flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
                 ui_element->previous_highlight_scissor_y : \
-                scissor->y
+                scissor->y)
             ,
             is_active_text_pointer_overing ? 1 : scissor->width ,
             scissor->height
@@ -790,7 +792,7 @@ inline void render_loop() {
                 (current_window_scale.height != g_previous_window_scale.height)
             ) {
                 render_all |= 1;
-                update_ui_elements_offsets(current_window_scale);
+                update_viewport(current_window_scale);
                 g_previous_window_scale.width = current_window_scale.width;
                 g_previous_window_scale.height = current_window_scale.height;
                 
@@ -836,7 +838,6 @@ void render_ui_elements(UIElements * ui_elements) {
             break;
     }
     glUniform1ui(g_no_texture_location, ui_elements->type & (DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND | DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE) ? 1 : 0);
-
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ui_elements->index_buffer_object);
@@ -903,65 +904,79 @@ unsigned int render_viewport(unsigned int render_all) {
      * is enabled. */
      
     if (g_menu_background_enabled) {
-        //glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height); 
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
     }
 
     /* Render first layer background */
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
-        scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
+        scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE, 0, 0);
         render_ui_elements(s_ui_elements_requests[0]);
+        if (background_rendering_start_index == 0) {
+            break;
+        }
     }
 
     /* Render first layer ui elements */
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
         // Refresh  interactive list background and/or highligh1 when unselected 
         if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active && g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
-            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, 0, 0);
             render_ui_elements(s_ui_elements_requests[0]);
         }
-        scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
+        scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE,0 , 0);
         render_ui_elements(s_ui_elements_requests[i]);
 
     }
 
     if (g_menu_background_enabled) {
+
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
         /* Render second layer background */
         if (render_all) {
-            glScissor(0,0, g_previous_window_scale.width, g_previous_window_scale.height);
+            glClearColor(0,0,0,0.0);
+            glScissor(0,0, g_dstudio_viewport_width, g_dstudio_viewport_height);
             glClear(GL_COLOR_BUFFER_BIT);
         }
 
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (is_background_ui_element(s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
+                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, 0, 0);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
-        
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0,0, g_previous_window_scale.width, g_previous_window_scale.height);  
+
+        glViewport(
+            (g_previous_window_scale.width - g_dstudio_viewport_width)/2,
+            (g_previous_window_scale.height - g_dstudio_viewport_height)/2, 
+            g_dstudio_viewport_width, 
+            g_dstudio_viewport_height
+        );
 
         /* Render all layers required areas as background */
         background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
         for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
-            if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active && g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
+            if (!(background_rendering_start_index == 0) && s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT ) {
+                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, s_scissor_offset_x, s_scissor_offset_y);
                 render_layers((DSTUDIO_FRAMEBUFFER_COUNT));
             }
-            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
+            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE, s_scissor_offset_x, s_scissor_offset_y);
             render_layers(DSTUDIO_FRAMEBUFFER_COUNT);
+            if (background_rendering_start_index == 0) {
+                break;
+            }
         }
         
         /* Render remaining ui elements */
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (!is_background_ui_element(s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
+                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, s_scissor_offset_x, s_scissor_offset_y);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
+        glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
     }
     return 1;
 }
@@ -1100,10 +1115,10 @@ void update_ui_element_motion(
     ui_elements_p->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
 }
 
-void update_ui_elements_offsets(WindowScale window_scale) {
+void update_viewport(WindowScale window_scale) {
+    (void) window_scale;
     GLfloat offset_x = 0.0;
     GLfloat offset_y = 0.0;
-    UIElements * ui_elements = 0;
 
     if (window_scale.width > g_dstudio_viewport_width) {
         offset_x = ((GLfloat) (window_scale.width - g_dstudio_viewport_width)) / ((GLfloat) window_scale.width);
@@ -1113,34 +1128,17 @@ void update_ui_elements_offsets(WindowScale window_scale) {
         offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height)) / ((GLfloat) window_scale.height);
     }
     
-    for (unsigned int i=0; i < g_dstudio_ui_element_count; i++) {
-        ui_elements = &g_ui_elements_array[i];
-        //~ if (g_menu_background_enabled && g_menu_background_enabled <= ui_elements) {
-            //~ continue;
-        //~ }
-        for (unsigned int j=0; j < ui_elements->count; j++) {      
-            ui_elements->coordinates_settings.instance_offsets_buffer[j].x *= (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
-            ui_elements->coordinates_settings.instance_offsets_buffer[j].y *= (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
-        }
-        
-        ui_elements->coordinates_settings.scissor.x += lroundf(((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2);
-        ui_elements->coordinates_settings.scissor.y += lroundf(((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2);  
-           
-        glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4) * ui_elements->count, ui_elements->coordinates_settings.instance_offsets_buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, ui_elements->instance_offsets);
-    }
-    
-    GLfloat new_width_ratio = (GLfloat) g_previous_window_scale.width / (GLfloat) window_scale.width;
-    GLfloat new_height_ratio = (GLfloat) g_previous_window_scale.height / (GLfloat) window_scale.height;
-    
-    for (unsigned int i=0; i < s_known_scale_matrices_count; i++) {
-        s_known_scale_matrices[i][0].x *= new_width_ratio;        
-        s_known_scale_matrices[i][1].y *= new_height_ratio;
-    }
+    s_scissor_offset_x += lroundf(((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2);
+    s_scissor_offset_y += lroundf(((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2);
 
-    glViewport(0, 0, window_scale.width, window_scale.height);
     s_previous_offset_x = -offset_x;
     s_previous_offset_y = -offset_y;
+
+    //~ // TODO: Must be replaced painting all over a tessellated background pattern.
+    glViewport(0, 0, window_scale.width, window_scale.height);
+    glScissor(0, 0, window_scale.width, window_scale.height);
+    glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
 }
     

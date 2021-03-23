@@ -320,7 +320,7 @@ void update_ui_element_motion(
 );
 
 // Used when window is forced to be resized
-void update_ui_elements_offsets(WindowScale window_scale);
+void update_viewport(WindowScale window_scale);
 
 // Must be defined by consumer
 typedef struct UIElementsStruct_t UIElementsStruct;
