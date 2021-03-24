@@ -866,6 +866,9 @@ unsigned int render_viewport(unsigned int render_all) {
     unsigned int background_rendering_end_index;
     int layer_1_index_limit = -1;
 
+    int scissor_offset_x = g_menu_background_enabled ? 0 : s_scissor_offset_x;
+    int scissor_offset_y = g_menu_background_enabled ? 0 : s_scissor_offset_y;
+
     /* First of all, we get once every ui elements we want to render
      * in a single list, so we don't have to iterate many times 
      * through hundred of items and performs visibility or render
@@ -906,11 +909,19 @@ unsigned int render_viewport(unsigned int render_all) {
     if (g_menu_background_enabled) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
     }
+    else if (s_scissor_offset_x ||  s_scissor_offset_y) {
+        glViewport(
+            (g_previous_window_scale.width - g_dstudio_viewport_width)/2,
+            (g_previous_window_scale.height - g_dstudio_viewport_height)/2, 
+            g_dstudio_viewport_width, 
+            g_dstudio_viewport_height
+        );        
+    }
 
     /* Render first layer background */
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
-        scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE, 0, 0);
+        scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
         render_ui_elements(s_ui_elements_requests[0]);
         if (background_rendering_start_index == 0) {
             break;
@@ -924,7 +935,7 @@ unsigned int render_viewport(unsigned int render_all) {
             scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, 0, 0);
             render_ui_elements(s_ui_elements_requests[0]);
         }
-        scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE,0 , 0);
+        scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
         render_ui_elements(s_ui_elements_requests[i]);
 
     }
