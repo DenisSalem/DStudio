@@ -1130,15 +1130,15 @@ void update_viewport(WindowScale window_scale) {
     GLfloat offset_y = 0.0;
 
     if (window_scale.width > g_dstudio_viewport_width) {
-        offset_x = ((GLfloat) (window_scale.width - g_dstudio_viewport_width)) / ((GLfloat) window_scale.width);
+        offset_x = ((GLfloat) (window_scale.width - g_dstudio_viewport_width));
     }
     
     if (window_scale.height > g_dstudio_viewport_height) {
-        offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height)) / ((GLfloat) window_scale.height);
+        offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height));
     }
     
-    s_scissor_offset_x = lroundf((offset_x * window_scale.width) / 2);
-    s_scissor_offset_y = lroundf((offset_y * window_scale.height) / 2);
+    s_scissor_offset_x = lroundf(offset_x / 2.0);
+    s_scissor_offset_y = lroundf(offset_y / 2.0);
 
     //~ // TODO: Must be replaced painting all over a tessellated background pattern.
     glViewport(0, 0, window_scale.width, window_scale.height);
