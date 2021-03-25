@@ -35,6 +35,7 @@
 int     g_active_slider_range_max = 0;
 int     g_active_slider_range_min = 0;
 Vec2    g_background_scale_matrix[2] = {0};
+
 GLuint  g_charset_8x18_texture_ids[2] = {0};
 GLuint  g_charset_4x9_texture_ids[2] = {0};
 Vec2    g_charset_8x18_scale_matrix[2] = {0};
@@ -65,8 +66,6 @@ static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
-static GLfloat              s_previous_offset_x = 0;
-static GLfloat              s_previous_offset_y = 0;
 static int                  s_scissor_offset_x = 0;
 static int                  s_scissor_offset_y = 0;
 static Vec2 **              s_known_scale_matrices = 0;
@@ -165,7 +164,6 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             scissor->height
         );
     }
-
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
         update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->coordinates_settings.scale_matrix : s_framebuffer_scale_matrix);
     }
@@ -987,8 +985,8 @@ unsigned int render_viewport(unsigned int render_all) {
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
-        glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
     }
+    glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
     return 1;
 }
 
@@ -1139,16 +1137,13 @@ void update_viewport(WindowScale window_scale) {
         offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height)) / ((GLfloat) window_scale.height);
     }
     
-    s_scissor_offset_x += lroundf(((s_previous_offset_x ) * g_previous_window_scale.width + offset_x * window_scale.width) / 2);
-    s_scissor_offset_y += lroundf(((s_previous_offset_y ) * g_previous_window_scale.height + offset_y * window_scale.height) / 2);
-
-    s_previous_offset_x = -offset_x;
-    s_previous_offset_y = -offset_y;
+    s_scissor_offset_x = lroundf((offset_x * window_scale.width) / 2);
+    s_scissor_offset_y = lroundf((offset_y * window_scale.height) / 2);
 
     //~ // TODO: Must be replaced painting all over a tessellated background pattern.
     glViewport(0, 0, window_scale.width, window_scale.height);
     glScissor(0, 0, window_scale.width, window_scale.height);
-    glClearColor(0,0,0,1);
+    glClearColor(1,0.5,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
 }

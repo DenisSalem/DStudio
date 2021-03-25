@@ -337,7 +337,6 @@ void listen_events() {
         return;
     }
     
-    //~ // The good way to process event
     struct pollfd fds = {0};
     fds.fd = ConnectionNumber(display);
     fds.events = POLLIN;
