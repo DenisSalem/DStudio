@@ -68,8 +68,6 @@ static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
 static int                  s_scissor_offset_x = 0;
 static int                  s_scissor_offset_y = 0;
-static Vec2 **              s_known_scale_matrices = 0;
-static unsigned int         s_known_scale_matrices_count = 0;
 
 #ifdef DSTUDIO_DEBUG
 static void check_frame_buffer_status() {
@@ -313,7 +311,7 @@ void init_opengl_ui_elements(
     vertex_attributes[2].z = 1.0;
     vertex_attributes[3].z = 1.0;
     if (flip_y) {
-        vertex_attributes[0].w = 1.0f;
+        vertex_attributes[0].w = 1.0;
         vertex_attributes[2].w = 1.0;
     }
     else {
@@ -489,26 +487,7 @@ void init_ui_elements(
     unsigned int instances_count,
     UIElementType ui_element_type,
     int flags
-) {
-    // Keep track of scales matrices for updating them while window is resized.
-    int new_scale_matrix = 1;
-    if (s_known_scale_matrices_count == 0) {
-        s_known_scale_matrices = dstudio_alloc(sizeof(Vec2 *), DSTUDIO_FAILURE_IS_FATAL);
-        s_known_scale_matrices[s_known_scale_matrices_count++] = scale_matrix;
-    }
-    else {
-        for(unsigned int i = 0; i<s_known_scale_matrices_count; i++) {
-            if (scale_matrix == s_known_scale_matrices[i]) {
-                new_scale_matrix = 0;
-                break;
-            } 
-        }
-        if (new_scale_matrix) {
-            s_known_scale_matrices = dstudio_realloc(s_known_scale_matrices, sizeof(Vec2 *) * (s_known_scale_matrices_count + 1));
-            s_known_scale_matrices[s_known_scale_matrices_count++] = scale_matrix;
-        }
-    }
-    
+) {    
     GLfloat min_area_x;
     GLfloat min_area_y;
     if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE)) {
@@ -561,6 +540,7 @@ void init_ui_elements(
             if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + (x * offset_x);
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y - (j * scale_matrix[1].y * 2) + (y * offset_y);
+                // Setup texture coordinates for SLIDER BACKGROUND
                 if (j == instances_count-1) {
                     ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].w = 2.0/3.0;
                 }
@@ -860,6 +840,59 @@ void render_ui_elements(UIElements * ui_elements) {
  * Could add additionnal frame_buffer?
  */
 unsigned int render_viewport(unsigned int render_all) {
+    Vec4 tmp_tex_coordinates[4] = {0};
+    Vec2 * menu_background_scale_matrix = 0;
+    Vec4 * menu_background_vertex_attributes = 0;
+    
+    if (render_all) {
+        glViewport(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
+        glScissor(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
+        glClearColor(1,1,1,1);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        if (g_menu_background_enabled) {
+            menu_background_scale_matrix = g_menu_background_enabled->coordinates_settings.scale_matrix;
+            menu_background_vertex_attributes = g_menu_background_enabled->vertex_attributes;
+            
+            memcpy(&tmp_tex_coordinates, menu_background_vertex_attributes, sizeof(GLfloat) * 16);
+
+            GLfloat new_tex_coord_x = ((GLfloat) menu_background_scale_matrix[0].x * g_previous_window_scale.width) / DSTUDIO_PATTERN_SCALE;
+            GLfloat new_tex_coord_y = ((GLfloat) menu_background_scale_matrix[1].y * g_previous_window_scale.height) / DSTUDIO_PATTERN_SCALE;
+            
+            GLfloat tex_offset_x = (GLfloat) (((g_previous_window_scale.width - g_dstudio_viewport_width) / 2) % DSTUDIO_PATTERN_SCALE) / (GLfloat) DSTUDIO_PATTERN_SCALE;
+            GLfloat tex_offset_y = (GLfloat) (((g_previous_window_scale.height - g_dstudio_viewport_height) / 2) % DSTUDIO_PATTERN_SCALE) / (GLfloat) DSTUDIO_PATTERN_SCALE;
+            
+            DSTUDIO_TRACE_ARGS("%f %f", tex_offset_x, tex_offset_y);
+            
+            menu_background_vertex_attributes[0].z += -tex_offset_x;
+            menu_background_vertex_attributes[0].w += -tex_offset_y;
+            
+            menu_background_vertex_attributes[1].z += -tex_offset_x;
+            menu_background_vertex_attributes[1].w = new_tex_coord_y -tex_offset_y;
+            
+            menu_background_vertex_attributes[2].z = new_tex_coord_x  -tex_offset_x;
+            menu_background_vertex_attributes[2].w += -tex_offset_y;
+            
+            menu_background_vertex_attributes[3].z = new_tex_coord_x -tex_offset_x;
+            menu_background_vertex_attributes[3].w = new_tex_coord_y -tex_offset_y;
+            
+            glBindBuffer(GL_ARRAY_BUFFER, g_menu_background_enabled->vertex_buffer_object);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, menu_background_vertex_attributes, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);    
+
+            update_scale_matrix(g_menu_background_enabled->coordinates_settings.scale_matrix);
+            render_ui_elements(g_menu_background_enabled);
+            
+            memcpy(menu_background_vertex_attributes, &tmp_tex_coordinates, sizeof(GLfloat) * 16);
+            
+            glBindBuffer(GL_ARRAY_BUFFER, g_menu_background_enabled->vertex_buffer_object);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, menu_background_vertex_attributes, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);  
+        }
+        
+        glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
+    }
+    
     unsigned int background_rendering_start_index = render_all ? 0 : 1;
     unsigned int background_rendering_end_index;
     int layer_1_index_limit = -1;
@@ -1139,12 +1172,4 @@ void update_viewport(WindowScale window_scale) {
     
     s_scissor_offset_x = lroundf(offset_x / 2.0);
     s_scissor_offset_y = lroundf(offset_y / 2.0);
-
-    //~ // TODO: Must be replaced painting all over a tessellated background pattern.
-    glViewport(0, 0, window_scale.width, window_scale.height);
-    glScissor(0, 0, window_scale.width, window_scale.height);
-    glClearColor(1,0.5,0,1);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
 }
-    
