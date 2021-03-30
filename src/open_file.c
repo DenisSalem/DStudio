@@ -287,7 +287,8 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
         DSTUDIO_CANCEL_BUTTON_ASSET_PATH,
-        s_open_file_buttons_scale_matrix
+        s_open_file_buttons_scale_matrix,
+        NULL
     );
     
     texture_ids[1] = setup_texture_n_scale_matrix(
@@ -295,6 +296,7 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
         DSTUDIO_ACTIVE_CANCEL_BUTTON_ASSET_PATH,
+        NULL,
         NULL
     ); 
     
@@ -346,6 +348,7 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
         DSTUDIO_OPEN_FILE_BUTTON_ASSET_PATH,
+        NULL,
         NULL
     );
     
@@ -354,6 +357,7 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_BUTTONS_WIDTH,
         DSTUDIO_OPEN_FILE_BUTTONS_HEIGHT, 
         DSTUDIO_ACTIVE_OPEN_FILE_BUTTON_ASSET_PATH,
+        NULL,
         NULL
     ); 
 
@@ -407,6 +411,7 @@ void init_open_menu(
         DSTUDIO_SLIDER_BACKGROUND_WIDTH,
         DSTUDIO_SLIDER_BACKGROUND_HEIGHT, 
         DSTUDIO_SLIDER_BACKGROUND_ASSET_PATH,
+        NULL,
         NULL
     );
 
@@ -440,7 +445,8 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_SLIDER_WIDTH,
         DSTUDIO_OPEN_FILE_SLIDER_HEIGHT, 
         DSTUDIO_OPEN_FILE_SLIDER_ASSET_PATH,
-        s_slider_scale_matrix
+        s_slider_scale_matrix,
+        NULL
     );
 
     init_ui_elements(
@@ -494,7 +500,8 @@ void init_open_menu(
         DSTUDIO_PATTERN_SCALE,
         DSTUDIO_PATTERN_SCALE, 
         DSTUDIO_LIST_ITEM_HIGHLIGHT_PATTERN_PATH,
-        NULL
+        NULL,
+        &list_highlight->pattern_scale
     );
 
     init_ui_elements(

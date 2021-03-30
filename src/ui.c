@@ -373,7 +373,8 @@ void init_text() {
         DSTUDIO_CHAR_TABLE_8X18_WIDTH,
         DSTUDIO_CHAR_TABLE_8X18_HEIGHT,
         DSTUDIO_CHAR_TABLE_8X18_ASSET_PATH,
-        g_charset_8x18_scale_matrix
+        g_charset_8x18_scale_matrix,
+        NULL
     );
     
     g_charset_4x9_texture_ids[1] = setup_texture_n_scale_matrix(
@@ -381,7 +382,8 @@ void init_text() {
         DSTUDIO_CHAR_TABLE_4X9_WIDTH,
         DSTUDIO_CHAR_TABLE_4X9_HEIGHT,
         DSTUDIO_CHAR_TABLE_4X9_ASSET_PATH,
-        g_charset_4x9_scale_matrix
+        g_charset_4x9_scale_matrix,
+        NULL
     );
 }
 
@@ -471,7 +473,8 @@ void init_ui() {
     );
 };
 
-// TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE IMPROVEMENT
+// TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE 
+
 void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
@@ -502,6 +505,7 @@ void init_ui_elements(
     else {
         min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
     }
+    
     GLfloat max_area_x = min_area_x + area_width;
     GLfloat max_area_y = min_area_y + area_height;
          
@@ -843,6 +847,8 @@ unsigned int render_viewport(unsigned int render_all) {
     Vec4 tmp_tex_coordinates[4] = {0};
     Vec2 * menu_background_scale_matrix = 0;
     Vec4 * menu_background_vertex_attributes = 0;
+    unsigned char pattern_width = 0;
+    unsigned char pattern_height = 0;
     
     if (render_all) {
         glViewport(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
@@ -851,18 +857,21 @@ unsigned int render_viewport(unsigned int render_all) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         if (g_menu_background_enabled) {
+            pattern_width = (unsigned char) g_menu_background_enabled->pattern_scale.width;
+            pattern_height = (unsigned char) g_menu_background_enabled->pattern_scale.height;
+            DSTUDIO_TRACE_ARGS("%d %d", g_menu_background_enabled->pattern_scale.width, g_menu_background_enabled->pattern_scale.height);
+
             menu_background_scale_matrix = g_menu_background_enabled->coordinates_settings.scale_matrix;
             menu_background_vertex_attributes = g_menu_background_enabled->vertex_attributes;
             
             memcpy(&tmp_tex_coordinates, menu_background_vertex_attributes, sizeof(GLfloat) * 16);
 
-            GLfloat new_tex_coord_x = ((GLfloat) menu_background_scale_matrix[0].x * g_previous_window_scale.width) / DSTUDIO_PATTERN_SCALE;
-            GLfloat new_tex_coord_y = ((GLfloat) menu_background_scale_matrix[1].y * g_previous_window_scale.height) / DSTUDIO_PATTERN_SCALE;
+            GLfloat new_tex_coord_x = ((GLfloat) menu_background_scale_matrix[0].x * g_previous_window_scale.width) / pattern_width;
+            GLfloat new_tex_coord_y = ((GLfloat) menu_background_scale_matrix[1].y * g_previous_window_scale.height) / pattern_height;
             
-            GLfloat tex_offset_x = (GLfloat) (((g_previous_window_scale.width - g_dstudio_viewport_width) / 2) % DSTUDIO_PATTERN_SCALE) / (GLfloat) DSTUDIO_PATTERN_SCALE;
-            GLfloat tex_offset_y = (GLfloat) (((g_previous_window_scale.height - g_dstudio_viewport_height) / 2) % DSTUDIO_PATTERN_SCALE) / (GLfloat) DSTUDIO_PATTERN_SCALE;
+            GLfloat tex_offset_x = (GLfloat) (((g_previous_window_scale.width - g_dstudio_viewport_width) / 2) % pattern_width) / (GLfloat) pattern_width;
+            GLfloat tex_offset_y = (GLfloat) (((g_previous_window_scale.height - g_dstudio_viewport_height) / 2) % pattern_height) / (GLfloat) pattern_height;
             
-            DSTUDIO_TRACE_ARGS("%f %f", tex_offset_x, tex_offset_y);
             
             menu_background_vertex_attributes[0].z += -tex_offset_x;
             menu_background_vertex_attributes[0].w += -tex_offset_y;
@@ -1075,7 +1084,8 @@ GLuint setup_texture_n_scale_matrix(
     GLuint texture_width,
     GLuint texture_height,
     const char * texture_filename,
-    Vec2 * scale_matrix
+    Vec2 * scale_matrix,
+    PatternScale * pattern_scale
 ) {
     GLuint texture_id = 0;
     unsigned char * texture_data = 0;
@@ -1083,7 +1093,10 @@ GLuint setup_texture_n_scale_matrix(
     int enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
     int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
     int texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
-    
+    if (texture_is_pattern) {
+        pattern_scale->width = texture_width; 
+        pattern_scale->height = texture_height; 
+    }
     get_png_pixel(texture_filename, &texture_data, alpha ? PNG_FORMAT_RGBA : PNG_FORMAT_RGB);
 
     glGenTextures(1, &texture_id);

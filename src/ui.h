@@ -37,6 +37,11 @@
         }\
     }
 
+typedef struct PatternScale_t {
+    unsigned char width;
+    unsigned char height;
+} PatternScale;
+
 typedef struct vec2_t {
     GLfloat x;
     GLfloat y;
@@ -171,8 +176,9 @@ typedef struct UIElements_t {
     unsigned char               enabled;
     unsigned char               texture_index;
     union {
-        double                      timestamp;
-        unsigned int                text_buffer_size;
+        double                  timestamp;
+        unsigned int            text_buffer_size;
+        PatternScale            pattern_scale;
     };
     GLchar                      vertex_indexes[4];
     /* For any text type there is only one index used for texture because
@@ -305,7 +311,8 @@ GLuint setup_texture_n_scale_matrix(
     GLuint texture_width,
     GLuint texture_height,
     const char * texture_filename,
-    Vec2 * scale_matrix
+    Vec2 * scale_matrix,
+    PatternScale * pattern_scale
 );
 
 void update_gpu_buffer(

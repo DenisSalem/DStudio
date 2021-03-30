@@ -65,7 +65,8 @@ inline static void init_background() {
         g_dstudio_viewport_width,
         g_dstudio_viewport_height, 
         DSANDGRAINS_BACKGROUND_ASSET_PATH,
-        g_background_scale_matrix
+        g_background_scale_matrix,
+        NULL
     );
     
     init_ui_elements(
@@ -90,8 +91,12 @@ inline static void init_background() {
         DSTUDIO_PATTERN_SCALE,
         DSTUDIO_PATTERN_SCALE, 
         DSTUDIO_BACKGROUND_MENU_PATTERN_ASSET_PATH,
-        NULL
+        NULL,
+        &g_ui_elements_struct.menu_background.pattern_scale
     );
+    
+    g_ui_elements_struct.menu_background.pattern_scale.width = DSTUDIO_PATTERN_SCALE;
+    g_ui_elements_struct.menu_background.pattern_scale.height = DSTUDIO_PATTERN_SCALE;
     
     init_ui_elements(
         &g_ui_elements_struct.menu_background,
@@ -172,7 +177,8 @@ inline static void init_knobs() {
         DSTUDIO_KNOB_1_64_WIDTH,
         DSTUDIO_KNOB_1_64_HEIGHT, 
         DSTUDIO_KNOB_1_64x64_TEXTURE_PATH,
-        knob1_64_scale_matrix
+        knob1_64_scale_matrix,
+        NULL
     );
 
     init_ui_elements(
@@ -214,7 +220,8 @@ inline static void init_knobs() {
         DSTUDIO_KNOB_1_48_WIDTH,
         DSTUDIO_KNOB_1_48_HEIGHT, 
         DSTUDIO_KNOB_1_48x48_TEXTURE_PATH,
-        knob1_48_scale_matrix
+        knob1_48_scale_matrix,
+        NULL
     );
     
     init_ui_elements(
@@ -283,7 +290,8 @@ inline static void init_list_item_highlights() {
         DSTUDIO_PATTERN_SCALE,
         DSTUDIO_PATTERN_SCALE, 
         DSTUDIO_LIST_ITEM_HIGHLIGHT_PATTERN_PATH,
-        NULL
+        NULL,
+        &g_ui_elements_struct.instances_list_item_highlight.pattern_scale
     );
     
     init_ui_elements(
@@ -346,7 +354,8 @@ inline static void init_misc_buttons() {
         DSANDGRAINS_TINY_BUTTON_SCALE,
         DSANDGRAINS_TINY_BUTTON_SCALE, 
         DSTUDIO_BUTTON_ADD_ASSET_PATH,
-        tiny_button_scale_matrix
+        tiny_button_scale_matrix,
+        NULL
     );
     
     textures_ids[1] = setup_texture_n_scale_matrix(
@@ -354,6 +363,7 @@ inline static void init_misc_buttons() {
         DSANDGRAINS_TINY_BUTTON_SCALE,
         DSANDGRAINS_TINY_BUTTON_SCALE, 
         DSTUDIO_ACTIVE_BUTTON_ADD_ASSET_PATH,
+        NULL,
         NULL
     );
     
@@ -383,7 +393,8 @@ inline static void init_ressource_usage() {
         DSTUDIO_RESSOURCE_USAGE_WIDTH,
         DSTUDIO_RESSOURCE_USAGE_HEIGHT, 
         DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH,
-        ressource_usage_prompt_scale_matrix
+        ressource_usage_prompt_scale_matrix,
+        NULL
     );
     
     init_ui_elements(
@@ -432,7 +443,8 @@ inline static void init_sliders() {
         DSTUDIO_SLIDER_1_10_WIDTH,
         DSTUDIO_SLIDER_1_10_HEIGHT, 
         DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH,
-        slider1_10_scale_matrix
+        slider1_10_scale_matrix,
+        NULL
     );
     
     init_ui_elements(
@@ -474,7 +486,8 @@ inline static void init_sliders() {
         DSTUDIO_SLIDER_2_7_WIDTH,
         DSTUDIO_SLIDER_2_7_HEIGHT, 
         DSTUDIO_SLIDER_2_7x7_TEXTURE_PATH,
-        s_instances_slider_scale_matrix
+        s_instances_slider_scale_matrix,
+        NULL
     );
 
     init_ui_elements(
@@ -537,7 +550,8 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_INSTANCE_WIDTH,
         DSTUDIO_ADD_INSTANCE_HEIGHT, 
         DSTUDIO_ADD_INSTANCE_ASSET_PATH,
-        sub_menu_buttons_add_scale_matrix
+        sub_menu_buttons_add_scale_matrix,
+        NULL
     );
     
     texture_ids[1] = setup_texture_n_scale_matrix(
@@ -545,6 +559,7 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_INSTANCE_WIDTH,
         DSTUDIO_ADD_INSTANCE_HEIGHT, 
         DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH,
+        NULL,
         NULL
     );
 
@@ -570,7 +585,8 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_VOICE_WIDTH,
         DSTUDIO_ADD_VOICE_HEIGHT, 
         DSTUDIO_ADD_VOICE_ASSET_PATH,
-        sub_menu_buttons_add_scale_matrix
+        sub_menu_buttons_add_scale_matrix,
+        NULL
     );
     
     texture_ids[1] = setup_texture_n_scale_matrix(
@@ -578,6 +594,7 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_INSTANCE_WIDTH,
         DSTUDIO_ADD_INSTANCE_HEIGHT,
         DSTUDIO_ACTIVE_ADD_VOICE_ASSET_PATH,
+        NULL,
         NULL
     );
     
@@ -603,7 +620,8 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_SAMPLE_WIDTH,
         DSTUDIO_ADD_SAMPLE_HEIGHT, 
         DSTUDIO_ADD_SAMPLE_ASSET_PATH,
-        sub_menu_buttons_add_scale_matrix
+        sub_menu_buttons_add_scale_matrix,
+        NULL
     );
     
     texture_ids[1] = setup_texture_n_scale_matrix(
@@ -611,6 +629,7 @@ inline static void init_sub_menu_add() {
         DSTUDIO_ADD_INSTANCE_WIDTH,
         DSTUDIO_ADD_INSTANCE_HEIGHT, 
         DSTUDIO_ACTIVE_ADD_SAMPLE_ASSET_PATH,
+        NULL,
         NULL
     );
     
