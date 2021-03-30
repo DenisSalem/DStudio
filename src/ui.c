@@ -892,7 +892,7 @@ void render_ui_elements(UIElements * ui_elements) {
  */
  
 unsigned int render_viewport(unsigned int render_all) {    
-    if (render_all) {
+    if (render_all && (g_previous_window_scale.width != g_dstudio_viewport_width || g_previous_window_scale.height != g_dstudio_viewport_height)) {
         glViewport(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
         glScissor(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
         glClearColor(1,1,1,1);
