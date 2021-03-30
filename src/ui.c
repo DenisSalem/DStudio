@@ -69,6 +69,8 @@ static long                 s_x11_input_mask = 0;
 static int                  s_scissor_offset_x = 0;
 static int                  s_scissor_offset_y = 0;
 
+static void update_scale_matrix(Vec2 * scale_matrix);
+
 #ifdef DSTUDIO_DEBUG
 static void check_frame_buffer_status() {
     switch(glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
@@ -126,14 +128,60 @@ static int is_background_ui_element(UIElements * ui_element) {
     return 0;
 }
 
+static void render_extended_background(UIElements * ui_element) {
+    Vec2 * scale_matrix = 0;
+    Vec4 * vertex_attributes = 0;
+    unsigned char pattern_width = 0;
+    unsigned char pattern_height = 0;
+    
+    Vec4 tmp_tex_coordinates[4] = {0};
+
+    pattern_width = (unsigned char) ui_element->pattern_scale.width;
+    pattern_height = (unsigned char) ui_element->pattern_scale.height;
+
+    scale_matrix = ui_element->coordinates_settings.scale_matrix;
+    vertex_attributes = ui_element->vertex_attributes;
+    
+    memcpy(&tmp_tex_coordinates, vertex_attributes, sizeof(GLfloat) * 16);
+
+    GLfloat new_tex_coord_x = ((GLfloat) scale_matrix[0].x * g_previous_window_scale.width) / pattern_width;
+    GLfloat new_tex_coord_y = ((GLfloat) scale_matrix[1].y * g_previous_window_scale.height) / pattern_height;
+    
+    GLfloat tex_offset_x = (GLfloat) (((g_previous_window_scale.width - g_dstudio_viewport_width) / 2) % pattern_width) / (GLfloat) pattern_width;
+    GLfloat tex_offset_y = (GLfloat) (((g_previous_window_scale.height - g_dstudio_viewport_height) / 2) % pattern_height) / (GLfloat) pattern_height;
+    
+    vertex_attributes[0].z += -tex_offset_x;
+    vertex_attributes[0].w += -tex_offset_y;
+    
+    vertex_attributes[1].z += -tex_offset_x;
+    vertex_attributes[1].w = new_tex_coord_y -tex_offset_y;
+    
+    vertex_attributes[2].z = new_tex_coord_x  -tex_offset_x;
+    vertex_attributes[2].w += -tex_offset_y;
+    
+    vertex_attributes[3].z = new_tex_coord_x -tex_offset_x;
+    vertex_attributes[3].w = new_tex_coord_y -tex_offset_y;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, ui_element->vertex_buffer_object);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertex_attributes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);    
+
+    update_scale_matrix(ui_element->coordinates_settings.scale_matrix);
+    render_ui_elements(ui_element);
+    
+    memcpy(vertex_attributes, &tmp_tex_coordinates, sizeof(GLfloat) * 16);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, ui_element->vertex_buffer_object);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, vertex_attributes, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);  
+}
+
 static void render_layers(unsigned int limit) {
     for (unsigned int index = 0; index < limit; index++) {
         s_framebuffer_quad.texture_index = index;
         render_ui_elements(&s_framebuffer_quad);
     }
 }
-
-static void update_scale_matrix(Vec2 * scale_matrix);
 
 static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags, int scissor_offset_x, int scissor_offset_y) {
     UIElements * ui_element = s_ui_elements_requests[scissor_index];
@@ -838,18 +886,12 @@ void render_ui_elements(UIElements * ui_elements) {
     }
 }
 
-
 /* TODO: Implement efficient overlap mechanism. Use case:
  * What if text is rendered below slicer ?
  * Could add additionnal frame_buffer?
  */
-unsigned int render_viewport(unsigned int render_all) {
-    Vec4 tmp_tex_coordinates[4] = {0};
-    Vec2 * menu_background_scale_matrix = 0;
-    Vec4 * menu_background_vertex_attributes = 0;
-    unsigned char pattern_width = 0;
-    unsigned char pattern_height = 0;
-    
+ 
+unsigned int render_viewport(unsigned int render_all) {    
     if (render_all) {
         glViewport(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
         glScissor(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
@@ -857,46 +899,7 @@ unsigned int render_viewport(unsigned int render_all) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         if (g_menu_background_enabled) {
-            pattern_width = (unsigned char) g_menu_background_enabled->pattern_scale.width;
-            pattern_height = (unsigned char) g_menu_background_enabled->pattern_scale.height;
-            DSTUDIO_TRACE_ARGS("%d %d", g_menu_background_enabled->pattern_scale.width, g_menu_background_enabled->pattern_scale.height);
-
-            menu_background_scale_matrix = g_menu_background_enabled->coordinates_settings.scale_matrix;
-            menu_background_vertex_attributes = g_menu_background_enabled->vertex_attributes;
-            
-            memcpy(&tmp_tex_coordinates, menu_background_vertex_attributes, sizeof(GLfloat) * 16);
-
-            GLfloat new_tex_coord_x = ((GLfloat) menu_background_scale_matrix[0].x * g_previous_window_scale.width) / pattern_width;
-            GLfloat new_tex_coord_y = ((GLfloat) menu_background_scale_matrix[1].y * g_previous_window_scale.height) / pattern_height;
-            
-            GLfloat tex_offset_x = (GLfloat) (((g_previous_window_scale.width - g_dstudio_viewport_width) / 2) % pattern_width) / (GLfloat) pattern_width;
-            GLfloat tex_offset_y = (GLfloat) (((g_previous_window_scale.height - g_dstudio_viewport_height) / 2) % pattern_height) / (GLfloat) pattern_height;
-            
-            
-            menu_background_vertex_attributes[0].z += -tex_offset_x;
-            menu_background_vertex_attributes[0].w += -tex_offset_y;
-            
-            menu_background_vertex_attributes[1].z += -tex_offset_x;
-            menu_background_vertex_attributes[1].w = new_tex_coord_y -tex_offset_y;
-            
-            menu_background_vertex_attributes[2].z = new_tex_coord_x  -tex_offset_x;
-            menu_background_vertex_attributes[2].w += -tex_offset_y;
-            
-            menu_background_vertex_attributes[3].z = new_tex_coord_x -tex_offset_x;
-            menu_background_vertex_attributes[3].w = new_tex_coord_y -tex_offset_y;
-            
-            glBindBuffer(GL_ARRAY_BUFFER, g_menu_background_enabled->vertex_buffer_object);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, menu_background_vertex_attributes, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);    
-
-            update_scale_matrix(g_menu_background_enabled->coordinates_settings.scale_matrix);
-            render_ui_elements(g_menu_background_enabled);
-            
-            memcpy(menu_background_vertex_attributes, &tmp_tex_coordinates, sizeof(GLfloat) * 16);
-            
-            glBindBuffer(GL_ARRAY_BUFFER, g_menu_background_enabled->vertex_buffer_object);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4) * 4, menu_background_vertex_attributes, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);  
+            render_extended_background(g_menu_background_enabled);
         }
         
         glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
