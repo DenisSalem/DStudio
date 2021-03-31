@@ -68,6 +68,9 @@ DStudioAudioAPIError init_audio_api_client() {
 }
 
 DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name) {
+        if (!s_client) {
+            return DSTUDIO_AUDIO_API_CLIENT_IS_NULL;
+        }
         output_port->left = jack_port_register(s_client, left_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
         output_port->right = jack_port_register(s_client, right_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
 
