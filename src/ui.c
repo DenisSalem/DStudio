@@ -1008,7 +1008,7 @@ unsigned int render_viewport(unsigned int render_all) {
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
         // Refresh  interactive list background and/or highligh1 when unselected 
         if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active && g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
-            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, 0, 0);
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
             render_ui_elements(s_ui_elements_requests[0]);
         }
         scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);

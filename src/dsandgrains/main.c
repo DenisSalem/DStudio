@@ -59,14 +59,14 @@ int main(int argc, char ** argv) {
         set_samples_list_from_parent
     );
 
-    //init_audio_api_client();
+    init_audio_api_client();
     
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     pthread_t ui_thread_id;
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
-    //stop_audio_api_client();
+    stop_audio_api_client();
     
     dstudio_free(0);
     return 0;
