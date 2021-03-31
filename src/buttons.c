@@ -55,8 +55,8 @@ void update_ui_bouncing_buttons() {
             g_x11_input_mask & PointerMotionMask
         ) {
             get_pointer_coordinates(&pointer_x, &pointer_y);
-            if (pointer_x >= g_ui_elements_array[i].areas.min_area_x && pointer_x <= g_ui_elements_array[i].areas.max_area_x &&
-                pointer_y >= g_ui_elements_array[i].areas.min_area_y && pointer_y <= g_ui_elements_array[i].areas.max_area_y) {
+            if (pointer_x >= (g_scissor_offset_x + g_ui_elements_array[i].areas.min_area_x) && pointer_x <= (g_scissor_offset_x + g_ui_elements_array[i].areas.max_area_x) &&
+                pointer_y >= (g_scissor_offset_y + g_ui_elements_array[i].areas.min_area_y) && pointer_y <= (g_scissor_offset_y + g_ui_elements_array[i].areas.max_area_y)) {
                 texture_index = 1;
             }
             else {

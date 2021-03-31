@@ -34,7 +34,8 @@
 
 unsigned int g_dstudio_mouse_state = 0;
 long g_x11_input_mask = 0;
-
+int g_scissor_offset_x = 0;
+int g_scissor_offset_y = 0;
 static int s_focus_type;
 
 UIInteractiveList * g_active_interactive_list = 0;

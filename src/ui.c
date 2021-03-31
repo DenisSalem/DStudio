@@ -67,8 +67,6 @@ static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
-static int                  s_scissor_offset_x = 0;
-static int                  s_scissor_offset_y = 0;
 
 static void update_scale_matrix(Vec2 * scale_matrix);
 
@@ -749,10 +747,10 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
         for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
             if (
-                xpos > ui_elements_p->areas.min_area_x &&
-                xpos < ui_elements_p->areas.max_area_x &&
-                ypos > ui_elements_p->areas.min_area_y &&
-                ypos < ui_elements_p->areas.max_area_y &&
+                xpos > (g_scissor_offset_x + ui_elements_p->areas.min_area_x) &&
+                xpos < (g_scissor_offset_x + ui_elements_p->areas.max_area_x) &&
+                ypos > (g_scissor_offset_y + ui_elements_p->areas.min_area_y) &&
+                ypos < (g_scissor_offset_y + ui_elements_p->areas.max_area_y) &&
                 ui_elements_p->enabled &&
                 !(ui_elements_p->type & (DSTUDIO_ANY_BACKGROUND_TYPE | DSTUDIO_ANY_PATTERN_TYPE))
             ) {
@@ -796,16 +794,16 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         s_x11_input_mask = g_x11_input_mask;
                         configure_input(0);
                         half_height = (ui_elements_p->coordinates_settings.scale_matrix[1].y * g_dstudio_viewport_height) / 2;
-                        g_active_slider_range_min = ui_elements_p->areas.min_area_y + half_height;
-                        g_active_slider_range_max = ui_elements_p->areas.max_area_y - half_height;
+                        g_active_slider_range_min = g_scissor_offset_y + ui_elements_p->areas.min_area_y + half_height;
+                        g_active_slider_range_max = g_scissor_offset_y + ui_elements_p->areas.max_area_y - half_height;
                         if (ui_elements_p->interactive_list) {
                             g_active_interactive_list = ui_elements_p->interactive_list;
                         }
                         __attribute__ ((fallthrough));
                                                                    
                     case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-                        g_ui_element_center_x = (int)(ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
-                        g_ui_element_center_y = (int)(ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
+                        g_ui_element_center_x = (int)( g_scissor_offset_x*2 + ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
+                        g_ui_element_center_y = (int)( g_scissor_offset_y*2 + ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
                         break;
                         
                     default:
@@ -944,8 +942,8 @@ unsigned int render_viewport(unsigned int render_all) {
     unsigned int background_rendering_end_index;
     int layer_1_index_limit = -1;
 
-    int scissor_offset_x = g_menu_background_enabled ? 0 : s_scissor_offset_x;
-    int scissor_offset_y = g_menu_background_enabled ? 0 : s_scissor_offset_y;
+    int scissor_offset_x = g_menu_background_enabled ? 0 : g_scissor_offset_x;
+    int scissor_offset_y = g_menu_background_enabled ? 0 : g_scissor_offset_y;
 
     /* First of all, we get once every ui elements we want to render
      * in a single list, so we don't have to iterate many times 
@@ -987,7 +985,7 @@ unsigned int render_viewport(unsigned int render_all) {
     if (g_menu_background_enabled) {
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
     }
-    else if (s_scissor_offset_x ||  s_scissor_offset_y) {
+    else if (g_scissor_offset_x || g_scissor_offset_y) {
         glViewport(
             (g_previous_window_scale.width - g_dstudio_viewport_width)/2,
             (g_previous_window_scale.height - g_dstudio_viewport_height)/2, 
@@ -1048,10 +1046,11 @@ unsigned int render_viewport(unsigned int render_all) {
         background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
         for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
             if (!(background_rendering_start_index == 0) && s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT ) {
-                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, s_scissor_offset_x, s_scissor_offset_y);
+                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
                 render_layers((DSTUDIO_FRAMEBUFFER_COUNT));
             }
-            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE, s_scissor_offset_x, s_scissor_offset_y);
+            // TODO: since scissor offset are global, last two arguments might not be needed anymore.
+            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE, g_scissor_offset_x, g_scissor_offset_y);
             render_layers(DSTUDIO_FRAMEBUFFER_COUNT);
             if (background_rendering_start_index == 0) {
                 break;
@@ -1061,7 +1060,7 @@ unsigned int render_viewport(unsigned int render_all) {
         /* Render remaining ui elements */
         for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (!is_background_ui_element(s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, s_scissor_offset_x, s_scissor_offset_y);
+                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, g_scissor_offset_x, g_scissor_offset_y);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
@@ -1219,6 +1218,6 @@ void update_viewport(WindowScale window_scale) {
     if (window_scale.height > g_dstudio_viewport_height) {
         offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height));
     }
-    s_scissor_offset_x = lroundf(offset_x / 2.0);
-    s_scissor_offset_y = lroundf(offset_y / 2.0);
+    g_scissor_offset_x = lroundf(offset_x / 2.0);
+    g_scissor_offset_y = lroundf(offset_y / 2.0);
 }
