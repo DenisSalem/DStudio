@@ -31,6 +31,7 @@
 #define DSTUDIO_CANCEL_BUTTON_ASSET_PATH            "../assets/button_cancel.png"
 #define DSTUDIO_CHAR_TABLE_8X18_ASSET_PATH          "../assets/char_table_8x18.png"
 #define DSTUDIO_CHAR_TABLE_4X9_ASSET_PATH           "../assets/char_table_4x9.png"
+#define DSTUDIO_EXTENDED_BACKGROUND_ASSET_PATH      "../assets/extended_background.png"
 #define DSTUDIO_FRAGMENT_SHADER_PATH                "../assets/fragment.shader"
 #define DSTUDIO_KNOB_1_64x64_TEXTURE_PATH           "../assets/knob1_64x64.png"
 #define DSTUDIO_KNOB_1_48x48_TEXTURE_PATH           "../assets/knob1_48x48.png"

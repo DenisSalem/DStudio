@@ -114,6 +114,12 @@ inline static void init_background() {
         DSTUDIO_UI_ELEMENT_TYPE_PATTERN_BACKGROUND,
         DSTUDIO_FLAG_TEXTURE_IS_PATTERN
     );
+    
+    init_extended_background(
+        DSTUDIO_EXTENDED_BACKGROUND_ASSET_PATH,
+        DSTUDIO_EXTENDED_BACKGROUND_SCALE,
+        DSTUDIO_EXTENDED_BACKGROUND_SCALE
+    ); 
 }
 
 inline static void init_instances_list() {

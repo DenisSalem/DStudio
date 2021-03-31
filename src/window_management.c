@@ -141,6 +141,9 @@ WindowScale get_window_scale() {
         s_xwa.width,
         s_xwa.height
     };
+    // Window scale must be even
+    window_scale.width += window_scale.width % 2;
+    window_scale.height += window_scale.height % 2;
     return window_scale;
 }
 

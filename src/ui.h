@@ -38,8 +38,8 @@
     }
 
 typedef struct PatternScale_t {
-    unsigned char width;
-    unsigned char height;
+    unsigned int width;
+    unsigned int height;
 } PatternScale;
 
 typedef struct vec2_t {
@@ -178,7 +178,6 @@ typedef struct UIElements_t {
     union {
         double                  timestamp;
         unsigned int            text_buffer_size;
-        PatternScale            pattern_scale;
     };
     GLchar                      vertex_indexes[4];
     /* For any text type there is only one index used for texture because
@@ -205,7 +204,10 @@ typedef struct UIElements_t {
     Vec4                        vertex_attributes[4];
     UIElementsCoordinatesSettings coordinates_settings;
     Vec4                        areas;
-    Vec4                        color;
+    union {
+        PatternScale            pattern_scale;        
+        Vec4                    color;
+    };
     UIElements *                overlap_sub_menu_ui_elements;
     UIElementType               type;
     UIInteractiveList *         interactive_list;
@@ -221,6 +223,8 @@ void compile_shader(
 void create_shader_program(
     GLuint * shader_program_id
 );
+
+void init_extended_background(char * texture_path, unsigned int width, unsigned int height);
 
 void init_opengl_ui_elements(
     int flags,

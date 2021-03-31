@@ -59,6 +59,7 @@ static Vec2                 s_framebuffer_scale_matrix[2] = {{1.0, 0.0},{0.0,-1.
 static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static GLuint               s_framebuffer_textures[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static UIElements           s_framebuffer_quad = {0};
+static UIElements           s_extended_background = {0};
 static double               s_list_item_click_timestamp = 0;
 static int                  s_ui_element_index = -1;
 static UIElements **        s_ui_elements_requests = 0;
@@ -131,13 +132,13 @@ static int is_background_ui_element(UIElements * ui_element) {
 static void render_extended_background(UIElements * ui_element) {
     Vec2 * scale_matrix = 0;
     Vec4 * vertex_attributes = 0;
-    unsigned char pattern_width = 0;
-    unsigned char pattern_height = 0;
+    unsigned int pattern_width = 0;
+    unsigned int pattern_height = 0;
     
     Vec4 tmp_tex_coordinates[4] = {0};
 
-    pattern_width = (unsigned char) ui_element->pattern_scale.width;
-    pattern_height = (unsigned char) ui_element->pattern_scale.height;
+    pattern_width = ui_element->pattern_scale.width;
+    pattern_height = ui_element->pattern_scale.height;
 
     scale_matrix = ui_element->coordinates_settings.scale_matrix;
     vertex_attributes = ui_element->vertex_attributes;
@@ -325,6 +326,36 @@ int get_png_pixel(
     }
     printf("Something went wrong while reading \"%s\".\n", filename);
     exit(-1);
+}
+
+void init_extended_background(char * texture_path, unsigned int width, unsigned int height) {
+    GLuint texture_ids[2] = {0};
+    
+    texture_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_TEXTURE_IS_PATTERN,
+        width,
+        height, 
+        texture_path,
+        NULL,
+        &s_extended_background.pattern_scale
+    );
+
+    init_ui_elements(
+        &s_extended_background,
+        &texture_ids[0],
+        &g_background_scale_matrix[0],
+        0,
+        0,
+        g_dstudio_viewport_width,
+        g_dstudio_viewport_height,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_PATTERN_BACKGROUND,
+        DSTUDIO_FLAG_TEXTURE_IS_PATTERN
+    );
 }
 
 void init_opengl_ui_elements(
@@ -897,7 +928,11 @@ unsigned int render_viewport(unsigned int render_all) {
         glScissor(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
         glClearColor(1,1,1,1);
         glClear(GL_COLOR_BUFFER_BIT);
-
+        
+        if (s_extended_background.texture_ids[0]) {
+            render_extended_background(&s_extended_background);
+        }
+        
         if (g_menu_background_enabled) {
             render_extended_background(g_menu_background_enabled);
         }
@@ -1174,7 +1209,6 @@ void update_ui_element_motion(
 }
 
 void update_viewport(WindowScale window_scale) {
-    (void) window_scale;
     GLfloat offset_x = 0.0;
     GLfloat offset_y = 0.0;
 
@@ -1185,7 +1219,6 @@ void update_viewport(WindowScale window_scale) {
     if (window_scale.height > g_dstudio_viewport_height) {
         offset_y = ((GLfloat) (window_scale.height - g_dstudio_viewport_height));
     }
-    
     s_scissor_offset_x = lroundf(offset_x / 2.0);
     s_scissor_offset_y = lroundf(offset_y / 2.0);
 }
