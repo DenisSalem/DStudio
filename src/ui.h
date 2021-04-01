@@ -178,6 +178,7 @@ typedef struct UIElements_t {
     union {
         double                  timestamp;
         unsigned int            text_buffer_size;
+        GLfloat                 previous_slider_motion;
     };
     GLchar                      vertex_indexes[4];
     /* For any text type there is only one index used for texture because
@@ -350,7 +351,7 @@ extern const unsigned int g_dstudio_viewport_width;
 extern const unsigned int g_dstudio_viewport_height;
 extern GLint        scissor_x, scissor_y;
 extern GLsizei      scissor_width, scissor_height;
-extern GLfloat      g_saved_scissor_y;
+extern GLint        g_saved_scissor_y;
 extern GLuint       g_shader_program_id;
 extern GLuint       g_scale_matrix_id;
 extern GLuint       g_motion_type_location;

@@ -41,40 +41,28 @@ inline float compute_slider_translation(int ypos) {
     return translation / (g_dstudio_viewport_height >> 1);
 }
 
-void compute_slider_scissor_y(UIElements * ui_elements) {
-    ui_elements->coordinates_settings.scissor.y = lroundf(\
-        (1.0 + \
-        ui_elements->coordinates_settings.instance_offsets_buffer->y+ \
-        ui_elements->instance_motions_buffer[0] \
-        - (ui_elements->coordinates_settings.scale_matrix[1].y) \
+void compute_slider_scissor_y(UIElements * slider) {
+    slider->previous_slider_motion = *slider->instance_motions_buffer;
+    slider->coordinates_settings.scissor.y = (\
+        (1 + \
+        slider->coordinates_settings.instance_offsets_buffer->y+ \
+        slider->instance_motions_buffer[0] \
+        - (slider->coordinates_settings.scale_matrix[1].y) \
     ) * (g_dstudio_viewport_height >> 1));
-    
-    ui_elements->coordinates_settings.scissor.height = ui_elements->coordinates_settings.scale_matrix[1].y * g_dstudio_viewport_height;
+
+    slider->coordinates_settings.scissor.height = slider->coordinates_settings.scale_matrix[1].y * g_dstudio_viewport_height;
 }
 
-void compute_slider_in_motion_scissor_y(UIElements * slider, GLfloat motion) {
-    GLint current_scissor_y;
-    GLint previous_scissor_y;
-    GLint new_scissor_y;
-    GLsizei height;
+void compute_slider_in_motion_scissor_y(UIElements * slider) {
+    GLfloat lowest_motion = *slider->instance_motions_buffer < slider->previous_slider_motion ? *slider->instance_motions_buffer : slider->previous_slider_motion;
+    GLfloat highest_motion = *slider->instance_motions_buffer >= slider->previous_slider_motion ? *slider->instance_motions_buffer : slider->previous_slider_motion;
     
-    current_scissor_y = lroundf(\
-        DSTUDIO_SLIDER_SCISSOR_SAFE_OFFSET+ \
-        slider->coordinates_settings.instance_offsets_buffer->y+ \
-        motion \
-        - (slider->coordinates_settings.scale_matrix[1].y) \
+    slider->coordinates_settings.scissor.y = (\
+        1 + \
+        slider->coordinates_settings.instance_offsets_buffer->y + \
+        lowest_motion - \
+        slider->coordinates_settings.scale_matrix[1].y \
     ) * (g_dstudio_viewport_height >> 1);
 
-    previous_scissor_y = slider->render_state ? g_saved_scissor_y : slider->coordinates_settings.scissor.y;
-    new_scissor_y = (previous_scissor_y < current_scissor_y ? previous_scissor_y : current_scissor_y);
-    height = previous_scissor_y < current_scissor_y ? current_scissor_y - previous_scissor_y : previous_scissor_y - current_scissor_y;
-    
-    slider->coordinates_settings.scissor.y = new_scissor_y;
-
-    if (slider->render_state) {
-        slider->coordinates_settings.scissor.height += height;
-    } else {
-        g_saved_scissor_y = new_scissor_y;
-        slider->coordinates_settings.scissor.height = lroundf(height + slider->coordinates_settings.scale_matrix[1].y * (g_dstudio_viewport_height));
-    }
+   slider->coordinates_settings.scissor.height = (highest_motion - lowest_motion + slider->coordinates_settings.scale_matrix[1].y * 2) * (g_dstudio_viewport_height >> 1);
 }

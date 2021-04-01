@@ -40,7 +40,6 @@ GLuint  g_charset_8x18_texture_ids[2] = {0};
 GLuint  g_charset_4x9_texture_ids[2] = {0};
 Vec2    g_charset_8x18_scale_matrix[2] = {0};
 Vec2    g_charset_4x9_scale_matrix[2] = {0};
-GLfloat g_saved_scissor_y;
 GLuint  g_shader_program_id = 0;
 GLuint  g_scale_matrix_id = 0;
 GLuint  g_motion_type_location = 0;
@@ -718,10 +717,9 @@ void manage_cursor_position(int xpos, int ypos) {
             if (g_ui_elements_array[s_ui_element_index].enabled) {
                 ui_element = &g_ui_elements_array[s_ui_element_index];
                 motion = compute_slider_translation(ypos);
-                
-                compute_slider_in_motion_scissor_y(ui_element, motion);
-                
                 update_ui_element_motion(ui_element, motion);
+                compute_slider_in_motion_scissor_y(ui_element);
+                
                 float slider_value = compute_slider_percentage_value(ypos);
                 ui_element->application_callback_args = &slider_value;
                 
@@ -896,6 +894,7 @@ void render_ui_elements(UIElements * ui_elements) {
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }
+    
     glUniform1ui(g_no_texture_location, ui_elements->type & (DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND | DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE) ? 1 : 0);
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);
@@ -905,7 +904,6 @@ void render_ui_elements(UIElements * ui_elements) {
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     ui_elements->render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
-    
     /* After any slider movement, scissor must be reset accordingly to
      * the final motion value.
      */
@@ -1205,6 +1203,7 @@ void update_ui_element_motion(
 ) {
     *ui_elements_p->instance_motions_buffer = motion;
     ui_elements_p->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+
 }
 
 void update_viewport(WindowScale window_scale) {

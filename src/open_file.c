@@ -28,6 +28,7 @@
 #include "text.h"
 #include "ui.h"
 #include "window_management.h"
+#include "sliders.h"
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static unsigned int (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
@@ -183,6 +184,8 @@ static unsigned int refresh_file_list(char * path) {
     s_file_index = 0;
     
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
+    compute_slider_scissor_y(s_interactive_list.scroll_bar);
+    
     closedir(dr);
     return 1;  
 }

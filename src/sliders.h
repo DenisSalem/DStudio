@@ -24,10 +24,9 @@ float compute_slider_percentage_value(int ypos);
 float compute_slider_translation(int ypos);
 
 void compute_slider_scissor_y(
-    UIElements * ui_elements
+    UIElements * slider
 );
 
 void compute_slider_in_motion_scissor_y(
-    UIElements * slider,
-    GLfloat motion
+    UIElements * slider
 );

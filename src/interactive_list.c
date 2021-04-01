@@ -203,6 +203,6 @@ void update_scroll_bar(UIInteractiveList * interactive_list) {
     multiplier = relative_position / (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
     relative_position = multiplier * (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
     GLfloat motion = interactive_list->max_scroll_bar_offset - relative_position;
-    compute_slider_in_motion_scissor_y(scroll_bar, motion);
     update_ui_element_motion(scroll_bar, motion);
+    compute_slider_in_motion_scissor_y(scroll_bar);
 }

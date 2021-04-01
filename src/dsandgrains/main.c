@@ -58,10 +58,10 @@ int main(int argc, char ** argv) {
         bind_samples_interactive_list,
         set_samples_list_from_parent
     );
-
-    init_audio_api_client();
     
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
+    init_audio_api_client();
+
     pthread_t ui_thread_id;
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
