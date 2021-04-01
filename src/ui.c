@@ -1008,11 +1008,14 @@ unsigned int render_viewport(unsigned int render_all) {
 
     /* Render first layer ui elements */
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
-        // Refresh  interactive list background and/or highligh1 when unselected 
-        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
+        // Refresh interactive list background and/or highlight when item is unselected or text cursor is blinking
+        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT || s_ui_elements_requests[i] == g_text_pointer_context.text_pointer) {
             scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
             render_ui_elements(s_ui_elements_requests[0]);
         }
+        if (s_ui_elements_requests[i] == g_text_pointer_context.text_pointer) {
+            render_ui_elements(g_text_pointer_context.highlight);
+        } 
         scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
         render_ui_elements(s_ui_elements_requests[i]);
 
@@ -1047,7 +1050,7 @@ unsigned int render_viewport(unsigned int render_all) {
         /* Render all layers required areas as background */
         background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
         for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
-            if (!(background_rendering_start_index == 0) && s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT ) {
+            if (!(background_rendering_start_index == 0) && s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
                 scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
                 render_layers((DSTUDIO_FRAMEBUFFER_COUNT));
             }
