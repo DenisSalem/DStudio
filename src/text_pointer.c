@@ -203,7 +203,6 @@ void update_text_pointer() {
     if (g_text_pointer_context.highlight && g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM) {
         g_text_pointer_context.highlight->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
     }
-
     if (g_text_pointer_context.ui_text->render_state != DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
         g_text_pointer_context.ui_text->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
     }

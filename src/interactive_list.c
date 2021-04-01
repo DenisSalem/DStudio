@@ -108,8 +108,14 @@ void scroll_by_slider(UIElements * ui_elements) {
     if (0 == interactive_list->window_offset - window_offset) {
         return;
     }
-    
+    DSTUDIO_TRACE_ARGS("%d %d %d",
+        interactive_list->index,
+        interactive_list->window_offset,
+        window_offset
+    );
+
     interactive_list->index += interactive_list->window_offset - window_offset;
+    
     interactive_list->window_offset = window_offset;
     interactive_list->update_index= -1;
     interactive_list->update_request = 1;
@@ -139,14 +145,16 @@ void select_item(
                 (flag == DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK) ||
                 interactive_list->select_callback(i+interactive_list->window_offset)
             ) {
-                interactive_list->lines[interactive_list->previous_item_index].render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;;
                 interactive_list->lines[i].render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                 interactive_list->update_request = 1;
-                *interactive_list->highlight->instance_alphas_buffer = interactive_list->source_data ? 1 : 0;
                 interactive_list->update_highlight = 1;
+                interactive_list->highlight->interactive_list = interactive_list;
+                *interactive_list->highlight->instance_alphas_buffer = interactive_list->source_data ? 1 : 0;
                 highlight->coordinates_settings.instance_offsets_buffer->y = interactive_list->highlight_offset_y + interactive_list->highlight_step * i;
-                interactive_list->index = i;
+                interactive_list->lines[interactive_list->previous_item_index].render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                 interactive_list->previous_item_index = i;
+                interactive_list->index = i;
+    
             }
             break;
         }

@@ -208,6 +208,9 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             scissor->height
         );
     }
+    if (flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS) {
+        ui_element->previous_highlight_scissor_y = ui_element->coordinates_settings.scissor.y;
+    }
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
         update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->coordinates_settings.scale_matrix : s_framebuffer_scale_matrix);
     }
@@ -766,8 +769,9 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                     
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
                         timestamp = get_timestamp();
-                        if (ui_elements_p->application_callback && timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
-                            ui_elements_p->application_callback(ui_elements_p);
+                        if (timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                            if(ui_elements_p->application_callback)
+                                ui_elements_p->application_callback(ui_elements_p);
                         }
                         else {
                             select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
@@ -922,7 +926,7 @@ unsigned int render_viewport(unsigned int render_all) {
     if (render_all && (g_previous_window_scale.width != g_dstudio_viewport_width || g_previous_window_scale.height != g_dstudio_viewport_height)) {
         glViewport(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
         glScissor(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
-        glClearColor(1,1,1,1);
+        glClearColor(0,0,0,1);
         glClear(GL_COLOR_BUFFER_BIT);
         
         if (s_extended_background.texture_ids[0]) {
@@ -1005,7 +1009,7 @@ unsigned int render_viewport(unsigned int render_all) {
     /* Render first layer ui elements */
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
         // Refresh  interactive list background and/or highligh1 when unselected 
-        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT && !(g_text_pointer_context.active && g_text_pointer_context.highlight == s_ui_elements_requests[i])) {
+        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
             scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
             render_ui_elements(s_ui_elements_requests[0]);
         }
