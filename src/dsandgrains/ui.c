@@ -198,24 +198,7 @@ inline static void init_knobs() {
         DSANDGRAINS_SAMPLE_KNOBS_OFFSET_X,
         DSANDGRAINS_SAMPLE_KNOBS_OFFSET_Y,
         DSANDGRAINS_SAMPLE_KNOBS_COLUMNS,
-        8,
-        1,
-        DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_IS_VISIBLE
-    );
-    
-    init_ui_elements(
-        &g_ui_elements_struct.knob_voice_volume,
-        &knob_texture_ids[0],
-        &knob1_64_scale_matrix[0],
-        DSANDGRAINS_VOICE_KNOBS_POS_X,
-        DSANDGRAINS_VOICE_KNOBS_POS_Y,
-        DSTUDIO_KNOB_1_64_AREA_WIDTH,
-        DSTUDIO_KNOB_1_64_AREA_HEIGHT,
-        DSANDGRAINS_VOICE_KNOBS_OFFSET_X,
-        DSANDGRAINS_VOICE_KNOBS_OFFSET_Y,
-        DSANDGRAINS_VOICE_KNOBS_COLUMNS,
-        4,
+        12,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
         DSTUDIO_FLAG_IS_VISIBLE
@@ -231,24 +214,24 @@ inline static void init_knobs() {
     );
     
     init_ui_elements(
-        &g_ui_elements_struct.knob_sample_amount,
+        &g_ui_elements_struct.knob_voice_volume,
         &knob_texture_ids[0],
         &knob1_48_scale_matrix[0],
-        DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_X,
-        DSANDGRAINS_AMOUNT_PITCH_KNOBS_POS_Y,
+        DSANDGRAINS_VOICE_KNOBS_POS_X,
+        DSANDGRAINS_VOICE_KNOBS_POS_Y,
         DSTUDIO_KNOB_1_48_AREA_WIDTH,
         DSTUDIO_KNOB_1_48_AREA_HEIGHT,
-        DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_X,
-        DSANDGRAINS_AMOUNT_PITCH_KNOBS_OFFSET_Y,
-        DSANDGRAINS_AMOUNT_PITCH_KNOBS_COLUMNS,
-        2,
+        DSANDGRAINS_VOICE_KNOBS_OFFSET_X,
+        DSANDGRAINS_VOICE_KNOBS_OFFSET_Y,
+        DSANDGRAINS_VOICE_KNOBS_COLUMNS,
+        4,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
         DSTUDIO_FLAG_IS_VISIBLE
     );
     
     init_ui_elements(
-        &g_ui_elements_struct.knob_sample_lfo_tune,
+        &g_ui_elements_struct.knob_lfo_tune,
         &knob_texture_ids[0],
         &knob1_48_scale_matrix[0],
         DSANDGRAINS_LFO_KNOBS_POS_X,
@@ -258,23 +241,6 @@ inline static void init_knobs() {
         DSANDGRAINS_LFO_KNOBS_OFFSET_X,
         DSANDGRAINS_LFO_KNOBS_OFFSET_Y,
         DSANDGRAINS_LFO_KNOBS_COLUMNS,
-        4,
-        1,
-        DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_IS_VISIBLE
-    );
-    
-    init_ui_elements(
-        &g_ui_elements_struct.knob_sample_lfo_pitch_tune,
-        &knob_texture_ids[0],
-        &knob1_48_scale_matrix[0],
-        DSANDGRAINS_LFO_PITCH_KNOBS_POS_X,
-        DSANDGRAINS_LFO_PITCH_KNOBS_POS_Y,
-        DSTUDIO_KNOB_1_48_AREA_WIDTH,
-        DSTUDIO_KNOB_1_48_AREA_HEIGHT,
-        DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_X,
-        DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_Y,
-        DSANDGRAINS_LFO_PITCH_KNOBS_COLUMNS,
         4,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
@@ -471,7 +437,7 @@ inline static void init_sliders() {
     );
     
     init_ui_elements(
-        &g_ui_elements_struct.slider_equalizer_band_1,
+        &g_ui_elements_struct.slider_equalizer_Q,
         &slider_texture_ids[0],
         &slider1_10_scale_matrix[0],
         DSANDGRAINS_EQUALIZER_SLIDERS_POS_X,

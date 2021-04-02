@@ -22,7 +22,7 @@
 
 #include "../ui.h"
 
-#define DSANDGRAINS_ADD_BUTTON_POS_X -0.435
+#define DSANDGRAINS_ADD_BUTTON_POS_X 0.035
 #define DSANDGRAINS_ADD_BUTTON_POS_Y -0.91796875
 
 #define DSANDGRAINS_ADD_INSTANCE_COLUMNS 1
@@ -70,20 +70,20 @@
 #define DSANDGRAINS_CPU_USAGE_HEIGHT 10
 #define DSANDGRAINS_CPU_USAGE_Y_POS 0.921875
 
-#define DSANDGRAINS_DAHDSR_SLIDERS_COLUMNS 6
+#define DSANDGRAINS_DAHDSR_SLIDERS_COLUMNS 3
 #define DSANDGRAINS_DAHDSR_SLIDERS_COUNT 6
 #define DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_X 0.04
-#define DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_Y 0
-#define DSANDGRAINS_DAHDSR_SLIDERS_POS_X 0.0275
-#define DSANDGRAINS_DAHDSR_SLIDERS_POS_Y -0.37890625
+#define DSANDGRAINS_DAHDSR_SLIDERS_OFFSET_Y -0.18359375
+#define DSANDGRAINS_DAHDSR_SLIDERS_POS_X -0.6125
+#define DSANDGRAINS_DAHDSR_SLIDERS_POS_Y -0.64453125
 #define DSANDGRAINS_DAHDSR_SLIDERS_SLIDE 42
 
-#define DSANDGRAINS_EQUALIZER_SLIDERS_COLUMNS 8
-#define DSANDGRAINS_EQUALIZER_SLIDERS_COUNT 8
+#define DSANDGRAINS_EQUALIZER_SLIDERS_COLUMNS 3
+#define DSANDGRAINS_EQUALIZER_SLIDERS_COUNT 3
 #define DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_X 0.04
 #define DSANDGRAINS_EQUALIZER_SLIDERS_OFFSET_Y 0
-#define DSANDGRAINS_EQUALIZER_SLIDERS_POS_X 0.32
-#define DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y -0.33984375
+#define DSANDGRAINS_EQUALIZER_SLIDERS_POS_X -0.9375
+#define DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y -0.34765625
 
 #define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X 0.8059765625
 #define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y 0.439453125
@@ -97,17 +97,11 @@
 #define DSANDGRAINS_INSTANCE_ITEM_LIST_WIDTH 106
 #define DSANDGRAINS_INSTANCE_ITEM_LIST_HEIGHT 9
 
-#define DSANDGRAINS_LFO_KNOBS_COLUMNS 2
+#define DSANDGRAINS_LFO_KNOBS_COLUMNS 1
 #define DSANDGRAINS_LFO_KNOBS_OFFSET_X 0.12
-#define DSANDGRAINS_LFO_KNOBS_OFFSET_Y -0.23046875
-#define DSANDGRAINS_LFO_KNOBS_POS_X -0.2225
-#define DSANDGRAINS_LFO_KNOBS_POS_Y 0.296875
-
-#define DSANDGRAINS_LFO_PITCH_KNOBS_POS_X -0.2225
-#define DSANDGRAINS_LFO_PITCH_KNOBS_POS_Y -0.41796875
-#define DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_X 0.12
-#define DSANDGRAINS_LFO_PITCH_KNOBS_OFFSET_Y -0.23046875
-#define DSANDGRAINS_LFO_PITCH_KNOBS_COLUMNS 2
+#define DSANDGRAINS_LFO_KNOBS_OFFSET_Y -0.23828125
+#define DSANDGRAINS_LFO_KNOBS_POS_X 0.59
+#define DSANDGRAINS_LFO_KNOBS_POS_Y 0.30859375
 
 #define DSANDGRAINS_MEM_USAGE_OFFSET_Y -0.05078125
 
@@ -115,10 +109,10 @@
 #define DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y 0.8984375
 #define DSANDGRAINS_RESSOURCE_USAGE_STRING_SIZE 6
 
-#define DSANDGRAINS_SAMPLE_KNOBS_COLUMNS 4
+#define DSANDGRAINS_SAMPLE_KNOBS_COLUMNS 6
 #define DSANDGRAINS_SAMPLE_KNOBS_OFFSET_X 0.16
 #define DSANDGRAINS_SAMPLE_KNOBS_OFFSET_Y -0.375
-#define DSANDGRAINS_SAMPLE_KNOBS_POS_X -0.8675
+#define DSANDGRAINS_SAMPLE_KNOBS_POS_X -0.3775
 #define DSANDGRAINS_SAMPLE_KNOBS_POS_Y 0.296875
 
 #define DSANDGRAINS_SAMPLE_ITEM_LIST_HIGHLIGHT_POS_X 0.8059765625
@@ -133,11 +127,11 @@
 #define DSANDGRAINS_SCROLLABLE_LIST_ITEM_OFFSET -0.03515625
 #define DSANDGRAINS_SCROLLABLE_LIST_STRING_SIZE DSTUDIO_INSTANCE_NAME_LENGTH // Include null byte
 
-#define DSANDGRAINS_VOICE_KNOBS_COLUMNS 2
-#define DSANDGRAINS_VOICE_KNOBS_OFFSET_X 0.175
+#define DSANDGRAINS_VOICE_KNOBS_COLUMNS 4
+#define DSANDGRAINS_VOICE_KNOBS_OFFSET_X 0.1171875
 #define DSANDGRAINS_VOICE_KNOBS_OFFSET_Y -0.3203125
-#define DSANDGRAINS_VOICE_KNOBS_POS_X 0.3725
-#define DSANDGRAINS_VOICE_KNOBS_POS_Y 0.31640625
+#define DSANDGRAINS_VOICE_KNOBS_POS_X -0.91
+#define DSANDGRAINS_VOICE_KNOBS_POS_Y 0.33203125
 
 #define DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_X 0.8059765625
 #define DSANDGRAINS_VOICE_ITEM_LIST_HIGHLIGHT_POS_Y -0.044921875
@@ -157,38 +151,31 @@ typedef struct UIElementsStruct_t {
     UIElements knob_sample_end;
     UIElements knob_sample_grain_size;
     UIElements knob_sample_transient_thresold;
-    UIElements knob_sample_loop_duration;                           // 8
-    UIElements knob_sample_cloud_size;                              
+    UIElements knob_sample_amount;                                  // 8
+    UIElements knob_sample_decimate;
+    UIElements knob_sample_loop_duration;
+    UIElements knob_sample_cloud_size;
     UIElements knob_sample_distribution_balance;
     UIElements knob_sample_smooth_transition;
-    UIElements knob_sample_amount;                                  //12
     UIElements knob_sample_pitch;
+    UIElements knob_sample_distance;
     UIElements knob_voice_volume;
-    UIElements knob_voice_pan;
-    UIElements knob_voice_influence;                                //16
     UIElements knob_voice_density;
-    UIElements knob_sample_lfo_tune;
-    UIElements knob_sample_lfo_phase;
-    UIElements knob_sample_lfo_depth;                               //20
-    UIElements knob_sample_lfo_signal;
-    UIElements knob_sample_lfo_pitch_tune;
-    UIElements knob_sample_lfo_pitch_phase;
-    UIElements knob_sample_lfo_pitch_depth;                         //24
-    UIElements knob_sample_lfo_pitch_signal;
+    UIElements knob_voice_pitch;
+    UIElements knob_voice_pan;
+    UIElements knob_lfo_tune;
+    UIElements knob_lfo_phase;
+    UIElements knob_lfo_depth;
+    UIElements knob_lfo_signal;
     UIElements slider_delay;
     UIElements slider_attack;
-    UIElements slider_hold;                                         //28
+    UIElements slider_hold;
     UIElements slider_decay;
     UIElements slider_sustain;
     UIElements slider_release;
-    UIElements slider_equalizer_band_1;                             //32
-    UIElements slider_equalizer_band_2;
-    UIElements slider_equalizer_band_3;
-    UIElements slider_equalizer_band_4;
-    UIElements slider_equalizer_band_5;
-    UIElements slider_equalizer_band_6;
-    UIElements slider_equalizer_band_7;
-    UIElements slider_equalizer_band_8;
+    UIElements slider_equalizer_Q;
+    UIElements slider_equalizer_F;
+    UIElements slider_equalizer_A;
     UIElements button_add;
     UIElements instances_list_slider;
     UIElements instances_list_item_highlight;

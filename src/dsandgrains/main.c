@@ -20,8 +20,8 @@
 /*
  * TODO :
  *      - Make type size explicit and not platform dependant.
- *      - Avoid as much as possible mutex usage.
- *      
+ *      - Add button Copy settings
+ *      - Add button Past settings   
  */
 
 #include <pthread.h>
