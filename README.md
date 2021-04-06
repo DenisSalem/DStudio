@@ -1,12 +1,27 @@
 # DStudio
 
-## TODO
+Your high performance and features rich set of virtual instruments.
 
-fix / investigate
+# DSANDGRAINS 
 
-- segfault
-- double free or corruption (out)
-- double free or corruption (!prev)
+An upcoming granular synthetizer for Linux. 
 
-crash at startup
-	
+## Dependencies
+
+- libFLAC
+- libjack
+- OpenGL
+- libz
+- libpng
+- X11
+
+## How to Compile
+
+> cd src
+> mkdir build
+
+> cd build && cmake .. && make
+
+With debug features :
+
+> cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug && make

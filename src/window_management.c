@@ -351,6 +351,10 @@ void listen_events() {
                 window_alive = 0;
                 return;
             }
+            // Depending on GPU and window manager, switching deskop may clear the entire viewport.
+            else if (x_event.type == Expose) {
+                refresh_all = 1;
+            }
             else if(x_event.type == FocusIn || x_event.type == FocusOut ) {
                 s_focus_type = x_event.type;
                 g_x11_input_mask = DSTUDIO_X11_INPUT_MASKS ^ PointerMotionMask;

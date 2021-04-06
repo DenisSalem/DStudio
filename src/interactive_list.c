@@ -108,11 +108,6 @@ void scroll_by_slider(UIElements * ui_elements) {
     if (0 == interactive_list->window_offset - window_offset) {
         return;
     }
-    DSTUDIO_TRACE_ARGS("%d %d %d",
-        interactive_list->index,
-        interactive_list->window_offset,
-        window_offset
-    );
 
     interactive_list->index += interactive_list->window_offset - window_offset;
     
