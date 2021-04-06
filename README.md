@@ -18,6 +18,7 @@ An upcoming granular synthetizer for Linux.
 ## How to Compile
 
 > cd src
+
 > mkdir build
 
 > cd build && cmake .. && make
