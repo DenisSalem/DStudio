@@ -202,6 +202,7 @@ void update_scroll_bar(UIInteractiveList * interactive_list) {
     unsigned int multiplier;
     GLfloat relative_position = (GLfloat) interactive_list->window_offset / (GLfloat) (*interactive_list->source_data_count - interactive_list->lines_number);
     GLfloat height = (scroll_bar->areas.max_area_y - scroll_bar->areas.min_area_y) - scroll_bar->coordinates_settings.scale_matrix[1].y / (1.0 / (GLfloat) (g_dstudio_viewport_height));
+    height = ((int) height % 2 == 0) ? height : height + 0.5; 
     relative_position *= height / (GLfloat) (g_dstudio_viewport_height >> 1);
     multiplier = relative_position / (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
     relative_position = multiplier * (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));

@@ -475,9 +475,9 @@ void init_open_menu(
         list,
         &g_charset_8x18_texture_ids[0],
         &g_charset_8x18_scale_matrix[0],
-        -1.0 + (((GLfloat)DSTUDIO_OPEN_FILE_LIST_OFFSET_X) / g_dstudio_viewport_width),
+        -1.0 + (((GLfloat)DSTUDIO_OPEN_FILE_LIST_OFFSET_X) / g_dstudio_viewport_width) + 1.0/g_dstudio_viewport_width,
         list_y_pos,
-        800,
+        g_dstudio_viewport_width,
         18,
         0,
         -((GLfloat) 18) / (GLfloat) (g_dstudio_viewport_height >> 1), /* offset y */

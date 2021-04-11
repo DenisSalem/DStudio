@@ -204,6 +204,23 @@ inline static void init_knobs() {
         DSTUDIO_FLAG_IS_VISIBLE
     );
     
+    init_ui_elements(
+        &g_ui_elements_struct.knob_sample_pitch,
+        &knob_texture_ids[0],
+        &knob1_64_scale_matrix[0],
+        DSANDGRAINS_RANDOMIZE_N_SAMPLE_PITCH_KNOBS_POS_X,
+        DSANDGRAINS_RANDOMIZE_N_SAMPLE_PITCH_KNOBS_POS_Y,
+        DSTUDIO_KNOB_1_64_AREA_WIDTH,
+        DSTUDIO_KNOB_1_64_AREA_HEIGHT,
+        DSANDGRAINS_RANDOMIZE_N_SAMPLE_PITCH_KNOBS_OFFSET_X,
+        DSANDGRAINS_RANDOMIZE_N_SAMPLE_PITCH_KNOBS_OFFSET_Y,
+        DSANDGRAINS_RANDOMIZE_N_SAMPLE_PITCH_KNOBS_COLUMNS,
+        2,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_KNOB,
+        DSTUDIO_FLAG_IS_VISIBLE
+    );
+    
     knob_texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA | DSTUDIO_FLAG_USE_ANTI_ALIASING,
         DSTUDIO_KNOB_1_48_WIDTH,
@@ -374,8 +391,7 @@ inline static void init_ressource_usage() {
         &textures_ids[0],
         &ressource_usage_prompt_scale_matrix[0],
         DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_X,
-        /* Add a half-pixel to minimize interpolation */
-        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y - (0.5 / g_dstudio_viewport_height),
+        DSANDGRAINS_RESSOURCE_USAGE_PROMPT_POS_Y,
         DSTUDIO_RESSOURCE_USAGE_WIDTH,
         DSTUDIO_RESSOURCE_USAGE_HEIGHT,
         0,
@@ -455,9 +471,9 @@ inline static void init_sliders() {
 
     slider_texture_ids[0] = setup_texture_n_scale_matrix(
         DSTUDIO_FLAG_USE_ALPHA,
-        DSTUDIO_SLIDER_2_7_WIDTH,
-        DSTUDIO_SLIDER_2_7_HEIGHT, 
-        DSTUDIO_SLIDER_2_7x7_TEXTURE_PATH,
+        DSTUDIO_SLIDER_2_8_WIDTH,
+        DSTUDIO_SLIDER_2_8_HEIGHT, 
+        DSTUDIO_SLIDER_2_8x8_TEXTURE_PATH,
         s_instances_slider_scale_matrix,
         NULL
     );
@@ -468,15 +484,15 @@ inline static void init_sliders() {
         &s_instances_slider_scale_matrix[0],
         DSANDGRAINS_INSTANCE_SLIDER_POS_X,
         DSANDGRAINS_INSTANCE_SLIDER_POS_Y,
-        DSTUDIO_SLIDER_2_7_AREA_WIDTH,
-        DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
+        DSTUDIO_SLIDER_2_8_AREA_WIDTH,
+        DSTUDIO_SLIDER_2_8_AREA_HEIGHT,
         0,
         0,
         1,
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
-        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_SLIDER_TO_TOP
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_SLIDER_TO_TOP | DSTUDIO_FLAG_USE_ANTI_ALIASING
     );
     
     init_ui_elements(
@@ -485,8 +501,8 @@ inline static void init_sliders() {
         &s_instances_slider_scale_matrix[0],
         DSANDGRAINS_VOICE_SLIDER_POS_X,
         DSANDGRAINS_VOICE_SLIDER_POS_Y,
-        DSTUDIO_SLIDER_2_7_AREA_WIDTH,
-        DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
+        DSTUDIO_SLIDER_2_8_AREA_WIDTH,
+        DSTUDIO_SLIDER_2_8_AREA_HEIGHT,
         0,
         0,
         1,
@@ -502,8 +518,8 @@ inline static void init_sliders() {
         &s_instances_slider_scale_matrix[0],
         DSANDGRAINS_SAMPLE_SLIDER_POS_X,
         DSANDGRAINS_SAMPLE_SLIDER_POS_Y,
-        DSTUDIO_SLIDER_2_7_AREA_WIDTH,
-        DSTUDIO_SLIDER_2_7_AREA_HEIGHT,
+        DSTUDIO_SLIDER_2_8_AREA_WIDTH,
+        DSTUDIO_SLIDER_2_8_AREA_HEIGHT,
         0,
         0,
         1,

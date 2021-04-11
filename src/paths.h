@@ -40,6 +40,6 @@
 #define DSTUDIO_OPEN_FILE_SLIDER_ASSET_PATH         "../assets/slider2.png"
 #define DSTUDIO_RESSOURCE_USAGE_PROMPT_ASSET_PATH   "../assets/ressource_usage.png"
 #define DSTUDIO_SLIDER_1_10x10_TEXTURE_PATH         "../assets/slider1.png"
-#define DSTUDIO_SLIDER_2_7x7_TEXTURE_PATH           "../assets/slider3.png"
+#define DSTUDIO_SLIDER_2_8x8_TEXTURE_PATH           "../assets/slider3.png"
 #define DSTUDIO_SLIDER_BACKGROUND_ASSET_PATH        "../assets/slider_background.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../assets/vertex.shader"

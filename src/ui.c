@@ -636,7 +636,7 @@ void init_ui_elements(
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
                 if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
                     ui_elements_array[i].instance_motions_buffer[j] = \
-                        (GLfloat) (area_height) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
+                        (GLfloat) ((int)area_height % 2 == 0 ? area_height : area_height + 1) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
                 }
             }
         }

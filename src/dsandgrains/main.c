@@ -38,8 +38,8 @@
 #include "samples.h"
 #include "ui.h"
 
-const unsigned int g_dstudio_viewport_width = 800;
-const unsigned int g_dstudio_viewport_height = 512;
+const unsigned int g_dstudio_viewport_width = 940;
+const unsigned int g_dstudio_viewport_height = 560;
 const char g_application_name[] = "DSANDGRAINS";
 
 /* Allow generic DStudio UI features (like render loop) to deal with an 
@@ -51,6 +51,7 @@ const unsigned int g_dstudio_ui_element_count = sizeof(UIElementsStruct) / sizeo
 int main(int argc, char ** argv) {
     (void) argc;
     (void) argv;
+    
     dstudio_init_memory_management();
     
     setup_voice_sub_context(
@@ -61,6 +62,7 @@ int main(int argc, char ** argv) {
 
     init_audio_api_client();
 
+    // TODO: PASS CALLBACK TO INIT SOME AUDIO API, NSM or LADISH
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
 
     pthread_t ui_thread_id;
