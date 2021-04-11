@@ -17,6 +17,8 @@ An upcoming granular synthetizer for Linux.
 
 ## How to Compile
 
+> git checkout dsandgrains
+
 > cd src
 
 > mkdir build
