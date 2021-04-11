@@ -93,7 +93,6 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
 		fprintf(stderr, "sample rate    : %u Hz\n", shared_sample->rate);
 		fprintf(stderr, "stereo       : %u\n", shared_sample->is_stereo);
 		fprintf(stderr, "bits per sample: %u\n", shared_sample->bps);
-        // TODO: fprintf(stderr, "total samples  : %" PRIu64 "\n", total_samples)
 		fprintf(stderr, "total samples  : %lu\n", shared_sample->size);
         #endif
 	}

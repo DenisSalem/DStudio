@@ -137,7 +137,6 @@ void instances_management() {
         if (g_instances.contexts == NULL) {
             g_instances.contexts = s_saved_contexts;
             g_instances.count--;
-            // TODO SEND LOG TO GUI
             printf("New instance creation has failed.\n");
             return;
         }
@@ -169,7 +168,6 @@ void instances_management() {
 
         g_ui_instances.update_request = 1;
 
-        
         #ifdef DSTUDIO_DEBUG
         printf("Create instance with id=%s. Allocated memory is now %ld.\n", s_event->name, sizeof(InstanceContext) * g_instances.count);
         printf("Currents instances:\n");

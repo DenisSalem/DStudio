@@ -861,7 +861,6 @@ inline void render_loop() {
             
             update_ui_elements();
             
-            // TODO: Investigate multiple unnessary render_viewport call
             if (render_viewport(render_all)) {
                 swap_window_buffer();
             }
@@ -917,11 +916,6 @@ void render_ui_elements(UIElements * ui_elements) {
     }
 }
 
-/* TODO: Implement efficient overlap mechanism. Use case:
- * What if text is rendered below slicer ?
- * Could add additionnal frame_buffer?
- */
- 
 unsigned int render_viewport(unsigned int render_all) {    
     if (render_all && (g_previous_window_scale.width != g_dstudio_viewport_width || g_previous_window_scale.height != g_dstudio_viewport_height)) {
         glViewport(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
@@ -973,7 +967,6 @@ unsigned int render_viewport(unsigned int render_all) {
      }
 
     /* Before rendering anything we're updating once buffer in GPU */
-    // TODO: Could be done on the fly.
     for ( unsigned int i = 0; i <= s_ui_elements_requests_index; i++) {
         if (s_ui_elements_requests[i]->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
             update_gpu_buffer(s_ui_elements_requests[i]);

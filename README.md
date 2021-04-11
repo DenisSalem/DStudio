@@ -42,14 +42,15 @@ With debug features :
 - DAHDSR.
 - LFO.
 - Mouse hovering displaying info and values.
-- Allow port renaming through Jack.
+- Allow port renaming through Jack server.
 - Notify Jack when audio port are renamed.
 - Fix edge cases of UI elements overlapping.
 - Charset should support special char.
 - Open/Save file menu should have icons in files list for readability.
 - Implement UI animation transition while switching context.
 - Save CPU by disabling animated screen whitch double click.
- 
+- Send log to GUI.
+
 ### v1.0.0
 
 - Experimental support of the following plateform : ReactOS, Haiku.
