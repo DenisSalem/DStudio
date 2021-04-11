@@ -62,3 +62,4 @@ With debug features :
 - LV2 support.
 - Allow multiple window.
 - Python live coding support.
+- Export voice as audio file loop.
