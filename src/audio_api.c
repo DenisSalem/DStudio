@@ -16,8 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+#include <stdio.h> 
+#include <stdlib.h>
+#include <string.h>
 
 #include "audio_api.h"
+#include "instances.h"
+#include "voices.h"
 
 #ifdef DSTUDIO_USE_JACK_AUDIO_CONNECTION_KIT
     #include "jack.c"

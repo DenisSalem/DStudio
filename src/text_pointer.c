@@ -195,7 +195,16 @@ void update_text_box(unsigned int keycode) {
     *text_pointer_alphas_buffer = 1.0;
     compute_text_pointer_coordinates(g_text_pointer_context.insert_char_index);
     update_text_pointer();
-    update_text(g_text_pointer_context.ui_text, string_buffer, g_text_pointer_context.buffer_size);    
+    update_text(g_text_pointer_context.ui_text, string_buffer, g_text_pointer_context.buffer_size);   
+    if (
+        g_text_pointer_context.ui_text->type == DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM &&
+        g_text_pointer_context.ui_text->interactive_list->edit_item_callback
+    ) {
+        g_text_pointer_context.ui_text->interactive_list->edit_item_callback(
+            g_text_pointer_context.ui_text->interactive_list->index + \
+            g_text_pointer_context.ui_text->interactive_list->window_offset
+        );
+    }
 }
 
 void update_text_pointer() {

@@ -23,6 +23,7 @@
 #include "instances.h"
 #include "sliders.h"
 #include "text.h"
+#include "text_pointer.h"
 
 inline void bind_scroll_bar(UIInteractiveList * interactive_list, UIElements * scroll_bar) {
     scroll_bar->interactive_list = interactive_list;
@@ -43,6 +44,7 @@ void init_interactive_list(
     unsigned int * source_data_count,
     char * source_data,
     unsigned int (*select_callback)(unsigned int index),
+    unsigned int (*edit_item_callback)(unsigned int index),
     unsigned int editable,
     GLfloat highlight_step
 ) {
@@ -57,6 +59,7 @@ void init_interactive_list(
     interactive_list->source_data_count = source_data_count;
     interactive_list->source_data = source_data;
     interactive_list->select_callback = select_callback;
+    interactive_list->edit_item_callback = edit_item_callback;
     interactive_list->editable = editable;
     interactive_list->highlight_step = highlight_step;
     interactive_list->highlight_offset_y = ui_elements->coordinates_settings.instance_offsets_buffer->y;
@@ -64,7 +67,10 @@ void init_interactive_list(
 
 void scroll(UIInteractiveList * interactive_list, int direction) {
     unsigned int do_action = 0;
-
+    if (g_text_pointer_context.active) {
+        return;
+    }
+    
     if (direction > 0) {
         do_action = interactive_list->window_offset + interactive_list->lines_number < *interactive_list->source_data_count;
     }
@@ -94,6 +100,10 @@ void scroll(UIInteractiveList * interactive_list, int direction) {
 }
 
 void scroll_by_slider(UIElements * ui_elements) {
+    if (g_text_pointer_context.active) {
+        return;
+    }
+    
     UIInteractiveList * interactive_list = ui_elements->interactive_list;
     
     // List empty? Nothing to do then.

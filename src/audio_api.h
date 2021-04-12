@@ -27,7 +27,8 @@ typedef enum DStudioAudioAPIError_t {
     DSTUDIO_AUDIO_API_CLIENT_IS_NULL,
     DSTUDIO_AUDIO_API_CLIENT_CANNOT_CONNECT_TO_SERVER,
     DSTUDIO_AUDIO_API_CANNOT_ENABLE_CLIENT,
-    DSTUDIO_AUDIO_API_OUTPUT_PORT_CANNOT_BE_CREATED
+    DSTUDIO_AUDIO_API_OUTPUT_PORT_CANNOT_BE_CREATED,
+    DSTUDIO_AUDIO_API_OUTPUT_PORT_RENAMING_FAILED
 } DStudioAudioAPIError;
 
 typedef struct OutputPort_t {
@@ -39,4 +40,5 @@ typedef struct OutputPort_t {
 DStudioAudioAPIError init_audio_api_client();
 DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name);
 DStudioAudioAPIError stop_audio_api_client();
+DStudioAudioAPIError rename_active_context_audio_port(); 
 #endif

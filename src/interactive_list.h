@@ -42,6 +42,8 @@ typedef struct UIInteractiveList_t {
     unsigned int * source_data_count;
     int update_index;
     unsigned int (*select_callback)(unsigned int index);
+    // Will be called when writting the item name.
+    unsigned int (*edit_item_callback)(unsigned int index);
     unsigned char editable;
     unsigned char update_highlight;
     unsigned char update_request;
@@ -71,6 +73,7 @@ void init_interactive_list(
     unsigned int * source_data_count,
     char * source_data,
     unsigned int (*select_callback)(unsigned int index),
+    unsigned int (*edit_item_callback)(unsigned int index),
     unsigned int editable,
     GLfloat highlight_step
 );

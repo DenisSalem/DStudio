@@ -42,6 +42,8 @@ extern UIInteractiveList g_ui_instances;
 
 FILE * add_instance_file_descriptor();
 
+unsigned int _rename_active_context_audio_port(unsigned int index);
+
 void init_instances_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,

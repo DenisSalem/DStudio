@@ -56,6 +56,7 @@ void init_samples_interactive_list(
         &samples->count,
         (char *) samples->contexts,
         select_sample_from_list,
+        DSTUDIO_NO_CALLBACK,
         1,
         item_offset_y
     );

@@ -533,6 +533,7 @@ void init_open_menu(
         &s_files_count,
         NULL, /* At this point has not been allocated yet. */
         select_file_from_list,
+        DSTUDIO_NO_CALLBACK,
         0,
         DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y
     );

@@ -33,7 +33,9 @@ With debug features :
 
 ### v0.0.0
 
-- DONE 11/04/2021 : Integrate new UI layout. 
+- DONE 11/04/2021 : Integrate new UI layout.
+- DONE 12/04/2021 : Notify Jack when audio port are renamed.
+- DONE 12/04/2021 : Disable scroll if text cursor is active.
 - Visual audio sample représentation.
 - Connect UI elements to backend context.
 - SAMPLE Group : Implement Start, end, Grain size, Amount, Decimate, Distribution Balance, Distance.
@@ -45,16 +47,17 @@ With debug features :
 - LFO.
 - Mouse hovering displaying info and values.
 - Allow port renaming through Jack server.
-- Notify Jack when audio port are renamed.
 - Fix edge cases of UI elements overlapping.
 - Charset should support special char.
 - Open/Save file menu should have icons in files list for readability.
 - Implement UI animation transition while switching context.
 - Save CPU by disabling animated screen whitch double click.
 - Send log to GUI.
+- Fix text cursor glitch.
 
 ### v1.0.0
 
+- Allow to change the color of auto generated UI element.
 - Experimental support of the following plateform : ReactOS, Haiku.
 - UI and window Rescale.
 - Fully translatable user interface.

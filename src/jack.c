@@ -17,9 +17,6 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h> 
-#include <stdlib.h>
-
 #include <jack/jack.h>
 
 static jack_client_t * s_client;
@@ -97,3 +94,29 @@ DStudioAudioAPIError stop_audio_api_client() {
     }
     return DSTUDIO_AUDIO_API_NO_ERROR;
 }
+
+
+DStudioAudioAPIError rename_active_context_audio_port() {
+    char audio_port_name_left_buffer[64] = {0};
+    char audio_port_name_right_buffer[64] = {0};
+    strcpy((char *) &audio_port_name_left_buffer, g_current_active_instance->name);
+    strcpy((char *) &audio_port_name_right_buffer, g_current_active_instance->name);
+    strcat((char *) &audio_port_name_left_buffer, " > ");
+    strcat((char *) &audio_port_name_right_buffer, " > ");
+    strcat((char *) &audio_port_name_left_buffer, g_current_active_voice->name);
+    strcat((char *) &audio_port_name_right_buffer, g_current_active_voice->name);
+    strcat((char *) &audio_port_name_left_buffer, " > L");
+    strcat((char *) &audio_port_name_right_buffer, " > R");
+    
+    if (s_client) {
+        if (
+            jack_port_rename(s_client, g_current_active_voice->output_port.left, (const char *) &audio_port_name_left_buffer) ||
+            jack_port_rename(s_client, g_current_active_voice->output_port.right, (const char *) &audio_port_name_right_buffer)
+        ) {
+            return DSTUDIO_AUDIO_API_OUTPUT_PORT_RENAMING_FAILED;
+        }
+        return DSTUDIO_AUDIO_API_NO_ERROR;
+    }
+    return DSTUDIO_AUDIO_API_CLIENT_IS_NULL;
+} 
+

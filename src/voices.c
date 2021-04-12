@@ -74,6 +74,7 @@ void init_voices_interactive_list(
         g_current_active_instance->voices.contexts->name,
         //~ &g_voices_thread_control,
         select_voice_from_list,
+        _rename_active_context_audio_port,
         1,
         s_item_offset_y
     );
@@ -135,8 +136,8 @@ UIElements * new_voice() {
     strcat((char *) &s_audio_port_name_right_buffer, " > ");
     strcat((char *) &s_audio_port_name_left_buffer, g_current_active_voice->name);
     strcat((char *) &s_audio_port_name_right_buffer, g_current_active_voice->name);
-    strcat((char *) &s_audio_port_name_left_buffer, " L");
-    strcat((char *) &s_audio_port_name_right_buffer, " R");
+    strcat((char *) &s_audio_port_name_left_buffer, " > L");
+    strcat((char *) &s_audio_port_name_right_buffer, " >  R");
             
     register_stereo_output_port(
         &g_current_active_voice->output_port,

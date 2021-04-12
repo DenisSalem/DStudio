@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "audio_api.h"
 #include "common.h"
 #include "fileutils.h"
 #include "instances.h"
@@ -69,6 +70,12 @@ FILE * add_instance_file_descriptor() {
     return fopen(instance_filename_buffer, "w+");
 }
 
+unsigned int _rename_active_context_audio_port(unsigned int index) {
+    (void) index;
+    rename_active_context_audio_port();
+    return 0;
+}
+
 void init_instances_interactive_list(
     UIElements * ui_elements,
     unsigned int lines_number,
@@ -84,6 +91,7 @@ void init_instances_interactive_list(
         &g_instances.count,
         g_instances.contexts->name,
         select_instance_from_list,
+        _rename_active_context_audio_port,
         1,
         item_offset_y
     );
