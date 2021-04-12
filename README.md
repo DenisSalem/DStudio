@@ -63,3 +63,4 @@ With debug features :
 - Allow multiple window.
 - Python live coding support.
 - Export voice as audio file loop.
+- Support of additional audio file format.
