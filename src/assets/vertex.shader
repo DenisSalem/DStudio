@@ -21,7 +21,9 @@
 
 const uint DSTUDIO_MOTION_TYPE_NONE = 0U;
 const uint DSTUDIO_MOTION_TYPE_ROTATION = 1U;
-const uint DSTUDIO_MOTION_TYPE_SLIDE = 2U; 
+const uint DSTUDIO_MOTION_TYPE_SLIDE = 2U;
+const uint DSTUDIO_MOTION_TYPE_BAR_PLOT = 3U; 
+
  
 layout(location = 0) in vec2 vertex_position;
 layout(location = 1) in vec2 texture_coordinates;
@@ -41,9 +43,14 @@ void main() {
     vec2 applied_rotation; 
     float c;
     float s;
+    mat2 alternate_scale_matrix = mat2(scale_matrix);
     
     if ( motion_type == DSTUDIO_MOTION_TYPE_NONE) {
         gl_Position = vec4( scale_matrix * vertex_position + offset.xy, 0, 1.0);
+    }
+    else if (motion_type == DSTUDIO_MOTION_TYPE_BAR_PLOT) {
+        alternate_scale_matrix[1].y *= 0.5;
+        gl_Position = vec4( alternate_scale_matrix * vertex_position + offset.xy, 0, 1.0);
     }
     else if (motion_type == DSTUDIO_MOTION_TYPE_ROTATION) {    
         if (motion != 0) {  
@@ -60,6 +67,7 @@ void main() {
     else if (motion_type == DSTUDIO_MOTION_TYPE_SLIDE) {
         gl_Position = vec4( scale_matrix * vertex_position.xy + offset.xy + vec2(0, motion), 0, 1.0);
     }
+    
     if (no_texture != 1U) {
         fragment_texture_coordinates = texture_coordinates + offset.zw;
     }

@@ -20,8 +20,7 @@
 /*
  * TODO :
  *      - Make type size explicit and not platform dependant.
- *      - Add button Copy settings
- *      - Add button Past settings   
+ *      - Make the damn naming convention consistent.   
  */
 
 #include <pthread.h>

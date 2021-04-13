@@ -37,6 +37,7 @@
 UIElementsStruct g_ui_elements_struct = {0};
 UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
 
+// TODO : Shouldn't be be static ?
 Vec2 arrow_button_scale_matrix[2] = {0};
 Vec2 knob1_64_scale_matrix[2] = {0};
 Vec2 knob1_48_scale_matrix[2] = {0};
@@ -46,6 +47,7 @@ Vec2 slider1_10_scale_matrix[2] = {0};
 Vec2 tiny_button_scale_matrix[2] = {0};
 Vec2 sub_menu_buttons_add_scale_matrix[2] = {0};
 Vec2 s_instances_slider_scale_matrix[2] = {0};
+Vec2 s_sample_screen_sample_scale_matrix[2] = {0};
 
 inline static void bind_callbacks() {
     g_ui_elements_struct.button_add.application_callback = add_sub_menu;
@@ -420,7 +422,38 @@ inline static void init_ressource_usage() {
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_IS_VISIBLE
     );
+    // TODO Finish Implement this.
     g_ui_elements_struct.cpu_usage.overlap_sub_menu_ui_elements = &g_ui_elements_struct.open_file_menu_prompts;
+}
+
+inline static void init_sample_screen() {    
+          
+    DEFINE_SCALE_MATRIX(
+        s_sample_screen_sample_scale_matrix,
+        DSANDGRAINS_SAMPLE_SCREEN_SAMPLE_WIDTH,
+        DSANDGRAINS_SAMPLE_SCREEN_HEIGHT
+    )
+    
+    init_ui_elements(
+        &g_ui_elements_struct.sample_screen,
+        NULL,
+        &s_sample_screen_sample_scale_matrix[0],
+        DSANDGRAINS_SAMPLE_SCREEN_POS_X, 
+        DSANDGRAINS_SAMPLE_SCREEN_POS_Y,
+        DSANDGRAINS_SAMPLE_SCREEN_SAMPLE_WIDTH,
+        DSANDGRAINS_SAMPLE_SCREEN_HEIGHT,
+        DSANDGRAINS_SAMPLE_SCREEN_OFFSET_X,
+        DSANDGRAINS_SAMPLE_SCREEN_OFFSET_Y,
+        1,
+        1,
+        DSANDGRAINS_SAMPLE_SCREEN_WIDTH,
+        DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT,
+        DSTUDIO_FLAG_IS_VISIBLE
+    );
+    
+    g_ui_elements_struct.sample_screen.color.r = 1.0;
+    g_ui_elements_struct.sample_screen.color.g = 0.5;
+    g_ui_elements_struct.sample_screen.color.a = 1.0;
 }
 
 inline static void init_sliders() {
@@ -673,6 +706,7 @@ static void init_dsandgrains_ui_elements() {
     init_misc_buttons();
     init_ressource_usage();
     init_sliders();
+    init_sample_screen();
     init_ui_text_pointer(&g_ui_elements_struct.text_pointer);
     init_sub_menu_add();
     init_open_menu(

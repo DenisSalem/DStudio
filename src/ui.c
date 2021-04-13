@@ -553,6 +553,7 @@ void init_ui() {
 };
 
 // TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE 
+// TODO: This function is a damn mess. Need to be cleaned up...
 
 void init_ui_elements(
     UIElements * ui_elements_array,
@@ -632,7 +633,19 @@ void init_ui_elements(
                 }
             }
             else {
-                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + (j * scale_matrix[0].x * 2) + (x * offset_x);
+                GLfloat type_offset_x = 0;
+                switch (ui_element_type) {
+                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
+                    case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                    case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+                    case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+                        type_offset_x = (j * scale_matrix[0].x * 2);
+                        break;
+                    default:
+                        break;
+                }
+                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + type_offset_x + (x * offset_x);
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
                 if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
                     ui_elements_array[i].instance_motions_buffer[j] = \
@@ -884,10 +897,16 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_ROTATION);
             break;
+            
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_SLIDE);
             break;
-
+            
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+            glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_BAR_PLOT);
+            glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
+            break;
+            
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND:
             glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
@@ -898,7 +917,7 @@ void render_ui_elements(UIElements * ui_elements) {
             break;
     }
     
-    glUniform1ui(g_no_texture_location, ui_elements->type & (DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND | DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE) ? 1 : 0);
+    glUniform1ui(g_no_texture_location, ui_elements->type & DSTUDIO_ANY_NO_TEXTURE_TYPE ? 1 : 0);
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ui_elements->index_buffer_object);
@@ -1160,9 +1179,16 @@ void update_gpu_buffer(UIElements * ui_element_p) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * ui_element_p->count, ui_element_p->instance_motions_buffer);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), ui_element_p->instance_motions_buffer);
             break;
-
+            
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_motions_buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_alphas_buffer);
+            break;
+            
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
