@@ -43,14 +43,12 @@ void main() {
     vec2 applied_rotation; 
     float c;
     float s;
-    mat2 alternate_scale_matrix = mat2(scale_matrix);
     
     if ( motion_type == DSTUDIO_MOTION_TYPE_NONE) {
         gl_Position = vec4( scale_matrix * vertex_position + offset.xy, 0, 1.0);
     }
     else if (motion_type == DSTUDIO_MOTION_TYPE_BAR_PLOT) {
-        alternate_scale_matrix[1].y *= motion;
-        gl_Position = vec4( alternate_scale_matrix * vertex_position + offset.xy , 0, 1.0);
+        gl_Position = vec4( scale_matrix * vertex_position * vec2(1.0,motion) + offset.xy, 0, 1.0);
     }
     else if (motion_type == DSTUDIO_MOTION_TYPE_ROTATION) {    
         if (motion != 0) {  

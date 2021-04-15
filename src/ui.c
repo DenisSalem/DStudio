@@ -640,13 +640,18 @@ void init_ui_elements(
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                     case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
-                        type_offset_x = (j * scale_matrix[0].x * 2);
+                        type_offset_x = (j * scale_matrix[0].x*2.0);
                         break;
                     default:
                         break;
                 }
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + type_offset_x + (x * offset_x);
-                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y); 
+                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y);
+                // TODO : For test and debug purpose
+                //~ if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT) {
+                    //~ ui_elements_array[i].instance_motions_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265 + 3.14159265/2.0);
+                    //~ ui_elements_array[i].instance_alphas_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265 + 3.14159265/2.0);
+                //~ }
                 if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
                     ui_elements_array[i].instance_motions_buffer[j] = \
                         (GLfloat) ((int)area_height % 2 == 0 ? area_height : area_height + 1) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
@@ -657,7 +662,22 @@ void init_ui_elements(
         ui_elements_array[i].coordinates_settings.scale_matrix = scale_matrix;
         
         ui_elements_array[i].coordinates_settings.scissor.x = min_area_x + computed_area_offset_x;
-        ui_elements_array[i].coordinates_settings.scissor.width = ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM | DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM) ? 0 : max_area_x - min_area_x;
+        GLsizei scissor_width = 0;
+        switch(ui_element_type) {
+            case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+            case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                scissor_width = 0;
+                break;
+                
+            case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+                scissor_width = instances_count;
+                break;
+                
+            default:
+                scissor_width = max_area_x - min_area_x;
+                break;
+        }
+        ui_elements_array[i].coordinates_settings.scissor.width = scissor_width;
         
         if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
             compute_slider_scissor_y(&ui_elements_array[i]);
@@ -916,7 +936,7 @@ void render_ui_elements(UIElements * ui_elements) {
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_NONE);
             break;
     }
-    
+        
     glUniform1ui(g_no_texture_location, ui_elements->type & DSTUDIO_ANY_NO_TEXTURE_TYPE ? 1 : 0);
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);

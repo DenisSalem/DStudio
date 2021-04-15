@@ -177,7 +177,7 @@ typedef struct UIElementsCoordinatesSettings_t {
 } UIElementsCoordinatesSettings;
 
 typedef struct UIElements_t {
-    unsigned char               count;
+    unsigned int                count;
     unsigned char               render_state;
     unsigned char               visible;
     unsigned char               enabled;

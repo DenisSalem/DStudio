@@ -453,7 +453,7 @@ inline static void init_sample_screen() {
     
     g_ui_elements_struct.sample_screen.color.r = 1.0;
     g_ui_elements_struct.sample_screen.color.g = 0.5;
-    g_ui_elements_struct.sample_screen.color.a = 1.0;
+    g_ui_elements_struct.sample_screen.color.a = 1;
 }
 
 inline static void init_sliders() {
@@ -525,7 +525,7 @@ inline static void init_sliders() {
         1,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_SLIDER,
-        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_SLIDER_TO_TOP | DSTUDIO_FLAG_USE_ANTI_ALIASING
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_SLIDER_TO_TOP
     );
     
     init_ui_elements(
