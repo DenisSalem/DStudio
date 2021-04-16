@@ -22,7 +22,7 @@
 
 typedef enum SharedSampleError_t {
     DSTUDIO_SHARED_SAMPLE_NO_ERROR = 0,
-    DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED = 1 
+    DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED = 1
 } SharedSampleError;
 
 typedef struct SharedSample_t {

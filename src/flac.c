@@ -23,6 +23,7 @@
 #include "flac.h"
 
 void (*s_client_error_callback)(const char * message) = 0;
+unsigned int s_decode_flac_goes_wrong = 1;
 
 FLAC__StreamDecoderWriteStatus write_callback(
     const FLAC__StreamDecoder *decoder,
@@ -33,10 +34,11 @@ FLAC__StreamDecoderWriteStatus write_callback(
     (void) decoder;
     (void) frame;
     (void) buffer;
-    
     SharedSample * shared_sample =  (SharedSample *) client_data; 
-    
+    s_decode_flac_goes_wrong = 0;
+
     if (shared_sample->error_code) {
+        s_decode_flac_goes_wrong = 1;
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
     unsigned sample_index_offset = frame->header.number.sample_number;
@@ -51,7 +53,7 @@ FLAC__StreamDecoderWriteStatus write_callback(
     //~ else if (shared_sample->bps == 24){
         //~ // TODO
     //~ }
-        
+    
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
@@ -71,8 +73,9 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
                 break;
                 
             default:
-                s_client_error_callback("Audio file has more than two channels.");
                 shared_sample->error_code = DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED;
+                s_client_error_callback("Audio file has more than two channels.");
+                return;
                 break;
         }
         unsigned size = shared_sample->size * (shared_sample->bps >> 3); // Binary rotation is equivalent to divide by 8
@@ -130,10 +133,14 @@ int load_flac(
     }
         
     decode_status = FLAC__stream_decoder_process_until_end_of_stream(decoder);
-
+    
+    //~ FLAC__StreamDecoderState state = FLAC__stream_decoder_get_state(decoder);
+    
     FLAC__stream_decoder_finish(decoder);
-    FLAC__stream_decoder_delete(decoder);	
-    DSTUDIO_TRACE_ARGS("%d", decode_status);
-
+    FLAC__stream_decoder_delete(decoder);
+    
+    if (s_decode_flac_goes_wrong)
+        return 0;
+        
     return decode_status;
 }
