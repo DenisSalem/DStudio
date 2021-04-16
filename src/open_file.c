@@ -184,7 +184,7 @@ static unsigned int refresh_file_list(char * path) {
     s_file_index = 0;
     
     update_ui_element_motion(s_interactive_list.scroll_bar, s_interactive_list.max_scroll_bar_offset);
-    compute_slider_scissor_y(s_interactive_list.scroll_bar);
+    compute_slider_in_motion_scissor_y(s_interactive_list.scroll_bar);
     
     closedir(dr);
     return 1;  

@@ -126,13 +126,14 @@ int load_flac(
         // TODO: GOES TO LOG
 		fprintf(stderr, "ERROR: initializing decoder: %s\n", FLAC__StreamDecoderInitStatusString[init_status]);
         FLAC__stream_decoder_delete(decoder);	
-        return decode_status;
+        return init_status;
     }
         
     decode_status = FLAC__stream_decoder_process_until_end_of_stream(decoder);
 
     FLAC__stream_decoder_finish(decoder);
     FLAC__stream_decoder_delete(decoder);	
+    DSTUDIO_TRACE_ARGS("%d", decode_status);
 
     return decode_status;
 }

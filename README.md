@@ -55,7 +55,7 @@ With debug features :
 - Fix text cursor glitch.
 - Remove value jump in knob when selected. Use offset instead.
 - Implement Configuration menu. (Knob mode, asset path, framerate, auto generated ui color, etc...)
-
+- Implement filter in file browser to only match supported format.
 ### v1.0.0
 
 - Allow to change the color of auto generated UI element.
