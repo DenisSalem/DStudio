@@ -41,18 +41,19 @@ FLAC__StreamDecoderWriteStatus write_callback(
         s_decode_flac_goes_wrong = 1;
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
+    
     unsigned sample_index_offset = frame->header.number.sample_number;
-    if (shared_sample->bps == 16) {
-        short * left = shared_sample->left16;
-        short * right = shared_sample->right16;
-        for (unsigned i = 0; i < frame->header.blocksize; i++) {
-            left[sample_index_offset+i] = (short) buffer[0][i];
-            right[sample_index_offset+i] = (short) buffer[1][i];
+    float * left = shared_sample->left;
+    float * right = shared_sample->right;
+    float max_value = (float) ((1 << shared_sample->bps) -1 );
+    unsigned char is_stereo = shared_sample->is_stereo;
+    
+    for (unsigned i = 0; i < frame->header.blocksize; i++) {
+        left[sample_index_offset+i] = (float) (buffer[0][i]) / max_value;
+        if (is_stereo == 2) {
+            right[sample_index_offset+i] = (float) (buffer[1][i]) / max_value;
         }
     }
-    //~ else if (shared_sample->bps == 24){
-        //~ // TODO
-    //~ }
     
     return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
@@ -76,18 +77,22 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
                 shared_sample->error_code = DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED;
                 s_client_error_callback("Audio file has more than two channels.");
                 return;
-                break;
         }
-        unsigned size = shared_sample->size * (shared_sample->bps >> 3); // Binary rotation is equivalent to divide by 8
+        unsigned size = shared_sample->size * sizeof(float);
+        
         shared_sample->left = dstudio_alloc(
             size,
             DSTUDIO_FAILURE_IS_NOT_FATAL
         );
-        shared_sample->right = dstudio_alloc(
-            size,
-            DSTUDIO_FAILURE_IS_NOT_FATAL
-        );
-        if (shared_sample->left == NULL || shared_sample->right == NULL) {
+        
+        if (shared_sample->is_stereo == 2) {
+            shared_sample->right = dstudio_alloc(
+                size,
+                DSTUDIO_FAILURE_IS_NOT_FATAL
+            );
+        }
+        
+        if (shared_sample->left == NULL || (shared_sample->is_stereo == 2 && shared_sample->right == NULL)) {
             s_client_error_callback("Memory allocation failed.");
             shared_sample->error_code = DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED;
         }

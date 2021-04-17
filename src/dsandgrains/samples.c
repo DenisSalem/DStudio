@@ -19,6 +19,7 @@
 
 #include "../instances.h"
 #include "samples.h"
+#include "sample_screen.h"
 
 SampleContext * g_current_active_sample = 0;
 UIInteractiveList g_ui_samples = {0};

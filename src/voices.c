@@ -162,6 +162,7 @@ unsigned int select_voice_from_list(
     return 0;
 }
 
+// TODO : Callback only handles interactive list. It lake of other contextual UI management.
 void setup_voice_sub_context(
     unsigned int size,
     void (*sub_context_interactive_list_binder)(UIElements * lines),

@@ -649,8 +649,8 @@ void init_ui_elements(
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y);
                 // TODO : For test and debug purpose
                 //~ if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT) {
-                    //~ ui_elements_array[i].instance_motions_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265 + 3.14159265/2.0);
-                    //~ ui_elements_array[i].instance_alphas_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265 + 3.14159265/2.0);
+                    //~ wui_elements_array[i].instance_motions_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265*4 + 3.14159265/2.0);
+                    //~ ui_elements_array[i].instance_alphas_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265*4 + 3.14159265/2.0);
                 //~ }
                 if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
                     ui_elements_array[i].instance_motions_buffer[j] = \

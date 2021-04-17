@@ -17,25 +17,23 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_SAMPLES_H_INCLUDED
-#define DSTUDIO_SAMPLES_H_INCLUDED
+update_as_waveform(UIElements * bar_plot, SharedSample * shared_sample) {
+    unsigned int sub_sample_size = 0;
+    float positive_average = 0;
+    float positive_count = 0;
+    float negative_average = 0;
+    float negative_count = 0;
 
-typedef enum SharedSampleError_t {
-    DSTUDIO_SHARED_SAMPLE_NO_ERROR = 0,
-    DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED = 1,
-    DSTUDIO_SHARED_SAMPLE_UNSUPPORTED_BPS = 2
-} SharedSampleError;
-
-typedef struct SharedSample_t {
-    char * identifier;          // Absolute path of the sample.
-    unsigned char count;        // How many time the sample is referenced.
-    unsigned char is_stereo;    
-    unsigned char bps;          
-    unsigned char error_code;
-    unsigned rate;
-    long unsigned size;
-    float *  left; 
-    float *  right;
-} SharedSample;
-
-#endif
+    if (shared_sample->size > bar_plot->count) {
+        sub_sample_size = shared_sample->size / bar_plot->count;
+        
+        for (unsigned int i = 0; i < shared_sample->size; i++) {
+            if ((i != 0) && (i % sub_sample_size == 0)) {
+                positive_average = 0;
+                positive_count = 0;
+                negative_average = 0;
+                negative_count = 0;
+            }
+        }
+    }
+}

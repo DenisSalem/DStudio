@@ -16,3 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include "../samples.h"
+
+void bind_new_data(SharedSample * shared_sample);
+
+void update_sample_screen();
+

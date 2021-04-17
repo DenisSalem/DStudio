@@ -596,6 +596,7 @@ unsigned int select_file_from_list(
 }
 
 void update_open_file_error(const char * message) {
+    // TODO: Forward in log
     update_text(s_error_message, (char *) message, s_max_characters_for_error_prompt);
 }
 

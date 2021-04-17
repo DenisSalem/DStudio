@@ -17,25 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_SAMPLES_H_INCLUDED
-#define DSTUDIO_SAMPLES_H_INCLUDED
+#include "samples.h"
+#include "ui.h"
 
-typedef enum SharedSampleError_t {
-    DSTUDIO_SHARED_SAMPLE_NO_ERROR = 0,
-    DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED = 1,
-    DSTUDIO_SHARED_SAMPLE_UNSUPPORTED_BPS = 2
-} SharedSampleError;
+update_as_waveform(UIElements * bar_plot, SharedSample * shared_sample);
 
-typedef struct SharedSample_t {
-    char * identifier;          // Absolute path of the sample.
-    unsigned char count;        // How many time the sample is referenced.
-    unsigned char is_stereo;    
-    unsigned char bps;          
-    unsigned char error_code;
-    unsigned rate;
-    long unsigned size;
-    float *  left; 
-    float *  right;
-} SharedSample;
-
-#endif
+//update_as_spectrum(UIElements * bar_plot, Spectrum * spectrum);

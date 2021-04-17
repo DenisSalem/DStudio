@@ -17,3 +17,20 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../bar_plot.h"
+#include "sample_screen.h"
+
+static unsigned char s_update_request = 0;
+static SharedSample * s_shared_sample = 0;
+
+void bind_new_data(SharedSample * shared_sample) {
+    s_update_request = 1;
+    s_shared_sample = shared_sample;
+}
+
+void update_sample_screen() {
+    if (s_update_request) {
+        s_refresh_sample_screen = 0;
+        update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen, s_shared_sample);
+    }
+}
