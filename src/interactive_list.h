@@ -24,10 +24,10 @@
 
 #include "ui.h"
 
-typedef enum SelectItemOpt_t {
+typedef enum ListItemOpt_t {
     DSTUDIO_SELECT_ITEM_WITH_CALLBACK = 0,
     DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK = 1,
-} SelectItemOpt;
+} ListItemOpt;
 
 typedef struct UIElements_t UIElements;
 

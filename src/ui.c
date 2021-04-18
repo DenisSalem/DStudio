@@ -59,8 +59,8 @@ static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {
 static GLuint               s_framebuffer_textures[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static UIElements           s_framebuffer_quad = {0};
 static UIElements           s_extended_background = {0};
-static double               s_list_item_click_timestamp = 0;
 static int                  s_ui_element_index = -1;
+static UIElements *         s_list_item = 0;
 static UIElements **        s_ui_elements_requests = 0;
 static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
@@ -645,13 +645,12 @@ void init_ui_elements(
                     default:
                         break;
                 }
+                if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT) {
+                    ui_elements_array[i].instance_alphas_buffer[j] = 0.75;
+                }
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + type_offset_x + (x * offset_x);
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y);
-                // TODO : For test and debug purpose
-                //~ if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT) {
-                    //~ wui_elements_array[i].instance_motions_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265*4 + 3.14159265/2.0);
-                    //~ ui_elements_array[i].instance_alphas_buffer[j] = 0.5 + 0.5 * sin( ((GLfloat) j / (GLfloat) instances_count) * 3.14159265*4 + 3.14159265/2.0);
-                //~ }
+
                 if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
                     ui_elements_array[i].instance_motions_buffer[j] = \
                         (GLfloat) ((int)area_height % 2 == 0 ? area_height : area_height + 1) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
@@ -790,6 +789,10 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
             ) {
                 s_ui_element_index = i;
                 clicked_none = 0;
+                // Prevent triggering callback on wrong ui_element while double clicking
+                if (s_list_item != ui_elements_p) {
+                    s_list_item = 0;
+                }
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                         ui_elements_p->application_callback(ui_elements_p);
@@ -802,25 +805,31 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                     
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
                         timestamp = get_timestamp();
-                        if (timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                        if (s_list_item == ui_elements_p && timestamp - ui_elements_p->timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
                             if(ui_elements_p->application_callback)
                                 ui_elements_p->application_callback(ui_elements_p);
+                            ui_elements_p->timestamp = 0;
+
                         }
                         else {
+                            s_list_item = ui_elements_p;
+                            ui_elements_p->timestamp = timestamp;
                             select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
-                            s_list_item_click_timestamp = timestamp;
                             g_active_interactive_list = ui_elements_p->interactive_list;
                         }
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                         timestamp = get_timestamp();
-                        if (timestamp - s_list_item_click_timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                        if (s_list_item == ui_elements_p && timestamp - ui_elements_p->timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
+                            DSTUDIO_TRACE_ARGS("IS ELEMENT SELECTED ? %d", ui_elements_p == &g_active_interactive_list->lines[g_active_interactive_list->index])
                             update_text_pointer_context(ui_elements_p);
+                            ui_elements_p->timestamp = 0;
                         }
                         else {
                             select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
-                            s_list_item_click_timestamp = timestamp;
+                            ui_elements_p->timestamp = timestamp;
+                            s_list_item = ui_elements_p;
                         }
                         g_active_interactive_list = ui_elements_p->interactive_list;
                         break;
@@ -923,6 +932,7 @@ void render_ui_elements(UIElements * ui_elements) {
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+            DSTUDIO_TRACE;
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_BAR_PLOT);
             glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
             break;

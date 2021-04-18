@@ -19,18 +19,21 @@
 
 #include "../bar_plot.h"
 #include "sample_screen.h"
+#include "ui.h"
 
 static unsigned char s_update_request = 0;
 static SharedSample * s_shared_sample = 0;
 
-void bind_new_data(SharedSample * shared_sample) {
+void bind_new_data_to_sample_screen(SharedSample * shared_sample) {
+    DSTUDIO_TRACE
     s_update_request = 1;
     s_shared_sample = shared_sample;
 }
 
 void update_sample_screen() {
     if (s_update_request) {
-        s_refresh_sample_screen = 0;
+        DSTUDIO_TRACE
+        s_update_request = 0;
         update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen, s_shared_sample);
     }
 }

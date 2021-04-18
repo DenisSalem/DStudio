@@ -54,8 +54,10 @@ add_executable(
     dsandgrains/add.c
 	dsandgrains/main.c
     dsandgrains/samples.c
+    dsandgrains/sample_screen.c
     dsandgrains/ui.c
     audio_api.c
+    bar_plot.c
     buttons.c
     common.c
     extensions.c

@@ -182,8 +182,8 @@ typedef struct UIElements_t {
     unsigned char               visible;
     unsigned char               enabled;
     unsigned char               texture_index;
+    double                      timestamp;
     union {
-        double                  timestamp;
         unsigned int            text_buffer_size;
         GLfloat                 previous_slider_motion;
     };

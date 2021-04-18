@@ -32,6 +32,7 @@
 
 #include "add.h"
 #include "samples.h"
+#include "sample_screen.h"
 #include "ui.h"
 
 UIElementsStruct g_ui_elements_struct = {0};
@@ -761,37 +762,19 @@ void * ui_thread(void * arg) {
 
     bind_voices_interactive_list(NULL);
     
-    bind_samples_interactive_list(NULL);
+    bind_samples_interactive_list(NULL, DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
     
-    init_ui_element_updater_register(7);
+    init_ui_element_updater_register(8);
     
-    register_ui_elements_updater(
-        text_pointer_blink
-    );
-    
-    register_ui_elements_updater(
-        update_ui_ressource_usage
-    );
-    
-    register_ui_elements_updater(
-        update_ui_bouncing_buttons
-    );
+    register_ui_elements_updater(text_pointer_blink);
+    register_ui_elements_updater(update_ui_ressource_usage);
+    register_ui_elements_updater(update_ui_bouncing_buttons);
+    register_ui_elements_updater(update_ui_instances_list);
 
-    register_ui_elements_updater(
-        update_ui_instances_list
-    );
-    
-    register_ui_elements_updater(
-        update_voices_ui_list
-    );
-
-    register_ui_elements_updater(
-        update_open_file_ui_list
-    );
-    
-    register_ui_elements_updater(
-        update_samples_ui_list
-    );
+    register_ui_elements_updater(update_voices_ui_list);
+    register_ui_elements_updater(update_open_file_ui_list);
+    register_ui_elements_updater(update_samples_ui_list);
+    register_ui_elements_updater(update_sample_screen);
 
     render_loop();
     destroy_context();

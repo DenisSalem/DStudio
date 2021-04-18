@@ -26,7 +26,7 @@ VoiceContext * g_current_active_voice = 0;
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
 
-void (*bind_sub_context_interactive_list)(UIElements * line) = 0;
+void (*bind_sub_context_interactive_list)(UIElements * line, ListItemOpt flag) = 0;
 UIElements * (*setup_sub_context_interactive_list)() = 0;
 
 char s_audio_port_name_left_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
@@ -125,7 +125,8 @@ UIElements * new_voice() {
     if (s_ui_elements) {
         bind_voices_interactive_list(line);
         bind_sub_context_interactive_list(
-            setup_sub_context_interactive_list()
+            setup_sub_context_interactive_list(),
+            DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
         );
 
     }
@@ -155,7 +156,8 @@ unsigned int select_voice_from_list(
     if (index != g_current_active_instance->voices.index && index < g_current_active_instance->voices.count) {
         update_current_voice(index);
         bind_sub_context_interactive_list(
-            setup_sub_context_interactive_list()
+            setup_sub_context_interactive_list(),
+            DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
         );
         return 1;
     }
@@ -165,7 +167,7 @@ unsigned int select_voice_from_list(
 // TODO : Callback only handles interactive list. It lake of other contextual UI management.
 void setup_voice_sub_context(
     unsigned int size,
-    void (*sub_context_interactive_list_binder)(UIElements * lines),
+    void (*sub_context_interactive_list_binder)(UIElements * lines, ListItemOpt flag),
     UIElements * (*sub_context_interactive_list_setter)()
 ) {
     s_sub_context_size = size;

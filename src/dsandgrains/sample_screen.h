@@ -19,7 +19,7 @@
 
 #include "../samples.h"
 
-void bind_new_data(SharedSample * shared_sample);
+void bind_new_data_to_sample_screen(SharedSample * shared_sample);
 
 void update_sample_screen();
 

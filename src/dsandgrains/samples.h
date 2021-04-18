@@ -27,7 +27,7 @@
 
 typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
-    SharedSample shared_sample;
+    SharedSample shared_sample; // TODO MUST BE A POINTER !!!
 } SampleContext;
 
 typedef struct Samples_t{
@@ -39,7 +39,7 @@ typedef struct Samples_t{
 extern SampleContext * g_current_active_sample; 
 extern UIInteractiveList g_ui_samples;
 
-void bind_samples_interactive_list(UIElements * line);
+void bind_samples_interactive_list(UIElements * line, ListItemOpt flag);
 
 void init_samples_interactive_list(
     UIElements * ui_elements,

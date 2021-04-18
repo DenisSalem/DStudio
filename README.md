@@ -70,3 +70,4 @@ With debug features :
 - Python live coding support.
 - Export voice as audio file loop.
 - Support of additional audio file format.
+- Add sample by recording from a source.

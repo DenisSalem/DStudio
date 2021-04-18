@@ -38,7 +38,7 @@ typedef struct Voices_t {
 extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;
 void bind_voices_interactive_list(UIElements * line);
-extern void (*bind_sub_context_interactive_list)(UIElements * line);
+extern void (*bind_sub_context_interactive_list)(UIElements * line, ListItemOpt flag);
 extern UIElements * (*setup_sub_context_interactive_list)();
 
 void init_voices_interactive_list(
@@ -56,7 +56,7 @@ unsigned int select_voice_from_list(
 
 void setup_voice_sub_context(
     unsigned int size,
-    void (*sub_context_interactive_list_binder)(UIElements * lines),
+    void (*sub_context_interactive_list_binder)(UIElements * lines, ListItemOpt flag),
     UIElements * (*sub_context_interactive_list_setter)()
 );
 

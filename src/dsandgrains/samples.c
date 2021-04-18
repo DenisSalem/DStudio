@@ -24,7 +24,7 @@
 SampleContext * g_current_active_sample = 0;
 UIInteractiveList g_ui_samples = {0};
 
-void bind_samples_interactive_list(UIElements * line) {
+void bind_samples_interactive_list(UIElements * line, ListItemOpt flag) {
     g_ui_samples.update_request = -1;
     if (line == NULL) {
         line = g_ui_samples.lines;
@@ -36,7 +36,7 @@ void bind_samples_interactive_list(UIElements * line) {
     g_ui_samples.source_data_count = &samples->count;
     select_item(
         line,
-        DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+        flag
     );
 }
 
@@ -68,7 +68,6 @@ void init_samples_interactive_list(
 
 UIElements * new_sample(char * filename, SharedSample shared_sample) {
     UIElements * line = 0;
-
     Samples * samples = g_current_active_voice->sub_contexts;
     SampleContext * new_sample_context = dstudio_realloc(
         samples->contexts,
@@ -84,7 +83,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
         sizeof(SampleContext)
     );
 
-    memcpy(&shared_sample, &new_sample_context->shared_sample, sizeof(SharedSample));
+    memcpy(&new_sample_context[samples->count].shared_sample, &shared_sample, sizeof(SharedSample));
 
     samples->index = samples->count++;
     samples->contexts = new_sample_context;
@@ -110,7 +109,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     }
 
     line = &g_ui_samples.lines[samples->index-g_ui_samples.window_offset];
-    bind_samples_interactive_list(line);
+    bind_samples_interactive_list(line, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
     
     return line;
 }
@@ -118,12 +117,18 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
 unsigned int select_sample_from_list(
     unsigned int index
 ) {
+    unsigned int ret = 0;
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
-    if (index != samples->index && index < samples->count) {
+    DSTUDIO_TRACE_ARGS("%d %d", index != samples->index, index < samples->count);
+    
+    if (samples->count && index < samples->count) {
         update_current_sample(index);
-        return 1;
+        ret = 1;
     }
-    return 0;
+    
+    bind_new_data_to_sample_screen(samples->count ? &g_current_active_sample->shared_sample : 0);
+
+    return ret;
 }
 
 UIElements * set_samples_list_from_parent() {
