@@ -132,6 +132,10 @@ int do_no_exit_loop() {
     return window_alive;
 }
 
+void dstudio_clear_sub_menu_callback() {
+    close_sub_menu_callback = NULL;
+};
+
 void get_pointer_coordinates(int * x, int * y) {
     *x = pointer_x;
     *y = pointer_y;
@@ -404,9 +408,7 @@ void listen_events() {
             else if(x_event.type == KeyPress) {
                 if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
                     if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && close_sub_menu_callback != NULL) {
-                        close_sub_menu_callback_swap = close_sub_menu_callback;
-                        close_sub_menu_callback = NULL;
-                        close_sub_menu_callback_swap();
+                        close_sub_menu_callback();
                         refresh_all = 1;
                     }
                     clear_text_pointer();

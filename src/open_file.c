@@ -26,6 +26,7 @@
 #include "fileutils.h"
 #include "open_file.h"
 #include "text.h"
+#include "text_pointer.h"
 #include "ui.h"
 #include "window_management.h"
 #include "sliders.h"
@@ -61,12 +62,16 @@ static void close_open_file_menu(int has_cancel) {
     set_ui_elements_visibility(s_ui_elements, 0, DSTUDIO_OPEN_FILE_BASE_UI_ELEMENTS_COUNT + s_list_lines_number);
     g_menu_background_enabled = 0;
     g_active_interactive_list = 0;
+    DSTUDIO_TRACE_ARGS(">S_TEXT_POINTER ALPHA BUFF %lu", (long unsigned) g_text_pointer_context.text_pointer->instance_alphas_buffer);
+    DSTUDIO_TRACE_ARGS(">S_FILES_LIST %lu", (long unsigned) s_files_list);
     dstudio_free(s_files_list);
+    DSTUDIO_TRACE_ARGS(">S_TEXT_POINTER ALPHA BUFF %lu", (long unsigned) g_text_pointer_context.text_pointer->instance_alphas_buffer);
     s_files_list = 0;
     if (has_cancel && s_cancel_callback) {
         s_cancel_callback(NULL);
     }
     g_request_render_all = 1;
+    dstudio_clear_sub_menu_callback();
 }
 
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {
@@ -130,6 +135,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
                 current_item_value,
                 file_fd // file_fd must be closed by consumer
             );
+            DSTUDIO_TRACE_ARGS(">S_TEXT_POINTER %lu", (long unsigned) g_text_pointer_context.text_pointer->instance_alphas_buffer);
             if (callback_status) {
                 close_open_file_menu(DSTUDIO_OPEN_FILE_MENU_CONSUME_NO_CALLBACK);
             }

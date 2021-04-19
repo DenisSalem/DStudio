@@ -55,6 +55,7 @@
 void configure_input(long mask);
 void destroy_context();
 int do_no_exit_loop();
+void dstudio_clear_sub_menu_callback();
 void get_pointer_coordinates(int * x, int * y);
 WindowScale get_window_scale();
 void init_context(const char * window_name, int width, int height);

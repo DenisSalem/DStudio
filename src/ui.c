@@ -809,6 +809,8 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                             if(ui_elements_p->application_callback)
                                 ui_elements_p->application_callback(ui_elements_p);
                             ui_elements_p->timestamp = 0;
+                            s_list_item = 0;
+
 
                         }
                         else {
@@ -824,6 +826,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         if (s_list_item == ui_elements_p && timestamp - ui_elements_p->timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
                             update_text_pointer_context(ui_elements_p);
                             ui_elements_p->timestamp = 0;
+                            s_list_item = 0;
                         }
                         else {
                             select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);

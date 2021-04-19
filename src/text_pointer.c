@@ -36,6 +36,7 @@ UITextPointerContext g_text_pointer_context = {0};
 void clear_text_pointer() {
     if (g_text_pointer_context.active) {
         g_text_pointer_context.active = 0;
+        DSTUDIO_TRACE_ARGS("TEXT POINTER ALPHA BUFFER%lu", (long unsigned) g_text_pointer_context.text_pointer->instance_alphas_buffer);
         *g_text_pointer_context.text_pointer->instance_alphas_buffer = 0.0;
         update_text_pointer();
     }
@@ -87,6 +88,8 @@ void init_ui_text_pointer(UIElements * text_pointer) {
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE,
         DSTUDIO_FLAG_NONE
     );
+    DSTUDIO_TRACE_ARGS("TEXT_POINTER_INST_ALPHA_BUFF %lu", (long unsigned) text_pointer->instance_alphas_buffer);
+
     text_pointer->render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
     
     g_text_pointer_context.text_pointer = text_pointer;

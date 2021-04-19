@@ -121,15 +121,12 @@ unsigned int select_sample_from_list(
     unsigned int index
 ) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;   
-    DSTUDIO_TRACE_ARGS("SELECT SAMPLE %d %d", index, samples->index)
+    DSTUDIO_TRACE_ARGS("SELECT SAMPLE %d %d %d", index != samples->index, g_current_active_sample != s_previous_active_sample, index < samples->count)
         
     if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
-        bind_new_data_to_sample_screen(&g_current_active_sample->shared_sample);
+        bind_new_data_to_sample_screen(samples->count ? &g_current_active_sample->shared_sample : 0);
         return 1;
-    }
-    else if (samples->count == 0) {
-        bind_new_data_to_sample_screen(0);
     }
     
     return 0;

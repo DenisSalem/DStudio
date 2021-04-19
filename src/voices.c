@@ -26,6 +26,8 @@ VoiceContext * g_current_active_voice = 0;
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
 
+static VoiceContext * s_previous_active_voice = 0; 
+
 void (*bind_sub_context_interactive_list)(UIElements * line, ListItemOpt flag) = 0;
 UIElements * (*setup_sub_context_interactive_list)() = 0;
 
@@ -177,6 +179,7 @@ void setup_voice_sub_context(
 
 void update_current_voice(unsigned int index) {
     g_current_active_instance->voices.index = index;
+    s_previous_active_voice = g_current_active_voice;
     g_current_active_voice = &g_current_active_instance->voices.contexts[index];
     setup_sub_context_interactive_list();
 }
