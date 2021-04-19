@@ -146,6 +146,6 @@ int load_flac(
     
     if (s_decode_flac_goes_wrong)
         return 0;
-        
+    s_decode_flac_goes_wrong = 1;
     return decode_status;
 }

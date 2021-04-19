@@ -38,7 +38,6 @@
 
 static unsigned int load_sample(char * path, char * filename, FILE * file_fd) {
     SharedSample shared_sample = {};
-    DSTUDIO_TRACE_ARGS("TEXT_POINTER ALPHA BUFF %lu", (long unsigned) g_text_pointer_context.text_pointer->instance_alphas_buffer);
     if (load_flac(file_fd, update_open_file_error, &shared_sample)) {
         shared_sample.identifier = dstudio_alloc(
             strlen(path)+strlen(filename)+1, // nullbyte
@@ -47,7 +46,6 @@ static unsigned int load_sample(char * path, char * filename, FILE * file_fd) {
         strcat(shared_sample.identifier, path);
         strcat(shared_sample.identifier, filename);
         new_sample(filename, shared_sample);
-        DSTUDIO_TRACE_ARGS("TEXT_POINTER ALPHA BUFF%lu", (long unsigned) g_text_pointer_context.text_pointer->instance_alphas_buffer);
         return 1;
     }
     return 0;

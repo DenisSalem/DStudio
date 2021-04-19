@@ -341,6 +341,7 @@ void listen_events() {
     void (*close_sub_menu_callback_swap)() = NULL;
     
     if (!is_window_visible()) {
+        DSTUDIO_TRACE;
         XFlush(display);
         return;
     }

@@ -58,6 +58,9 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
                 offsets_buffer_in[bar_index++] = (period_extremum + period_minimum)/2.0;
                 period_extremum = -1.0;
                 period_minimum = 1.0;
+                if (bar_index == bar_plot->count) {
+                    break;
+                }
 
             }
             
