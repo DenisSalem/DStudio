@@ -22,11 +22,13 @@
 void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample) {
     unsigned int sub_sample_size = 0;
     
-    float positive_average = 0;
-    float positive_count = 0;
-    float negative_average = 0;
-    float negative_count = 0;
-    
+    float period_extremum = 0;
+    float period_minimum = 0;
+    float peak = 0;
+    float local_peak = 0;
+    GLfloat * motions_buffer = 0;
+    GLfloat * offsets_buffer_in = 0;
+    Vec4 * offsets_buffer_out = 0;
     if (shared_sample == NULL) {
         explicit_bzero(bar_plot->instance_motions_buffer, sizeof(GLfloat) * bar_plot->count);
         bar_plot->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
@@ -37,43 +39,54 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
     float * right = shared_sample->right;
     
     unsigned int bar_index = 0;
-    
-    DSTUDIO_TRACE_ARGS("%lu %d", shared_sample->size, bar_plot->count);
-    
+        
     if (shared_sample->size > bar_plot->count) {
-        DSTUDIO_TRACE
         sub_sample_size = shared_sample->size / bar_plot->count;
-    
+        motions_buffer = bar_plot->instance_motions_buffer;
+        offsets_buffer_out = bar_plot->coordinates_settings.instance_offsets_buffer;
+        offsets_buffer_in = dstudio_alloc(sizeof(GLfloat) * bar_plot->count, DSTUDIO_FAILURE_IS_FATAL);
+        
         for (unsigned int i = 0; i < shared_sample->size; i++) {
             if ((i != 0) && (i % sub_sample_size == 0)) {
                 // TODO: NEED TO BE NORMALIZED
-                bar_plot->instance_motions_buffer[bar_index++] = ((positive_average / positive_count) -  (negative_average / negative_count)) / 2.0;
-                positive_average = 0;
-                positive_count = 0;
-                negative_average = 0;
-                negative_count = 0;
+
+                local_peak = period_extremum > ABSOLUTE_VALUE(period_minimum) ? period_extremum : period_minimum;
+                if (local_peak > peak) {
+                    peak = local_peak;
+                }
+                motions_buffer[bar_index] = period_extremum - period_minimum;
+                offsets_buffer_in[bar_index++] = (period_extremum + period_minimum)/2.0;
+                period_extremum = -1.0;
+                period_minimum = 1.0;
 
             }
             
-            if (left && left[i] >= 0) {
-                positive_average += left[i];
-                positive_count++;
+            if (left) {
+                if(left[i] > period_extremum) {
+                    period_extremum = left[i];
+                }
+                if(left[i] < period_minimum) {
+                    period_minimum = left[i];
+                }
             }
-            else if (left && left[i] < 0) {
-                negative_average += left[i];
-                negative_count++;
-            }
-            if (right && right[i] >= 0) {
-                positive_average += right[i];
-                positive_count++;
-            }
-            else if (right && right[i] < 0) {
-                negative_average += right[i];
-                negative_count++;
+
+            if (right) {
+                if (right[i] > period_extremum) {
+                    period_extremum = right[i];
+                }
+                if (right[i] < period_minimum) {
+                    period_minimum = right[i];
+                }
             }
         }
-        DSTUDIO_TRACE
-        
+        // Normalize and apply offset
+        peak*=2.0;
+        float multiplier = bar_plot->coordinates_settings.scale_matrix[1].y * (1.0/peak);
+        for (unsigned int i = 0; i < bar_plot->count; i++) {
+            motions_buffer[i] /= peak;
+            offsets_buffer_out[i].w = offsets_buffer_out[i].y + offsets_buffer_in[i] * multiplier;
+        }
+        dstudio_free(offsets_buffer_in);
         bar_plot->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
     }
 }

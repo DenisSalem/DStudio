@@ -24,6 +24,8 @@
 SampleContext * g_current_active_sample = 0;
 UIInteractiveList g_ui_samples = {0};
 
+static SampleContext * s_previous_active_sample = 0;
+
 void bind_samples_interactive_list(UIElements * line, ListItemOpt flag) {
     g_ui_samples.update_request = -1;
     if (line == NULL) {
@@ -114,21 +116,23 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     return line;
 }
 
+// TODO: the following could be generalized and not implemented by consumer.
 unsigned int select_sample_from_list(
     unsigned int index
 ) {
-    unsigned int ret = 0;
-    Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
-    DSTUDIO_TRACE_ARGS("%d %d", index != samples->index, index < samples->count);
-    
-    if (samples->count && index < samples->count) {
+    Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;   
+    DSTUDIO_TRACE_ARGS("SELECT SAMPLE %d %d", index, samples->index)
+        
+    if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
-        ret = 1;
+        bind_new_data_to_sample_screen(&g_current_active_sample->shared_sample);
+        return 1;
+    }
+    else if (samples->count == 0) {
+        bind_new_data_to_sample_screen(0);
     }
     
-    bind_new_data_to_sample_screen(samples->count ? &g_current_active_sample->shared_sample : 0);
-
-    return ret;
+    return 0;
 }
 
 UIElements * set_samples_list_from_parent() {
@@ -151,6 +155,7 @@ UIElements * set_samples_list_from_parent() {
 void update_current_sample(unsigned int index) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
     samples->index = index;
+    s_previous_active_sample = g_current_active_sample;
     g_current_active_sample = &samples->contexts[index];
 }
 

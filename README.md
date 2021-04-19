@@ -33,10 +33,10 @@ With debug features :
 
 ### v0.0.0
 
-- DONE 11/04/2021 : Integrate new UI layout.
-- DONE 12/04/2021 : Notify Jack when audio port are renamed.
-- DONE 12/04/2021 : Disable scroll if text cursor is active.
-- WIP  13/04/2021 : Audio sample visual représentation.
+- BEGIN 12/04/2021, DONE 11/04/2021 : Integrate new UI layout.
+- BEGIN 12/04/2021, DONE 12/04/2021 : Notify Jack when audio port are renamed.
+- BEGIN 12/04/2021, DONE 12/04/2021 : Disable scroll if text cursor is active.
+- BEGIN 13/04/2021, DONE 19/04/2021 : Audio sample visual représentation.
 - Connect UI elements to backend context.
 - SAMPLE Group : Implement Start, end, Grain size, Amount, Decimate, Distribution Balance, Distance.
 - VOICE Group : Inplement Volume, Density, Pitch, Pan.

@@ -146,12 +146,10 @@ void select_item(
 
     for(unsigned int i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
-            DSTUDIO_TRACE
             if(
                 (flag == DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK) ||
                 interactive_list->select_callback(i+interactive_list->window_offset)
             ) {
-                DSTUDIO_TRACE
                 interactive_list->lines[i].render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                 interactive_list->update_request = 1;
                 interactive_list->update_highlight = 1;

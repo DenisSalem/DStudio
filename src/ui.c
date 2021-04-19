@@ -822,7 +822,6 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                         timestamp = get_timestamp();
                         if (s_list_item == ui_elements_p && timestamp - ui_elements_p->timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
-                            DSTUDIO_TRACE_ARGS("IS ELEMENT SELECTED ? %d", ui_elements_p == &g_active_interactive_list->lines[g_active_interactive_list->index])
                             update_text_pointer_context(ui_elements_p);
                             ui_elements_p->timestamp = 0;
                         }
@@ -932,7 +931,6 @@ void render_ui_elements(UIElements * ui_elements) {
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
-            DSTUDIO_TRACE;
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_BAR_PLOT);
             glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
             break;
@@ -1217,6 +1215,8 @@ void update_gpu_buffer(UIElements * ui_element_p) {
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_motions_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_alphas_buffer);
+            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4)*ui_element_p->count, ui_element_p->coordinates_settings.instance_offsets_buffer);
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:

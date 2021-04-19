@@ -49,7 +49,7 @@ void bind_voices_interactive_list(UIElements * line) {
     g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
     select_item(
         line,
-        DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+        DSTUDIO_SELECT_ITEM_WITH_CALLBACK
     );
 }
 

@@ -17,6 +17,8 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define ABSOLUTE_VALUE(v) ( v < 0 ? -v : v)
+
 #define DEFINE_SCALE_MATRIX(scale_matrix, w, h) \
         scale_matrix[0].x = (GLfloat) w / (GLfloat) g_dstudio_viewport_width;\
         scale_matrix[0].y = 0; \
