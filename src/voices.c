@@ -155,11 +155,11 @@ UIElements * new_voice() {
 unsigned int select_voice_from_list(
     unsigned int index
 ) {
-    if (index != g_current_active_instance->voices.index && index < g_current_active_instance->voices.count) {
+    if ((index != g_current_active_instance->voices.index || g_current_active_voice != s_previous_active_voice) && index < g_current_active_instance->voices.count) {
         update_current_voice(index);
         bind_sub_context_interactive_list(
             setup_sub_context_interactive_list(),
-            DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+            DSTUDIO_SELECT_ITEM_WITH_CALLBACK
         );
         return 1;
     }

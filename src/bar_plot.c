@@ -48,20 +48,17 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
         
         for (unsigned int i = 0; i < shared_sample->size; i++) {
             if ((i != 0) && (i % sub_sample_size == 0)) {
-                // TODO: NEED TO BE NORMALIZED
-
                 local_peak = period_extremum > ABSOLUTE_VALUE(period_minimum) ? period_extremum : period_minimum;
                 if (local_peak > peak) {
                     peak = local_peak;
                 }
                 motions_buffer[bar_index] = period_extremum - period_minimum;
                 offsets_buffer_in[bar_index++] = (period_extremum + period_minimum)/2.0;
-                period_extremum = -1.0;
-                period_minimum = 1.0;
                 if (bar_index == bar_plot->count) {
                     break;
                 }
-
+                period_extremum = -1.0;
+                period_minimum = 1.0;
             }
             
             if (left) {
@@ -83,8 +80,8 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
             }
         }
         // Normalize and apply offset
-        peak*=2.0;
         float multiplier = bar_plot->coordinates_settings.scale_matrix[1].y * (1.0/peak);
+        peak*=2;
         for (unsigned int i = 0; i < bar_plot->count; i++) {
             motions_buffer[i] /= peak;
             offsets_buffer_out[i].w = offsets_buffer_out[i].y + offsets_buffer_in[i] * multiplier;

@@ -17,9 +17,11 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "../bar_plot.h"
 #include "../instances.h"
 #include "samples.h"
 #include "sample_screen.h"
+#include "ui.h"
 
 SampleContext * g_current_active_sample = 0;
 UIInteractiveList g_ui_samples = {0};
@@ -121,7 +123,6 @@ unsigned int select_sample_from_list(
     unsigned int index
 ) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;   
-    DSTUDIO_TRACE_ARGS("SELECT SAMPLE %d %d %d", index != samples->index, g_current_active_sample != s_previous_active_sample, index < samples->count)
         
     if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
@@ -137,6 +138,7 @@ UIElements * set_samples_list_from_parent() {
     unsigned int sample_index;
     Samples * samples = g_current_active_voice->sub_contexts;
     sample_index = samples->index;
+
     if (sample_index < g_ui_samples.lines_number) {
         line = &g_ui_samples.lines[sample_index];
         g_ui_samples.window_offset = 0;
@@ -144,6 +146,13 @@ UIElements * set_samples_list_from_parent() {
     else {
         line = &g_ui_samples.lines[g_ui_voices.lines_number-1];
         g_ui_samples.window_offset = sample_index - g_ui_samples.lines_number + 1;
+    }
+    if (samples->count) {
+        s_previous_active_sample = 0;
+        bind_samples_interactive_list(line, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+    }
+    else {
+        update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen,0);
     }
     return line;
 }

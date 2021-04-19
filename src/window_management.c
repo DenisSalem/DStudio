@@ -337,9 +337,7 @@ int is_window_visible() {
 }
 
 
-void listen_events() {
-    void (*close_sub_menu_callback_swap)() = NULL;
-    
+void listen_events() {    
     if (!is_window_visible()) {
         DSTUDIO_TRACE;
         XFlush(display);
