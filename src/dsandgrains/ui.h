@@ -171,7 +171,7 @@ typedef struct UIElementsStruct_t {
     UIElements knob_sample_loop_duration;
     UIElements knob_sample_cloud_size;
     UIElements knob_sample_distribution_balance;
-    UIElements knob_sample_smooth_transition;
+    UIElements knob_sample_stretch;
     UIElements knob_sample_distance;
     UIElements knob_sample_pitch;
     UIElements knob_randomize;

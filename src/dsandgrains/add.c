@@ -95,5 +95,4 @@ void close_add_sub_menu() {
     g_active_interactive_list = 0;
     g_request_render_all = 1;
     dstudio_clear_sub_menu_callback();
-
 }

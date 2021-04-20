@@ -31,13 +31,6 @@ static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) 
     //TODO: Start thread trying to restart client, waiting for server
 }
 
-static void on_port_rename(jack_port_id_t port, const char *old_name, const char *new_name, void *arg) {
-    DSTUDIO_TRACE_ARGS("%s renamed to %s", old_name, new_name);
-    (void) arg;
-    (void) port;
-    return;
-}
-
 static int process(jack_nframes_t nframes, void *arg) {
         (void) arg;
         (void) nframes;
@@ -62,7 +55,6 @@ DStudioAudioAPIError init_audio_api_client() {
         }
         
         jack_set_process_callback(s_client, process, 0);
-        jack_set_port_rename_callback(s_client, on_port_rename, 0);
         jack_on_info_shutdown(s_client, on_info_shutdown, 0); 	
         if(jack_activate(s_client)) {
             DSTUDIO_TRACE_STR("Cannot activate jack client.")

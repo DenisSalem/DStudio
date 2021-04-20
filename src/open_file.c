@@ -68,7 +68,6 @@ static void close_open_file_menu(int has_cancel) {
         s_cancel_callback(NULL);
     }
     g_request_render_all = 1;
-    dstudio_clear_sub_menu_callback();
 }
 
 static void close_open_file_menu_button_callback(UIElements * ui_elements) {
@@ -134,6 +133,7 @@ static void open_file_and_consume_callback(UIElements * ui_element) {
             );
             if (callback_status) {
                 close_open_file_menu(DSTUDIO_OPEN_FILE_MENU_CONSUME_NO_CALLBACK);
+                dstudio_clear_sub_menu_callback();
             }
             break;
     }
@@ -160,25 +160,28 @@ static unsigned int refresh_file_list(char * path) {
     if (s_files_list != NULL) {
         dstudio_free(s_files_list);
     }
+    unsigned int char_per_line = DSTUDIO_OPEN_FILE_CHAR_PER_LINE;
+    unsigned int allocation_size = (char_per_line+1) * s_list_lines_number;
+
     s_files_list = dstudio_alloc(
-        DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number,
+        allocation_size,
         DSTUDIO_FAILURE_IS_FATAL
     );
-    unsigned int allocation_size = DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
     
     while ((de = readdir(dr)) != NULL) {
         if (strcmp(de->d_name, ".") == 0) {
             continue;
         }
-        if (s_files_count == (allocation_size / DSTUDIO_OPEN_FILE_CHAR_PER_LINE)) {
-            allocation_size += DSTUDIO_OPEN_FILE_CHAR_PER_LINE * s_list_lines_number;
+        if (s_files_count == (allocation_size / (char_per_line+1))) {
+            allocation_size += allocation_size;
             s_files_list = dstudio_realloc(s_files_list, allocation_size);
         }
-        strncpy(&s_files_list[s_files_count * DSTUDIO_OPEN_FILE_CHAR_PER_LINE], de->d_name, DSTUDIO_OPEN_FILE_CHAR_PER_LINE-1);
+        strncpy(&s_files_list[s_files_count * (char_per_line+1)], de->d_name, char_per_line);
+        s_files_list[s_files_count * (char_per_line+1) + char_per_line+1] = 0; // set null byte in any cases.
         s_files_count +=1;
     }
     s_interactive_list.source_data = s_files_list;
-    qsort(s_files_list, s_files_count, DSTUDIO_OPEN_FILE_CHAR_PER_LINE, strcoll_proxy);
+    qsort(s_files_list, s_files_count, char_per_line+1, strcoll_proxy);
 
     s_interactive_list.window_offset = 0;
     select_item(s_interactive_list.lines, DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
@@ -479,7 +482,7 @@ void init_open_menu(
         &g_charset_8x18_scale_matrix[0],
         -1.0 + (((GLfloat)DSTUDIO_OPEN_FILE_LIST_OFFSET_X) / g_dstudio_viewport_width) + 1.0/g_dstudio_viewport_width,
         list_y_pos,
-        g_dstudio_viewport_width,
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE*8,
         18,
         0,
         -((GLfloat) 18) / (GLfloat) (g_dstudio_viewport_height >> 1), /* offset y */
@@ -531,7 +534,7 @@ void init_open_menu(
         list_highlight,
         s_list_lines_number,
         DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
-        DSTUDIO_OPEN_FILE_CHAR_PER_LINE,
+        DSTUDIO_OPEN_FILE_CHAR_PER_LINE+1, //stride
         &s_files_count,
         NULL, /* At this point has not been allocated yet. */
         select_file_from_list,

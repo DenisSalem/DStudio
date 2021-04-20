@@ -73,7 +73,10 @@
 
 #define DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT (g_dstudio_viewport_height - 76)
 #define DSTUDIO_OPEN_FILE_LIST_OFFSET_X 32
-#define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_POS_X (-0.97 + (GLfloat) (g_dstudio_viewport_width - 62) / (GLfloat) g_dstudio_viewport_width)
+
+#define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_POS_X \
+    (-1.0 + ((GLfloat) DSTUDIO_OPEN_FILE_CHAR_PER_LINE*8) / g_dstudio_viewport_width) + ((GLfloat) ((DSTUDIO_OPEN_FILE_LIST_OFFSET_X >> 1) + 8)/ g_dstudio_viewport_width)
+
 #define DSTUDIO_OPEN_FILE_LIST_HIGHLIGHT_OFFSET_Y (-18.0 / (GLfloat) (g_dstudio_viewport_height >> 1))
 
 #define DSTUDIO_OPEN_FILE_PROMPT_AREA_WIDTH 72
