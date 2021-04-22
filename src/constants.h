@@ -120,7 +120,7 @@
 
 #define DSANDGRAINS_TINY_BUTTON_SCALE 32
 
-// FLAGS
+// UI ELEMENTS FLAGS
 #define DSTUDIO_FLAG_NONE                           0
 #define DSTUDIO_FLAG_FLIP_Y                         1
 #define DSTUDIO_FLAG_USE_ALPHA                      2
@@ -132,12 +132,16 @@
 #define DSTUDIO_FLAG_SLIDER_TO_TOP                  128
 #define DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS          256
 #define DSTUDIO_FLAG_OVERLAP                        512
-
+#define DSTUDIO_ANIMATE_MOTION                      1024
+#define DSTUDIO_ANIMATE_OFFSET                      2048
+#define DSTUDIO_ANIMATE_ALPHA                       4096
+#define DSTUDIO_ANIMATE \
+            (DSTUDIO_ANIMATE_MOTION || \
+            DSTUDIO_ANIMATE_OFFSET || \
+            DSTUDIO_ANIMATE_ALPHA)
+            
 #define DSTUDIO_FAILURE_IS_FATAL 1
 #define DSTUDIO_FAILURE_IS_NOT_FATAL 0
-
-#define DSTUDIO_USE_MUTEX                   1
-#define DSTUDIO_DO_NOT_USE_MUTEX            0
 
 #define DSTUDIO_OPEN_FILE_MENU_CONSUME_CANCEL_CALLBACK   1
 #define DSTUDIO_OPEN_FILE_MENU_CONSUME_NO_CALLBACK       0 

@@ -172,7 +172,7 @@ void instances_management() {
         * missing */ 
         //g_ui_instances.update_index = -1;
         
-        new_voice(DSTUDIO_DO_NOT_USE_MUTEX);
+        new_voice();
 
         g_ui_instances.update_request = 1;
 

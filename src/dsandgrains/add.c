@@ -69,7 +69,7 @@ void add_instance(UIElements * ui_elements) {
 
 void add_voice(UIElements * ui_elements) {
     (void) ui_elements; 
-    new_voice(DSTUDIO_USE_MUTEX);
+    new_voice();
     close_add_sub_menu();
 }
 

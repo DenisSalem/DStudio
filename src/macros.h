@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
-
+        
 #define ABSOLUTE_VALUE(v) ( v < 0 ? -v : v)
 
 #define DEFINE_SCALE_MATRIX(scale_matrix, w, h) \

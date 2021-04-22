@@ -552,9 +552,66 @@ void init_ui() {
     );
 };
 
-// TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE 
-// TODO: This function is a damn mess. Need to be cleaned up...
+inline static void inline_init_ui_elements_set_scissor(
+    GLfloat computed_area_offset_x,
+    GLfloat computed_area_offset_y,
+    UIElements * ui_element_p
+) {
+    GLsizei scissor_width = 0;
+    ui_element_p->coordinates_settings.scissor.x = ui_element_p->areas.min_area_x + computed_area_offset_x;
+    
+    switch(ui_element_p->type) {
+        case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+            scissor_width = 0;
+            break;
+            
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+            scissor_width = ui_element_p->count;
+            break;
+            
+        default:
+            scissor_width = ui_element_p->areas.max_area_x - ui_element_p->areas.min_area_x;
+            break;
+    }
+    ui_element_p->coordinates_settings.scissor.width = scissor_width;
+    
+    if (ui_element_p->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
+        compute_slider_scissor_y(ui_element_p);
+    }
+    else {
+        ui_element_p->coordinates_settings.scissor.y = g_dstudio_viewport_height - ui_element_p->areas.max_area_y - computed_area_offset_y;
+        ui_element_p->coordinates_settings.scissor.height = ui_element_p->areas.max_area_y - ui_element_p->areas.min_area_y;
+    }
+}
 
+
+inline static void inline_init_ui_elements_set_texture_id(GLuint * texture_ids, UIElements * ui_element_p) {
+    if(texture_ids) {
+        memcpy(ui_element_p->texture_ids, texture_ids, sizeof(GLuint) * 2);
+    }
+    if (ui_element_p->type & (DSTUDIO_ANY_TEXT_TYPE | DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT)) {
+        ui_element_p->texture_index = 1;
+    }
+}
+
+inline static void inline_init_ui_elements_set_visibility_and_render_state(int flags, UIElements * ui_element_p) {
+    ui_element_p->visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
+    ui_element_p->render_state = ui_element_p->visible ? DSTUDIO_UI_ELEMENT_RENDER_REQUESTED : DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
+}
+
+inline static void inline_init_ui_elements_set_open_gl(int flags, UIElements * ui_element_p) {
+    if (ui_element_p->type & DSTUDIO_ANY_TEXT_TYPE) {
+        flags |= DSTUDIO_FLAG_USE_TEXT_SETTING;
+    }
+    if (ui_element_p->type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
+        flags |= DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING;
+    }
+    
+    init_opengl_ui_elements(flags, ui_element_p);
+}
+
+// TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE
 void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
@@ -593,6 +650,9 @@ void init_ui_elements(
     GLfloat area_offset_y = offset_y * (GLfloat)(g_dstudio_viewport_height >> 1);
         
     for (unsigned int i = 0; i < count; i++) {
+        ui_elements_array[i].coordinates_settings.scale_matrix = scale_matrix;
+        ui_elements_array[i].count = instances_count;
+        
         unsigned int x = (i % columns);
         unsigned int y = (i / columns);
         
@@ -621,6 +681,7 @@ void init_ui_elements(
         
         for (unsigned int j = 0; j < instances_count; j++) {
             ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
+            
             if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + (x * offset_x);
                 ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y - (j * scale_matrix[1].y * 2) + (y * offset_y);
@@ -656,60 +717,21 @@ void init_ui_elements(
                         (GLfloat) ((int)area_height % 2 == 0 ? area_height : area_height + 1) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
                 }
             }
+            
+            //inline_init_ui_elements_set_instance_motions_buffer();
         }
         
-        ui_elements_array[i].coordinates_settings.scale_matrix = scale_matrix;
-        
-        ui_elements_array[i].coordinates_settings.scissor.x = min_area_x + computed_area_offset_x;
-        GLsizei scissor_width = 0;
-        switch(ui_element_type) {
-            case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
-            case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                scissor_width = 0;
-                break;
-                
-            case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
-                scissor_width = instances_count;
-                break;
-                
-            default:
-                scissor_width = max_area_x - min_area_x;
-                break;
-        }
-        ui_elements_array[i].coordinates_settings.scissor.width = scissor_width;
-        
-        if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
-            compute_slider_scissor_y(&ui_elements_array[i]);
-        }
-        else {
-            ui_elements_array[i].coordinates_settings.scissor.y = g_dstudio_viewport_height - max_area_y - computed_area_offset_y;
-            ui_elements_array[i].coordinates_settings.scissor.height = max_area_y - min_area_y;
-        }
-        
-        ui_elements_array[i].count = instances_count;
-        
-        if(texture_ids) {
-            memcpy(ui_elements_array[i].texture_ids, texture_ids, sizeof(GLuint) * 2);
-        }
-        if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE | DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT)) {
-            ui_elements_array[i].texture_index = 1;
-        }
-        
-        ui_elements_array[i].visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
-        ui_elements_array[i].render_state = ui_elements_array[i].visible ? DSTUDIO_UI_ELEMENT_RENDER_REQUESTED : DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
-        
-        
-        if (ui_element_type & DSTUDIO_ANY_TEXT_TYPE) {
-            flags |= DSTUDIO_FLAG_USE_TEXT_SETTING;
-        }
-        if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
-            flags |= DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING;
-        }
-        
-        init_opengl_ui_elements(
-            flags,
+        inline_init_ui_elements_set_scissor(
+            computed_area_offset_x,
+            computed_area_offset_y,
             &ui_elements_array[i]
         );
+        
+        inline_init_ui_elements_set_texture_id(texture_ids, &ui_elements_array[i]);
+        
+        inline_init_ui_elements_set_visibility_and_render_state(flags, &ui_elements_array[i]);
+        
+        inline_init_ui_elements_set_open_gl(flags, &ui_elements_array[i]);
     }
 }
 
