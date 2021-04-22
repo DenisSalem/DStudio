@@ -136,8 +136,8 @@
 #define DSTUDIO_ANIMATE_OFFSET                      2048
 #define DSTUDIO_ANIMATE_ALPHA                       4096
 #define DSTUDIO_ANIMATE \
-            (DSTUDIO_ANIMATE_MOTION || \
-            DSTUDIO_ANIMATE_OFFSET || \
+            (DSTUDIO_ANIMATE_MOTION | \
+            DSTUDIO_ANIMATE_OFFSET | \
             DSTUDIO_ANIMATE_ALPHA)
             
 #define DSTUDIO_FAILURE_IS_FATAL 1

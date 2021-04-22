@@ -138,13 +138,6 @@ typedef enum UIElementRenderState_t {
     (DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE | \
     DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND | \
     DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT)
-    
-typedef enum MotionType_t {
-    DSTUDIO_MOTION_TYPE_NONE = 0U,
-    DSTUDIO_MOTION_TYPE_ROTATION = 1U,
-    DSTUDIO_MOTION_TYPE_SLIDE = 2U,
-    DSTUDIO_MOTION_TYPE_BAR_PLOT = 3U
-} MotionType;
 
 // Used internally only
 typedef struct Area_t {
@@ -155,6 +148,13 @@ typedef struct Area_t {
     GLfloat offset_x;
     GLfloat offset_y;
 } Area;
+
+typedef enum MotionType_t {
+    DSTUDIO_MOTION_TYPE_NONE = 0U,
+    DSTUDIO_MOTION_TYPE_ROTATION = 1U,
+    DSTUDIO_MOTION_TYPE_SLIDE = 2U,
+    DSTUDIO_MOTION_TYPE_BAR_PLOT = 3U
+} MotionType;
 
 /*
  * UIElements describe any rendered elements. It holds both application
@@ -232,6 +232,14 @@ typedef struct UIElements_t {
     void *                      application_callback_args;
     void (*application_callback)(UIElements * self);
 } UIElements;
+
+typedef struct TransitionAnimation_t {
+    UIElements * ui_element;
+    float * instances_motions_steps_buffer;
+    float * instances_alphas_steps_buffer;
+    float * instances_offsets_steps_buffer;
+    unsigned int iterations;
+} TransitionAnimation;
 
 void compile_shader(
     GLuint shader_id,

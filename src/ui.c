@@ -66,6 +66,8 @@ static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
+static unsigned int         s_transition_animations_count = 0;
+static TransitionAnimation * s_transition_animations = 0;
 
 static void update_scale_matrix(Vec2 * scale_matrix);
 
@@ -552,7 +554,7 @@ void init_ui() {
     );
 };
 
-inline void inline_init_ui_elements_set_area(
+inline static void inline_init_ui_elements_set_area(
     UIElementType ui_element_type,
     GLfloat gl_x,
     GLfloat gl_y,
@@ -583,7 +585,7 @@ inline void inline_init_ui_elements_set_area(
     area->offset_y = offset_y * (GLfloat)(g_dstudio_viewport_height >> 1);
 }
 
-inline void inline_init_ui_elements_set_misc_values(
+inline static void inline_init_ui_elements_set_misc_values(
     unsigned int x,
     unsigned int y,
     Area area,
@@ -605,7 +607,7 @@ inline void inline_init_ui_elements_set_misc_values(
     ui_element_p->areas.max_area_y = area.max_y + computed_area_offset_y;
 }
 
-inline void inline_init_ui_elements_allocate_buffers(UIElements * ui_element_p) {
+inline static void inline_init_ui_elements_allocate_buffers(UIElements * ui_element_p) {
     ui_element_p->instance_alphas_buffer = dstudio_alloc(
         sizeof(GLfloat) * ui_element_p->count,
         DSTUDIO_FAILURE_IS_FATAL
@@ -728,7 +730,24 @@ inline static void inline_init_ui_elements_set_open_gl(int flags, UIElements * u
     init_opengl_ui_elements(flags, ui_element_p);
 }
 
-// TODO: MAY HAVE ROOM FOR EDGE CASES REMOVAL AND CODE
+inline static void inline_init_ui_elements_allocate_transition_animation(int flags, UIElements * ui_element_p) {
+    if (flags & DSTUDIO_ANIMATE) {
+        unsigned int index = s_transition_animations_count;
+        s_transition_animations = dstudio_realloc(s_transition_animations, (++s_transition_animations_count) * sizeof(TransitionAnimation));
+        s_transition_animations[index].ui_element = ui_element_p;
+        
+        if (flags & DSTUDIO_ANIMATE_OFFSET) {
+            s_transition_animations[index].instances_offsets_steps_buffer = dstudio_alloc(sizeof(Vec4) * ui_element_p->count, DSTUDIO_FAILURE_IS_FATAL);
+        }
+        if (flags & DSTUDIO_ANIMATE_ALPHA) {
+            s_transition_animations[index].instances_alphas_steps_buffer = dstudio_alloc(sizeof(GLfloat) * ui_element_p->count, DSTUDIO_FAILURE_IS_FATAL);
+        }
+        if (flags & DSTUDIO_ANIMATE_MOTION) {
+            s_transition_animations[index].instances_motions_steps_buffer = dstudio_alloc(sizeof(GLfloat) * ui_element_p->count, DSTUDIO_FAILURE_IS_FATAL);
+        }
+    }
+}
+
 void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
@@ -801,6 +820,8 @@ void init_ui_elements(
         inline_init_ui_elements_set_visibility_and_render_state(flags, &ui_elements_array[i]);
         
         inline_init_ui_elements_set_open_gl(flags, &ui_elements_array[i]);
+        
+        inline_init_ui_elements_allocate_transition_animation(flags, &ui_elements_array[i]);
     }
 }
 

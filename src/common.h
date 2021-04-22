@@ -35,8 +35,15 @@ typedef struct WindowScale_t {
 extern const char g_application_name[];
 
 /*
- * Safely allocate and initialize memory.
+ * dstudio_alloc
+ * dstudio_free
+ * dstudio_init_memory_management
+ * dstudio_realloc
+ * 
+ * Allocate and initialize memory.
+ * Not thread safe.
  */
+ 
 void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal);
 void   dstudio_free(void * buffer);
 void dstudio_init_memory_management();
