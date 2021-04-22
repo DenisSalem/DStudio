@@ -624,6 +624,46 @@ inline static void inline_init_ui_elements_set_alphas_buffer(UIElements * ui_ele
         ui_element_p->type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT ? 0.75 : 1.0;
 }
 
+inline static void inline_init_ui_elements_set_offsets_buffer(
+    unsigned int x,
+    unsigned int y,
+    GLfloat gl_x,
+    GLfloat gl_y,
+    GLfloat offset_x,
+    GLfloat offset_y,
+    unsigned int index,
+    UIElements * ui_element_p
+) {
+    GLfloat type_offset_x = 0;
+    GLfloat type_offset_y = 0;
+    
+    switch (ui_element_p->type) {
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+        case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
+        case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+            type_offset_x = (index * ui_element_p->coordinates_settings.scale_matrix[0].x*2.0);
+            break;
+        
+        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND:
+            if (index == ui_element_p->count-1) {
+                ui_element_p->coordinates_settings.instance_offsets_buffer[index].w = 2.0/3.0;
+            }
+            else if (index != 0) {
+                ui_element_p->coordinates_settings.instance_offsets_buffer[index].w = 1.0/3.0;
+            }
+            type_offset_y = -(index * ui_element_p->coordinates_settings.scale_matrix[1].y * 2);
+            break;
+            
+        default:
+            break;
+    }
+
+    ui_element_p->coordinates_settings.instance_offsets_buffer[index].x = gl_x + type_offset_x + (x * offset_x);
+    ui_element_p->coordinates_settings.instance_offsets_buffer[index].y = gl_y + type_offset_y + (y * offset_y);
+};
+
 inline static void inline_init_ui_elements_set_motions_buffer(int flags, GLfloat area_height, unsigned int index, UIElements * ui_element_p) {
     if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
         ui_element_p->instance_motions_buffer[index] = \
@@ -740,34 +780,16 @@ void init_ui_elements(
         for (unsigned int j = 0; j < instances_count; j++) {
             inline_init_ui_elements_set_alphas_buffer(&ui_elements_array[i], j);
             
-            GLfloat type_offset_x = 0;
-            GLfloat type_offset_y = 0;
-            switch (ui_element_type) {
-                case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-                case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
-                case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
-                case DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND:
-                    type_offset_y = -(j * scale_matrix[1].y * 2);
-                    break;
-                case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
-                    type_offset_x = (j * scale_matrix[0].x*2.0);
-                    break;
-                default:
-                    break;
-            }
-
-            ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + type_offset_x + (x * offset_x);
-            ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + type_offset_y + (y * offset_y);
-            
-            if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
-                if (j == instances_count-1) {
-                    ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].w = 2.0/3.0;
-                }
-                else if (j != 0) {
-                    ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].w = 1.0/3.0;
-                }
-            }
+            inline_init_ui_elements_set_offsets_buffer(
+                x,
+                y,
+                gl_x,
+                gl_y,
+                offset_x,
+                offset_y,
+                j,
+                &ui_elements_array[i]
+            );
             
             inline_init_ui_elements_set_motions_buffer(flags, area_height, j, &ui_elements_array[i]);
         }
