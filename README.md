@@ -37,6 +37,7 @@ With debug features :
 - BEGIN 12/04/2021, DONE 12/04/2021 : Notify Jack when audio port are renamed.
 - BEGIN 12/04/2021, DONE 12/04/2021 : Disable scroll if text cursor is active.
 - BEGIN 13/04/2021, DONE 19/04/2021 : Audio sample visual représentation.
+- BEGIN 22/04/2021, DONE 22/04/2021 : Clean the mess of init_ui_elements, split with inline functions.
 - BEGIN 22/04/2021 : Implement UI animation transition while switching context.
 
 - Connect UI elements to backend context.

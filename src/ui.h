@@ -146,6 +146,16 @@ typedef enum MotionType_t {
     DSTUDIO_MOTION_TYPE_BAR_PLOT = 3U
 } MotionType;
 
+// Used internally only
+typedef struct Area_t {
+    GLfloat min_x;
+    GLfloat min_y;
+    GLfloat max_x;
+    GLfloat max_y;
+    GLfloat offset_x;
+    GLfloat offset_y;
+} Area;
+
 /*
  * UIElements describe any rendered elements. It holds both application
  * logic information and OpenGL buffers.

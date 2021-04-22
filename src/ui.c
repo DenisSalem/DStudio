@@ -552,13 +552,90 @@ void init_ui() {
     );
 };
 
-inline static void inline_init_ui_elements_set_scissor(
-    GLfloat computed_area_offset_x,
-    GLfloat computed_area_offset_y,
-    UIElements * ui_element_p
+inline void inline_init_ui_elements_set_area(
+    UIElementType ui_element_type,
+    GLfloat gl_x,
+    GLfloat gl_y,
+    GLfloat area_width,
+    GLfloat area_height,
+    GLfloat offset_x,
+    GLfloat offset_y,
+    Vec2 * scale_matrix,
+    Area * area
 ) {
+    if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE)) {
+        area->min_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
+    }
+    else {
+        area->min_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2); 
+    }
+    if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
+        area->min_y = round((1 - gl_y - (scale_matrix[1].y)) * (g_dstudio_viewport_height >> 1));
+    }
+    else {
+        area->min_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
+    }
+    
+    area->max_x = area->min_x + area_width;
+    area->max_y = area->min_y + area_height;
+         
+    area->offset_x = offset_x * (GLfloat)(g_dstudio_viewport_width >> 1);
+    area->offset_y = offset_y * (GLfloat)(g_dstudio_viewport_height >> 1);
+}
+
+inline void inline_init_ui_elements_set_misc_values(
+    unsigned int x,
+    unsigned int y,
+    Area area,
+    Vec2 * scale_matrix,
+    unsigned int instances_count,
+    UIElementType ui_element_type,
+    UIElements * ui_element_p
+) {    
+    GLfloat computed_area_offset_x = x * area.offset_x;
+    GLfloat computed_area_offset_y = y * -area.offset_y;
+
+    ui_element_p->coordinates_settings.scale_matrix = scale_matrix;
+    ui_element_p->count = instances_count;
+    ui_element_p->type = ui_element_type;
+
+    ui_element_p->areas.min_area_x = area.min_x + computed_area_offset_x;
+    ui_element_p->areas.max_area_x = area.max_x + computed_area_offset_x;
+    ui_element_p->areas.min_area_y = area.min_y + computed_area_offset_y;
+    ui_element_p->areas.max_area_y = area.max_y + computed_area_offset_y;
+}
+
+inline void inline_init_ui_elements_allocate_buffers(UIElements * ui_element_p) {
+    ui_element_p->instance_alphas_buffer = dstudio_alloc(
+        sizeof(GLfloat) * ui_element_p->count,
+        DSTUDIO_FAILURE_IS_FATAL
+    );        
+    ui_element_p->instance_motions_buffer = dstudio_alloc(
+        sizeof(GLfloat) * ui_element_p->count,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+    ui_element_p->coordinates_settings.instance_offsets_buffer = dstudio_alloc(
+        sizeof(Vec4) * ui_element_p->count,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+}
+inline static void inline_init_ui_elements_set_alphas_buffer(UIElements * ui_element_p, unsigned int index) {
+    ui_element_p->instance_alphas_buffer[index] = \
+        ui_element_p->type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT ? 0.75 : 1.0;
+}
+
+inline static void inline_init_ui_elements_set_motions_buffer(int flags, GLfloat area_height, unsigned int index, UIElements * ui_element_p) {
+    if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
+        ui_element_p->instance_motions_buffer[index] = \
+            (GLfloat) ((int)area_height % 2 == 0 ? \
+            area_height : \
+            area_height + 1) * (1.0 / (GLfloat) g_dstudio_viewport_height) - ui_element_p->coordinates_settings.scale_matrix[1].y;
+    }
+}
+
+inline static void inline_init_ui_elements_set_scissor(UIElements * ui_element_p) {
     GLsizei scissor_width = 0;
-    ui_element_p->coordinates_settings.scissor.x = ui_element_p->areas.min_area_x + computed_area_offset_x;
+    ui_element_p->coordinates_settings.scissor.x = ui_element_p->areas.min_area_x;
     
     switch(ui_element_p->type) {
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
@@ -580,7 +657,7 @@ inline static void inline_init_ui_elements_set_scissor(
         compute_slider_scissor_y(ui_element_p);
     }
     else {
-        ui_element_p->coordinates_settings.scissor.y = g_dstudio_viewport_height - ui_element_p->areas.max_area_y - computed_area_offset_y;
+        ui_element_p->coordinates_settings.scissor.y = g_dstudio_viewport_height - ui_element_p->areas.max_area_y;
         ui_element_p->coordinates_settings.scissor.height = ui_element_p->areas.max_area_y - ui_element_p->areas.min_area_y;
     }
 }
@@ -627,65 +704,63 @@ void init_ui_elements(
     unsigned int instances_count,
     UIElementType ui_element_type,
     int flags
-) {    
-    GLfloat min_area_x;
-    GLfloat min_area_y;
-    if (ui_element_type & (DSTUDIO_ANY_TEXT_TYPE)) {
-        min_area_x = (1 + gl_x - scale_matrix[0].x) * (g_dstudio_viewport_width >> 1); 
-    }
-    else {
-        min_area_x = (1 + gl_x) * (g_dstudio_viewport_width >> 1) - (area_width / 2); 
-    }
-    if (ui_element_type & DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
-        min_area_y = round((1 - gl_y - (scale_matrix[1].y)) * (g_dstudio_viewport_height >> 1));
-    }
-    else {
-        min_area_y = (1 - gl_y) * (g_dstudio_viewport_height >> 1) - (area_height / 2);
-    }
-    
-    GLfloat max_area_x = min_area_x + area_width;
-    GLfloat max_area_y = min_area_y + area_height;
-         
-    GLfloat area_offset_x = offset_x * (GLfloat)(g_dstudio_viewport_width >> 1);
-    GLfloat area_offset_y = offset_y * (GLfloat)(g_dstudio_viewport_height >> 1);
+) {        
+    Area area = {0};
+    unsigned int x = 0;
+    unsigned int y = 0;
+        
+    inline_init_ui_elements_set_area(
+        ui_element_type,
+        gl_x,
+        gl_y,
+        area_width,
+        area_height,
+        offset_x,
+        offset_y,
+        scale_matrix,
+        &area
+    );
         
     for (unsigned int i = 0; i < count; i++) {
-        ui_elements_array[i].coordinates_settings.scale_matrix = scale_matrix;
-        ui_elements_array[i].count = instances_count;
+        x = (i % columns);
+        y = (i / columns);
         
-        unsigned int x = (i % columns);
-        unsigned int y = (i / columns);
+        inline_init_ui_elements_set_misc_values(
+            x,
+            y,
+            area,
+            scale_matrix,
+            instances_count,
+            ui_element_type,
+            &ui_elements_array[i]
+        );
         
-        GLfloat computed_area_offset_x = x * area_offset_x;
-        GLfloat computed_area_offset_y = y * -area_offset_y;
+        inline_init_ui_elements_allocate_buffers(&ui_elements_array[i]);
 
-        ui_elements_array[i].areas.min_area_x = min_area_x + computed_area_offset_x;
-        ui_elements_array[i].areas.max_area_x = max_area_x + computed_area_offset_x;
-        ui_elements_array[i].areas.min_area_y = min_area_y + computed_area_offset_y;
-        ui_elements_array[i].areas.max_area_y = max_area_y + computed_area_offset_y;
-        
-        ui_elements_array[i].type = ui_element_type;
-        
-        ui_elements_array[i].instance_alphas_buffer = dstudio_alloc(
-            sizeof(GLfloat) * instances_count,
-            DSTUDIO_FAILURE_IS_FATAL
-        );        
-        ui_elements_array[i].instance_motions_buffer = dstudio_alloc(
-            sizeof(GLfloat) * instances_count,
-            DSTUDIO_FAILURE_IS_FATAL
-        );
-        ui_elements_array[i].coordinates_settings.instance_offsets_buffer = dstudio_alloc(
-            sizeof(Vec4) * instances_count,
-            DSTUDIO_FAILURE_IS_FATAL
-        );
-        
         for (unsigned int j = 0; j < instances_count; j++) {
-            ui_elements_array[i].instance_alphas_buffer[j] = 1.0;
+            inline_init_ui_elements_set_alphas_buffer(&ui_elements_array[i], j);
+            
+            GLfloat type_offset_x = 0;
+            GLfloat type_offset_y = 0;
+            switch (ui_element_type) {
+                case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
+                case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
+                case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+                case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
+                case DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND:
+                    type_offset_y = -(j * scale_matrix[1].y * 2);
+                    break;
+                case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+                    type_offset_x = (j * scale_matrix[0].x*2.0);
+                    break;
+                default:
+                    break;
+            }
+
+            ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + type_offset_x + (x * offset_x);
+            ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + type_offset_y + (y * offset_y);
             
             if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND) {
-                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + (x * offset_x);
-                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y - (j * scale_matrix[1].y * 2) + (y * offset_y);
-                // Setup texture coordinates for SLIDER BACKGROUND
                 if (j == instances_count-1) {
                     ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].w = 2.0/3.0;
                 }
@@ -693,40 +768,12 @@ void init_ui_elements(
                     ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].w = 1.0/3.0;
                 }
             }
-            else {
-                GLfloat type_offset_x = 0;
-                switch (ui_element_type) {
-                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
-                    case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
-                    case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                    case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
-                    case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
-                        type_offset_x = (j * scale_matrix[0].x*2.0);
-                        break;
-                    default:
-                        break;
-                }
-                if (ui_element_type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT) {
-                    ui_elements_array[i].instance_alphas_buffer[j] = 0.75;
-                }
-                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].x = gl_x + type_offset_x + (x * offset_x);
-                ui_elements_array[i].coordinates_settings.instance_offsets_buffer[j].y = gl_y + (y * offset_y);
-
-                if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
-                    ui_elements_array[i].instance_motions_buffer[j] = \
-                        (GLfloat) ((int)area_height % 2 == 0 ? area_height : area_height + 1) * (1.0 / (GLfloat) g_dstudio_viewport_height) - scale_matrix[1].y;
-                }
-            }
             
-            //inline_init_ui_elements_set_instance_motions_buffer();
+            inline_init_ui_elements_set_motions_buffer(flags, area_height, j, &ui_elements_array[i]);
         }
-        
-        inline_init_ui_elements_set_scissor(
-            computed_area_offset_x,
-            computed_area_offset_y,
-            &ui_elements_array[i]
-        );
-        
+
+        inline_init_ui_elements_set_scissor(&ui_elements_array[i]);
+                
         inline_init_ui_elements_set_texture_id(texture_ids, &ui_elements_array[i]);
         
         inline_init_ui_elements_set_visibility_and_render_state(flags, &ui_elements_array[i]);
