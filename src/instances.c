@@ -286,7 +286,7 @@ unsigned int select_instance_from_list(
         bind_voices_interactive_list(line);
         bind_sub_context_interactive_list(
             setup_sub_context_interactive_list(),
-            DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
+            DSTUDIO_SELECT_ITEM_WITH_CALLBACK
         );
         return 1;
     }

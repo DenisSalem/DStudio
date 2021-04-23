@@ -133,7 +133,8 @@ unsigned int select_sample_from_list(
     return 0;
 }
 
-UIElements * set_samples_list_from_parent() {
+// TODO : Smell like shit
+UIElements * set_samples_ui_context_from_parent_voice_list() {
     UIElements * line;
     unsigned int sample_index;
     Samples * samples = g_current_active_voice->sub_contexts;
@@ -149,10 +150,9 @@ UIElements * set_samples_list_from_parent() {
     }
     if (samples->count) {
         s_previous_active_sample = 0;
-        bind_samples_interactive_list(line, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
     }
     else {
-        update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen,0);
+        update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen, 0, DSTUDIO_DO_ANIMATE);
     }
     return line;
 }

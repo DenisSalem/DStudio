@@ -74,7 +74,6 @@ void init_voices_interactive_list(
         sizeof(VoiceContext),
         &g_current_active_instance->voices.count,
         g_current_active_instance->voices.contexts->name,
-        //~ &g_voices_thread_control,
         select_voice_from_list,
         _rename_active_context_audio_port,
         1,
@@ -156,10 +155,10 @@ unsigned int select_voice_from_list(
     unsigned int index
 ) {
     if ((index != g_current_active_instance->voices.index || g_current_active_voice != s_previous_active_voice) && index < g_current_active_instance->voices.count) {
-        update_current_voice(index);
+        update_current_voice(index);        
         bind_sub_context_interactive_list(
             setup_sub_context_interactive_list(),
-            DSTUDIO_SELECT_ITEM_WITH_CALLBACK
+            DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
         );
         return 1;
     }

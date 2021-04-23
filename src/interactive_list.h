@@ -25,8 +25,9 @@
 #include "ui.h"
 
 typedef enum ListItemOpt_t {
-    DSTUDIO_SELECT_ITEM_WITH_CALLBACK = 0,
-    DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK = 1,
+    DSTUDIO_SELECT_ITEM_WITH_CALLBACK_TEST = 0,
+    DSTUDIO_SELECT_ITEM_WITH_CALLBACK = 1,
+    DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK = 2,
 } ListItemOpt;
 
 typedef struct UIElements_t UIElements;

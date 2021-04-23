@@ -62,7 +62,7 @@
 #define DSANDGRAINS_ARROW_BUTTON_WIDTH 117
 #define DSANDGRAINS_ARROW_BUTTON_HEIGHT 8
 
-#define DSANDGRAINS_BACKGROUND_ASSET_PATH "../assets/dsandgrains_background.png"
+#define DSANDGRAINS_BACKGROUND_ASSET_PATH "../../assets/dsandgrains_background.png"
 
 #define DSANDGRAINS_CPU_N_MEM_USAGE_X_POS -0.12553191
 

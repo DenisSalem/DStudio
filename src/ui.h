@@ -29,6 +29,8 @@
 #include "common.h"
 #include "interactive_list.h"
 
+#include "transition_animation.h"
+
 #define SET_UI_MENU_BACKGROUND_INDEX \
     for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) { \
         if (&g_ui_elements_array[i] == &g_ui_elements_struct.menu_background) { \
@@ -156,6 +158,12 @@ typedef enum MotionType_t {
     DSTUDIO_MOTION_TYPE_BAR_PLOT = 3U
 } MotionType;
 
+typedef struct UIElementsCoordinatesSettings_t {
+    Vec2 *                      scale_matrix;
+    Vec4 *                      instance_offsets_buffer;
+    Scissor                     scissor;
+} UIElementsCoordinatesSettings;
+
 /*
  * UIElements describe any rendered elements. It holds both application
  * logic information and OpenGL buffers.
@@ -179,12 +187,7 @@ typedef enum MotionType_t {
  
 typedef struct UIElements_t UIElements;
 typedef struct UIInteractiveList_t UIInteractiveList;
-
-typedef struct UIElementsCoordinatesSettings_t {
-    Vec2 *                      scale_matrix;
-    Vec4 *                      instance_offsets_buffer;
-    Scissor                     scissor;
-} UIElementsCoordinatesSettings;
+typedef struct TransitionAnimation_t TransitionAnimation;
 
 typedef struct UIElements_t {
     unsigned int                count;
@@ -231,15 +234,8 @@ typedef struct UIElements_t {
     UIInteractiveList *         interactive_list;
     void *                      application_callback_args;
     void (*application_callback)(UIElements * self);
+    TransitionAnimation *       transition_animation;
 } UIElements;
-
-typedef struct TransitionAnimation_t {
-    UIElements * ui_element;
-    float * instances_motions_steps_buffer;
-    float * instances_alphas_steps_buffer;
-    float * instances_offsets_steps_buffer;
-    unsigned int iterations;
-} TransitionAnimation;
 
 void compile_shader(
     GLuint shader_id,

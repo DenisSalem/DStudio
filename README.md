@@ -39,7 +39,6 @@ With debug features :
 - BEGIN 13/04/2021, DONE 19/04/2021 : Audio sample visual représentation.
 - BEGIN 22/04/2021, DONE 22/04/2021 : Clean the mess of init_ui_elements, split with inline functions.
 - BEGIN 22/04/2021 : Implement UI animation transition while switching context.
-
 - Connect UI elements to backend context.
 - SAMPLE Group : Implement Start, end, Grain size, Amount, Decimate, Distribution Balance, Distance.
 - VOICE Group : Inplement Volume, Density, Pitch, Pan.

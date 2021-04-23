@@ -70,6 +70,7 @@ add_executable(
     sliders.c
     text.c
     text_pointer.c
+    transition_animation.c
     ui.c
     voices.c
     window_management.c

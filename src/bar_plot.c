@@ -19,7 +19,7 @@
 
 #include "bar_plot.h"
 
-void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample) {
+void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, unsigned int animate) {
     unsigned int sub_sample_size = 0;
     
     float period_extremum = 0;
@@ -29,8 +29,16 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
     GLfloat * motions_buffer = 0;
     GLfloat * offsets_buffer_in = 0;
     Vec4 * offsets_buffer_out = 0;
+    
     if (shared_sample == NULL) {
-        explicit_bzero(bar_plot->instance_motions_buffer, sizeof(GLfloat) * bar_plot->count);
+        if (animate) {
+            motions_buffer = dstudio_alloc(sizeof(GLfloat) * bar_plot->count, DSTUDIO_FAILURE_IS_FATAL);
+            animate_motions_transitions(motions_buffer, bar_plot);
+            dstudio_free(motions_buffer);
+        }
+        else {
+            explicit_bzero(bar_plot->instance_motions_buffer, sizeof(GLfloat) * bar_plot->count);
+        }
         bar_plot->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         return;
     }
@@ -42,8 +50,8 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
         
     if (shared_sample->size > bar_plot->count) {
         sub_sample_size = shared_sample->size / bar_plot->count;
-        motions_buffer = bar_plot->instance_motions_buffer;
-        offsets_buffer_out = bar_plot->coordinates_settings.instance_offsets_buffer;
+        motions_buffer = animate ? dstudio_alloc(sizeof(GLfloat) * bar_plot->count, DSTUDIO_FAILURE_IS_FATAL) : bar_plot->instance_motions_buffer;
+        offsets_buffer_out = animate ? dstudio_alloc(sizeof(Vec4) * bar_plot->count, DSTUDIO_FAILURE_IS_FATAL) : bar_plot->coordinates_settings.instance_offsets_buffer;
         offsets_buffer_in = dstudio_alloc(sizeof(GLfloat) * bar_plot->count, DSTUDIO_FAILURE_IS_FATAL);
         
         for (unsigned int i = 0; i < shared_sample->size; i++) {
@@ -84,9 +92,18 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
         peak*=2;
         for (unsigned int i = 0; i < bar_plot->count; i++) {
             motions_buffer[i] /= peak;
-            offsets_buffer_out[i].w = offsets_buffer_out[i].y + offsets_buffer_in[i] * multiplier;
+            offsets_buffer_out[i].w = offsets_buffer_in[i] * multiplier;
         }
+
+        if (animate) {
+            animate_motions_transitions(motions_buffer, bar_plot);
+            animate_offsets_transitions(offsets_buffer_out, bar_plot, DSTUDIO_OFFSET_W_TRANSITION);
+            dstudio_free(motions_buffer);
+            dstudio_free(offsets_buffer_out);
+        }
+
         dstudio_free(offsets_buffer_in);
+
         bar_plot->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
     }
 }

@@ -32,6 +32,6 @@ void bind_new_data_to_sample_screen(SharedSample * shared_sample) {
 void update_sample_screen() {
     if (s_update_request) {
         s_update_request = 0;
-        update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen, s_shared_sample);
+        update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen, s_shared_sample, DSTUDIO_DO_ANIMATE);
     }
 }

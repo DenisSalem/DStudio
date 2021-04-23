@@ -29,6 +29,7 @@
 #include "instances.h"
 #include "text_pointer.h"
 #include "sliders.h"
+#include "transition_animation.h"
 #include "ui.h"
 #include "window_management.h"
 
@@ -52,7 +53,7 @@ unsigned int g_framerate = DSTUDIO_FRAMERATE;
 UIElements * g_menu_background_enabled = 0;
 unsigned int g_menu_background_index = 0;
 unsigned int g_request_render_all = 0;
-WindowScale                 g_previous_window_scale = {0,0};
+WindowScale  g_previous_window_scale = {0,0};
 
 static Vec2                 s_framebuffer_scale_matrix[2] = {{1.0, 0.0},{0.0,-1.0}};
 static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
@@ -66,8 +67,6 @@ static unsigned int         s_ui_elements_requests_index = 0;
 static UpdaterRegister *    s_updater_register = 0;
 static unsigned int         s_updater_register_index = 0;
 static long                 s_x11_input_mask = 0;
-static unsigned int         s_transition_animations_count = 0;
-static TransitionAnimation * s_transition_animations = 0;
 
 static void update_scale_matrix(Vec2 * scale_matrix);
 
@@ -730,24 +729,6 @@ inline static void inline_init_ui_elements_set_open_gl(int flags, UIElements * u
     init_opengl_ui_elements(flags, ui_element_p);
 }
 
-inline static void inline_init_ui_elements_allocate_transition_animation(int flags, UIElements * ui_element_p) {
-    if (flags & DSTUDIO_ANIMATE) {
-        unsigned int index = s_transition_animations_count;
-        s_transition_animations = dstudio_realloc(s_transition_animations, (++s_transition_animations_count) * sizeof(TransitionAnimation));
-        s_transition_animations[index].ui_element = ui_element_p;
-        
-        if (flags & DSTUDIO_ANIMATE_OFFSET) {
-            s_transition_animations[index].instances_offsets_steps_buffer = dstudio_alloc(sizeof(Vec4) * ui_element_p->count, DSTUDIO_FAILURE_IS_FATAL);
-        }
-        if (flags & DSTUDIO_ANIMATE_ALPHA) {
-            s_transition_animations[index].instances_alphas_steps_buffer = dstudio_alloc(sizeof(GLfloat) * ui_element_p->count, DSTUDIO_FAILURE_IS_FATAL);
-        }
-        if (flags & DSTUDIO_ANIMATE_MOTION) {
-            s_transition_animations[index].instances_motions_steps_buffer = dstudio_alloc(sizeof(GLfloat) * ui_element_p->count, DSTUDIO_FAILURE_IS_FATAL);
-        }
-    }
-}
-
 void init_ui_elements(
     UIElements * ui_elements_array,
     GLuint * texture_ids,
@@ -821,7 +802,7 @@ void init_ui_elements(
         
         inline_init_ui_elements_set_open_gl(flags, &ui_elements_array[i]);
         
-        inline_init_ui_elements_allocate_transition_animation(flags, &ui_elements_array[i]);
+        allocate_transition_animation(flags, &ui_elements_array[i]);
     }
 }
 
@@ -1048,6 +1029,7 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_BAR_PLOT);
             glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
+            glScissor(0,0,g_dstudio_viewport_width, g_dstudio_viewport_height);
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:

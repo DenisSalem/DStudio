@@ -54,7 +54,7 @@ unsigned int select_sample_from_list(
     unsigned int index
 );
 
-UIElements * set_samples_list_from_parent();
+UIElements * set_samples_ui_context_from_parent_voice_list();
 
 void update_current_sample(
     unsigned int index
