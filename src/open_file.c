@@ -33,6 +33,8 @@
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static unsigned int (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
+static unsigned int (*s_filter_callback)(const char * path, const char * filename) = 0;
+
 static char * s_current_directory = 0;
 static UIElements * s_menu_background;
 static Vec2 s_open_file_prompt_box_scale_matrix[2] = {0};
@@ -155,7 +157,7 @@ static unsigned int refresh_file_list(char * path) {
         update_open_file_error(strerror(errno));
         return 0;
     }
-    struct dirent *de;   
+    struct dirent * de;   
     s_files_count = 0;
     if (s_files_list != NULL) {
         dstudio_free(s_files_list);
@@ -169,7 +171,7 @@ static unsigned int refresh_file_list(char * path) {
     );
     
     while ((de = readdir(dr)) != NULL) {
-        if (strcmp(de->d_name, ".") == 0) {
+        if ( (de->d_name[0] == '.' && strcmp(de->d_name, "..")) || s_filter_callback(path, de->d_name) == 0) { // TODO : Unix only
             continue;
         }
         if (s_files_count == (allocation_size / (char_per_line+1))) {
@@ -551,10 +553,12 @@ void init_open_menu(
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
-    unsigned int (*select_callback)(char * path, char * filename, FILE * file_fd)
+    unsigned int (*select_callback)(char * path, char * filename, FILE * file_fd),
+    unsigned int (*filter_callback)(const char * path, const char * filename)
 ) {
     s_cancel_callback = cancel_callback;
     s_select_callback = select_callback;
+    s_filter_callback = filter_callback;
     configure_input(PointerMotionMask);
     set_prime_interface(0);
     set_ui_elements_visibility(s_menu_background, 1, 1);

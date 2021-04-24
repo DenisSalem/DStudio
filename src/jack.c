@@ -33,19 +33,51 @@ static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) 
 
 static int process(jack_nframes_t nframes, void *arg) {
         (void) arg;
-        (void) nframes;
+
+        VoiceContext * voice = 0;
+        InstanceContext * instance = 0;
+        jack_default_audio_sample_t * out_left;
+        jack_default_audio_sample_t * out_right;
         
-        //~ jack_default_audio_sample_t * out;                      // type float. Correspond au format de l'échantillons
-        //~ out = jack_port_get_buffer(output_port, nframes);       // on récupère l'addresse de la mémoire tampons pour les échantillons
-                                                                //~ // out est un tableau de 1024 entrée.
- 
-        //~ memcpy(out, SOMETHING, 1024 * sizeof(jack_default_audio_sample_t));
+        if (s_client_process == NULL) {
+            return 0;
+        }
+        
+        switch(s_audio_api_request_state) {
+            case DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING:
+                s_audio_api_request_state = DSTUDIO_AUDIO_API_ACK_NO_DATA_PROCESSING;
+                return 0;
+                
+            case DSTUDIO_AUDIO_API_ACK_NO_DATA_PROCESSING:
+                return 0;
+            
+            case DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING:
+                s_audio_api_request_state = DSTUDIO_AUDIO_API_ACK_DATA_PROCESSING;
+
+            case DSTUDIO_AUDIO_API_ACK_DATA_PROCESSING:
+            default:
+                break;
+        }
+        
+        for (unsigned int instance_index = 0; instance_index < g_instances.count; instance_index++) {
+            instance = &g_instances.contexts[instance_index];
+            for (unsigned int voice_index = 0; voice_index < instance->voices.count; voice_index++) {
+                voice = &instance->voices.contexts[voice_index];
+                out_left  = jack_port_get_buffer(voice->output_port.left, nframes);
+                out_right = jack_port_get_buffer(voice->output_port.right, nframes);
+                explicit_bzero(out_left, nframes*sizeof(float));
+                explicit_bzero(out_right, nframes*sizeof(float));
+                s_client_process(voice, out_left, out_right, nframes); 
+            }
+        }
+        
         return 0;
 }
 
-DStudioAudioAPIError init_audio_api_client() {
+DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size)) {
         s_client = jack_client_open(g_application_name, JackNullOption, &s_jack_status, NULL);
-    
+        s_client_process = client_process_callback;
+        
         if (s_client == NULL) {
             DSTUDIO_TRACE_STR("jack_client_open() failed.")
             if (s_jack_status & JackServerFailed) {
@@ -60,7 +92,7 @@ DStudioAudioAPIError init_audio_api_client() {
             DSTUDIO_TRACE_STR("Cannot activate jack client.")
             return DSTUDIO_AUDIO_API_CANNOT_ENABLE_CLIENT;
         }
-            
+        s_audio_api_client = s_client;
         return DSTUDIO_AUDIO_API_NO_ERROR;
 }
 

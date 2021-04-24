@@ -22,6 +22,13 @@
 
 #include "common.h"
 
+typedef enum DStudioAudioAPIRequest_t {
+    DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING,
+    DSTUDIO_AUDIO_API_ACK_NO_DATA_PROCESSING,
+    DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING,
+    DSTUDIO_AUDIO_API_ACK_DATA_PROCESSING,
+} DStudioAudioAPIRequest;
+
 typedef enum DStudioAudioAPIError_t {
     DSTUDIO_AUDIO_API_NO_ERROR,
     DSTUDIO_AUDIO_API_CLIENT_IS_NULL,
@@ -36,8 +43,12 @@ typedef struct OutputPort_t {
     void * right;
 } OutputPort;
 
+typedef struct VoiceContext_t VoiceContext;
+
+void dstudio_audio_api_request(DStudioAudioAPIRequest request);
+
 // Must be implemented for each kind of API
-DStudioAudioAPIError init_audio_api_client();
+DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size));
 DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name);
 DStudioAudioAPIError stop_audio_api_client();
 DStudioAudioAPIError rename_active_context_audio_port(); 

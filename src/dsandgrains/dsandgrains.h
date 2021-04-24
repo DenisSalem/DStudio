@@ -17,25 +17,13 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_SAMPLES_H_INCLUDED
-#define DSTUDIO_SAMPLES_H_INCLUDED
+#include "../voices.h"
 
-typedef enum SharedSampleError_t {
-    DSTUDIO_SHARED_SAMPLE_NO_ERROR = 0,
-    DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED = 1,
-    DSTUDIO_SHARED_SAMPLE_UNSUPPORTED_BPS = 2
-} SharedSampleError;
+#include "samples.h"
 
-typedef struct SharedSample_t {
-    char * identifier;          // Absolute path of the sample.
-    unsigned char count;        // How many time the sample is referenced.
-    unsigned char channels;    
-    unsigned char bps;          
-    unsigned char error_code;
-    unsigned rate;
-    long unsigned size;
-    float *  left; 
-    float *  right;
-} SharedSample;
+#ifndef DSANDGRAINS_DSANDGRAINS_H_INCLUDED
+#define DSANDGRAINS_DSANDGRAINS_H_INCLUDED
+
+void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size);
 
 #endif

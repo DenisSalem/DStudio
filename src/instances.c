@@ -212,6 +212,9 @@ void instances_management() {
 }
 
 void new_instance(const char * given_directory, const char * process_name) {
+    
+    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
+    
     DIR * dr = 0;
     struct dirent *de;
 
@@ -264,6 +267,8 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_ui_instances.update_request = 1;
     }
     dstudio_free(instance_filename_buffer);
+    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
+
 }
 
 unsigned int select_instance_from_list(

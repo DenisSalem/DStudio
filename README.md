@@ -39,6 +39,8 @@ With debug features :
 - BEGIN 13/04/2021, DONE 19/04/2021 : Audio sample visual représentation.
 - BEGIN 22/04/2021, DONE 22/04/2021 : Clean the mess of init_ui_elements, split with inline functions.
 - BEGIN 22/04/2021, DONE 23/04/2021 : Implement UI animation transition while switching context.
+- BEGIN 24/04/2021, DONE 24/04/2021 : Implement filter in file browser to only match supported format. Do not display hidden file.
+
 - CONTINUOUS WIP : Connect UI elements to backend context.
 - SAMPLE Group : Implement Start, end, Grain size, Amount, Decimate, Distribution Balance, Distance.
 - VOICE Group : Inplement Volume, Density, Pitch, Pan.
@@ -56,12 +58,11 @@ With debug features :
 - Fix text cursor glitch.
 - Remove value jump in knob when selected. Use offset instead.
 - Implement Configuration menu. (Knob mode, asset path, framerate, auto generated ui color, etc...)
-- Implement filter in file browser to only match supported format.
 - Prevent to load audio sample already loaded.
 
 ### v1.0.0
 
-- Allow to change the color of auto generated UI element.
+- Allow to change the color of auto generated UI element (Sample screen, EQ, etc).
 - Experimental support of the following plateform : ReactOS, Haiku.
 - UI and window Rescale.
 - Fully translatable user interface.

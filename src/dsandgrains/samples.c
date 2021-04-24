@@ -71,6 +71,8 @@ void init_samples_interactive_list(
 }
 
 UIElements * new_sample(char * filename, SharedSample shared_sample) {
+    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
+
     UIElements * line = 0;
     Samples * samples = g_current_active_voice->sub_contexts;
     SampleContext * new_sample_context = dstudio_realloc(
@@ -79,6 +81,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     );
     if (new_sample_context == NULL) {
         // TODO: LOG FAILURE
+        dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
         printf("Failed to import sample\n");
         return 0;
     }
@@ -114,6 +117,8 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
 
     line = &g_ui_samples.lines[samples->index-g_ui_samples.window_offset];
     bind_samples_interactive_list(line, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+    
+    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
     
     return line;
 }

@@ -85,6 +85,8 @@ void init_voices_interactive_list(
 }
 
 UIElements * new_voice() {
+    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
+    
     UIElements * line = 0;
 
     VoiceContext * new_voice_context = dstudio_realloc(
@@ -92,6 +94,7 @@ UIElements * new_voice() {
         (g_current_active_instance->voices.count + 1) * sizeof(VoiceContext)
     );
     if (new_voice_context == NULL) {
+        dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
         return 0;
     }
     explicit_bzero(
@@ -148,6 +151,9 @@ UIElements * new_voice() {
     );
     
     g_ui_voices.update_request = 1;
+    
+    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
+    
     return line;
 }
 

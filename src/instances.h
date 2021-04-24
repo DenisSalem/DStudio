@@ -27,7 +27,6 @@ typedef struct InstanceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     int identifier;
     Voices voices;
-    
 } InstanceContext;
 
 typedef struct Instances_t {

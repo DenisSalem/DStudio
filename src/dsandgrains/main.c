@@ -33,6 +33,7 @@
 #include "../ressource_usage.h"
 #include "../text_pointer.h"
 #include "../voices.h"
+#include "dsandgrains.h"
 #include "instances.h"
 #include "samples.h"
 #include "ui.h"
@@ -59,7 +60,7 @@ int main(int argc, char ** argv) {
         set_samples_ui_context_from_parent_voice_list
     );
 
-    init_audio_api_client();
+    init_audio_api_client(dsandgrains_audio_process);
 
     // TODO: PASS CALLBACK TO INIT SOME AUDIO API, NSM or LADISH
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");

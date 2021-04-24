@@ -28,6 +28,7 @@
 typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
+    unsigned long int processed_sub_sample_count;
 } SampleContext;
 
 typedef struct Samples_t{

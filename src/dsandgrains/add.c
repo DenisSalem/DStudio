@@ -57,7 +57,8 @@ void add_sample(UIElements * ui_elements) {
     
     open_file_menu(
         add_sub_menu_proxy,
-        load_sample
+        load_sample,
+        filter_non_audio_file
     );
 }
 
@@ -95,4 +96,26 @@ void close_add_sub_menu() {
     g_active_interactive_list = 0;
     g_request_render_all = 1;
     dstudio_clear_sub_menu_callback();
+}
+
+unsigned int filter_non_audio_file(const char * path, const char * filename) {
+    char * path_filename =  dstudio_alloc(sizeof(char) * strlen(path) + strlen(filename) + 2, DSTUDIO_FAILURE_IS_FATAL);
+    strcat(path_filename, path);
+    strcat(path_filename, "/");
+    strcat(path_filename, filename);
+    unsigned int ret = 0;
+    
+    if (dstudio_is_directory(path_filename)) {
+        ret =  1;
+        goto end_filter;
+    }
+    
+    char * string =  &path_filename[strlen(path_filename)-5]; // Look for .flac
+    for ( ; *string; ++string) *string = tolower(*string);
+    
+    ret = strcmp(&path_filename[strlen(path_filename)-5], ".flac") == 0;
+    
+    end_filter:
+        dstudio_free(path_filename);
+        return ret;
 }

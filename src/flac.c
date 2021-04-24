@@ -46,11 +46,11 @@ FLAC__StreamDecoderWriteStatus write_callback(
     float * left = shared_sample->left;
     float * right = shared_sample->right;
     float max_value = (float) ((1 << shared_sample->bps) -1 );
-    unsigned char is_stereo = shared_sample->is_stereo;
+    unsigned char channels = shared_sample->channels;
     
     for (unsigned i = 0; i < frame->header.blocksize; i++) {
         left[sample_index_offset+i] = (float) (buffer[0][i]) / max_value;
-        if (is_stereo == 2) {
+        if (channels == 2) {
             right[sample_index_offset+i] = (float) (buffer[1][i]) / max_value;
         }
     }
@@ -70,7 +70,7 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
         switch (metadata->data.stream_info.channels) {
             case 1:
             case 2:
-                shared_sample->is_stereo = metadata->data.stream_info.channels;
+                shared_sample->channels = metadata->data.stream_info.channels;
                 break;
                 
             default:
@@ -85,14 +85,14 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
             DSTUDIO_FAILURE_IS_NOT_FATAL
         );
         
-        if (shared_sample->is_stereo == 2) {
+        if (shared_sample->channels == 2) {
             shared_sample->right = dstudio_alloc(
                 size,
                 DSTUDIO_FAILURE_IS_NOT_FATAL
             );
         }
         
-        if (shared_sample->left == NULL || (shared_sample->is_stereo == 2 && shared_sample->right == NULL)) {
+        if (shared_sample->left == NULL || (shared_sample->channels == 2 && shared_sample->right == NULL)) {
             s_client_error_callback("Memory allocation failed.");
             shared_sample->error_code = DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED;
         }

@@ -19,10 +19,27 @@
 #include <stdio.h> 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "audio_api.h"
 #include "instances.h"
 #include "voices.h"
+
+void * s_audio_api_client = 0;
+DStudioAudioAPIRequest s_audio_api_request_state = DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING;
+
+void dstudio_audio_api_request(DStudioAudioAPIRequest request) {
+    if (s_audio_api_client == NULL)
+        return;
+        
+    s_audio_api_request_state = request;
+    DStudioAudioAPIRequest ack = request == DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING ? DSTUDIO_AUDIO_API_ACK_DATA_PROCESSING : DSTUDIO_AUDIO_API_ACK_NO_DATA_PROCESSING;
+    while (s_audio_api_request_state != ack) {
+        usleep(500); // 0.5ms
+    }
+}
+
+void (*s_client_process)(VoiceContext * voice, float * out_left, float * out_right, unsigned int nframes); 
 
 #ifdef DSTUDIO_USE_JACK_AUDIO_CONNECTION_KIT
     #include "jack.c"

@@ -52,6 +52,7 @@ endif()
 add_executable(
 	dsandgrains
     dsandgrains/add.c
+    dsandgrains/dsandgrains.c
 	dsandgrains/main.c
     dsandgrains/samples.c
     dsandgrains/sample_screen.c
