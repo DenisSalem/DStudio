@@ -38,8 +38,8 @@ With debug features :
 - BEGIN 12/04/2021, DONE 12/04/2021 : Disable scroll if text cursor is active.
 - BEGIN 13/04/2021, DONE 19/04/2021 : Audio sample visual représentation.
 - BEGIN 22/04/2021, DONE 22/04/2021 : Clean the mess of init_ui_elements, split with inline functions.
-- BEGIN 22/04/2021 : Implement UI animation transition while switching context.
-- Connect UI elements to backend context.
+- BEGIN 22/04/2021, DONE 23/04/2021 : Implement UI animation transition while switching context.
+- CONTINUOUS WIP : Connect UI elements to backend context.
 - SAMPLE Group : Implement Start, end, Grain size, Amount, Decimate, Distribution Balance, Distance.
 - VOICE Group : Inplement Volume, Density, Pitch, Pan.
 - SAMPLE Group : Implement Cloud Motion Control.
@@ -67,7 +67,7 @@ With debug features :
 - Fully translatable user interface.
 - Support for NSM and Ladish.
 - LV2 support.
-- Allow multiple window.
+- Allow multiple window./
 - Python live coding support.
 - Export voice as audio file loop.
 - Support of additional audio file format.

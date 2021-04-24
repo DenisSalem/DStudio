@@ -909,7 +909,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         else {
                             s_list_item = ui_elements_p;
                             ui_elements_p->timestamp = timestamp;
-                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK_TEST);
                             g_active_interactive_list = ui_elements_p->interactive_list;
                         }
                         break;
@@ -922,7 +922,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                             s_list_item = 0;
                         }
                         else {
-                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
+                            select_item(ui_elements_p, DSTUDIO_SELECT_ITEM_WITH_CALLBACK_TEST);
                             ui_elements_p->timestamp = timestamp;
                             s_list_item = ui_elements_p;
                         }

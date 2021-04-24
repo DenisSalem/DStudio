@@ -338,12 +338,6 @@ int is_window_visible() {
 
 
 void listen_events() {    
-    if (!is_window_visible()) {
-        DSTUDIO_TRACE;
-        XFlush(display);
-        return;
-    }
-    
     struct pollfd fds = {0};
     fds.fd = ConnectionNumber(display);
     fds.events = POLLIN;
@@ -366,11 +360,11 @@ void listen_events() {
                 if (x_event.xbutton.button == Button1) {
                     g_dstudio_mouse_state = 1;
                     mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_PRESS);
-                    return;
+                    //return;
                 }
                 else if (x_event.xbutton.button == Button3) {
                     mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_PRESS);
-                    return;
+                    //return;
                 }
                 else if (g_active_interactive_list) {
                     switch(x_event.xbutton.button) {
@@ -392,11 +386,11 @@ void listen_events() {
                 if (x_event.xbutton.button == Button1) {
                     g_dstudio_mouse_state = 0;
                     mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_LEFT, DSTUDIO_MOUSE_BUTTON_RELEASE);
-                    return;
+                    //return;
                 }
                 else if (x_event.xbutton.button == Button3) {
                     mouse_button_callback(x_event.xbutton.x, x_event.xbutton.y, DSTUDIO_MOUSE_BUTTON_RIGHT, DSTUDIO_MOUSE_BUTTON_RELEASE);
-                    return;
+                    //return;
                 }
             }
             else if(x_event.type == MotionNotify) {
