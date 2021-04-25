@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+  
+#ifndef DSTUDIO_MACROS_H_INCLUDED
+#define DSTUDIO_MACROS_H_INCLUDED
         
 #define ABSOLUTE_VALUE(v) ( v < 0 ? -v : v)
 
@@ -51,3 +54,5 @@
 
 #define DSTUDIO_TRACE_ARGS(string, ...) \
     printf("%s %d: " #string "\n", __FILE__, __LINE__, __VA_ARGS__);
+
+#endif

@@ -40,9 +40,10 @@ With debug features :
 - BEGIN 22/04/2021, DONE 22/04/2021 : Clean the mess of init_ui_elements, split with inline functions.
 - BEGIN 22/04/2021, DONE 23/04/2021 : Implement UI animation transition while switching context.
 - BEGIN 24/04/2021, DONE 24/04/2021 : Implement filter in file browser to only match supported format. Do not display hidden file.
-
+- BEGIN 25/04/2021, DONE 25/04/2021 : SAMPLE Group : Amount (context switch, animation, applied effect).
+- Freezed ui element if context is not available.
 - CONTINUOUS WIP : Connect UI elements to backend context.
-- SAMPLE Group : Implement Start, end, Grain size, Amount, Decimate, Distribution Balance, Distance.
+- SAMPLE Group : Implement Start, end, Grain size,Decimate, Distribution Balance, Distance.
 - VOICE Group : Inplement Volume, Density, Pitch, Pan.
 - SAMPLE Group : Implement Cloud Motion Control.
 - VOICE Group : Implement EQ with FFTW.

@@ -17,29 +17,30 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_OPEN_FILE_H_INCLUDED
-#define DSTUDIO_OPEN_FILE_H_INCLUDED
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#ifndef DSTUDIO_KNOB_H_INCLUDED
+#define DSTUDIO_KNOB_H_INCLUDED
 
 #include "ui.h"
 
-void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
+#define PI (GLfloat) 3.1415926535897932
+#define KNOB_LOWEST_POSITION -2.356194490192345
+#define KNOB_HIGHEST_POSITION 2.356194490192345
 
-void open_file_menu(
-    void (*cancel_callback)(UIElements * ui_elements),
-    unsigned int (*select_callback)(char * path, char * filename, FILE * file_fd),
-    unsigned int (*filter_callback)(const char * path, const char * filename)
-);
+typedef enum KnobSensitivity_t {
+    DSTUDIO_KNOB_SENSITIVITY_LINEAR,
+    DSTUDIO_KNOB_SENSITIVITY_LOGARITHMIC,
+    DSTUDIO_KNOB_SENSITIVITY_EXPONENTIAL
+} KnobSensitivity;
 
-unsigned int select_file_from_list(
-    unsigned int index
-);
+typedef struct KnobValue_t {
+    float multiplier;
+    float offset;
+    float computed;
+    KnobSensitivity sensitivity;
+} KnobValue;
 
-void update_open_file_error(const char * message);
-
-void update_open_file_ui_list();
+void bind_and_update_ui_knob(UIElements * knob, void * callback_args);
+void update_knob_value(UIElements * knob);
+void update_ui_knob(UIElements * knob);
 
 #endif

@@ -22,6 +22,7 @@
 
 #include "../common.h"
 #include "../interactive_list.h"
+#include "../knob.h"
 #include "../samples.h"
 #include "../voices.h"
 
@@ -29,6 +30,7 @@ typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
     unsigned long int processed_sub_sample_count;
+    KnobValue amount;
 } SampleContext;
 
 typedef struct Samples_t{

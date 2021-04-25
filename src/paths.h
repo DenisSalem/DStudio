@@ -17,6 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef DSTUDIO_PATHS_H_INCLUDED
+#define DSTUDIO_PATHS_H_INCLUDED
+
 #define DSTUDIO_ACTIVE_ADD_INSTANCE_ASSET_PATH      "../../assets/active_button_add_instance.png"
 #define DSTUDIO_ACTIVE_ADD_SAMPLE_ASSET_PATH        "../../assets/active_button_add_sample.png"
 #define DSTUDIO_ACTIVE_ADD_VOICE_ASSET_PATH         "../../assets/active_button_add_voice.png"
@@ -43,3 +46,5 @@
 #define DSTUDIO_SLIDER_2_8x8_TEXTURE_PATH           "../../assets/slider3.png"
 #define DSTUDIO_SLIDER_BACKGROUND_ASSET_PATH        "../../assets/slider_background.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../../assets/vertex.shader"
+
+#endif

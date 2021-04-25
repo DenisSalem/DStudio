@@ -179,7 +179,7 @@ static unsigned int refresh_file_list(char * path) {
             s_files_list = dstudio_realloc(s_files_list, allocation_size);
         }
         strncpy(&s_files_list[s_files_count * (char_per_line+1)], de->d_name, char_per_line);
-        s_files_list[s_files_count * (char_per_line+1) + char_per_line+1] = 0; // set null byte in any cases.
+        s_files_list[s_files_count * (char_per_line+1) + char_per_line] = 0; // set null byte in any cases.
         s_files_count +=1;
     }
     s_interactive_list.source_data = s_files_list;

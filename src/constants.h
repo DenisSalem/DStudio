@@ -132,13 +132,13 @@
 #define DSTUDIO_FLAG_SLIDER_TO_TOP                  128
 #define DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS          256
 #define DSTUDIO_FLAG_OVERLAP                        512
-#define DSTUDIO_ANIMATE_MOTION                      1024
-#define DSTUDIO_ANIMATE_OFFSET                      2048
-#define DSTUDIO_ANIMATE_ALPHA                       4096
-#define DSTUDIO_ANIMATE \
-            (DSTUDIO_ANIMATE_MOTION | \
-            DSTUDIO_ANIMATE_OFFSET | \
-            DSTUDIO_ANIMATE_ALPHA)
+#define DSTUDIO_FLAG_ANIMATE_MOTION                      1024
+#define DSTUDIO_FLAG_ANIMATE_OFFSET                      2048
+#define DSTUDIO_FLAG_ANIMATE_ALPHA                       4096
+#define DSTUDIO_FLAG_ANIMATE \
+            (DSTUDIO_FLAG_ANIMATE_MOTION | \
+            DSTUDIO_FLAG_ANIMATE_OFFSET | \
+            DSTUDIO_FLAG_ANIMATE_ALPHA)
             
 #define DSTUDIO_FAILURE_IS_FATAL 1
 #define DSTUDIO_FAILURE_IS_NOT_FATAL 0

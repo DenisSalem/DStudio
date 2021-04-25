@@ -66,6 +66,7 @@ add_executable(
     flac.c
     instances.c
     interactive_list.c
+    knob.c
     open_file.c
     ressource_usage.c
     sliders.c

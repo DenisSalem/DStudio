@@ -21,6 +21,7 @@
 
 void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size) {
     SampleContext * sample = 0;
+    float sample_amount = 0;
     float * sample_left = 0;
     float * sample_right = 0;
     Samples * samples = voice->sub_contexts;
@@ -28,9 +29,14 @@ void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * o
         sample = &samples->contexts[sample_index];
         sample_left = sample->shared_sample.left;
         sample_right = sample->shared_sample.channels == 2 ? sample->shared_sample.right : sample_left;
+        
+        sample_amount = sample->amount.computed <= 1.0 ? sample->amount.computed : 1 + (sample->amount.computed-1) * 10; 
+        
         for (unsigned int i = 0; i < frame_size; i++) {
-            out_left[i] += sample_left[(sample->processed_sub_sample_count+i) % sample->shared_sample.size];
-            out_right[i] += sample_right[(sample->processed_sub_sample_count+i) % sample->shared_sample.size];
+            if (sample_amount != 0) {
+                out_left[i] += sample_amount * sample_left[(sample->processed_sub_sample_count+i) % sample->shared_sample.size];
+                out_right[i] += sample_amount * sample_right[(sample->processed_sub_sample_count+i) % sample->shared_sample.size];
+            }
         }
         sample->processed_sub_sample_count+=frame_size;
     }

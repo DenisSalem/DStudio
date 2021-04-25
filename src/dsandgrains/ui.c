@@ -204,7 +204,7 @@ inline static void init_knobs() {
         12,
         1,
         DSTUDIO_UI_ELEMENT_TYPE_KNOB,
-        DSTUDIO_FLAG_IS_VISIBLE
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_ANIMATE_MOTION
     );
     
     init_ui_elements(
@@ -449,7 +449,7 @@ inline static void init_sample_screen() {
         1,
         DSANDGRAINS_SAMPLE_SCREEN_WIDTH,
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT,
-        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_ANIMATE_MOTION | DSTUDIO_ANIMATE_OFFSET
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_ANIMATE_MOTION | DSTUDIO_FLAG_ANIMATE_OFFSET
     );
     
     g_ui_elements_struct.sample_screen.color.r = 1.0;

@@ -19,9 +19,11 @@
 
 #include "../bar_plot.h"
 #include "../instances.h"
+#include "../knob.h"
 #include "samples.h"
 #include "sample_screen.h"
 #include "ui.h"
+
 
 SampleContext * g_current_active_sample = 0;
 UIInteractiveList g_ui_samples = {0};
@@ -96,6 +98,13 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     samples->contexts = new_sample_context;
     g_current_active_sample = &samples->contexts[samples->index];
     
+    KnobValue * amount = &g_current_active_sample->amount;
+    amount->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
+    amount->computed = 1;
+    amount->multiplier = 2;
+    amount->offset = 0;
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, amount);
+    
     strncpy(g_current_active_sample->name, filename, g_ui_samples.string_size-1);
     #ifdef DSTUDIO_DEBUG
     printf(
@@ -131,6 +140,7 @@ unsigned int select_sample_from_list(
         
     if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &samples->contexts[samples->index].amount);
         bind_new_data_to_sample_screen(samples->count ? &g_current_active_sample->shared_sample : 0);
         return 1;
     }
@@ -155,9 +165,11 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
     }
     if (samples->count) {
         s_previous_active_sample = 0;
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &samples->contexts[samples->index].amount);
+        bind_new_data_to_sample_screen(&samples->contexts[samples->index].shared_sample);
     }
     else {
-        update_bar_plot_as_waveform(&g_ui_elements_struct.sample_screen, 0, DSTUDIO_DO_ANIMATE);
+        bind_new_data_to_sample_screen(NULL);
     }
     return line;
 }

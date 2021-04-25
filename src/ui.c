@@ -27,6 +27,7 @@
 #include "buttons.h"
 #include "extensions.h"
 #include "instances.h"
+#include "knob.h"
 #include "text_pointer.h"
 #include "sliders.h"
 #include "transition_animation.h"
@@ -840,6 +841,7 @@ void manage_cursor_position(int xpos, int ypos) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
             motion = compute_knob_rotation(xpos, ypos);
             update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
+            update_knob_value(&g_ui_elements_array[s_ui_element_index]);
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             if (g_ui_elements_array[s_ui_element_index].enabled) {
@@ -1029,7 +1031,6 @@ void render_ui_elements(UIElements * ui_elements) {
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_BAR_PLOT);
             glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
-            glScissor(0,0,g_dstudio_viewport_width, g_dstudio_viewport_height);
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:

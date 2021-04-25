@@ -17,6 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef DSTUDIO_SLIDERS_H_INCLUDED
+#define DSTUDIO_SLIDERS_H_INCLUDED
+
 #include "ui.h"
 
 float compute_slider_percentage_value(int ypos);
@@ -30,3 +33,5 @@ void compute_slider_scissor_y(
 void compute_slider_in_motion_scissor_y(
     UIElements * slider
 );
+
+#endif
