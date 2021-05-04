@@ -31,6 +31,7 @@ typedef struct SampleContext_t {
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
     unsigned long int processed_sub_sample_count;
     KnobValue amount;
+    KnobValue stretch;
 } SampleContext;
 
 typedef struct Samples_t{

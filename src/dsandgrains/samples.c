@@ -104,7 +104,14 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     amount->multiplier = 2;
     amount->offset = 0;
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, amount);
-    
+
+    KnobValue * stretch = &g_current_active_sample->stretch;
+    stretch->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
+    stretch->computed = 1;
+    stretch->multiplier = 2;
+    stretch->offset = 0;
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, stretch);
+
     strncpy(g_current_active_sample->name, filename, g_ui_samples.string_size-1);
     #ifdef DSTUDIO_DEBUG
     printf(
@@ -141,6 +148,7 @@ unsigned int select_sample_from_list(
     if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &samples->contexts[samples->index].amount);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, &samples->contexts[samples->index].stretch);
         bind_new_data_to_sample_screen(samples->count ? &g_current_active_sample->shared_sample : 0);
         return 1;
     }
@@ -166,6 +174,7 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
     if (samples->count) {
         s_previous_active_sample = 0;
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &samples->contexts[samples->index].amount);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, &samples->contexts[samples->index].stretch);
         bind_new_data_to_sample_screen(&samples->contexts[samples->index].shared_sample);
     }
     else {

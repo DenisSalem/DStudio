@@ -33,11 +33,12 @@ static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) 
 
 static int process(jack_nframes_t nframes, void *arg) {
         (void) arg;
-
+        int connection_left = 0;
+        int connection_right = 0;
         VoiceContext * voice = 0;
         InstanceContext * instance = 0;
-        jack_default_audio_sample_t * out_left;
-        jack_default_audio_sample_t * out_right;
+        jack_default_audio_sample_t * out_left = 0;
+        jack_default_audio_sample_t * out_right = 0;
         
         if (s_client_process == NULL) {
             return 0;
@@ -63,11 +64,25 @@ static int process(jack_nframes_t nframes, void *arg) {
             instance = &g_instances.contexts[instance_index];
             for (unsigned int voice_index = 0; voice_index < instance->voices.count; voice_index++) {
                 voice = &instance->voices.contexts[voice_index];
-                out_left  = jack_port_get_buffer(voice->output_port.left, nframes);
-                out_right = jack_port_get_buffer(voice->output_port.right, nframes);
-                explicit_bzero(out_left, nframes*sizeof(float));
-                explicit_bzero(out_right, nframes*sizeof(float));
-                s_client_process(voice, out_left, out_right, nframes); 
+                
+                connection_left = jack_port_connected(voice->output_port.left);
+                connection_right = jack_port_connected(voice->output_port.right);
+                if (connection_left + connection_right) {
+                    if (connection_left) {
+                        out_left  = jack_port_get_buffer(voice->output_port.left, nframes);
+                        explicit_bzero(out_left, nframes*sizeof(float));
+                    }
+                    if (connection_right) {
+                        out_right = jack_port_get_buffer(voice->output_port.right, nframes);
+                        explicit_bzero(out_right, nframes*sizeof(float));
+                    }
+                    s_client_process(
+                        voice,
+                        connection_left ? out_left : NULL,
+                        connection_right ? out_right : NULL,
+                        nframes
+                    );
+                }
             }
         }
         
