@@ -64,6 +64,7 @@ With debug features :
 
 ### v1.0.0
 
+- Allow locking "end" with "start" in settings.
 - Allow to change the color of auto generated UI element (Sample screen, EQ, etc).
 - Experimental support of the following plateform : ReactOS, Haiku.
 - UI and window Rescale.

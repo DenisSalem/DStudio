@@ -19,7 +19,18 @@
 
 #include "../samples.h"
 
+typedef enum SampleScreenRenderRequest_t {
+    DSANDGRAINS_SAMPLE_SCREEN_NO_RENDER_REQUEST = 0,
+    DSANDGRAINS_SAMPLE_SCREEN_RENDER_REQUEST_NEW_DATA = 1,
+    DSANDGRAINS_SAMPLE_SCREEN_RENDER_REQUEST_NEW_RANGE = 2
+} SampleScreenRenderRequest;
+
 void bind_new_data_to_sample_screen(SharedSample * shared_sample);
 
 void update_sample_screen();
+
+void update_sample_screen_range();
+
+void request_sample_screen_range_update();
+
 

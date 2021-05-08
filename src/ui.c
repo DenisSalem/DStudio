@@ -839,9 +839,15 @@ void manage_cursor_position(int xpos, int ypos) {
     }
     switch(g_ui_elements_array[s_ui_element_index].type) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+            ui_element =  &g_ui_elements_array[s_ui_element_index];
             motion = compute_knob_rotation(xpos, ypos);
-            update_ui_element_motion(&g_ui_elements_array[s_ui_element_index], motion);
-            update_knob_value(&g_ui_elements_array[s_ui_element_index]);
+            update_ui_element_motion( ui_element, motion);
+            update_knob_value( ui_element);
+            if(ui_element->application_callback) {
+                ui_element->application_callback(
+                    ui_element
+                );
+            }
             break;
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             if (g_ui_elements_array[s_ui_element_index].enabled) {
@@ -1308,7 +1314,7 @@ void update_gpu_buffer(UIElements * ui_element_p) {
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), ui_element_p->instance_motions_buffer);
             break;
             
-        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT: // TODO : Implement flag to update only the required buffer
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_motions_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);

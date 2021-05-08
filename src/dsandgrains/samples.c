@@ -98,6 +98,22 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     samples->contexts = new_sample_context;
     g_current_active_sample = &samples->contexts[samples->index];
     
+    KnobValue * start = &g_current_active_sample->start;
+    start->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
+    start->computed = 0;
+    start->multiplier = 1;
+    start->offset = 0;
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, start);    
+    g_ui_elements_struct.knob_sample_start.application_callback = request_sample_screen_range_update;
+    
+    KnobValue * end = &g_current_active_sample->end;
+    end->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
+    end->computed = 1;
+    end->multiplier = 1;
+    end->offset = 0;
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, end); 
+    g_ui_elements_struct.knob_sample_end.application_callback = request_sample_screen_range_update;
+
     KnobValue * amount = &g_current_active_sample->amount;
     amount->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
     amount->computed = 1;

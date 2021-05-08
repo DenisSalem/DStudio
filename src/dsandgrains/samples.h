@@ -30,6 +30,8 @@ typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
     unsigned long int processed_sub_sample_count;
+    KnobValue start;
+    KnobValue end;
     KnobValue amount;
     KnobValue stretch;
 } SampleContext;
@@ -65,5 +67,6 @@ void update_current_sample(
 );
 
 void update_samples_ui_list();
+
 
 #endif
