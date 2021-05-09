@@ -50,7 +50,10 @@ void update_knob_value(UIElements * knob) {
 
 void update_ui_knob(UIElements * knob) {
     float rotation = 0;
-    KnobValue * knob_value = knob->application_callback_args;
+    
+    KnobValue default_value = {1.0, 0, 0.5, DSTUDIO_KNOB_SENSITIVITY_LINEAR};
+    
+    KnobValue * knob_value = knob->application_callback_args == 0 ? &default_value : knob->application_callback_args;
     float value = 0;
     switch(knob_value->sensitivity) {
         case DSTUDIO_KNOB_SENSITIVITY_LINEAR:

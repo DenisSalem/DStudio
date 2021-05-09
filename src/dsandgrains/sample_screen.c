@@ -46,7 +46,7 @@ void request_sample_screen_range_update(UIElements * ui_element) {
 }
 
 void update_sample_screen_range() {
-    if (s_shared_sample == NULL) {
+    if (g_current_active_sample == NULL) {
         return;
     }
     float sample_start = g_current_active_sample->start.computed;

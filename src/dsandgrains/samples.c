@@ -160,11 +160,13 @@ unsigned int select_sample_from_list(
     unsigned int index
 ) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;   
-        
+
     if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &samples->contexts[samples->index].amount);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, &samples->contexts[samples->index].stretch);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &g_current_active_sample->amount);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, &g_current_active_sample->stretch);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, &g_current_active_sample->start);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, &g_current_active_sample->end);
         bind_new_data_to_sample_screen(samples->count ? &g_current_active_sample->shared_sample : 0);
         return 1;
     }
@@ -191,9 +193,15 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
         s_previous_active_sample = 0;
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &samples->contexts[samples->index].amount);
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, &samples->contexts[samples->index].stretch);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, &samples->contexts[samples->index].start);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, &samples->contexts[samples->index].end);
         bind_new_data_to_sample_screen(&samples->contexts[samples->index].shared_sample);
     }
     else {
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, 0);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, 0);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, 0);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, 0);
         bind_new_data_to_sample_screen(NULL);
     }
     return line;

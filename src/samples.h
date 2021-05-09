@@ -33,7 +33,7 @@ typedef struct SharedSample_t {
     unsigned char bps;          
     unsigned char error_code;
     unsigned rate;
-    long unsigned size;
+    long int size;
     float *  left; 
     float *  right;
 } SharedSample;

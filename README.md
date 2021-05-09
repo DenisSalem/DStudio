@@ -59,7 +59,7 @@ With debug features :
 - Send log to GUI.
 - Fix text cursor glitch.
 - Remove value jump in knob when selected. Use offset instead.
-- Implement Configuration menu. (Knob mode, asset path, framerate, auto generated ui color, etc...)
+- Implement Configuration menu. (Knob mode, asset path, framerate, auto generated ui color, slider/knob sensitivity, etc...)
 - Prevent to load audio sample already loaded.
 
 ### v1.0.0

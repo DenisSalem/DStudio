@@ -19,17 +19,37 @@
 
 #include "dsandgrains.h"
 
+static long int s_start = 0;
+static long int s_end = 0;
+static int s_direction = 1;
+static long int s_range = 0;
+
 static void process_channel(SampleContext * sample, float * channel_in, float * channel_out, unsigned int frame_size) {
-    long unsigned int sample_size = sample->shared_sample.size;
     float sample_amount = sample->amount.computed <= 1.0 ? sample->amount.computed : 1 + (sample->amount.computed-1) * 10; 
     float sample_stretch = sample->stretch.computed <= 1.0 ? 0.5 + 0.5*sample->stretch.computed : sample->stretch.computed; 
     
     (void) sample_stretch;
     
-    long unsigned int processed_sub_sample_count = sample->processed_sub_sample_count;
+    long int processed_index = sample->processed_index;
+    long int index = 0;
     
-    for (unsigned int i = 0; i < frame_size; i++) {
-        channel_out[i] += sample_amount * channel_in[(processed_sub_sample_count+i) % sample_size];
+    for (int i = 0; i < (int) frame_size; i++) {
+        // TODO : Could be optimized and cleaned
+        
+        if (s_direction > 0) {
+            index = processed_index + i;
+            if (index >= s_end) {
+                index -= s_range;
+            }
+        }
+        else {
+            index = processed_index - i;
+            if (index < s_end) {
+                index +=(s_range);
+            }
+        }
+        
+        channel_out[i] += sample_amount * channel_in[index];
     }
 }
 
@@ -39,6 +59,28 @@ void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * o
 
     for (unsigned int sample_index = 0; sample_index < samples->count; sample_index++) {
         sample = &samples->contexts[sample_index];
+        
+        s_start =  sample->start.computed * sample->shared_sample.size;
+        s_end =  sample->end.computed * sample->shared_sample.size;
+
+        if (s_start < s_end) {
+            s_direction = 1;
+            s_range = s_end - s_start;
+        }
+        else if(s_start > s_end) {
+            s_direction = -1;
+            s_range = s_start - s_end;
+        }
+        else {
+            continue;
+        }
+        
+        if (s_direction > 0 && (sample->processed_index < s_start || sample->processed_index >= s_end)) {
+            sample->processed_index = s_start;    
+        }
+        if (s_direction < 0 && (sample->processed_index < s_end || sample->processed_index > s_start)) {
+            sample->processed_index = s_start;    
+        }
 
         if (out_left) {
             process_channel(sample, sample->shared_sample.left, out_left, frame_size);
@@ -47,7 +89,18 @@ void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * o
             process_channel(sample, sample->shared_sample.right, out_right, frame_size);
         }
 
-        sample->processed_sub_sample_count = sample->processed_sub_sample_count + frame_size;
+        if (s_direction > 0) {
+            sample->processed_index = sample->processed_index + frame_size;
+            if (sample->processed_index >= s_end) {
+                sample->processed_index -= s_range;
+            }
+        }
+        else {
+            sample->processed_index = sample->processed_index - frame_size;
+            if (sample->processed_index < s_end) {
+                sample->processed_index += s_range;
+            }
+        }
     }
 }
 
