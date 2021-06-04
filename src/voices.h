@@ -26,7 +26,8 @@
 typedef struct VoiceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     void * sub_contexts;
-    OutputPort output_port;
+    void * midi_data_buffer;
+    AudioPort ports;
 } VoiceContext;
 
 typedef struct Voices_t {

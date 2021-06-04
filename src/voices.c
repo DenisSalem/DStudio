@@ -33,6 +33,8 @@ UIElements * (*setup_sub_context_interactive_list)() = 0;
 
 char s_audio_port_name_left_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
 char s_audio_port_name_right_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
+char s_midi_port_name_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
+
 static UIElements * s_ui_elements;
 static unsigned int s_lines_number;
 static unsigned int s_string_size;
@@ -137,17 +139,26 @@ UIElements * new_voice() {
     
     strcpy((char *) &s_audio_port_name_left_buffer, g_current_active_instance->name);
     strcpy((char *) &s_audio_port_name_right_buffer, g_current_active_instance->name);
+    strcpy((char *) &s_midi_port_name_buffer, g_current_active_instance->name);
     strcat((char *) &s_audio_port_name_left_buffer, " > ");
     strcat((char *) &s_audio_port_name_right_buffer, " > ");
+    strcat((char *) &s_midi_port_name_buffer, " > ");
     strcat((char *) &s_audio_port_name_left_buffer, g_current_active_voice->name);
     strcat((char *) &s_audio_port_name_right_buffer, g_current_active_voice->name);
+    strcat((char *) &s_midi_port_name_buffer, g_current_active_voice->name);
     strcat((char *) &s_audio_port_name_left_buffer, " > L");
     strcat((char *) &s_audio_port_name_right_buffer, " >  R");
             
+    // TODO HANDLE FAILURE
     register_stereo_output_port(
-        &g_current_active_voice->output_port,
+        &g_current_active_voice->ports,
         (const char *) &s_audio_port_name_left_buffer,
         (const char *) &s_audio_port_name_right_buffer
+    );
+    
+    register_midi_port(
+        &g_current_active_voice->ports,
+        (const char *) &s_midi_port_name_buffer
     );
     
     g_ui_voices.update_request = 1;

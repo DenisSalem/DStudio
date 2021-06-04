@@ -18,6 +18,7 @@
 */
 
 #include <jack/jack.h>
+#include <jack/midiport.h>
 
 static jack_client_t * s_client;
 static jack_status_t s_jack_status;
@@ -65,23 +66,38 @@ static int process(jack_nframes_t nframes, void *arg) {
             for (unsigned int voice_index = 0; voice_index < instance->voices.count; voice_index++) {
                 voice = &instance->voices.contexts[voice_index];
                 
-                connection_left = jack_port_connected(voice->output_port.left);
-                connection_right = jack_port_connected(voice->output_port.right);
-                if (connection_left + connection_right) {
-                    if (connection_left) {
-                        out_left  = jack_port_get_buffer(voice->output_port.left, nframes);
-                        explicit_bzero(out_left, nframes*sizeof(float));
-                    }
-                    if (connection_right) {
-                        out_right = jack_port_get_buffer(voice->output_port.right, nframes);
-                        explicit_bzero(out_right, nframes*sizeof(float));
-                    }
-                    s_client_process(
-                        voice,
-                        connection_left ? out_left : NULL,
-                        connection_right ? out_right : NULL,
+                if (jack_port_connected(voice->ports.midi)) { // Midi Block
+                    void * midi_buffer = jack_port_get_buffer(
+                        voice->ports.midi,
                         nframes
                     );
+                    voice->midi_data_buffer = jack_midi_event_reserve(
+                        midi_buffer,
+                        0, // What is this ?
+                        32
+                    );
+                }
+                
+                { // Audio Block 
+                    connection_left = jack_port_connected(voice->ports.left);
+                    connection_right = jack_port_connected(voice->ports.right);
+                    
+                    if (connection_left + connection_right) {
+                        if (connection_left) {
+                            out_left  = jack_port_get_buffer(voice->ports.left, nframes);
+                            explicit_bzero(out_left, nframes*sizeof(float));
+                        }
+                        if (connection_right) {
+                            out_right = jack_port_get_buffer(voice->ports.right, nframes);
+                            explicit_bzero(out_right, nframes*sizeof(float));
+                        }
+                        s_client_process(
+                            voice,
+                            connection_left ? out_left : NULL,
+                            connection_right ? out_right : NULL,
+                            nframes
+                        );
+                    }
                 }
             }
         }
@@ -111,15 +127,29 @@ DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(Voice
         return DSTUDIO_AUDIO_API_NO_ERROR;
 }
 
-DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name) {
+DStudioAudioAPIError register_midi_port(AudioPort * output_port, const char * port_name) {
+        if (!s_client) {
+            return DSTUDIO_AUDIO_API_CLIENT_IS_NULL;
+        }
+        output_port->midi = jack_port_register(s_client, port_name, JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0); 
+        
+        if (output_port->midi == NULL) {
+            // TODO Replace with 
+            return DSTUDIO_AUDIO_API_MIDI_PORT_CANNOT_BE_CREATED;
+        }
+        
+        return DSTUDIO_AUDIO_API_NO_ERROR;
+}
+
+DStudioAudioAPIError register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name) {
         if (!s_client) {
             return DSTUDIO_AUDIO_API_CLIENT_IS_NULL;
         }
         output_port->left = jack_port_register(s_client, left_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
         output_port->right = jack_port_register(s_client, right_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
-
+        
         if (output_port->left == NULL || output_port->right == NULL) {
-            return DSTUDIO_AUDIO_API_OUTPUT_PORT_CANNOT_BE_CREATED;
+            return DSTUDIO_AUDIO_API_AUDIO_PORT_CANNOT_BE_CREATED;
         }
         
         return DSTUDIO_AUDIO_API_NO_ERROR;
@@ -149,10 +179,10 @@ DStudioAudioAPIError rename_active_context_audio_port() {
     
     if (s_client) {
         if (
-            jack_port_rename(s_client, g_current_active_voice->output_port.left, (const char *) &audio_port_name_left_buffer) ||
-            jack_port_rename(s_client, g_current_active_voice->output_port.right, (const char *) &audio_port_name_right_buffer)
+            jack_port_rename(s_client, g_current_active_voice->ports.left, (const char *) &audio_port_name_left_buffer) ||
+            jack_port_rename(s_client, g_current_active_voice->ports.right, (const char *) &audio_port_name_right_buffer)
         ) {
-            return DSTUDIO_AUDIO_API_OUTPUT_PORT_RENAMING_FAILED;
+            return DSTUDIO_AUDIO_API_AUDIO_PORT_RENAMING_FAILED;
         }
         return DSTUDIO_AUDIO_API_NO_ERROR;
     }

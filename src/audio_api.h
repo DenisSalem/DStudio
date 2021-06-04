@@ -34,14 +34,16 @@ typedef enum DStudioAudioAPIError_t {
     DSTUDIO_AUDIO_API_CLIENT_IS_NULL,
     DSTUDIO_AUDIO_API_CLIENT_CANNOT_CONNECT_TO_SERVER,
     DSTUDIO_AUDIO_API_CANNOT_ENABLE_CLIENT,
-    DSTUDIO_AUDIO_API_OUTPUT_PORT_CANNOT_BE_CREATED,
-    DSTUDIO_AUDIO_API_OUTPUT_PORT_RENAMING_FAILED
+    DSTUDIO_AUDIO_API_AUDIO_PORT_CANNOT_BE_CREATED,
+    DSTUDIO_AUDIO_API_MIDI_PORT_CANNOT_BE_CREATED,
+    DSTUDIO_AUDIO_API_AUDIO_PORT_RENAMING_FAILED
 } DStudioAudioAPIError;
 
-typedef struct OutputPort_t {
+typedef struct AudioPort_t {
     void * left;
     void * right;
-} OutputPort;
+    void * midi;
+} AudioPort;
 
 typedef struct VoiceContext_t VoiceContext;
 
@@ -49,7 +51,8 @@ void dstudio_audio_api_request(DStudioAudioAPIRequest request);
 
 // Must be implemented for each kind of API
 DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size));
-DStudioAudioAPIError register_stereo_output_port(OutputPort * output_port, const char * left_port_name, const char * right_port_name);
+DStudioAudioAPIError register_midi_port(AudioPort * output_port, const char * port_name);
+DStudioAudioAPIError register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name);
 DStudioAudioAPIError stop_audio_api_client();
 DStudioAudioAPIError rename_active_context_audio_port(); 
 #endif
