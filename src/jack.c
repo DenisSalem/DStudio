@@ -66,16 +66,16 @@ static int process(jack_nframes_t nframes, void *arg) {
             for (unsigned int voice_index = 0; voice_index < instance->voices.count; voice_index++) {
                 voice = &instance->voices.contexts[voice_index];
                 
-                if (jack_port_connected(voice->ports.midi)) { // Midi Block
-                    void * midi_buffer = jack_port_get_buffer(
-                        voice->ports.midi,
-                        nframes
-                    );
-                    voice->midi_data_buffer = jack_midi_event_reserve(
-                        midi_buffer,
-                        0, // What is this ?
-                        32
-                    );
+                // Midi Block : get binded sliders and / or knobs event
+                if (jack_port_connected(voice->ports.midi)) {
+                    void * midi_buffer = jack_port_get_buffer(voice->ports.midi, nframes);
+                    jack_midi_event_t in_event;
+                    for (unsigned event_index = 0; event_index < jack_midi_get_event_count(midi_buffer); event_index++) {
+                        jack_midi_event_get(&in_event, midi_buffer, event_index);
+                        if ( (unsigned char) (unsigned char) 0xB0 <= in_event.buffer[0] && in_event.buffer[0] <= (unsigned char) 0xBF) {
+                            DSTUDIO_TRACE
+                        }
+                    }
                 }
                 
                 { // Audio Block 
