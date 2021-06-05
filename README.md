@@ -44,6 +44,7 @@ With debug features :
 - BEGIN 25/04/2021                  : SAMPLE Group : Stretch (context switch, animation, applied effect).
 - BEGIN 08/05/2021n DONE 09/05/2021 : Implement audio range and signal Inversion.
 - BEGIN 04/06/2021, DONE 04/06/2021 : Low level Midi support through Jack.
+- Centered text.
 - Freezed ui element if context is not available.
 - CONTINUOUS WIP : Connect UI elements to backend context.
 - SAMPLE Group : Implement Start, end, Grain size, Decimate, Distribution Balance, Distance.
@@ -70,6 +71,7 @@ With debug features :
 - Allow to change the color of auto generated UI element (Sample screen, EQ, etc).
 - Experimental support of the following plateform : ReactOS, Haiku.
 - UI and window Rescale.
+- Replace charmap usage with freetype, render area is then auto computed.
 - Fully translatable user interface.
 - Support for NSM and Ladish.
 - LV2 support.

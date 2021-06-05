@@ -45,7 +45,7 @@ void main() {
     float s;
     
     if ( motion_type == DSTUDIO_MOTION_TYPE_NONE) {
-        gl_Position = vec4( scale_matrix * vertex_position + offset.xy, 0, 1.0);
+        gl_Position = vec4( scale_matrix * vertex_position + offset.xy + vec2(motion,0), 0, 1.0);
     }
     else if (motion_type == DSTUDIO_MOTION_TYPE_BAR_PLOT) {
         gl_Position = vec4( scale_matrix * vertex_position * vec2(1.0,motion) + vec2(offset.x, offset.y+offset.w), 0, 1.0);

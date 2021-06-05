@@ -749,7 +749,7 @@ void init_ui_elements(
     Area area = {0};
     unsigned int x = 0;
     unsigned int y = 0;
-        
+
     inline_init_ui_elements_set_area(
         ui_element_type,
         gl_x,
@@ -763,6 +763,9 @@ void init_ui_elements(
     );
         
     for (unsigned int i = 0; i < count; i++) {
+        
+        ui_elements_array[i].flags = flags;
+
         x = (i % columns);
         y = (i / columns);
         
@@ -1327,8 +1330,13 @@ void update_gpu_buffer(UIElements * ui_element_p) {
         case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT_BACKGROUND:
         case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
+            if (ui_element_p->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED) {
+                glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
+                    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_motions_buffer);
+            }
             glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, ui_element_p->text_buffer_size * sizeof(Vec4), ui_element_p->coordinates_settings.instance_offsets_buffer);
+            
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:

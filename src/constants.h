@@ -132,9 +132,10 @@
 #define DSTUDIO_FLAG_SLIDER_TO_TOP                  128
 #define DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS          256
 #define DSTUDIO_FLAG_OVERLAP                        512
-#define DSTUDIO_FLAG_ANIMATE_MOTION                      1024
-#define DSTUDIO_FLAG_ANIMATE_OFFSET                      2048
-#define DSTUDIO_FLAG_ANIMATE_ALPHA                       4096
+#define DSTUDIO_FLAG_ANIMATE_MOTION                 1024
+#define DSTUDIO_FLAG_ANIMATE_OFFSET                 2048
+#define DSTUDIO_FLAG_ANIMATE_ALPHA                  4096
+#define DSTUDIO_FLAG_TEXT_IS_CENTERED               8192
 #define DSTUDIO_FLAG_ANIMATE \
             (DSTUDIO_FLAG_ANIMATE_MOTION | \
             DSTUDIO_FLAG_ANIMATE_OFFSET | \

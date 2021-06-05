@@ -377,7 +377,7 @@ inline static void init_misc_buttons() {
     );
 }
 
-inline static void init_ressource_usage() {
+inline static void init_info_bar() {
     GLuint textures_ids[2] = {0};
         
     textures_ids[0] = setup_texture_n_scale_matrix(
@@ -423,6 +423,31 @@ inline static void init_ressource_usage() {
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_IS_VISIBLE
     );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.info_text,
+        &g_charset_8x18_texture_ids[0],
+        &g_charset_8x18_scale_matrix[0],
+        DSANDGRAINS_INFO_TEXT_X_POS,
+        DSANDGRAINS_INFO_TEXT_Y_POS,
+        DSANDGRAINS_INFO_TEXT_WIDTH,
+        DSANDGRAINS_INFO_TEXT_HEIGHT,
+        0,
+        0,
+        1,
+        1,
+        DSANDGRAINS_INFO_TEXT_STRING_SIZE,
+        DSTUDIO_UI_ELEMENT_TYPE_TEXT,
+        DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_TEXT_IS_CENTERED
+    );
+    
+    update_text(
+        &g_ui_elements_struct.info_text,
+        "DSANDGRAINS v0.0.0 is a work in progress.",
+        strlen("DSANDGRAINS v0.0.0 is a work in progress.")
+    );
+
+    
     // TODO Finish Implement this.
     g_ui_elements_struct.cpu_usage.overlap_sub_menu_ui_elements = &g_ui_elements_struct.open_file_menu_prompts;
 }
@@ -705,7 +730,7 @@ static void init_dsandgrains_ui_elements() {
     init_instances_list();
     init_knobs();
     init_misc_buttons();
-    init_ressource_usage();
+    init_info_bar();
     init_sliders();
     init_sample_screen();
     init_ui_text_pointer(&g_ui_elements_struct.text_pointer);

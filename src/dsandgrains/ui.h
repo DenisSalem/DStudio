@@ -85,6 +85,12 @@
 #define DSANDGRAINS_EQUALIZER_SLIDERS_POS_X -0.94468085
 #define DSANDGRAINS_EQUALIZER_SLIDERS_POS_Y -0.40357142
 
+#define DSANDGRAINS_INFO_TEXT_WIDTH         464
+#define DSANDGRAINS_INFO_TEXT_HEIGHT        18
+#define DSANDGRAINS_INFO_TEXT_X_POS         0.46808510
+#define DSANDGRAINS_INFO_TEXT_Y_POS         0.90714285
+#define DSANDGRAINS_INFO_TEXT_STRING_SIZE   58
+
 #define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_X 0.83191489
 #define DSANDGRAINS_INSTANCE_ITEM_LIST_HIGHLIGHT_POS_Y 0.31773399
 #define DSANDGRAINS_INSTANCE_SCROLLABLE_LIST_ITEM_POS_X 0.72659573
@@ -233,7 +239,7 @@ typedef struct UIElementsStruct_t {
     UIElements samples_list_item_10;
     UIElements samples_list_item_11;
     UIElements sample_screen;
-    UIElements text_pointer;
+    UIElements info_text;
     //~ UIElements dahdsr_target_list_item_highlight;
     UIElements menu_background;
     UIElements add_sub_menu_prompt;
@@ -274,6 +280,7 @@ typedef struct UIElementsStruct_t {
     UIElements open_file_list_item_22;
     UIElements open_file_list_item_23;
     UIElements open_file_list_item_24;
+    UIElements text_pointer;
 } UIElementsStruct;
 
 void * ui_thread(void * arg);

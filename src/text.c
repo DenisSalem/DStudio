@@ -22,7 +22,8 @@
 #include "text.h"
 
 void update_text(UIElements * text, char * string_value, unsigned int buffer_size) {
-    Vec4 * offset_buffer = (Vec4 *) text->coordinates_settings.instance_offsets_buffer;
+    Vec4 * offset_buffer = text->coordinates_settings.instance_offsets_buffer;
+    GLfloat * motion_buffer = text->instance_motions_buffer;
     int linear_coordinate = 0;
     int padding = 0;
     size_t current_strlen = strlen(string_value);
@@ -45,6 +46,9 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
         if (string_value[i] >= 32 && string_value[i] <= 126) {
             linear_coordinate = string_value[i] - 32;
         }
+        if (text->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED) {
+            motion_buffer[i] -= text->coordinates_settings.scale_matrix[0].x * buffer_size - text->coordinates_settings.scale_matrix[0].x;
+        }
         GLfloat z = (GLfloat) (linear_coordinate % (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
         GLfloat w = (linear_coordinate / (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
         if (text->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED || z != offset_buffer[i].z || w != offset_buffer[i].w) {
@@ -52,6 +56,10 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
             offset_buffer[i].w = w;
             text->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         }
+    }
+    if (text->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED) {
+        text->coordinates_settings.scissor.x = (g_dstudio_viewport_width>>1) + (motion_buffer[0]+offset_buffer[0].x) * (g_dstudio_viewport_width>>1) - text->coordinates_settings.scale_matrix[0].x * (g_dstudio_viewport_width>>1);
+        text->coordinates_settings.scissor.width = nearbyint(buffer_size * text->coordinates_settings.scale_matrix[0].x * g_dstudio_viewport_width );
     }
     
     if(text->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {

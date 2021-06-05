@@ -191,6 +191,7 @@ typedef struct TransitionAnimation_t TransitionAnimation;
 
 typedef struct UIElements_t {
     unsigned int                count;
+    unsigned int                flags;
     unsigned char               render_state;
     unsigned char               visible;
     unsigned char               enabled;
