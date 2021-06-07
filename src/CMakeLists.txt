@@ -64,6 +64,7 @@ add_executable(
     extensions.c
     fileutils.c
     flac.c
+    info_bar.c
     instances.c
     interactive_list.c
     knob.c

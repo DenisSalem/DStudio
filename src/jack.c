@@ -23,6 +23,10 @@
 static jack_client_t * s_client;
 static jack_status_t s_jack_status;
 
+unsigned int dstudio_audio_api_voice_has_midi_input() {
+    return jack_port_connected(g_current_active_voice->ports.midi);
+}
+
 static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) {
     (void) arg;
     (void) code;

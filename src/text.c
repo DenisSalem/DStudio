@@ -47,7 +47,7 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
             linear_coordinate = string_value[i] - 32;
         }
         if (text->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED) {
-            motion_buffer[i] -= text->coordinates_settings.scale_matrix[0].x * buffer_size - text->coordinates_settings.scale_matrix[0].x;
+            motion_buffer[i] = -(text->coordinates_settings.scale_matrix[0].x * buffer_size - text->coordinates_settings.scale_matrix[0].x);
         }
         GLfloat z = (GLfloat) (linear_coordinate % (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);
         GLfloat w = (linear_coordinate / (int) DSTUDIO_CHAR_SIZE_DIVISOR) * (1.0 / DSTUDIO_CHAR_SIZE_DIVISOR);

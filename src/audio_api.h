@@ -21,6 +21,7 @@
 #define DSTUDIO_AUDIO_API_H_INCLUDED
 
 #include "common.h"
+#include "ui.h"
 
 typedef enum DStudioAudioAPIRequest_t {
     DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING,
@@ -39,6 +40,12 @@ typedef enum DStudioAudioAPIError_t {
     DSTUDIO_AUDIO_API_AUDIO_PORT_RENAMING_FAILED
 } DStudioAudioAPIError;
 
+typedef enum DStudioAudioAPIMidiCaptureState_t {
+    DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE = 0,
+    DSTUDIO_AUDIO_API_MIDI_CAPUTRE_WAIT_FOR_TARGET = 1,
+    DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT = 2,
+} DStudioAudioAPIMidiCaptureState;
+
 typedef struct AudioPort_t {
     void * left;
     void * right;
@@ -49,10 +56,18 @@ typedef struct VoiceContext_t VoiceContext;
 
 void dstudio_audio_api_request(DStudioAudioAPIRequest request);
 
+// TODO: rename with dstudio_audio_api prefix
 // Must be implemented for each kind of API
+unsigned int dstudio_audio_api_voice_has_midi_input();
 DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size));
 DStudioAudioAPIError register_midi_port(AudioPort * output_port, const char * port_name);
 DStudioAudioAPIError register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name);
 DStudioAudioAPIError stop_audio_api_client();
 DStudioAudioAPIError rename_active_context_audio_port(); 
+
+
+void trigger_midi_capture(UIElements * self);
+
+extern unsigned int g_midi_capture_state;
+
 #endif

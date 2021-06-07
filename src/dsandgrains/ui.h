@@ -25,6 +25,9 @@
 #define DSANDGRAINS_ADD_BUTTON_POS_X -0.06595744
 #define DSANDGRAINS_ADD_BUTTON_POS_Y -0.925
 
+#define DSANDGRAINS_MIDI_BUTTON_POS_X 0.03191489
+#define DSANDGRAINS_MIDI_BUTTON_POS_Y -0.925
+
 #define DSANDGRAINS_ADD_INSTANCE_COLUMNS 1
 #define DSANDGRAINS_ADD_INSTANCE_COUNT 1
 #define DSANDGRAINS_ADD_INSTANCE_OFFSET_X 0
@@ -199,6 +202,7 @@ typedef struct UIElementsStruct_t {
     UIElements slider_equalizer_F;
     UIElements slider_equalizer_A;
     UIElements button_add;
+    UIElements button_midi;
     UIElements instances_list_slider;
     UIElements instances_list_item_highlight;
     UIElements instances_list_item_1;

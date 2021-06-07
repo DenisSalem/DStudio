@@ -23,6 +23,7 @@
 #include "../buttons.h"
 #include "../common.h"
 #include "../extensions.h"
+#include "../info_bar.h"
 #include "../instances.h"
 #include "../interactive_list.h"
 #include "../open_file.h"
@@ -55,7 +56,8 @@ inline static void bind_callbacks() {
     g_ui_elements_struct.button_add_instance.application_callback = add_instance;
     g_ui_elements_struct.button_add_sample.application_callback = add_sample;
     g_ui_elements_struct.button_add_voice.application_callback = add_voice;
-    
+    g_ui_elements_struct.button_midi.application_callback = trigger_midi_capture;
+
     bind_scroll_bar(&g_ui_instances, &g_ui_elements_struct.instances_list_slider);
     bind_scroll_bar(&g_ui_voices, &g_ui_elements_struct.voices_list_slider);
 }
@@ -375,6 +377,41 @@ inline static void init_misc_buttons() {
         DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
         DSTUDIO_FLAG_IS_VISIBLE
     );
+    
+    textures_ids[0] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        DSANDGRAINS_TINY_BUTTON_SCALE, 
+        DSTUDIO_BUTTON_MIDI_ASSET_PATH,
+        tiny_button_scale_matrix,
+        NULL
+    );
+    
+    textures_ids[1] = setup_texture_n_scale_matrix(
+        DSTUDIO_FLAG_USE_ALPHA,
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        DSANDGRAINS_TINY_BUTTON_SCALE, 
+        DSTUDIO_ACTIVE_BUTTON_MIDI_ASSET_PATH,
+        NULL,
+        NULL
+    );
+    
+    init_ui_elements(
+        &g_ui_elements_struct.button_midi,
+        &textures_ids[0],
+        &tiny_button_scale_matrix[0],
+        DSANDGRAINS_MIDI_BUTTON_POS_X,
+        DSANDGRAINS_MIDI_BUTTON_POS_Y,
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        DSANDGRAINS_TINY_BUTTON_SCALE,
+        0,
+        0,
+        1,
+        1,
+        1,
+        DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE,
+        DSTUDIO_FLAG_IS_VISIBLE
+    );
 }
 
 inline static void init_info_bar() {
@@ -447,7 +484,8 @@ inline static void init_info_bar() {
         strlen("DSANDGRAINS v0.0.0 is a work in progress.")
     );
 
-    
+    init_info_text(&g_ui_elements_struct.info_text);
+
     // TODO Finish Implement this.
     g_ui_elements_struct.cpu_usage.overlap_sub_menu_ui_elements = &g_ui_elements_struct.open_file_menu_prompts;
 }
@@ -739,7 +777,6 @@ static void init_dsandgrains_ui_elements() {
         &g_ui_elements_struct.menu_background,
         &g_ui_elements_struct.open_file_menu_prompts_box
     );
-    
     bind_callbacks();
     for (unsigned int i = 4; i < g_menu_background_index; i++) {
         g_ui_elements_array[i].enabled = 1;

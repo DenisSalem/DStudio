@@ -202,7 +202,7 @@ void update_insteractive_list(
     }
     if (interactive_list->update_highlight) {
         UIElements * highlight = interactive_list->highlight;
-        highlight->previous_highlight_scissor_y = highlight->coordinates_settings.scissor.y;
+        highlight->coordinates_settings.previous_scissor.y = highlight->coordinates_settings.scissor.y;
         highlight->coordinates_settings.scissor.y = (1 + highlight->coordinates_settings.instance_offsets_buffer->y - highlight->coordinates_settings.scale_matrix[1].y) * (g_dstudio_viewport_height >> 1);
         highlight->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
         interactive_list->update_highlight = 0;

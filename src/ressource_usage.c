@@ -17,6 +17,8 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+// TODO : Merge with info bar
+
 #include <time.h>
 #include <unistd.h>
 

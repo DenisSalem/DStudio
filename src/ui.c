@@ -203,7 +203,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
         glScissor(
             scissor_offset_x + scissor->x,
             scissor_offset_y + (flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
-                ui_element->previous_highlight_scissor_y : \
+                ui_element->coordinates_settings.previous_scissor.y : \
                 scissor->y)
             ,
             is_active_text_pointer_overing ? 1 : scissor->width ,
@@ -211,7 +211,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
         );
     }
     if (flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS) {
-        ui_element->previous_highlight_scissor_y = ui_element->coordinates_settings.scissor.y;
+        ui_element->coordinates_settings.previous_scissor.y = ui_element->coordinates_settings.scissor.y;
     }
     if (!(flags & DSTUDIO_FLAG_OVERLAP)) {
         update_scale_matrix(matrix_index >= 0 ? s_ui_elements_requests[matrix_index]->coordinates_settings.scale_matrix : s_framebuffer_scale_matrix);

@@ -162,6 +162,7 @@ typedef struct UIElementsCoordinatesSettings_t {
     Vec2 *                      scale_matrix;
     Vec4 *                      instance_offsets_buffer;
     Scissor                     scissor;
+    Scissor                     previous_scissor;
 } UIElementsCoordinatesSettings;
 
 /*
@@ -213,7 +214,6 @@ typedef struct UIElements_t {
         GLuint                  previous_text_size;
         /* Similarly, highlight need to be rendered twice at two location
          different location. The previous one is stored there.*/
-        GLint                   previous_highlight_scissor_y;
     };
     GLuint                      vertex_array_object;
     GLuint                      vertex_buffer_object;
