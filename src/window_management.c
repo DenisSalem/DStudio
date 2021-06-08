@@ -27,8 +27,10 @@
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 
+#include "audio_api.h"
 #include "common.h"
 #include "extensions.h"
+#include "info_bar.h"
 #include "text_pointer.h"
 #include "window_management.h"
 
@@ -400,9 +402,15 @@ void listen_events() {
             }
             else if(x_event.type == KeyPress) {
                 if(x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC || x_event.xkey.keycode == DSTUDIO_KEY_CODE_ENTER) {
-                    if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC && close_sub_menu_callback != NULL) {
-                        close_sub_menu_callback();
-                        refresh_all = 1;
+                    if (x_event.xkey.keycode == DSTUDIO_KEY_CODE_ESC) {
+                        if(close_sub_menu_callback != NULL) {
+                            close_sub_menu_callback();
+                            refresh_all = 1;
+                        }
+                        if (g_midi_capture_state != 0) {
+                            g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
+                            update_info_text("");
+                        }
                     }
                     clear_text_pointer();
                 }

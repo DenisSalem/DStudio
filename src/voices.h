@@ -28,6 +28,7 @@ typedef struct VoiceContext_t {
     void * sub_contexts;
     void * midi_data_buffer;
     AudioPort ports;
+    UIElements * midi_binds[256];
 } VoiceContext;
 
 typedef struct Voices_t {

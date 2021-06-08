@@ -26,6 +26,7 @@
 
 #include "buttons.h"
 #include "extensions.h"
+#include "info_bar.h"
 #include "instances.h"
 #include "knob.h"
 #include "text_pointer.h"
@@ -185,7 +186,7 @@ static void render_layers(unsigned int limit) {
 
 static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags, int scissor_offset_x, int scissor_offset_y) {
     UIElements * ui_element = s_ui_elements_requests[scissor_index];
-    Scissor * scissor = &ui_element->coordinates_settings.scissor;
+    Scissor * scissor = flags & DSTUDIO_FLAG_TEXT_IS_CENTERED ? &ui_element->coordinates_settings.previous_scissor : &ui_element->coordinates_settings.scissor;
     UIElementType type = ui_element->type;
     int is_active_text_pointer_overing = \
         g_text_pointer_context.active && \
@@ -199,6 +200,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             g_text_pointer_context.ui_text == ui_element \
         );
         
+
     if (scissor_index >=0) {
         glScissor(
             scissor_offset_x + scissor->x,
@@ -210,6 +212,7 @@ static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int fl
             scissor->height
         );
     }
+    
     if (flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS) {
         ui_element->coordinates_settings.previous_scissor.y = ui_element->coordinates_settings.scissor.y;
     }
@@ -897,6 +900,31 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 if (s_list_item != ui_elements_p) {
                     s_list_item = 0;
                 }
+                
+                if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT) {
+                    g_midi_ui_element_target = NULL;
+                    g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
+                    update_info_text("Midi capture is aborted.");
+                }
+                
+                if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_TARGET) {
+                    switch (ui_elements_p->type) {
+                        case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
+                        case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+                            g_midi_ui_element_target = ui_elements_p;
+                            g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT;
+                            update_info_text("Waiting for midi signal from input...");
+                            break;
+                            
+                        default:
+                            g_midi_ui_element_target = NULL;
+                            g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
+                            update_info_text("Midi capture is aborted.");
+                            break;
+                    }
+                    break;
+                }
+                
                 switch (ui_elements_p->type) {
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON:
                         ui_elements_p->application_callback(ui_elements_p);
@@ -1056,7 +1084,7 @@ void render_ui_elements(UIElements * ui_elements) {
     glBindTexture(GL_TEXTURE_2D, ui_elements->texture_ids[ui_elements->texture_index]);
         glBindVertexArray(ui_elements->vertex_array_object);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ui_elements->index_buffer_object);
-                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, ui_elements->count);
+                glDrawElementsInstanced(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, (GLvoid *) 0, ui_elements->type & DSTUDIO_ANY_TEXT_TYPE ? ui_elements->text_buffer_size : ui_elements->count);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -1146,8 +1174,17 @@ unsigned int render_viewport(unsigned int render_all) {
     /* Render first layer background */
     background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
     for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
-        scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
+        if (s_ui_elements_requests[i]->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED && s_ui_elements_requests[i]->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_TEXT_IS_CENTERED, g_scissor_offset_x, g_scissor_offset_y);
+        }
+        else if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT || s_ui_elements_requests[i] == g_text_pointer_context.text_pointer) {
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
+        }
+        else {
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
+        }
         render_ui_elements(s_ui_elements_requests[0]);
+
         if (background_rendering_start_index == 0) {
             break;
         }
@@ -1156,20 +1193,11 @@ unsigned int render_viewport(unsigned int render_all) {
     /* Render first layer ui elements */
     for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
         // Refresh interactive list background and/or highlight when item is unselected or text cursor is blinking
-        if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT || s_ui_elements_requests[i] == g_text_pointer_context.text_pointer) {
-            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
-            render_ui_elements(s_ui_elements_requests[0]);
-        }
-        if (s_ui_elements_requests[i] == g_text_pointer_context.text_pointer) {
-            render_ui_elements(g_text_pointer_context.highlight);
-        } 
         scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
         render_ui_elements(s_ui_elements_requests[i]);
-
     }
 
     if (g_menu_background_enabled) {
-
         glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[1]);
         /* Render second layer background */
         if (render_all) {

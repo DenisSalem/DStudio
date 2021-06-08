@@ -42,7 +42,7 @@ typedef enum DStudioAudioAPIError_t {
 
 typedef enum DStudioAudioAPIMidiCaptureState_t {
     DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE = 0,
-    DSTUDIO_AUDIO_API_MIDI_CAPUTRE_WAIT_FOR_TARGET = 1,
+    DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_TARGET = 1,
     DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT = 2,
 } DStudioAudioAPIMidiCaptureState;
 
@@ -69,5 +69,6 @@ DStudioAudioAPIError rename_active_context_audio_port();
 void trigger_midi_capture(UIElements * self);
 
 extern unsigned int g_midi_capture_state;
+extern UIElements * g_midi_ui_element_target;
 
 #endif

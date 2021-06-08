@@ -77,7 +77,21 @@ static int process(jack_nframes_t nframes, void *arg) {
                     for (unsigned event_index = 0; event_index < jack_midi_get_event_count(midi_buffer); event_index++) {
                         jack_midi_event_get(&in_event, midi_buffer, event_index);
                         if ( (unsigned char) (unsigned char) 0xB0 <= in_event.buffer[0] && in_event.buffer[0] <= (unsigned char) 0xBF) {
-                            DSTUDIO_TRACE
+                            if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT && g_current_active_voice == voice) {
+                                voice->midi_binds[in_event.buffer[1]] = g_midi_ui_element_target;
+                                update_info_text("Midi input has been binded!");
+                                g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
+                                g_midi_ui_element_target = NULL;
+                            }
+                            else if (voice->midi_binds[in_event.buffer[1]]) {
+                                // UPDATE DATA
+                                DSTUDIO_TRACE
+                                if (g_current_active_voice == voice) {
+                                    // UPDATE UI
+                                    DSTUDIO_TRACE
+
+                                }
+                            }
                         }
                     }
                 }

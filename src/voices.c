@@ -199,6 +199,7 @@ void update_current_voice(unsigned int index) {
     s_previous_active_voice = g_current_active_voice;
     g_current_active_voice = &g_current_active_instance->voices.contexts[index];
     g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
+    
     update_info_text("");
     setup_sub_context_interactive_list();
 }

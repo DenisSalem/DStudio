@@ -58,6 +58,8 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
         }
     }
     if (text->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED) {
+        text->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+        memcpy(&text->coordinates_settings.previous_scissor, &text->coordinates_settings.scissor, sizeof(Scissor));
         text->coordinates_settings.scissor.x = (g_dstudio_viewport_width>>1) + (motion_buffer[0]+offset_buffer[0].x) * (g_dstudio_viewport_width>>1) - text->coordinates_settings.scale_matrix[0].x * (g_dstudio_viewport_width>>1);
         text->coordinates_settings.scissor.width = nearbyint(buffer_size * text->coordinates_settings.scale_matrix[0].x * g_dstudio_viewport_width );
     }

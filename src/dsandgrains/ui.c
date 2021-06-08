@@ -477,12 +477,6 @@ inline static void init_info_bar() {
         DSTUDIO_UI_ELEMENT_TYPE_TEXT,
         DSTUDIO_FLAG_IS_VISIBLE | DSTUDIO_FLAG_TEXT_IS_CENTERED
     );
-    
-    update_text(
-        &g_ui_elements_struct.info_text,
-        "DSANDGRAINS v0.0.0 is a work in progress.",
-        strlen("DSANDGRAINS v0.0.0 is a work in progress.")
-    );
 
     init_info_text(&g_ui_elements_struct.info_text);
 
@@ -491,7 +485,6 @@ inline static void init_info_bar() {
 }
 
 inline static void init_sample_screen() {    
-          
     DEFINE_SCALE_MATRIX(
         s_sample_screen_sample_scale_matrix,
         DSANDGRAINS_SAMPLE_SCREEN_SAMPLE_WIDTH,
@@ -837,6 +830,8 @@ void * ui_thread(void * arg) {
     register_ui_elements_updater(update_samples_ui_list);
     register_ui_elements_updater(update_sample_screen);
     register_ui_elements_updater(perform_transition_animation);
+
+    update_info_text("DSANDGRAINS v0.0.0 is a work in progress.");
 
     render_loop();
     destroy_context();
