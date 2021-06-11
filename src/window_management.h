@@ -57,7 +57,7 @@ void destroy_context();
 int do_no_exit_loop();
 void dstudio_clear_sub_menu_callback();
 void get_pointer_coordinates(int * x, int * y);
-WindowScale get_window_scale();
+DStudioWindowScale get_window_scale();
 void init_context(const char * window_name, int width, int height);
 int is_window_focus();
 int is_window_visible();
@@ -68,7 +68,7 @@ void set_cursor_position_callback(void (*callback)(int xpos, int ypos));
 void set_mouse_button_callback(void (*callback)(int xpos, int ypos, int button, int action));
 void swap_window_buffer();
 
-extern unsigned int g_dstudio_mouse_state;
+extern uint_fast32_t g_dstudio_mouse_state;
 extern UIInteractiveList * g_active_interactive_list;
 extern void (*close_sub_menu_callback)();
 extern long g_x11_input_mask;

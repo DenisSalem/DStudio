@@ -25,14 +25,14 @@
 
 typedef struct InstanceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
-    int identifier;
+    int_fast32_t identifier;
     Voices voices;
 } InstanceContext;
 
 typedef struct Instances_t {
     InstanceContext * contexts;
-    unsigned int count;
-    unsigned int index;
+    uint_fast32_t count;
+    uint_fast32_t index;
 } Instances;
 
 extern Instances g_instances;
@@ -41,12 +41,12 @@ extern UIInteractiveList g_ui_instances;
 
 FILE * add_instance_file_descriptor();
 
-unsigned int _rename_active_context_audio_port(unsigned int index);
+uint_fast32_t _rename_active_context_audio_port(uint_fast32_t index);
 
 void init_instances_interactive_list(
     UIElements * ui_elements,
-    unsigned int lines_number,
-    unsigned int string_size,
+    uint_fast32_t lines_number,
+    uint_fast32_t string_size,
     GLfloat item_offset_y
 );
 
@@ -59,9 +59,9 @@ void new_instance(
     const char * process_name
 );
 
-unsigned int select_instance_from_list(unsigned int index);
+uint_fast32_t select_instance_from_list(uint_fast32_t index);
 
 void update_ui_instances_list();
 
-void update_current_instance(unsigned int index);
+void update_current_instance(uint_fast32_t index);
 #endif

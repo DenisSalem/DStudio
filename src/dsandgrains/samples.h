@@ -38,8 +38,8 @@ typedef struct SampleContext_t {
 
 typedef struct Samples_t{
     SampleContext * contexts;
-    unsigned int count;
-    unsigned int index;
+    uint_fast32_t count;
+    uint_fast32_t index;
 } Samples;
 
 extern SampleContext * g_current_active_sample; 
@@ -49,15 +49,15 @@ void bind_samples_interactive_list(UIElements * line, ListItemOpt flag);
 
 void init_samples_interactive_list(
     UIElements * ui_elements,
-    unsigned int lines_number,
-    unsigned int string_size,
+    uint_fast32_t lines_number,
+    uint_fast32_t string_size,
     GLfloat item_offset_y
 );
 
 UIElements * new_sample(char * filename, SharedSample shared_sample);
 
-unsigned int select_sample_from_list(
-    unsigned int index
+uint_fast32_t select_sample_from_list(
+    uint_fast32_t index
 );
 
 UIElements * set_samples_ui_context_from_parent_voice_list();

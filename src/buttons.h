@@ -27,8 +27,6 @@
 
 void update_ui_bouncing_buttons();
     
-void init_buttons_management();
-
 void update_button(UIElements * button_p);
 
 #endif

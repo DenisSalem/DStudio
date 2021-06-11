@@ -23,7 +23,7 @@
 static jack_client_t * s_client;
 static jack_status_t s_jack_status;
 
-unsigned int dstudio_audio_api_voice_has_midi_input() {
+uint_fast32_t dstudio_audio_api_voice_has_midi_input() {
     return jack_port_connected(g_current_active_voice->ports.midi);
 }
 
@@ -44,7 +44,7 @@ static int process(jack_nframes_t nframes, void *arg) {
         InstanceContext * instance = 0;
         jack_default_audio_sample_t * out_left = 0;
         jack_default_audio_sample_t * out_right = 0;
-        
+        UIElements * ui_element_p = NULL;
         if (s_client_process == NULL) {
             return 0;
         }
@@ -65,31 +65,34 @@ static int process(jack_nframes_t nframes, void *arg) {
                 break;
         }
         
-        for (unsigned int instance_index = 0; instance_index < g_instances.count; instance_index++) {
+        for (uint_fast32_t instance_index = 0; instance_index < g_instances.count; instance_index++) {
             instance = &g_instances.contexts[instance_index];
-            for (unsigned int voice_index = 0; voice_index < instance->voices.count; voice_index++) {
+            for (uint_fast32_t voice_index = 0; voice_index < instance->voices.count; voice_index++) {
                 voice = &instance->voices.contexts[voice_index];
                 
                 // Midi Block : get binded sliders and / or knobs event
                 if (jack_port_connected(voice->ports.midi)) {
                     void * midi_buffer = jack_port_get_buffer(voice->ports.midi, nframes);
                     jack_midi_event_t in_event;
-                    for (unsigned event_index = 0; event_index < jack_midi_get_event_count(midi_buffer); event_index++) {
+                    for (uint_fast32_t event_index = 0; event_index < jack_midi_get_event_count(midi_buffer); event_index++) {
                         jack_midi_event_get(&in_event, midi_buffer, event_index);
-                        if ( (unsigned char) (unsigned char) 0xB0 <= in_event.buffer[0] && in_event.buffer[0] <= (unsigned char) 0xBF) {
+                        if ( (uint_fast8_t) 0xB0 <= in_event.buffer[0] && in_event.buffer[0] <= (uint_fast8_t) 0xBF) {
                             if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT && g_current_active_voice == voice) {
                                 voice->midi_binds[in_event.buffer[1]] = g_midi_ui_element_target;
-                                update_info_text("Midi input has been binded!");
+                                dstudio_update_info_text("Midi input has been binded!");
                                 g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
                                 g_midi_ui_element_target = NULL;
                             }
                             else if (voice->midi_binds[in_event.buffer[1]]) {
-                                // UPDATE DATA
-                                DSTUDIO_TRACE
+                                ui_element_p = voice->midi_binds[in_event.buffer[1]];
+                                float value = (float) in_event.buffer[2] / 127.0;
                                 if (g_current_active_voice == voice) {
                                     // UPDATE UI
                                     DSTUDIO_TRACE
-
+                                    if (ui_element_p->type == DSTUDIO_UI_ELEMENT_TYPE_KNOB) {
+                                        *ui_element_p->instance_motions_buffer = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * value;
+                                        ui_element_p->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+                                    }
                                 }
                             }
                         }
@@ -123,8 +126,8 @@ static int process(jack_nframes_t nframes, void *arg) {
         return 0;
 }
 
-DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size)) {
-        s_client = jack_client_open(g_application_name, JackNullOption, &s_jack_status, NULL);
+DStudioAudioAPIError dstudio_init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size)) {
+        s_client = jack_client_open((char*)g_application_name, JackNullOption, &s_jack_status, NULL);
         s_client_process = client_process_callback;
         
         if (s_client == NULL) {
@@ -145,36 +148,36 @@ DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(Voice
         return DSTUDIO_AUDIO_API_NO_ERROR;
 }
 
-DStudioAudioAPIError register_midi_port(AudioPort * output_port, const char * port_name) {
+DStudioAudioAPIError dstudio_register_midi_port(AudioPort * output_port, const char * port_name) {
         if (!s_client) {
             return DSTUDIO_AUDIO_API_CLIENT_IS_NULL;
         }
         output_port->midi = jack_port_register(s_client, port_name, JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0); 
         
         if (output_port->midi == NULL) {
-            // TODO Replace with 
             return DSTUDIO_AUDIO_API_MIDI_PORT_CANNOT_BE_CREATED;
         }
         
         return DSTUDIO_AUDIO_API_NO_ERROR;
 }
 
-DStudioAudioAPIError register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name) {
+DStudioAudioAPIError dstudio_register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name) {
         if (!s_client) {
+            dstudio_update_info_text("Audio API client is null.");
             return DSTUDIO_AUDIO_API_CLIENT_IS_NULL;
         }
         output_port->left = jack_port_register(s_client, left_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
         output_port->right = jack_port_register(s_client, right_port_name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0); 
         
         if (output_port->left == NULL || output_port->right == NULL) {
+            dstudio_update_info_text("Audio output port cannot be created.");
             return DSTUDIO_AUDIO_API_AUDIO_PORT_CANNOT_BE_CREATED;
         }
         
         return DSTUDIO_AUDIO_API_NO_ERROR;
 }
 
-DStudioAudioAPIError stop_audio_api_client() {
-    // TODO: Handle errors if any
+DStudioAudioAPIError dstudio_stop_audio_api_client() {
     if (s_client) {
         jack_deactivate(s_client);
         jack_client_close(s_client);
@@ -182,16 +185,15 @@ DStudioAudioAPIError stop_audio_api_client() {
     return DSTUDIO_AUDIO_API_NO_ERROR;
 }
 
-
-DStudioAudioAPIError rename_active_context_audio_port() {
+DStudioAudioAPIError dstudio_rename_active_context_audio_port() {
     char audio_port_name_left_buffer[64] = {0};
     char audio_port_name_right_buffer[64] = {0};
-    strcpy((char *) &audio_port_name_left_buffer, g_current_active_instance->name);
-    strcpy((char *) &audio_port_name_right_buffer, g_current_active_instance->name);
+    strcpy((char *) &audio_port_name_left_buffer, (char*) g_current_active_instance->name);
+    strcpy((char *) &audio_port_name_right_buffer, (char*) g_current_active_instance->name);
     strcat((char *) &audio_port_name_left_buffer, " > ");
     strcat((char *) &audio_port_name_right_buffer, " > ");
-    strcat((char *) &audio_port_name_left_buffer, g_current_active_voice->name);
-    strcat((char *) &audio_port_name_right_buffer, g_current_active_voice->name);
+    strcat((char *) &audio_port_name_left_buffer, (char*) g_current_active_voice->name);
+    strcat((char *) &audio_port_name_right_buffer, (char*) g_current_active_voice->name);
     strcat((char *) &audio_port_name_left_buffer, " > L");
     strcat((char *) &audio_port_name_right_buffer, " > R");
     

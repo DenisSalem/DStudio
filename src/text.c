@@ -21,7 +21,7 @@
 #include "extensions.h"
 #include "text.h"
 
-void update_text(UIElements * text, char * string_value, unsigned int buffer_size) {
+void update_text(UIElements * text, char* string_value, uint_fast32_t buffer_size) {
     Vec4 * offset_buffer = text->coordinates_settings.instance_offsets_buffer;
     GLfloat * motion_buffer = text->instance_motions_buffer;
     int linear_coordinate = 0;
@@ -33,7 +33,7 @@ void update_text(UIElements * text, char * string_value, unsigned int buffer_siz
         text->previous_text_size)));
     text->previous_text_size = current_strlen;
 
-    for (unsigned int i = 0; i < buffer_size; i++) {
+    for (uint_fast32_t i = 0; i < buffer_size; i++) {
         if (padding || string_value[i] == 0) {
             if (offset_buffer[i].z || offset_buffer[i].w) {
                 text->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;

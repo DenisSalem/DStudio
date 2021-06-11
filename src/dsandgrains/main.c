@@ -28,9 +28,9 @@
 
 #include "../buttons.h"
 #include "../common.h"
+#include "../info_bar.h"
 #include "../instances.h"
 #include "../audio_api.h"
-#include "../ressource_usage.h"
 #include "../text_pointer.h"
 #include "../voices.h"
 #include "dsandgrains.h"
@@ -38,15 +38,15 @@
 #include "samples.h"
 #include "ui.h"
 
-const unsigned int g_dstudio_viewport_width = 940;
-const unsigned int g_dstudio_viewport_height = 560;
-const char g_application_name[] = "DSANDGRAINS";
+const uint_fast32_t g_dstudio_viewport_width = 940;
+const uint_fast32_t g_dstudio_viewport_height = 560;
+const char   g_application_name[] = "DSANDGRAINS";
 
 /* Allow generic DStudio UI features (like render loop) to deal with an 
  * array of UIElements. The size of this array is specific to the client
  * application and cannot be know in advance.
  */
-const unsigned int g_dstudio_ui_element_count = sizeof(UIElementsStruct) / sizeof(UIElements);;
+const uint_fast32_t g_dstudio_ui_element_count = sizeof(UIElementsStruct) / sizeof(UIElements);;
 
 int main(int argc, char ** argv) {
     (void) argc;
@@ -60,7 +60,7 @@ int main(int argc, char ** argv) {
         set_samples_ui_context_from_parent_voice_list
     );
 
-    init_audio_api_client(dsandgrains_audio_process);
+    dstudio_init_audio_api_client(dsandgrains_audio_process);
 
     // TODO: PASS CALLBACK TO INIT SOME AUDIO API, NSM or LADISH
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
@@ -70,7 +70,7 @@ int main(int argc, char ** argv) {
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
     
-    stop_audio_api_client();
+    dstudio_stop_audio_api_client();
     
     dstudio_free(0);
     return 0;

@@ -20,9 +20,27 @@
 #ifndef DSTUDIO_INFO_BAR_H_INCLUDED
 #define DSTUDIO_INFO_BAR_H_INCLUDED
 
+#include "common.h"
 #include "ui.h"
+#include "text.h"
 
-void init_info_text(UIElements * info_text);
-void update_info_text(char * message);
+typedef struct RessourceUsage_t {
+    uint_fast32_t   string_size;
+    char            cpu_string_buffer[7];
+    char            mem_string_buffer[7];
+} RessourceUsage;
+
+extern RessourceUsage g_ressource_usage;
+
+void * update_ressource_usage_thread(void * args);
+
+void dstudio_init_info_text(UIElements * info_text);
+void dstudio_init_ressource_usage_backend(
+    uint_fast32_t string_size,
+    UIElements * cpu_usage,
+    UIElements * mem_usage
+);
+void dstudio_update_info_text(char * message);
+void dstudio_update_ui_ressource_usage();
 
 #endif

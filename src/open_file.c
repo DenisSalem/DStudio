@@ -32,8 +32,8 @@
 #include "sliders.h"
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
-static unsigned int (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
-static unsigned int (*s_filter_callback)(const char * path, const char * filename) = 0;
+static uint_fast32_t (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
+static uint_fast32_t (*s_filter_callback)(const char * path, const char * filename) = 0;
 
 static char * s_current_directory = 0;
 static UIElements * s_menu_background;
@@ -47,12 +47,12 @@ static UIElements * s_prompt = {0};
 static UIElements * s_ui_elements = {0};
 static UIElements * s_error_message = {0};
 static UIInteractiveList s_interactive_list = {0};
-static unsigned int s_list_lines_number = 0;
+static uint_fast32_t s_list_lines_number = 0;
 static char * s_files_list = 0;
-static unsigned int s_files_count = 0;
-static unsigned int s_file_index = 0;
-static unsigned int s_max_characters_for_error_prompt = 0;
-static unsigned int s_max_prompt_char = 0;
+static uint_fast32_t s_files_count = 0;
+static uint_fast32_t s_file_index = 0;
+static uint_fast32_t s_max_characters_for_error_prompt = 0;
+static uint_fast32_t s_max_prompt_char = 0;
 static char * s_prompt_value = 0;
 static char * s_prompt_cwd_value = 0;
 
@@ -77,13 +77,13 @@ static void close_open_file_menu_button_callback(UIElements * ui_elements) {
     close_open_file_menu(DSTUDIO_OPEN_FILE_MENU_CONSUME_CANCEL_CALLBACK);
 }
 
-static unsigned int refresh_file_list(char * path);
+static uint_fast32_t refresh_file_list(char * path);
 
 static void open_file_and_consume_callback(UIElements * ui_element) {
     (void) ui_element;
-    unsigned int callback_status=0;
+    uint_fast32_t callback_status=0;
     char * path = 0;
-    char * current_item_value = &s_interactive_list.source_data[s_file_index*s_interactive_list.stride];
+    char * current_item_value = (char *) &s_interactive_list.source_data[s_file_index*s_interactive_list.stride];
     char * saved_current_directory = dstudio_alloc(
         strlen(s_current_directory)+1,
         DSTUDIO_FAILURE_IS_FATAL
@@ -151,7 +151,7 @@ static int strcoll_proxy(const void * a, const void *b) {
     return strcoll( (const char*) a, (const char *) b);
 }
 
-static unsigned int refresh_file_list(char * path) {
+static uint_fast32_t refresh_file_list(char * path) {
     DIR * dr = opendir(path);
     if (dr == NULL) {
         update_open_file_error(strerror(errno));
@@ -162,8 +162,8 @@ static unsigned int refresh_file_list(char * path) {
     if (s_files_list != NULL) {
         dstudio_free(s_files_list);
     }
-    unsigned int char_per_line = DSTUDIO_OPEN_FILE_CHAR_PER_LINE;
-    unsigned int allocation_size = (char_per_line+1) * s_list_lines_number;
+    uint_fast32_t char_per_line = DSTUDIO_OPEN_FILE_CHAR_PER_LINE;
+    uint_fast32_t allocation_size = (char_per_line+1) * s_list_lines_number;
 
     s_files_list = dstudio_alloc(
         allocation_size,
@@ -495,7 +495,7 @@ void init_open_menu(
         DSTUDIO_FLAG_NONE
     );
     
-    for (unsigned int i = 0; i < (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2; i++) {
+    for (uint_fast32_t i = 0; i < (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2; i++) {
         list[i].application_callback = open_file_and_consume_callback;
     }
 
@@ -553,8 +553,8 @@ void init_open_menu(
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
-    unsigned int (*select_callback)(char * path, char * filename, FILE * file_fd),
-    unsigned int (*filter_callback)(const char * path, const char * filename)
+    uint_fast32_t (*select_callback)(char * path, char * filename, FILE * file_fd),
+    uint_fast32_t (*filter_callback)(const char * path, const char * filename)
 ) {
     s_cancel_callback = cancel_callback;
     s_select_callback = select_callback;
@@ -576,15 +576,15 @@ void open_file_menu(
     g_request_render_all = 1;
 }
 
-unsigned int select_file_from_list(
-    unsigned int index
+uint_fast32_t select_file_from_list(
+    uint_fast32_t index
 ) {
-    unsigned int char_offset = 0;
+    uint_fast32_t char_offset = 0;
     char * path = 0;
     if (index != s_file_index && index < s_files_count) {
         path = dstudio_alloc(
             strlen(s_current_directory) +
-            strlen(&s_interactive_list.source_data[s_interactive_list.stride * index]) +
+            strlen((char*)&s_interactive_list.source_data[s_interactive_list.stride * index]) +
             2, // slash + null byte
             DSTUDIO_FAILURE_IS_FATAL
         );

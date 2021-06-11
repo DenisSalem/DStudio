@@ -21,16 +21,21 @@
 #define DSTUDIO_COMMON_H_INCLUDED
 
 #include <semaphore.h>
+#include <stdint.h>
 
 #include "constants.h"
 #include "extensions.h"
 #include "macros.h"
 #include "paths.h"
 
-typedef struct WindowScale_t {
-    unsigned int width;
-    unsigned int height;
-} WindowScale;
+typedef struct DStudioWindowScale_t {
+    uint_fast32_t width;
+    uint_fast32_t height;
+} DStudioWindowScale;
+
+typedef struct DStudioMonitorRegister_t {
+    void (*callback)();
+} DStudioMonitorRegister;
 
 extern const char g_application_name[];
 
@@ -44,10 +49,12 @@ extern const char g_application_name[];
  * Not thread safe.
  */
  
-void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal);
+void * dstudio_alloc(uint_fast32_t buffer_size, uint_fast32_t failure_is_fatal);
+void   dstudio_events_monitor();
 void   dstudio_free(void * buffer);
-void dstudio_init_memory_management();
-void * dstudio_realloc(void * buffer, unsigned int new_size);
-double get_timestamp();
-
+double dstudio_get_timestamp();
+void   dstudio_init_memory_management();
+void   dstudio_init_events_monitor_register(uint_fast32_t monitor_count);
+void * dstudio_realloc(void * buffer, uint_fast32_t new_size);
+void   dstudio_register_events_monitor(void (*callback)());
 #endif

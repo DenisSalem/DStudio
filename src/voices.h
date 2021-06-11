@@ -33,8 +33,8 @@ typedef struct VoiceContext_t {
 
 typedef struct Voices_t {
     VoiceContext * contexts;
-    unsigned int count;
-    unsigned int index;
+    uint_fast32_t count;
+    uint_fast32_t index;
 } Voices;
 
 extern VoiceContext * g_current_active_voice;
@@ -45,23 +45,23 @@ extern UIElements * (*setup_sub_context_interactive_list)();
 
 void init_voices_interactive_list(
     UIElements * ui_elements,
-    unsigned int lines_number,
-    unsigned int string_size,
+    uint_fast32_t lines_number,
+    uint_fast32_t string_size,
     GLfloat item_offset_y
 );
 
 UIElements * new_voice();
 
-unsigned int select_voice_from_list(
-    unsigned int index
+uint_fast32_t select_voice_from_list(
+    uint_fast32_t index
 );
 
 void setup_voice_sub_context(
-    unsigned int size,
+    uint_fast32_t size,
     void (*sub_context_interactive_list_binder)(UIElements * lines, ListItemOpt flag),
     UIElements * (*sub_context_interactive_list_setter)()
 );
 
-void update_current_voice(unsigned int index);
+void update_current_voice(uint_fast32_t index);
 void update_voices_ui_list();
 #endif

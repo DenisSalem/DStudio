@@ -37,10 +37,10 @@ char s_audio_port_name_right_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
 char s_midi_port_name_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
 
 static UIElements * s_ui_elements;
-static unsigned int s_lines_number;
-static unsigned int s_string_size;
+static uint_fast32_t s_lines_number;
+static uint_fast32_t s_string_size;
 static GLfloat s_item_offset_y;
-static unsigned int s_sub_context_size = 0;
+static uint_fast32_t s_sub_context_size = 0;
 
 void bind_voices_interactive_list(UIElements * line) {
     g_ui_voices.update_index = -1;
@@ -60,8 +60,8 @@ void bind_voices_interactive_list(UIElements * line) {
 
 void init_voices_interactive_list(
     UIElements * ui_elements,
-    unsigned int lines_number,
-    unsigned int string_size,
+    uint_fast32_t lines_number,
+    uint_fast32_t string_size,
     GLfloat item_offset_y
 ) {
     s_ui_elements = ui_elements;
@@ -114,7 +114,7 @@ UIElements * new_voice() {
         DSTUDIO_FAILURE_IS_FATAL
     );
     
-    sprintf(g_current_active_voice->name, "Voice %d", g_current_active_instance->voices.count);
+    sprintf(g_current_active_voice->name, "Voice %" PRIuFAST32, g_current_active_instance->voices.count);
     #ifdef DSTUDIO_DEBUG
     printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
     #endif
@@ -150,14 +150,13 @@ UIElements * new_voice() {
     strcat((char *) &s_audio_port_name_left_buffer, " > L");
     strcat((char *) &s_audio_port_name_right_buffer, " >  R");
             
-    // TODO HANDLE FAILURE
-    register_stereo_output_port(
+    dstudio_register_stereo_output_port(
         &g_current_active_voice->ports,
         (const char *) &s_audio_port_name_left_buffer,
         (const char *) &s_audio_port_name_right_buffer
     );
-    
-    register_midi_port(
+        
+    dstudio_register_midi_port(
         &g_current_active_voice->ports,
         (const char *) &s_midi_port_name_buffer
     );
@@ -169,8 +168,8 @@ UIElements * new_voice() {
     return line;
 }
 
-unsigned int select_voice_from_list(
-    unsigned int index
+uint_fast32_t select_voice_from_list(
+    uint_fast32_t index
 ) {
     if ((index != g_current_active_instance->voices.index || g_current_active_voice != s_previous_active_voice) && index < g_current_active_instance->voices.count) {
         update_current_voice(index);
@@ -185,7 +184,7 @@ unsigned int select_voice_from_list(
 
 // TODO : Callback only handles interactive list. It lake of other contextual UI management.
 void setup_voice_sub_context(
-    unsigned int size,
+    uint_fast32_t size,
     void (*sub_context_interactive_list_binder)(UIElements * lines, ListItemOpt flag),
     UIElements * (*sub_context_interactive_list_setter)()
 ) {
@@ -194,13 +193,13 @@ void setup_voice_sub_context(
     setup_sub_context_interactive_list = sub_context_interactive_list_setter;
 }
 
-void update_current_voice(unsigned int index) {
+void update_current_voice(uint_fast32_t index) {
     g_current_active_instance->voices.index = index;
     s_previous_active_voice = g_current_active_voice;
     g_current_active_voice = &g_current_active_instance->voices.contexts[index];
     g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
     
-    update_info_text("");
+    dstudio_update_info_text("");
     setup_sub_context_interactive_list();
 }
 

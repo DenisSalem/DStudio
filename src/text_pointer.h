@@ -30,17 +30,17 @@ typedef struct UITextPointerContext_t {
     UIElements *    ui_text;
     UIElements *    highlight;
     char *          string_buffer;
-    unsigned int    buffer_size;
-    unsigned int    active;
-    unsigned int    insert_char_index;
+    uint_fast32_t   buffer_size;
+    uint_fast32_t   active;
+    uint_fast32_t   insert_char_index;
     pthread_t       blink_thread_id;
-    unsigned int    text_pointer_height;
-    unsigned int    char_width;
+    uint_fast32_t   text_pointer_height;
+    uint_fast32_t   char_width;
 } UITextPointerContext;
 
 void clear_text_pointer();
 
-void compute_text_pointer_coordinates(unsigned int index);
+void compute_text_pointer_coordinates(uint_fast32_t index);
 
 void init_text_pointer();
 void init_ui_text_pointer(UIElements * text_pointer);
@@ -49,11 +49,12 @@ void text_pointer_blink();
 
 void update_text_pointer();
 
+// Use native integer type from X11
 void update_text_box(unsigned int keycode);
 
 void update_text_pointer_context(UIElements * ui_elements);
 
 extern UITextPointerContext g_text_pointer_context;
-extern unsigned int g_text_pointer_height;
-extern unsigned int g_text_pointer_char_width;
+extern uint_fast32_t g_text_pointer_height;
+extern uint_fast32_t g_text_pointer_char_width;
 #endif

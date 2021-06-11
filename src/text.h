@@ -22,6 +22,6 @@
 
 #include "ui.h"
 
-void update_text(UIElements * text, char * string_value, unsigned int buffer_size);
+void update_text(UIElements * text, char * string_value, uint_fast32_t buffer_size);
 
 #endif

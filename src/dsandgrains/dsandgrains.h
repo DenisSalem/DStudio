@@ -24,6 +24,6 @@
 #ifndef DSANDGRAINS_DSANDGRAINS_H_INCLUDED
 #define DSANDGRAINS_DSANDGRAINS_H_INCLUDED
 
-void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size);
+void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size);
 
 #endif

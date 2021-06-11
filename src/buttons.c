@@ -31,13 +31,13 @@ void update_ui_bouncing_buttons() {
     int pointer_x, pointer_y, texture_index;
     
     // TODO: Instead of iterating through every UI element one should index very rebouncing buttons
-    for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
+    for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {
         if (g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
             timestamp = g_ui_elements_array[i].timestamp;
             if (timestamp == 0) {
                 continue;
             }
-            elapsed_time = get_timestamp() - timestamp;
+            elapsed_time = dstudio_get_timestamp() - timestamp;
     
             if (elapsed_time > 0.05) {
                 if (g_ui_elements_array[i].texture_index == 0 && g_dstudio_mouse_state == 0) {
@@ -69,20 +69,15 @@ void update_ui_bouncing_buttons() {
         }
     }
 }
-
-void init_buttons_management()
-{
-    // TODO Get here all knownbuttons
-}
  
 void update_button(UIElements * buttons_p) {
-    buttons_p->timestamp = get_timestamp();
+    buttons_p->timestamp = dstudio_get_timestamp();
     if (buttons_p->texture_index == 1) {
         buttons_p->texture_index = 0;
     }
     else {
         buttons_p->texture_index = 1;
     }
-    buttons_p->timestamp = get_timestamp();
+    buttons_p->timestamp = dstudio_get_timestamp();
     buttons_p->render_state = DSTUDIO_UI_ELEMENT_RENDER_REQUESTED;
 }

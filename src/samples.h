@@ -20,6 +20,8 @@
 #ifndef DSTUDIO_SAMPLES_H_INCLUDED
 #define DSTUDIO_SAMPLES_H_INCLUDED
 
+#include <stdint.h>
+
 typedef enum SharedSampleError_t {
     DSTUDIO_SHARED_SAMPLE_NO_ERROR = 0,
     DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED = 1,
@@ -28,12 +30,12 @@ typedef enum SharedSampleError_t {
 
 typedef struct SharedSample_t {
     char * identifier;          // Absolute path of the sample.
-    unsigned char count;        // How many time the sample is referenced.
-    unsigned char channels;    
-    unsigned char bps;          
-    unsigned char error_code;
-    unsigned rate;
-    long int size;
+    uint_fast8_t count;        // How many time the sample is referenced.
+    uint_fast8_t channels;    
+    uint_fast8_t bps;          
+    uint_fast8_t error_code;
+    uint_fast32_t rate;
+    uint_fast32_t size;
     float *  left; 
     float *  right;
 } SharedSample;

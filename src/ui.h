@@ -32,7 +32,7 @@
 #include "transition_animation.h"
 
 #define SET_UI_MENU_BACKGROUND_INDEX \
-    for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) { \
+    for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) { \
         if (&g_ui_elements_array[i] == &g_ui_elements_struct.menu_background) { \
             g_menu_background_index = i; \
             break; \
@@ -40,8 +40,8 @@
     }
 
 typedef struct PatternScale_t {
-    unsigned int width;
-    unsigned int height;
+    uint_fast32_t width;
+    uint_fast32_t height;
 } PatternScale;
 
 typedef struct vec2_t {
@@ -86,10 +86,6 @@ typedef struct Scissor_t {
   	GLsizei width;
   	GLsizei height;
 } Scissor;
-
-typedef struct UpdaterRegister_t {
-    void (*updater)();
-} UpdaterRegister;
 
 typedef enum UIElementType_t {
     DSTUDIO_UI_ELEMENT_TYPE_BACKGROUND = 1,
@@ -191,15 +187,15 @@ typedef struct UIInteractiveList_t UIInteractiveList;
 typedef struct TransitionAnimation_t TransitionAnimation;
 
 typedef struct UIElements_t {
-    unsigned int                count;
-    unsigned int                flags;
-    unsigned char               render_state;
-    unsigned char               visible;
-    unsigned char               enabled;
-    unsigned char               texture_index;
+    uint_fast32_t               count;
+    uint_fast32_t               flags;
+    uint_fast8_t                render_state;
+    uint_fast8_t                visible;
+    uint_fast8_t                enabled;
+    uint_fast8_t                texture_index;
     double                      timestamp;
     union {
-        unsigned int            text_buffer_size;
+        uint_fast32_t           text_buffer_size;
         GLfloat                 previous_slider_motion;
     };
     GLchar                      vertex_indexes[4];
@@ -247,18 +243,14 @@ void create_shader_program(
     GLuint * shader_program_id
 );
 
-void init_extended_background(char * texture_path, unsigned int width, unsigned int height);
+void init_extended_background(char * texture_path, uint_fast32_t width, uint_fast32_t height);
 
 void init_opengl_ui_elements(
-    int flags,
+    uint_fast32_t flags,
     UIElements * ui_elements
 );
 
 void init_text();
-
-void init_ui_element_updater_register(
-    unsigned int updater_count
-);
 
 void init_ui();
 
@@ -272,11 +264,11 @@ void init_ui_elements(
     GLfloat area_height,
     GLfloat offset_x,
     GLfloat offset_y,
-    unsigned int columns,
-    unsigned int count,
-    unsigned int instances_count,
+    uint_fast32_t columns,
+    uint_fast32_t count,
+    uint_fast32_t instances_count,
     UIElementType ui_element_type,
-    int flags
+    uint_fast32_t flags
 );
 
 void gen_gl_buffer(
@@ -284,7 +276,7 @@ void gen_gl_buffer(
     GLuint * vertex_buffer_object_p,
     void * vertex_attributes,
     GLenum mode,
-    unsigned int data_size
+    uint_fast32_t data_size
 );
 
 int get_png_pixel(
@@ -314,27 +306,23 @@ void render_ui_elements(
     UIElements * ui_elements
 );
 
-void register_ui_elements_updater(
-    void (*updater)()
-);
-
 void render_loop();
 
 /* Non zero value returned means that swap buffering is required */
-unsigned int render_viewport(unsigned int render_all);
+uint_fast32_t render_viewport(uint_fast32_t render_all);
 
 void set_prime_interface(
-    unsigned int state
+    uint_fast32_t state
 );
 
 void set_ui_elements_visibility(
     UIElements * ui_elements,
-    unsigned int state,
-    unsigned int count
+    uint_fast32_t state,
+    uint_fast32_t count
 );
 
 GLuint setup_texture_n_scale_matrix(
-    unsigned int flags,
+    uint_fast32_t flags,
     GLuint texture_width,
     GLuint texture_height,
     const char * texture_filename,
@@ -354,37 +342,37 @@ void update_ui_element_motion(
 );
 
 // Used when window is forced to be resized
-void update_viewport(WindowScale window_scale);
+void update_viewport(DStudioWindowScale window_scale);
 
 // Must be defined by consumer
 typedef struct UIElementsStruct_t UIElementsStruct;
 extern UIElementsStruct g_ui_elements_struct;
 extern UIElements * g_ui_elements_array;
 
-extern int          g_active_slider_range_max;
-extern int          g_active_slider_range_min;
-extern Vec2         g_background_scale_matrix[2];
-extern GLuint       g_charset_8x18_texture_ids[2];
-extern GLuint       g_charset_4x9_texture_ids[2];
-extern Vec2         g_charset_8x18_scale_matrix[2];
-extern Vec2         g_charset_4x9_scale_matrix[2];
-extern const unsigned int g_dstudio_ui_element_count;
-extern const unsigned int g_dstudio_viewport_width;
-extern const unsigned int g_dstudio_viewport_height;
-extern GLint        scissor_x, scissor_y;
-extern GLsizei      scissor_width, scissor_height;
-extern GLint        g_saved_scissor_y;
-extern GLuint       g_shader_program_id;
-extern GLuint       g_scale_matrix_id;
-extern GLuint       g_motion_type_location;
-extern GLuint       g_no_texture_location;
-extern GLuint       g_ui_element_color_location;
-extern int          g_ui_element_center_x;
-extern int          g_ui_element_center_y;
-extern unsigned int g_framerate;
-extern unsigned int g_menu_background_index;
-extern UIElements * g_menu_background_enabled;
-extern unsigned int g_request_render_all;
-extern WindowScale  g_previous_window_scale;
+extern int_fast32_t         g_active_slider_range_max;
+extern int_fast32_t         g_active_slider_range_min;
+extern Vec2                 g_background_scale_matrix[2];
+extern GLuint               g_charset_8x18_texture_ids[2];
+extern GLuint               g_charset_4x9_texture_ids[2];
+extern Vec2                 g_charset_8x18_scale_matrix[2];
+extern Vec2                 g_charset_4x9_scale_matrix[2];
+extern const uint_fast32_t  g_dstudio_ui_element_count;
+extern const uint_fast32_t  g_dstudio_viewport_width;
+extern const uint_fast32_t  g_dstudio_viewport_height;
+extern GLint                scissor_x, scissor_y;
+extern GLsizei              scissor_width, scissor_height;
+extern GLint                g_saved_scissor_y;
+extern GLuint               g_shader_program_id;
+extern GLuint               g_scale_matrix_id;
+extern GLuint               g_motion_type_location;
+extern GLuint               g_no_texture_location;
+extern GLuint               g_ui_element_color_location;
+extern int_fast32_t         g_ui_element_center_x;
+extern int_fast32_t         g_ui_element_center_y;
+extern uint_fast32_t        g_framerate;
+extern uint_fast32_t        g_menu_background_index;
+extern UIElements *         g_menu_background_enabled;
+extern uint_fast32_t        g_request_render_all;
+extern DStudioWindowScale   g_previous_window_scale;
 
 #endif

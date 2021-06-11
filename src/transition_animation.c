@@ -19,12 +19,12 @@
 
 #include "transition_animation.h"
 
-static unsigned int         s_transition_animations_count = 0;
+static uint_fast32_t         s_transition_animations_count = 0;
 static TransitionAnimation * s_transition_animations = 0;
 
-void allocate_transition_animation(int flags, UIElements * ui_element_p) {
+void allocate_transition_animation(uint_fast32_t flags, UIElements * ui_element_p) {
     if (flags & DSTUDIO_FLAG_ANIMATE) {
-        unsigned int index = s_transition_animations_count;
+        uint_fast32_t index = s_transition_animations_count;
         s_transition_animations = dstudio_realloc(s_transition_animations, (++s_transition_animations_count) * sizeof(TransitionAnimation));
         explicit_bzero(&s_transition_animations[index], sizeof(TransitionAnimation));
         s_transition_animations[index].ui_element = ui_element_p;
@@ -39,7 +39,7 @@ void allocate_transition_animation(int flags, UIElements * ui_element_p) {
             s_transition_animations[index].instances_motions_steps_buffer = dstudio_alloc(sizeof(GLfloat) * ui_element_p->count, DSTUDIO_FAILURE_IS_FATAL);
         }
         // Reassign TransisionAnimation adresses because of realloc
-        for (unsigned int i = 0; i < s_transition_animations_count; i++) {
+        for (uint_fast32_t i = 0; i < s_transition_animations_count; i++) {
             s_transition_animations[i].ui_element->transition_animation = &s_transition_animations[i];
         }
     }
@@ -48,7 +48,7 @@ void allocate_transition_animation(int flags, UIElements * ui_element_p) {
 void animate_alphas_transitions(GLfloat * target_values, UIElements * ui_element_p) {
     GLfloat * original_values = ui_element_p->instance_alphas_buffer;
     GLfloat * steps = ui_element_p->transition_animation->instances_alphas_steps_buffer;
-    for (unsigned int i = 0; i < ui_element_p->count; i++) {
+    for (uint_fast32_t i = 0; i < ui_element_p->count; i++) {
         steps[i] = (target_values[i] - original_values[i]) / (GLfloat) DSTUDIO_TRANSITION_STEPS;
     }
 
@@ -60,7 +60,7 @@ void animate_motions_transitions(GLfloat * target_values, UIElements * ui_elemen
     GLfloat * original_values = ui_element_p->instance_motions_buffer;
     GLfloat * steps = ui_element_p->transition_animation->instances_motions_steps_buffer;
     
-    for (unsigned int i = 0; i < ui_element_p->count; i++) {
+    for (uint_fast32_t i = 0; i < ui_element_p->count; i++) {
         steps[i] = (target_values[i] - original_values[i]) / (GLfloat) DSTUDIO_TRANSITION_STEPS;
 
     }
@@ -69,11 +69,11 @@ void animate_motions_transitions(GLfloat * target_values, UIElements * ui_elemen
     ui_element_p->transition_animation->iterations = DSTUDIO_TRANSITION_STEPS;
 }
 
-void animate_offsets_transitions(Vec4 * target_values, UIElements * ui_element_p, unsigned int member_flag) {
+void animate_offsets_transitions(Vec4 * target_values, UIElements * ui_element_p, uint_fast32_t member_flag) {
     Vec4 * original_values = ui_element_p->coordinates_settings.instance_offsets_buffer;
     Vec4 * steps = ui_element_p->transition_animation->instances_offsets_steps_buffer;
     
-    for (unsigned int i = 0; i < ui_element_p->count; i++) {
+    for (uint_fast32_t i = 0; i < ui_element_p->count; i++) {
         if (member_flag & DSTUDIO_OFFSET_X_TRANSITION)
             steps[i].x = (target_values[i].x - original_values[i].x) / (GLfloat) DSTUDIO_TRANSITION_STEPS;
 
@@ -99,29 +99,29 @@ void perform_transition_animation() {
     GLfloat * alphas_buffer = 0;
     GLfloat * alphas_steps = 0;
     
-    for (unsigned int index = 0; index < s_transition_animations_count; index++) {
+    for (uint_fast32_t index = 0; index < s_transition_animations_count; index++) {
         if (s_transition_animations[index].iterations > 0) {
             if (s_transition_animations[index].flags & (DSTUDIO_OFFSET_X_TRANSITION | DSTUDIO_OFFSET_Y_TRANSITION | DSTUDIO_OFFSET_Z_TRANSITION | DSTUDIO_OFFSET_W_TRANSITION)) {
                 offsets_buffer = s_transition_animations[index].ui_element->coordinates_settings.instance_offsets_buffer;
                 offsets_steps = s_transition_animations[index].instances_offsets_steps_buffer;
                 
                 if (s_transition_animations[index].flags & DSTUDIO_OFFSET_X_TRANSITION) {
-                    for (unsigned int i = 0; i < s_transition_animations[index].ui_element->count; i++)
+                    for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++)
                         offsets_buffer[i].x += offsets_steps[i].x;
                 }
                 
                 if (s_transition_animations[index].flags & DSTUDIO_OFFSET_Y_TRANSITION) {
-                    for (unsigned int i = 0; i < s_transition_animations[index].ui_element->count; i++)
+                    for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++)
                         offsets_buffer[i].y += offsets_steps[i].y;
                 }
 
                 if (s_transition_animations[index].flags & DSTUDIO_OFFSET_Z_TRANSITION) {
-                    for (unsigned int i = 0; i < s_transition_animations[index].ui_element->count; i++)
+                    for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++)
                         offsets_buffer[i].z += offsets_steps[i].z;
                 }
 
                 if (s_transition_animations[index].flags & DSTUDIO_OFFSET_W_TRANSITION) {
-                    for (unsigned int i = 0; i < s_transition_animations[index].ui_element->count; i++)
+                    for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++)
                         offsets_buffer[i].w += offsets_steps[i].w;
                 }
             }
@@ -129,14 +129,14 @@ void perform_transition_animation() {
             if (s_transition_animations[index].flags & DSTUDIO_MOTION_TRANSITION) {
                 motions_buffer = s_transition_animations[index].ui_element->instance_motions_buffer;
                 motions_steps = s_transition_animations[index].instances_motions_steps_buffer;
-                for (unsigned int i = 0; i < s_transition_animations[index].ui_element->count; i++) 
+                for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++) 
                     motions_buffer[i] += motions_steps[i];
             }
             
             if (s_transition_animations[index].flags & DSTUDIO_ALPHA_TRANSITION) {
                 alphas_buffer = s_transition_animations[index].ui_element->instance_alphas_buffer;
                 alphas_steps = s_transition_animations[index].instances_alphas_steps_buffer;
-                for (unsigned int i = 0; i < s_transition_animations[index].ui_element->count; i++)
+                for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++)
                     alphas_buffer[i] += alphas_steps[i];
             }
 

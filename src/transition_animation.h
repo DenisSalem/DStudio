@@ -38,8 +38,8 @@ typedef struct TransitionAnimation_t {
     float * instances_motions_steps_buffer;
     float * instances_alphas_steps_buffer;
     Vec4 * instances_offsets_steps_buffer;
-    unsigned int iterations;
-    unsigned int flags;
+    uint_fast32_t iterations;
+    uint_fast32_t flags;
 } TransitionAnimation;
 
 typedef enum TransitionAnimationOffsetsMember_t {
@@ -52,11 +52,11 @@ typedef enum TransitionAnimationOffsetsMember_t {
     DSTUDIO_ALPHA_TRANSITION = 32,
 } TransitionAnimationOffsetsMember;
 
-void allocate_transition_animation(int flags, UIElements * ui_element_p);
+void allocate_transition_animation(uint_fast32_t flags, UIElements * ui_element_p);
 
 void animate_alphas_transitions(GLfloat * target_values, UIElements * ui_element_p);
 void animate_motions_transitions(GLfloat * target_values, UIElements * ui_element_p);
-void animate_offsets_transitions(Vec4 * target_values, UIElements * ui_element_p, unsigned int member_flag);
+void animate_offsets_transitions(Vec4 * target_values, UIElements * ui_element_p, uint_fast32_t member_flag);
 void perform_transition_animation();
 
 #endif

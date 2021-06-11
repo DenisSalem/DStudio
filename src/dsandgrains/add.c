@@ -32,11 +32,7 @@
 #include "samples.h"
 #include "ui.h"
 
-
-// TODO: REMOVE LATER NOT USEFULL EXCEPT FOR DEBUG
-#include "../text_pointer.h"
-
-static unsigned int load_sample(char * path, char * filename, FILE * file_fd) {
+static uint_fast32_t load_sample(char * path, char * filename, FILE * file_fd) {
     SharedSample shared_sample = {};
     if (load_flac(file_fd, update_open_file_error, &shared_sample)) {
         shared_sample.identifier = dstudio_alloc(
@@ -98,12 +94,12 @@ void close_add_sub_menu() {
     dstudio_clear_sub_menu_callback();
 }
 
-unsigned int filter_non_audio_file(const char * path, const char * filename) {
+uint_fast32_t filter_non_audio_file(const char * path, const char * filename) {
     char * path_filename =  dstudio_alloc(sizeof(char) * strlen(path) + strlen(filename) + 2, DSTUDIO_FAILURE_IS_FATAL);
     strcat(path_filename, path);
     strcat(path_filename, "/");
     strcat(path_filename, filename);
-    unsigned int ret = 0;
+    uint_fast32_t ret = 0;
     
     if (dstudio_is_directory(path_filename)) {
         ret =  1;

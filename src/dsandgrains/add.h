@@ -29,4 +29,4 @@ void add_sub_menu_proxy();
 
 void add_voice(UIElements * ui_elements);
 void close_add_sub_menu();
-unsigned int filter_non_audio_file(const char * path, const char * filename);
+uint_fast32_t filter_non_audio_file(const char * path, const char * filename);

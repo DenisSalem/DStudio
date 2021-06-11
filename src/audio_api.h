@@ -54,21 +54,18 @@ typedef struct AudioPort_t {
 
 typedef struct VoiceContext_t VoiceContext;
 
-void dstudio_audio_api_request(DStudioAudioAPIRequest request);
+void                 dstudio_audio_api_request(DStudioAudioAPIRequest request);
 
-// TODO: rename with dstudio_audio_api prefix
 // Must be implemented for each kind of API
-unsigned int dstudio_audio_api_voice_has_midi_input();
-DStudioAudioAPIError init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size));
-DStudioAudioAPIError register_midi_port(AudioPort * output_port, const char * port_name);
-DStudioAudioAPIError register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name);
-DStudioAudioAPIError stop_audio_api_client();
-DStudioAudioAPIError rename_active_context_audio_port(); 
+uint_fast32_t         dstudio_audio_api_voice_has_midi_input();
+DStudioAudioAPIError dstudio_init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size));
+DStudioAudioAPIError dstudio_register_midi_port(AudioPort * output_port, const char * port_name);
+DStudioAudioAPIError dstudio_register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name);
+DStudioAudioAPIError dstudio_rename_active_context_audio_port(); 
+DStudioAudioAPIError dstudio_stop_audio_api_client();
+void                 dstudio_trigger_midi_capture(UIElements * self);
 
-
-void trigger_midi_capture(UIElements * self);
-
-extern unsigned int g_midi_capture_state;
+extern uint_fast32_t g_midi_capture_state;
 extern UIElements * g_midi_ui_element_target;
 
 #endif

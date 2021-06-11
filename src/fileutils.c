@@ -33,10 +33,10 @@ static struct stat st = {0};
 static double s_physical_memory_kib = 0;
 static double s_cpu_usage = 0;
 
-void count_instances(const char * directory, unsigned int * count, unsigned int * last_id) {
+void count_instances(const char * directory, uint_fast32_t * count, uint_fast32_t * last_id) {
     DIR * dr = 0;
     struct dirent *de;
-    long long int filename_is_an_instance;
+    uint_fast32_t filename_is_an_instance;
     
     *last_id = 0;
     *count = 0;
@@ -54,7 +54,7 @@ void count_instances(const char * directory, unsigned int * count, unsigned int 
     closedir(dr);
 }
 
-unsigned int count_process(const char * process_name) {
+uint_fast32_t count_process(const char * process_name) {
     DIR * dr = 0;
     struct dirent *de;
     char * processus_status_path = dstudio_alloc(
@@ -94,7 +94,7 @@ unsigned int count_process(const char * process_name) {
                     process_name_match = strncmp(process_name, line_buffer+6, strlen(process_name));
                 }
                 if (strncmp(line_buffer, "Uid:", 4) == 0 ) {
-                    process_uid_match = getuid() == (unsigned int) atoi(line_buffer+5);
+                    process_uid_match = getuid() == (uint_fast32_t) atoi(line_buffer+5);
                     break;
                 }
             }

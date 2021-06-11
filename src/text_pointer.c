@@ -41,15 +41,15 @@ void clear_text_pointer() {
     }
 }
 
-void compute_text_pointer_coordinates(unsigned int index) {
-    unsigned int half_viewport_width = g_dstudio_viewport_width >> 1;
-    unsigned int half_viewport_height = g_dstudio_viewport_height >> 1;
+void compute_text_pointer_coordinates(uint_fast32_t index) {
+    uint_fast32_t half_viewport_width = g_dstudio_viewport_width >> 1;
+    uint_fast32_t half_viewport_height = g_dstudio_viewport_height >> 1;
     *g_text_pointer_context.text_pointer->instance_alphas_buffer = 1.0;
 
     // We need to compute coordinates in such way that the pointer will be perfectly aligned with pixels.
     GLfloat x_inc = 1.0 / (GLfloat) half_viewport_width;
     GLfloat y_inc = 1.0 / (GLfloat) half_viewport_height;
-    int x_multiplier = g_text_pointer_context.ui_text->coordinates_settings.instance_offsets_buffer[index].x / x_inc;
+    int_fast32_t x_multiplier = g_text_pointer_context.ui_text->coordinates_settings.instance_offsets_buffer[index].x / x_inc;
     g_text_pointer_context.text_pointer->coordinates_settings.instance_offsets_buffer->x = (x_multiplier - (g_text_pointer_context.char_width) - 1) * x_inc;        
     g_text_pointer_context.text_pointer->coordinates_settings.instance_offsets_buffer->y = g_text_pointer_context.ui_text->coordinates_settings.instance_offsets_buffer[index].y + y_inc;
     
@@ -101,21 +101,21 @@ void update_text_pointer_context(UIElements * ui_elements) {
             interactive_list = ui_elements->interactive_list;
             g_text_pointer_context.ui_text = ui_elements;
             g_text_pointer_context.highlight = interactive_list->highlight;
-            for(unsigned int i = 0; i < interactive_list->lines_number; i++) {
+            for(uint_fast32_t i = 0; i < interactive_list->lines_number; i++) {
                 if (&interactive_list->lines[i] == ui_elements) {
-                    unsigned int index = i+interactive_list->window_offset;
+                    uint_fast32_t index = i+interactive_list->window_offset;
                     if (index >= *interactive_list->source_data_count) {
                         return;
                     }
                     g_text_pointer_context.string_buffer = &interactive_list->source_data[index*interactive_list->stride];
                     g_text_pointer_context.buffer_size = interactive_list->string_size;
                     g_text_pointer_context.text_pointer_height = (g_dstudio_viewport_height) * ui_elements->coordinates_settings.scale_matrix[1].y;
-                    s_timestamp = get_timestamp();
+                    s_timestamp = dstudio_get_timestamp();
                     update_text_pointer();
                     break;
                 }
             }
-            unsigned int last_char_index = strlen(g_text_pointer_context.string_buffer);
+            uint_fast32_t last_char_index = strlen(g_text_pointer_context.string_buffer);
             g_text_pointer_context.insert_char_index = last_char_index;
             compute_text_pointer_coordinates(last_char_index);
             g_text_pointer_context.active = 1;
@@ -130,7 +130,7 @@ void update_text_pointer_context(UIElements * ui_elements) {
 }
 
 void text_pointer_blink() {
-    double now = get_timestamp();
+    double now = dstudio_get_timestamp();
     GLfloat * text_pointer_alphas_buffer = g_text_pointer_context.text_pointer->instance_alphas_buffer;
 
     if (now - s_timestamp < 0.5 || !g_text_pointer_context.active || !is_window_focus()) {
@@ -147,7 +147,7 @@ void text_pointer_blink() {
 }
 
 void update_text_box(unsigned int keycode) {   
-    unsigned int string_size = strlen(g_text_pointer_context.string_buffer);
+    uint_fast32_t string_size = strlen(g_text_pointer_context.string_buffer);
     char * string_buffer = g_text_pointer_context.string_buffer;
     GLfloat * text_pointer_alphas_buffer = g_text_pointer_context.text_pointer->instance_alphas_buffer;
 
@@ -160,7 +160,7 @@ void update_text_box(unsigned int keycode) {
             string_buffer[--g_text_pointer_context.insert_char_index] = 0;
         }
         else {
-            for (unsigned int i = g_text_pointer_context.insert_char_index; i < string_size; i++) {
+            for (uint_fast32_t i = g_text_pointer_context.insert_char_index; i < string_size; i++) {
                 string_buffer[i-1] = string_buffer[i];
             }
             string_buffer[string_size-1] = 0;
@@ -184,7 +184,7 @@ void update_text_box(unsigned int keycode) {
             return;
         }
         if (string_size > 0) {
-            for (unsigned int i = string_size; i > g_text_pointer_context.insert_char_index; i--) {
+            for (uint_fast32_t i = string_size; i > g_text_pointer_context.insert_char_index; i--) {
                 string_buffer[i] = string_buffer[i-1];
             }
         }

@@ -17,13 +17,15 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdint.h>
+
 void count_instances(
     const char * directory,
-    unsigned int * count,
-    unsigned int * last_id
+    uint_fast32_t * count,
+    uint_fast32_t * last_id
 );
 
-unsigned int count_process(
+uint_fast32_t count_process(
     const char * process_name
 );
 

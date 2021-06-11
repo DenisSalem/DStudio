@@ -136,6 +136,8 @@
 #define DSTUDIO_FLAG_ANIMATE_OFFSET                 2048
 #define DSTUDIO_FLAG_ANIMATE_ALPHA                  4096
 #define DSTUDIO_FLAG_TEXT_IS_CENTERED               8192
+#define DSTUDIO_FLAG_NO_SCISSOR_OFFSET              16384
+
 #define DSTUDIO_FLAG_ANIMATE \
             (DSTUDIO_FLAG_ANIMATE_MOTION | \
             DSTUDIO_FLAG_ANIMATE_OFFSET | \

@@ -69,7 +69,6 @@ add_executable(
     interactive_list.c
     knob.c
     open_file.c
-    ressource_usage.c
     sliders.c
     text.c
     text_pointer.c

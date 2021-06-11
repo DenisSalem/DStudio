@@ -36,25 +36,25 @@ typedef struct UIInteractiveList_t {
     UIElements * highlight;
     UIElements * scroll_bar;
     UIElements * lines;
-    unsigned int lines_number;
-    unsigned int string_size;
-    unsigned int window_offset;
-    unsigned int stride;
-    unsigned int * source_data_count;
-    int update_index;
-    unsigned int (*select_callback)(unsigned int index);
+    uint_fast32_t lines_number;
+    uint_fast32_t string_size;
+    uint_fast32_t window_offset;
+    uint_fast32_t stride;
+    uint_fast32_t * source_data_count;
+    int_fast32_t update_index;
+    uint_fast32_t (*select_callback)(uint_fast32_t index);
     // Will be called when writting the item name.
-    unsigned int (*edit_item_callback)(unsigned int index);
-    unsigned char editable;
-    unsigned char update_highlight;
-    unsigned char update_request;
+    uint_fast32_t (*edit_item_callback)(uint_fast32_t index);
+    uint_fast8_t  editable;
+    uint_fast8_t  update_highlight;
+    uint_fast8_t  update_request;
     char * source_data;
     
     GLfloat highlight_offset_y;
     GLfloat highlight_step;
     GLfloat max_scroll_bar_offset;
-    unsigned int previous_item_index;
-    int index;
+    uint_fast32_t previous_item_index;
+    int_fast32_t index;
     #ifdef DSTUDIO_DEBUG
         char trace[32];
     #endif
@@ -68,14 +68,14 @@ void bind_scroll_bar(
 void init_interactive_list(
     UIInteractiveList * interactive_list,
     UIElements * ui_elements,
-    unsigned int lines_number,
-    unsigned int string_size,
-    unsigned int stride,
-    unsigned int * source_data_count,
+    uint_fast32_t lines_number,
+    uint_fast32_t string_size,
+    uint_fast32_t stride,
+    uint_fast32_t * source_data_count,
     char * source_data,
-    unsigned int (*select_callback)(unsigned int index),
-    unsigned int (*edit_item_callback)(unsigned int index),
-    unsigned int editable,
+    uint_fast32_t (*select_callback)(uint_fast32_t index),
+    uint_fast32_t (*edit_item_callback)(uint_fast32_t index),
+    uint_fast32_t editable,
     GLfloat highlight_step
 );
 
@@ -85,7 +85,7 @@ void update_insteractive_list(
 
 void scroll(
     UIInteractiveList * interactive_list,
-    int direction
+    int_fast32_t direction
 );
 
 void scroll_by_slider(
@@ -94,7 +94,7 @@ void scroll_by_slider(
 
 void select_item(
     UIElements * self,
-    unsigned int do_not_use_callback
+    ListItemOpt do_not_use_callback
 );
 
 void update_scroll_bar(UIInteractiveList * interactive_list);

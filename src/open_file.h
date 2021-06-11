@@ -30,12 +30,12 @@ void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
 
 void open_file_menu(
     void (*cancel_callback)(UIElements * ui_elements),
-    unsigned int (*select_callback)(char * path, char * filename, FILE * file_fd),
-    unsigned int (*filter_callback)(const char * path, const char * filename)
+    uint_fast32_t (*select_callback)(char * path, char * filename, FILE * file_fd),
+    uint_fast32_t (*filter_callback)(const char * path, const char * filename)
 );
 
-unsigned int select_file_from_list(
-    unsigned int index
+uint_fast32_t select_file_from_list(
+    uint_fast32_t index
 );
 
 void update_open_file_error(const char * message);

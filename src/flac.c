@@ -23,7 +23,7 @@
 #include "flac.h"
 
 void (*s_client_error_callback)(const char * message) = 0;
-unsigned int s_decode_flac_goes_wrong = 1;
+uint_fast32_t s_decode_flac_goes_wrong = 1;
 
 FLAC__StreamDecoderWriteStatus write_callback(
     const FLAC__StreamDecoder *decoder,
@@ -42,13 +42,13 @@ FLAC__StreamDecoderWriteStatus write_callback(
         return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
     }
     
-    unsigned sample_index_offset = frame->header.number.sample_number;
+    uint_fast32_t sample_index_offset = frame->header.number.sample_number;
     float * left = shared_sample->left;
     float * right = shared_sample->right;
     float max_value = (float) ((1 << shared_sample->bps) -1 );
-    unsigned char channels = shared_sample->channels;
+    uint_fast8_t channels = shared_sample->channels;
     
-    for (unsigned i = 0; i < frame->header.blocksize; i++) {
+    for (uint_fast32_t i = 0; i < frame->header.blocksize; i++) {
         left[sample_index_offset+i] = (float) (buffer[0][i]) / max_value;
         if (channels == 2) {
             right[sample_index_offset+i] = (float) (buffer[1][i]) / max_value;
@@ -78,7 +78,7 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
                 s_client_error_callback("Audio file has more than two channels.");
                 return;
         }
-        unsigned size = shared_sample->size * sizeof(float);
+        uint_fast32_t size = shared_sample->size * sizeof(float);
         
         shared_sample->left = dstudio_alloc(
             size,

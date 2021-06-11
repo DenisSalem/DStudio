@@ -19,8 +19,8 @@
 
 #include "bar_plot.h"
 
-void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, unsigned int animate) {
-    unsigned int sub_sample_size = 0;
+void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, uint_fast32_t animate) {
+    uint_fast32_t sub_sample_size = 0;
     
     float period_extremum = 0;
     float period_minimum = 0;
@@ -46,7 +46,7 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
     float * left = shared_sample->left;
     float * right = shared_sample->right;
     
-    unsigned int bar_index = 0;
+    uint_fast32_t bar_index = 0;
         
     if (shared_sample->size > bar_plot->count) {
         sub_sample_size = shared_sample->size / bar_plot->count;
@@ -54,7 +54,7 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
         offsets_buffer_out = animate ? dstudio_alloc(sizeof(Vec4) * bar_plot->count, DSTUDIO_FAILURE_IS_FATAL) : bar_plot->coordinates_settings.instance_offsets_buffer;
         offsets_buffer_in = dstudio_alloc(sizeof(GLfloat) * bar_plot->count, DSTUDIO_FAILURE_IS_FATAL);
         
-        for (unsigned int i = 0; i < shared_sample->size; i++) {
+        for (uint_fast32_t i = 0; i < shared_sample->size; i++) {
             if ((i != 0) && (i % sub_sample_size == 0)) {
                 local_peak = period_extremum > ABSOLUTE_VALUE(period_minimum) ? period_extremum : period_minimum;
                 if (local_peak > peak) {
@@ -90,7 +90,7 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
         // Normalize and apply offset
         float multiplier = bar_plot->coordinates_settings.scale_matrix[1].y * (1.0/peak);
         peak*=2;
-        for (unsigned int i = 0; i < bar_plot->count; i++) {
+        for (uint_fast32_t i = 0; i < bar_plot->count; i++) {
             motions_buffer[i] /= peak;
             offsets_buffer_out[i].w = offsets_buffer_in[i] * multiplier;
         }

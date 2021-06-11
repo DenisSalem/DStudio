@@ -34,7 +34,7 @@
 #include "text_pointer.h"
 #include "window_management.h"
 
-unsigned int g_dstudio_mouse_state = 0;
+uint_fast32_t g_dstudio_mouse_state = 0;
 long g_x11_input_mask = 0;
 int g_scissor_offset_x = 0;
 int g_scissor_offset_y = 0;
@@ -143,8 +143,8 @@ void get_pointer_coordinates(int * x, int * y) {
     *y = pointer_y;
 }
 
-WindowScale get_window_scale() {
-    WindowScale window_scale = {
+DStudioWindowScale get_window_scale() {
+    DStudioWindowScale window_scale = {
         s_xwa.width,
         s_xwa.height
     };
@@ -244,7 +244,7 @@ void init_context(const char * window_name, int width, int height) {
     XFree(visual_info);
     XFree(size_hints);
     XMapWindow(display, window);
-    XStoreName(display, window, window_name);
+    XStoreName(display, window, (char *)window_name);
     
     // Begin OpenGL context creation
     
@@ -299,7 +299,7 @@ int is_window_focus() {
 // Based on this
 // discussion https://www.linuxquestions.org/questions/programming-9/how-to-read-the-state-by-using-_net_wm_state-in-xlib-836879/
 int is_window_visible() {
-    double timestamp = get_timestamp();
+    double timestamp = dstudio_get_timestamp();
 
     if ( (timestamp - s_wa_update_timestamp) * 1000000 > DSTUDIO_WINDOW_IDLING_TIMEOUT) {
         s_is_visible = 1;
@@ -409,7 +409,7 @@ void listen_events() {
                         }
                         if (g_midi_capture_state != 0) {
                             g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
-                            update_info_text("");
+                            dstudio_update_info_text("");
                         }
                     }
                     clear_text_pointer();

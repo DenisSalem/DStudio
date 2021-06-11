@@ -27,18 +27,21 @@
 GLint scissor_x, scissor_y = 0;
 GLsizei scissor_width, scissor_height = 0;
 
-static long unsigned int * s_allocation_register = 0;
-static unsigned int s_allocation_register_index = 0;
-static unsigned int s_allocation_register_size = DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
+static uint_fast64_t * s_allocation_register = 0;
+static uint_fast32_t s_allocation_register_index = 0;
+static uint_fast32_t s_allocation_register_size = DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
 
-void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal) {
+static DStudioMonitorRegister *    s_monitors_register = 0;
+static uint_fast32_t         s_monitors_register_index = 0;
+
+void * dstudio_alloc(uint_fast32_t buffer_size, uint_fast32_t failure_is_fatal) {
     if (s_allocation_register_index >= s_allocation_register_size) {
-        s_allocation_register = realloc(s_allocation_register, sizeof(long unsigned int) * (s_allocation_register_size + DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE));
+        s_allocation_register = realloc(s_allocation_register, sizeof(uint_fast64_t) * (s_allocation_register_size + DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE));
         DSTUDIO_EXIT_IF_NULL(s_allocation_register)
-        explicit_bzero(&s_allocation_register[s_allocation_register_size], sizeof(long unsigned int) * DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE);
+        explicit_bzero(&s_allocation_register[s_allocation_register_size], sizeof(uint_fast64_t) * DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE);
         s_allocation_register_size += DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
     }
-    s_allocation_register[s_allocation_register_index] = (long unsigned int) malloc(buffer_size);
+    s_allocation_register[s_allocation_register_index] = (uint_fast64_t) malloc(buffer_size);
     if (s_allocation_register[s_allocation_register_index] == 0) {
         if(failure_is_fatal) {
             // https://stackoverflow.com/questions/3126149/what-operating-systems-wont-free-memory-on-program-exit 
@@ -52,20 +55,26 @@ void * dstudio_alloc(unsigned int buffer_size, int failure_is_fatal) {
     return (void *) s_allocation_register[s_allocation_register_index++];
 }
 
+void dstudio_events_monitor() {
+    for (uint_fast32_t i = 0; i < s_monitors_register_index; i++) {
+        s_monitors_register[i].callback();
+    }
+}
+
 void dstudio_free(void * buffer) {    
     if (buffer == 0) {
-        for (unsigned int i = 0; i < s_allocation_register_index; i++) {
+        for (uint_fast32_t i = 0; i < s_allocation_register_index; i++) {
             free((void *)s_allocation_register[i]);
         }
         free(s_allocation_register);
         return;
     }
     
-    for (unsigned int i = 0; i < s_allocation_register_size; i++) {
-        if(s_allocation_register[i] == (long unsigned int) buffer) {
+    for (uint_fast32_t i = 0; i < s_allocation_register_size; i++) {
+        if(s_allocation_register[i] == (uint_fast64_t) buffer) {
             free((void *)s_allocation_register[i]);
             s_allocation_register[i] = 0;
-            for (unsigned int j = i+1; j < s_allocation_register_size; j++) {
+            for (uint_fast32_t j = i+1; j < s_allocation_register_size; j++) {
                 if (s_allocation_register[j] == 0) {
                     break;
                 }
@@ -75,7 +84,7 @@ void dstudio_free(void * buffer) {
         }
     }
     if (s_allocation_register_index < s_allocation_register_size - DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE) {
-        s_allocation_register = realloc(s_allocation_register, sizeof(long unsigned int) * (s_allocation_register_size - DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE));
+        s_allocation_register = realloc(s_allocation_register, sizeof(uint_fast64_t) * (s_allocation_register_size - DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE));
         DSTUDIO_EXIT_IF_NULL(s_allocation_register)
         s_allocation_register_size -= DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
     }
@@ -83,34 +92,45 @@ void dstudio_free(void * buffer) {
     return;
 }
 
+double dstudio_get_timestamp() {
+    struct timespec timestamp;
+    clock_gettime(CLOCK_REALTIME, &timestamp);
+    return (double) (timestamp.tv_sec * 1000 + timestamp.tv_nsec / 1000000) / 1000.0;
+}
+
 /* DStudio has it's own memory manager. It's a simple wrapper build around stantard
  * function like malloc, realloc and free. It MUST be the first dstudio call.*/
 void dstudio_init_memory_management() {
-    s_allocation_register = malloc(sizeof(long unsigned int) * s_allocation_register_size);
+    s_allocation_register = malloc(sizeof(uint_fast64_t) * s_allocation_register_size);
     DSTUDIO_EXIT_IF_NULL(s_allocation_register)
-    explicit_bzero(s_allocation_register, sizeof(long unsigned int) * s_allocation_register_size);
+    explicit_bzero(s_allocation_register, sizeof(uint_fast64_t) * s_allocation_register_size);
 }
 
-void * dstudio_realloc(void * buffer, unsigned int new_size) {
+void dstudio_init_events_monitor_register(uint_fast32_t monitor_count) {
+    s_monitors_register = dstudio_alloc(
+        monitor_count * sizeof(DStudioMonitorRegister),
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+}
+
+void * dstudio_realloc(void * buffer, uint_fast32_t new_size) {
     if (buffer == NULL) {
         return dstudio_alloc(new_size, DSTUDIO_FAILURE_IS_FATAL);
     }
     void * new_buffer = 0;
-    for (unsigned int i = 0; i < s_allocation_register_size; i++) {
-        if(s_allocation_register[i] == (long unsigned int) buffer) {
+    for (uint_fast32_t i = 0; i < s_allocation_register_size; i++) {
+        if(s_allocation_register[i] == (uint_fast64_t) buffer) {
             new_buffer = realloc(buffer, new_size);
             if (!new_buffer) {
                 return NULL;
             }
-            s_allocation_register[i] = (long unsigned int) new_buffer;
+            s_allocation_register[i] = (uint_fast64_t) new_buffer;
             break;
         }
     }
     return new_buffer;
 }
 
-double get_timestamp() {
-    struct timespec timestamp;
-    clock_gettime(CLOCK_REALTIME, &timestamp);
-    return (double) (timestamp.tv_sec * 1000 + timestamp.tv_nsec / 1000000) / 1000.0;
+void dstudio_register_events_monitor(void (*callback)()) {
+    s_monitors_register[s_monitors_register_index++].callback = callback;
 }

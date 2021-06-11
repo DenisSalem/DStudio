@@ -53,7 +53,7 @@ static void process_channel(SampleContext * sample, float * channel_in, float * 
     }
 }
 
-void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, unsigned int frame_size) {
+void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size) {
     Samples * samples = voice->sub_contexts;
     SampleContext * sample = 0;
 

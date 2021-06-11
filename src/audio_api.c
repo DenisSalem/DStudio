@@ -24,12 +24,13 @@
 #include "audio_api.h"
 #include "info_bar.h"
 #include "instances.h"
+#include "knob.h"
 #include "voices.h"
 
 void * s_audio_api_client = 0;
 DStudioAudioAPIRequest s_audio_api_request_state = DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING;
 
-unsigned int g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
+uint_fast32_t g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
 UIElements * g_midi_ui_element_target = NULL;
 
 void dstudio_audio_api_request(DStudioAudioAPIRequest request) {
@@ -43,20 +44,20 @@ void dstudio_audio_api_request(DStudioAudioAPIRequest request) {
     }
 }
 
-void trigger_midi_capture(UIElements * self) {
+void dstudio_trigger_midi_capture(UIElements * self) {
     (void) self;
     if(!dstudio_audio_api_voice_has_midi_input()) {
-        update_info_text("The current active voice has no midi input.");
+        dstudio_update_info_text("The current active voice has no midi input.");
         g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
     }
     else {
-        update_info_text("Move a knob or a slider to select midi target.");
+        dstudio_update_info_text("Move a knob or a slider to select midi target.");
         g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_TARGET;
     }
     return;
 }
 
-void (*s_client_process)(VoiceContext * voice, float * out_left, float * out_right, unsigned int nframes); 
+void (*s_client_process)(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t nframes); 
 
 #ifdef DSTUDIO_USE_JACK_AUDIO_CONNECTION_KIT
     #include "jack.c"

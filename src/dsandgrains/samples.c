@@ -18,6 +18,7 @@
 */
 
 #include "../bar_plot.h"
+#include "../info_bar.h"
 #include "../instances.h"
 #include "../knob.h"
 #include "samples.h"
@@ -48,8 +49,8 @@ void bind_samples_interactive_list(UIElements * line, ListItemOpt flag) {
 
 void init_samples_interactive_list(
     UIElements * ui_elements,
-    unsigned int lines_number,
-    unsigned int string_size,
+    uint_fast32_t lines_number,
+    uint_fast32_t string_size,
     GLfloat item_offset_y
 ) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
@@ -61,7 +62,7 @@ void init_samples_interactive_list(
         string_size,
         sizeof(SampleContext),
         &samples->count,
-        (char *) samples->contexts,
+        &samples->contexts->name[0],
         select_sample_from_list,
         DSTUDIO_NO_CALLBACK,
         1,
@@ -84,7 +85,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     if (new_sample_context == NULL) {
         // TODO: LOG FAILURE
         dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
-        printf("Failed to import sample\n");
+        dstudio_update_info_text("Failed to import sample.");
         return 0;
     }
     explicit_bzero(
@@ -156,8 +157,8 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
 }
 
 // TODO: the following could be generalized and not implemented by consumer.
-unsigned int select_sample_from_list(
-    unsigned int index
+uint_fast32_t select_sample_from_list(
+    uint_fast32_t index
 ) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;   
 

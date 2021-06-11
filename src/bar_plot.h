@@ -20,6 +20,6 @@
 #include "samples.h"
 #include "ui.h"
 
-void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, unsigned int animate);
+void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, uint_fast32_t animate);
 
 //update_as_spectrum(UIElements * bar_plot, Spectrum * spectrum);

@@ -32,6 +32,7 @@
 #include "audio_api.h"
 #include "common.h"
 #include "fileutils.h"
+#include "info_bar.h"
 #include "instances.h"
 #include "ui.h"
 #include "buttons.h"
@@ -54,8 +55,8 @@ static struct inotify_event * s_event = 0;
 static struct pollfd s_fds = {0};
 
 FILE * add_instance_file_descriptor() {
-    unsigned int count = 0;
-    unsigned int last_id = 0;
+    uint_fast32_t count = 0;
+    uint_fast32_t last_id = 0;
     char * instance_filename_buffer = dstudio_alloc(
         sizeof(char) * 128,
         DSTUDIO_FAILURE_IS_FATAL
@@ -65,21 +66,21 @@ FILE * add_instance_file_descriptor() {
     count_instances(s_instances_directory, &count, &last_id);
     strcat(instance_filename_buffer, s_instances_directory);
     strcat(instance_filename_buffer, "/");
-    sprintf(string_representation_of_integer,"%d", last_id+1);
+    sprintf(string_representation_of_integer,"%" PRIXFAST32, last_id+1);
     strcat(instance_filename_buffer, string_representation_of_integer);
     return fopen(instance_filename_buffer, "w+");
 }
 
-unsigned int _rename_active_context_audio_port(unsigned int index) {
+uint_fast32_t _rename_active_context_audio_port(uint_fast32_t index) {
     (void) index;
-    rename_active_context_audio_port();
+    dstudio_rename_active_context_audio_port();
     return 0;
 }
 
 void init_instances_interactive_list(
     UIElements * ui_elements,
-    unsigned int lines_number,
-    unsigned int string_size,
+    uint_fast32_t lines_number,
+    uint_fast32_t string_size,
     GLfloat item_offset_y
 ) {
     init_interactive_list(
@@ -89,7 +90,7 @@ void init_instances_interactive_list(
         string_size,
         sizeof(InstanceContext),
         &g_instances.count,
-        g_instances.contexts->name,
+        &g_instances.contexts->name[0],
         select_instance_from_list,
         _rename_active_context_audio_port,
         1,
@@ -105,14 +106,14 @@ void init_instance_management_backend() {
 
     s_fd = inotify_init();
     if (errno != 0 && s_fd == -1) {
-        printf("inotify_init(): failed\n");
+        DSTUDIO_TRACE_STR("inotify_init(): failed");
         exit(-1);
     }
     
     wd = inotify_add_watch(s_fd, s_instances_directory, IN_CREATE | IN_DELETE);
 
     if (errno != 0 && wd == 0) {
-        printf("inotify_add_watch(): failed\n");
+        DSTUDIO_TRACE_STR("inotify_add_watch(): failed");
         exit(-1);
     }
 
@@ -129,7 +130,9 @@ void instances_management() {
     int poll_result = poll(&s_fds, 1, 0);
     
     if (poll_result <= 0) {
-        // TODO: Handle negative value and check errno;
+        if (errno != EAGAIN) {
+            dstudio_update_info_text(strerror(errno));
+        }
         return;
     }
     
@@ -145,7 +148,7 @@ void instances_management() {
         if (g_instances.contexts == NULL) {
             g_instances.contexts = s_saved_contexts;
             g_instances.count--;
-            printf("New instance creation has failed.\n");
+            dstudio_update_info_text("New instance creation has failed.");
             return;
         }
         
@@ -153,8 +156,8 @@ void instances_management() {
         g_current_active_instance = &g_instances.contexts[g_instances.count-1];
         g_instances.index = g_instances.count - 1;
         g_current_active_instance->identifier = 1;
-        strcat(g_current_active_instance->name, "Instance ");
-        strcat(g_current_active_instance->name, s_event->name);
+        strcat((char*) g_current_active_instance->name, "Instance ");
+        strcat((char*) g_current_active_instance->name, s_event->name);
         if (g_instances.count > g_ui_instances.lines_number) {
             g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
             g_ui_instances.update_index = -1;
@@ -167,11 +170,6 @@ void instances_management() {
             DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
         );
         
-        /* In most situation it's not necessary, but when multiple
-        * instances are pulled before render, some items might be
-        * missing */ 
-        //g_ui_instances.update_index = -1;
-        
         new_voice();
 
         g_ui_instances.update_request = 1;
@@ -179,7 +177,7 @@ void instances_management() {
         #ifdef DSTUDIO_DEBUG
         printf("Create instance with id=%s. Allocated memory is now %ld.\n", s_event->name, sizeof(InstanceContext) * g_instances.count);
         printf("Currents instances:\n");
-        for(unsigned int i = 0; i < g_instances.count; i++) {
+        for(uint_fast32_t i = 0; i < g_instances.count; i++) {
             printf("\t%s\n", g_instances.contexts[i].name);
         }
         #endif
@@ -206,20 +204,23 @@ void instances_management() {
     strcat(fd_path, "/");
     strcat(fd_path, s_event->name);
     s_instance_fd = fopen(fd_path, "w");
-    fwrite(g_current_active_instance->name, strlen(g_current_active_instance->name), 1, s_instance_fd);
+    fwrite((char*) g_current_active_instance->name, strlen((char*) g_current_active_instance->name), 1, s_instance_fd);
     fclose(s_instance_fd);
     dstudio_free(fd_path);
 }
 
-void new_instance(const char * given_directory, const char * process_name) {
+void new_instance(
+    const char * given_directory,
+    const char * process_name
+) {
     
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
     
     DIR * dr = 0;
     struct dirent *de;
 
-    int processes_count = count_process(process_name);
-    dstudio_expand_user(&s_instances_directory, given_directory);
+    int processes_count = count_process((char*)process_name);
+    dstudio_expand_user(&s_instances_directory, (char*)given_directory);
     char * instance_filename_buffer = dstudio_alloc(
         sizeof(char) * 128,
         DSTUDIO_FAILURE_IS_FATAL
@@ -261,7 +262,7 @@ void new_instance(const char * given_directory, const char * process_name) {
         g_instances.count +=1;
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
-        strcpy(g_current_active_instance->name, "Instance 1");
+        strcpy((char*)g_current_active_instance->name, "Instance 1");
 
         new_voice();
         g_ui_instances.update_request = 1;
@@ -271,10 +272,10 @@ void new_instance(const char * given_directory, const char * process_name) {
 
 }
 
-unsigned int select_instance_from_list(
-    unsigned int index
+uint_fast32_t select_instance_from_list(
+    uint_fast32_t index
 ) {
-    unsigned int voice_index = 0;
+    uint_fast32_t voice_index = 0;
     UIElements * line = NULL;
     
     if (index != g_instances.index && index < g_instances.count) {
@@ -298,7 +299,7 @@ unsigned int select_instance_from_list(
     return 0;
 }
 
-void update_current_instance(unsigned int index) {
+void update_current_instance(uint_fast32_t index) {
     g_instances.index = index;
     g_current_active_instance = &g_instances.contexts[index];
 }
@@ -306,7 +307,7 @@ void update_current_instance(unsigned int index) {
 void update_ui_instances_list() {
     instances_management();
     if (g_ui_instances.update_request) {
-        g_ui_instances.source_data = g_instances.contexts->name;
+        g_ui_instances.source_data = &g_instances.contexts->name[0];
         update_insteractive_list(&g_ui_instances);
     }
 }

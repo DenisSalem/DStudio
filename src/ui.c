@@ -35,39 +35,37 @@
 #include "ui.h"
 #include "window_management.h"
 
-int     g_active_slider_range_max = 0;
-int     g_active_slider_range_min = 0;
-Vec2    g_background_scale_matrix[2] = {0};
+int_fast32_t    g_active_slider_range_max = 0;
+int_fast32_t    g_active_slider_range_min = 0;
+Vec2            g_background_scale_matrix[2] = {0};
 
-GLuint  g_charset_8x18_texture_ids[2] = {0};
-GLuint  g_charset_4x9_texture_ids[2] = {0};
-Vec2    g_charset_8x18_scale_matrix[2] = {0};
-Vec2    g_charset_4x9_scale_matrix[2] = {0};
-GLuint  g_shader_program_id = 0;
-GLuint  g_scale_matrix_id = 0;
-GLuint  g_motion_type_location = 0;
-GLuint  g_no_texture_location = 0;
-int     g_ui_element_center_x = 0;
-int     g_ui_element_center_y = 0;
-GLuint  g_ui_element_color_location = 0;
+GLuint          g_charset_8x18_texture_ids[2] = {0};
+GLuint          g_charset_4x9_texture_ids[2] = {0};
+Vec2            g_charset_8x18_scale_matrix[2] = {0};
+Vec2            g_charset_4x9_scale_matrix[2] = {0};
+GLuint          g_shader_program_id = 0;
+GLuint          g_scale_matrix_id = 0;
+GLuint          g_motion_type_location = 0;
+GLuint          g_no_texture_location = 0;
+int_fast32_t    g_ui_element_center_x = 0;
+int_fast32_t    g_ui_element_center_y = 0;
+GLuint          g_ui_element_color_location = 0;
 
-unsigned int g_framerate = DSTUDIO_FRAMERATE;
-UIElements * g_menu_background_enabled = 0;
-unsigned int g_menu_background_index = 0;
-unsigned int g_request_render_all = 0;
-WindowScale  g_previous_window_scale = {0,0};
+uint_fast32_t   g_framerate = (uint_fast32_t) DSTUDIO_FRAMERATE;
+UIElements *    g_menu_background_enabled = 0;
+uint_fast32_t   g_menu_background_index = 0;
+uint_fast32_t   g_request_render_all = 0;
+DStudioWindowScale  g_previous_window_scale = {0,0};
 
 static Vec2                 s_framebuffer_scale_matrix[2] = {{1.0, 0.0},{0.0,-1.0}};
 static GLuint               s_framebuffer_objects[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static GLuint               s_framebuffer_textures[DSTUDIO_FRAMEBUFFER_COUNT] = {0};
 static UIElements           s_framebuffer_quad = {0};
 static UIElements           s_extended_background = {0};
-static int                  s_ui_element_index = -1;
+static int_fast32_t         s_ui_element_index = -1;
 static UIElements *         s_list_item = 0;
 static UIElements **        s_ui_elements_requests = 0;
-static unsigned int         s_ui_elements_requests_index = 0;
-static UpdaterRegister *    s_updater_register = 0;
-static unsigned int         s_updater_register_index = 0;
+static uint_fast32_t        s_ui_elements_requests_index = 0;
 static long                 s_x11_input_mask = 0;
 
 static void update_scale_matrix(Vec2 * scale_matrix);
@@ -132,8 +130,8 @@ static int is_background_ui_element(UIElements * ui_element) {
 static void render_extended_background(UIElements * ui_element) {
     Vec2 * scale_matrix = 0;
     Vec4 * vertex_attributes = 0;
-    unsigned int pattern_width = 0;
-    unsigned int pattern_height = 0;
+    uint_fast32_t pattern_width = 0;
+    uint_fast32_t pattern_height = 0;
     
     Vec4 tmp_tex_coordinates[4] = {0};
 
@@ -177,18 +175,21 @@ static void render_extended_background(UIElements * ui_element) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);  
 }
 
-static void render_layers(unsigned int limit) {
-    for (unsigned int index = 0; index < limit; index++) {
+static void render_layers(uint_fast32_t limit) {
+    for (uint_fast32_t index = 0; index < limit; index++) {
         s_framebuffer_quad.texture_index = index;
         render_ui_elements(&s_framebuffer_quad);
     }
 }
 
-static void scissor_n_matrix_setting(int scissor_index, int matrix_index, int flags, int scissor_offset_x, int scissor_offset_y) {
+static void scissor_n_matrix_setting(int_fast32_t scissor_index, int_fast32_t matrix_index, uint_fast32_t flags) {
+    int_fast32_t scissor_offset_x = DSTUDIO_FLAG_NO_SCISSOR_OFFSET & flags ? 0 : g_scissor_offset_x;
+    int_fast32_t scissor_offset_y = DSTUDIO_FLAG_NO_SCISSOR_OFFSET & flags ? 0 : g_scissor_offset_y;
+    
     UIElements * ui_element = s_ui_elements_requests[scissor_index];
     Scissor * scissor = flags & DSTUDIO_FLAG_TEXT_IS_CENTERED ? &ui_element->coordinates_settings.previous_scissor : &ui_element->coordinates_settings.scissor;
     UIElementType type = ui_element->type;
-    int is_active_text_pointer_overing = \
+    int_fast32_t is_active_text_pointer_overing = \
         g_text_pointer_context.active && \
         g_text_pointer_context.ui_text->render_state != DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED && \
         ( \
@@ -252,23 +253,22 @@ void compile_shader(
     #endif
 }
 
+
+static GLuint create_shader(GLenum type) {
+    GLchar * shader_buffer = NULL;
+    GLuint shader_id = glCreateShader(type);
+    load_shader(&shader_buffer, type == GL_VERTEX_SHADER ? DSTUDIO_VERTEX_SHADER_PATH : DSTUDIO_FRAGMENT_SHADER_PATH);
+    compile_shader(shader_id, &shader_buffer);
+    dstudio_free(shader_buffer);
+    return shader_id;
+}
+
 void create_shader_program(
     GLuint * shader_program_id
 ) {
-    GLchar * shader_buffer = NULL;
     
-    // TODO Replace with create_shader function, returning shader id;
-    // VERTEX SHADER
-    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    load_shader(&shader_buffer, DSTUDIO_VERTEX_SHADER_PATH);
-    compile_shader(vertex_shader, &shader_buffer);
-    dstudio_free(shader_buffer);
-
-    //FRAGMENT SHADER
-    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    load_shader(&shader_buffer, DSTUDIO_FRAGMENT_SHADER_PATH);
-    compile_shader(fragment_shader, &shader_buffer);
-    dstudio_free(shader_buffer);
+    GLuint vertex_shader = create_shader(GL_VERTEX_SHADER);
+    GLuint fragment_shader = create_shader(GL_FRAGMENT_SHADER);
 
     // Linking Shader
 
@@ -298,7 +298,7 @@ void gen_gl_buffer(
     GLuint * buffer_object_p,
     void * data,
     GLenum mode,
-    unsigned int data_size
+    uint_fast32_t data_size
 ) {
     *buffer_object_p = 0;
     glGenBuffers(1, buffer_object_p);
@@ -333,7 +333,7 @@ int get_png_pixel(
     exit(-1);
 }
 
-void init_extended_background(char * texture_path, unsigned int width, unsigned int height) {
+void init_extended_background(char * texture_path, uint_fast32_t width, uint_fast32_t height) {
     GLuint texture_ids[2] = {0};
     
     texture_ids[0] = setup_texture_n_scale_matrix(
@@ -364,13 +364,13 @@ void init_extended_background(char * texture_path, unsigned int width, unsigned 
 }
 
 void init_opengl_ui_elements(
-    int flags,
+    uint_fast32_t flags,
     UIElements * ui_elements
 ) {
-    int flip_y = flags & DSTUDIO_FLAG_FLIP_Y;
-    int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
-    int slider_background_setting = flags & DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING;
-    int texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
+    uint_fast32_t flip_y = flags & DSTUDIO_FLAG_FLIP_Y;
+    uint_fast32_t text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
+    uint_fast32_t slider_background_setting = flags & DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING;
+    uint_fast32_t texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
     
     // Setting vertex indexes
     GLchar * vertex_indexes = ui_elements->vertex_indexes;
@@ -471,13 +471,6 @@ void init_text() {
     );
 }
 
-void init_ui_element_updater_register(unsigned int updater_count) {
-    s_updater_register = dstudio_alloc(
-        updater_count * sizeof(UpdaterRegister),
-        DSTUDIO_FAILURE_IS_FATAL
-    );
-}
-
 void init_ui() {
     g_previous_window_scale.width = g_dstudio_viewport_width;
     g_previous_window_scale.height = g_dstudio_viewport_height;
@@ -501,7 +494,7 @@ void init_ui() {
         DSTUDIO_FRAMEBUFFER_COUNT,
         &s_framebuffer_textures[0]
     );
-    for (unsigned int i = 0; i < DSTUDIO_FRAMEBUFFER_COUNT; i++) {
+    for (uint_fast32_t i = 0; i < DSTUDIO_FRAMEBUFFER_COUNT; i++) {
         glBindTexture(GL_TEXTURE_2D, s_framebuffer_textures[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g_dstudio_viewport_width, g_dstudio_viewport_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -589,11 +582,11 @@ inline static void inline_init_ui_elements_set_area(
 }
 
 inline static void inline_init_ui_elements_set_misc_values(
-    unsigned int x,
-    unsigned int y,
+    uint_fast32_t x,
+    uint_fast32_t y,
     Area area,
     Vec2 * scale_matrix,
-    unsigned int instances_count,
+    uint_fast32_t instances_count,
     UIElementType ui_element_type,
     UIElements * ui_element_p
 ) {    
@@ -624,19 +617,19 @@ inline static void inline_init_ui_elements_allocate_buffers(UIElements * ui_elem
         DSTUDIO_FAILURE_IS_FATAL
     );
 }
-inline static void inline_init_ui_elements_set_alphas_buffer(UIElements * ui_element_p, unsigned int index) {
+inline static void inline_init_ui_elements_set_alphas_buffer(UIElements * ui_element_p, uint_fast32_t index) {
     ui_element_p->instance_alphas_buffer[index] = \
         ui_element_p->type == DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT ? 0.75 : 1.0;
 }
 
 inline static void inline_init_ui_elements_set_offsets_buffer(
-    unsigned int x,
-    unsigned int y,
+    uint_fast32_t x,
+    uint_fast32_t y,
     GLfloat gl_x,
     GLfloat gl_y,
     GLfloat offset_x,
     GLfloat offset_y,
-    unsigned int index,
+    uint_fast32_t index,
     UIElements * ui_element_p
 ) {
     GLfloat type_offset_x = 0;
@@ -669,10 +662,10 @@ inline static void inline_init_ui_elements_set_offsets_buffer(
     ui_element_p->coordinates_settings.instance_offsets_buffer[index].y = gl_y + type_offset_y + (y * offset_y);
 };
 
-inline static void inline_init_ui_elements_set_motions_buffer(int flags, GLfloat area_height, unsigned int index, UIElements * ui_element_p) {
+inline static void inline_init_ui_elements_set_motions_buffer(uint_fast32_t flags, GLfloat area_height, uint_fast32_t index, UIElements * ui_element_p) {
     if (flags & DSTUDIO_FLAG_SLIDER_TO_TOP) {
         ui_element_p->instance_motions_buffer[index] = \
-            (GLfloat) ((int)area_height % 2 == 0 ? \
+            (GLfloat) ((uint_fast32_t)area_height % 2 == 0 ? \
             area_height : \
             area_height + 1) * (1.0 / (GLfloat) g_dstudio_viewport_height) - ui_element_p->coordinates_settings.scale_matrix[1].y;
     }
@@ -717,12 +710,12 @@ inline static void inline_init_ui_elements_set_texture_id(GLuint * texture_ids, 
     }
 }
 
-inline static void inline_init_ui_elements_set_visibility_and_render_state(int flags, UIElements * ui_element_p) {
+inline static void inline_init_ui_elements_set_visibility_and_render_state(uint_fast32_t flags, UIElements * ui_element_p) {
     ui_element_p->visible = (flags & DSTUDIO_FLAG_IS_VISIBLE) != 0;
     ui_element_p->render_state = ui_element_p->visible ? DSTUDIO_UI_ELEMENT_RENDER_REQUESTED : DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
 }
 
-inline static void inline_init_ui_elements_set_open_gl(int flags, UIElements * ui_element_p) {
+inline static void inline_init_ui_elements_set_open_gl(uint_fast32_t flags, UIElements * ui_element_p) {
     if (ui_element_p->type & DSTUDIO_ANY_TEXT_TYPE) {
         flags |= DSTUDIO_FLAG_USE_TEXT_SETTING;
     }
@@ -743,15 +736,15 @@ void init_ui_elements(
     GLfloat area_height,
     GLfloat offset_x,
     GLfloat offset_y,
-    unsigned int columns,
-    unsigned int count,
-    unsigned int instances_count,
+    uint_fast32_t columns,
+    uint_fast32_t count,
+    uint_fast32_t instances_count,
     UIElementType ui_element_type,
-    int flags
+    uint_fast32_t flags
 ) {        
     Area area = {0};
-    unsigned int x = 0;
-    unsigned int y = 0;
+    uint_fast32_t x = 0;
+    uint_fast32_t y = 0;
 
     inline_init_ui_elements_set_area(
         ui_element_type,
@@ -765,7 +758,7 @@ void init_ui_elements(
         &area
     );
         
-    for (unsigned int i = 0; i < count; i++) {
+    for (uint_fast32_t i = 0; i < count; i++) {
         
         ui_elements_array[i].flags = flags;
 
@@ -784,7 +777,7 @@ void init_ui_elements(
         
         inline_init_ui_elements_allocate_buffers(&ui_elements_array[i]);
 
-        for (unsigned int j = 0; j < instances_count; j++) {
+        for (uint_fast32_t j = 0; j < instances_count; j++) {
             inline_init_ui_elements_set_alphas_buffer(&ui_elements_array[i], j);
             
             inline_init_ui_elements_set_offsets_buffer(
@@ -827,7 +820,7 @@ void load_shader(
         DSTUDIO_FAILURE_IS_FATAL
     );
     GLchar * local_shader_buffer = (*shader_buffer);
-    for (int i=0; i < 4096; i++) {
+    for (uint_fast32_t i=0; i < 4096; i++) {
         local_shader_buffer[i] = (GLchar ) fgetc(shader);
         if (local_shader_buffer[i] == EOF) {
             local_shader_buffer[i] = '\0';
@@ -855,6 +848,7 @@ void manage_cursor_position(int xpos, int ypos) {
                 );
             }
             break;
+            
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
             if (g_ui_elements_array[s_ui_element_index].enabled) {
                 ui_element = &g_ui_elements_array[s_ui_element_index];
@@ -872,6 +866,7 @@ void manage_cursor_position(int xpos, int ypos) {
                 }
             }
             break;
+            
         default:
             break;
     }
@@ -881,10 +876,10 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     UIElements * ui_elements_p = 0;
     double timestamp = 0;
     GLfloat half_height;
-    unsigned int clicked_none = 1;
+    uint_fast32_t clicked_none = 1;
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         clear_text_pointer();
-        for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
+        for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {
             ui_elements_p = &g_ui_elements_array[i];
             if (
                 xpos > (g_scissor_offset_x + ui_elements_p->areas.min_area_x) &&
@@ -904,7 +899,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                 if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT) {
                     g_midi_ui_element_target = NULL;
                     g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
-                    update_info_text("Midi capture is aborted.");
+                    dstudio_update_info_text("Midi capture is aborted.");
                 }
                 
                 if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_TARGET) {
@@ -913,13 +908,13 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
                             g_midi_ui_element_target = ui_elements_p;
                             g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT;
-                            update_info_text("Waiting for midi signal from input...");
+                            dstudio_update_info_text("Waiting for midi signal from input...");
                             break;
                             
                         default:
                             g_midi_ui_element_target = NULL;
                             g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
-                            update_info_text("Midi capture is aborted.");
+                            dstudio_update_info_text("Midi capture is aborted.");
                             break;
                     }
                     break;
@@ -936,7 +931,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         break;
                     
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                        timestamp = get_timestamp();
+                        timestamp = dstudio_get_timestamp();
                         if (s_list_item == ui_elements_p && timestamp - ui_elements_p->timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
                             if(ui_elements_p->application_callback)
                                 ui_elements_p->application_callback(ui_elements_p);
@@ -954,7 +949,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         break;
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
-                        timestamp = get_timestamp();
+                        timestamp = dstudio_get_timestamp();
                         if (s_list_item == ui_elements_p && timestamp - ui_elements_p->timestamp < DSTUDIO_DOUBLE_CLICK_DELAY) {
                             update_text_pointer_context(ui_elements_p);
                             ui_elements_p->timestamp = 0;
@@ -1002,25 +997,17 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     }
 }
 
-
-/* TODO: A better approach might be to pair updater and request together,
- * so consummer only call the updater if necessary.
-*/
-void register_ui_elements_updater(void (*updater)()) {
-    s_updater_register[s_updater_register_index++].updater = updater;
-}
-
 inline void render_loop() {
     double framerate_limiter = 0;
     double framerate_limiter_timestamp = 0;
-    WindowScale current_window_scale = {0};
+    DStudioWindowScale current_window_scale = {0};
 
     while (do_no_exit_loop()) {
         if (is_window_visible()) {
-            framerate_limiter_timestamp = get_timestamp();
+            framerate_limiter_timestamp = dstudio_get_timestamp();
             listen_events();
     
-            unsigned int render_all = need_to_redraw_all();
+            uint_fast32_t render_all = need_to_redraw_all();
             render_all |= g_request_render_all;
             current_window_scale = get_window_scale();
             
@@ -1035,19 +1022,17 @@ inline void render_loop() {
                 
             }
             
-            update_ui_elements();
+            dstudio_events_monitor();
             
             if (render_viewport(render_all)) {
                 swap_window_buffer();
             }
             g_request_render_all = 0;
-            framerate_limiter = (g_framerate * 1000) - (get_timestamp() - framerate_limiter_timestamp) * 1000000;
+            framerate_limiter = (g_framerate * 1000) - (dstudio_get_timestamp() - framerate_limiter_timestamp) * 1000000;
         }
         else {
             framerate_limiter = DSTUDIO_WINDOW_IDLING_TIMEOUT;
-            /* TODO: Rename or rewrite method because it may do more than just update ui elements.
-            For instance it keep monitoring for instance creation and compute ressource usage. */
-            update_ui_elements();
+            dstudio_events_monitor();
         }
         
         usleep((unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0));
@@ -1098,7 +1083,7 @@ void render_ui_elements(UIElements * ui_elements) {
     }
 }
 
-unsigned int render_viewport(unsigned int render_all) {    
+uint_fast32_t render_viewport(uint_fast32_t render_all) {    
     if (render_all && (g_previous_window_scale.width != g_dstudio_viewport_width || g_previous_window_scale.height != g_dstudio_viewport_height)) {
         glViewport(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
         glScissor(0, 0, g_previous_window_scale.width, g_previous_window_scale.height);
@@ -1116,12 +1101,12 @@ unsigned int render_viewport(unsigned int render_all) {
         glViewport(0, 0, g_dstudio_viewport_width, g_dstudio_viewport_height);
     }
     
-    unsigned int background_rendering_start_index = render_all ? 0 : 1;
-    unsigned int background_rendering_end_index;
-    int layer_1_index_limit = -1;
+    uint_fast32_t background_rendering_start_index = render_all ? 0 : 1;
+    uint_fast32_t background_rendering_end_index;
+    int_fast32_t layer_1_index_limit = -1;
 
-    int scissor_offset_x = g_menu_background_enabled ? 0 : g_scissor_offset_x;
-    int scissor_offset_y = g_menu_background_enabled ? 0 : g_scissor_offset_y;
+    //~ int scissor_offset_x = g_menu_background_enabled ? 0 : g_scissor_offset_x;
+    //~ int scissor_offset_y = g_menu_background_enabled ? 0 : g_scissor_offset_y;
 
     /* First of all, we get once every ui elements we want to render
      * in a single list, so we don't have to iterate many times 
@@ -1133,7 +1118,7 @@ unsigned int render_viewport(unsigned int render_all) {
      s_ui_elements_requests[0] = &g_ui_elements_array[0];
      
      // Then we're gathering required ui_elements and defining layer 1 index limit
-     for (unsigned int i = 1; i < g_dstudio_ui_element_count; i++) {
+     for (uint_fast32_t i = 1; i < g_dstudio_ui_element_count; i++) {
         if (g_ui_elements_array[i].render_state || (render_all && g_ui_elements_array[i].visible)) {
             s_ui_elements_requests[++s_ui_elements_requests_index] = &g_ui_elements_array[i];
             if (layer_1_index_limit < 0 && g_menu_background_enabled && s_ui_elements_requests[s_ui_elements_requests_index] >= g_menu_background_enabled) {
@@ -1149,7 +1134,7 @@ unsigned int render_viewport(unsigned int render_all) {
      }
 
     /* Before rendering anything we're updating once buffer in GPU */
-    for ( unsigned int i = 0; i <= s_ui_elements_requests_index; i++) {
+    for (uint_fast32_t i = 0; i <= s_ui_elements_requests_index; i++) {
         if (s_ui_elements_requests[i]->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
             update_gpu_buffer(s_ui_elements_requests[i]);
         }
@@ -1172,16 +1157,16 @@ unsigned int render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer background */
-    background_rendering_end_index = render_all ? 1 : (unsigned int) layer_1_index_limit;
-    for (unsigned int i = background_rendering_start_index; i < background_rendering_end_index; i++) {
+    background_rendering_end_index = render_all ? 1 : (uint_fast32_t) layer_1_index_limit;
+    for (uint_fast32_t i = background_rendering_start_index; i < background_rendering_end_index; i++) {
         if (s_ui_elements_requests[i]->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED && s_ui_elements_requests[i]->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
-            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_TEXT_IS_CENTERED, g_scissor_offset_x, g_scissor_offset_y);
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_TEXT_IS_CENTERED);
         }
         else if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT || s_ui_elements_requests[i] == g_text_pointer_context.text_pointer) {
-            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS | (g_menu_background_enabled ? DSTUDIO_FLAG_NO_SCISSOR_OFFSET : DSTUDIO_FLAG_NONE));
         }
         else {
-            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
+            scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_NONE);
         }
         render_ui_elements(s_ui_elements_requests[0]);
 
@@ -1191,9 +1176,9 @@ unsigned int render_viewport(unsigned int render_all) {
     }
 
     /* Render first layer ui elements */
-    for (unsigned int i = 1; i < (unsigned int) layer_1_index_limit; i++) {
+    for (uint_fast32_t i = 1; i < (uint_fast32_t) layer_1_index_limit; i++) {
         // Refresh interactive list background and/or highlight when item is unselected or text cursor is blinking
-        scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, scissor_offset_x, scissor_offset_y);
+        scissor_n_matrix_setting(i, i, g_menu_background_enabled ? DSTUDIO_FLAG_NO_SCISSOR_OFFSET : DSTUDIO_FLAG_NONE);
         render_ui_elements(s_ui_elements_requests[i]);
     }
 
@@ -1206,9 +1191,9 @@ unsigned int render_viewport(unsigned int render_all) {
             glClear(GL_COLOR_BUFFER_BIT);
         }
 
-        for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
+        for (uint_fast32_t i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (is_background_ui_element(s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, 0, 0);
+                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NO_SCISSOR_OFFSET);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
@@ -1224,13 +1209,12 @@ unsigned int render_viewport(unsigned int render_all) {
 
         /* Render all layers required areas as background */
         background_rendering_end_index = render_all ? 0 : s_ui_elements_requests_index;
-        for (unsigned int i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
+        for (uint_fast32_t i = background_rendering_start_index; i <= background_rendering_end_index; i++) {
             if (!(background_rendering_start_index == 0) && s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT) {
-                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS, g_scissor_offset_x, g_scissor_offset_y);
+                scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS);
                 render_layers((DSTUDIO_FRAMEBUFFER_COUNT));
             }
-            // TODO: since scissor offset are global, last two arguments might not be needed anymore.
-            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE, g_scissor_offset_x, g_scissor_offset_y);
+            scissor_n_matrix_setting(i, -1, DSTUDIO_FLAG_NONE);
             render_layers(DSTUDIO_FRAMEBUFFER_COUNT);
             if (background_rendering_start_index == 0) {
                 break;
@@ -1238,9 +1222,9 @@ unsigned int render_viewport(unsigned int render_all) {
         }
         
         /* Render remaining ui elements */
-        for (unsigned int i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
+        for (uint_fast32_t i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (!is_background_ui_element(s_ui_elements_requests[i])) {
-                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE, g_scissor_offset_x, g_scissor_offset_y);
+                scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NONE);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }
@@ -1249,9 +1233,9 @@ unsigned int render_viewport(unsigned int render_all) {
     return 1;
 }
 
-void set_prime_interface(unsigned int state) {
+void set_prime_interface(uint_fast32_t state) {
     UIInteractiveList * interactive_list;
-    for (unsigned int i = 0; i < g_dstudio_ui_element_count; i++) {
+    for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {
         if (i < g_menu_background_index) {
             switch (g_ui_elements_array[i].type) {
                 case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
@@ -1275,8 +1259,8 @@ void set_prime_interface(unsigned int state) {
     }
 }
 
-void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, unsigned int count) {
-    for (unsigned int i = 0; i < count; i++) {
+void set_ui_elements_visibility(UIElements * ui_elements, uint_fast32_t state, uint_fast32_t count) {
+    for (uint_fast32_t i = 0; i < count; i++) {
         ui_elements[i].render_state = state ? DSTUDIO_UI_ELEMENT_RENDER_REQUESTED : DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
         ui_elements[i].visible = state;
         
@@ -1297,7 +1281,7 @@ void set_ui_elements_visibility(UIElements * ui_elements, unsigned int state, un
 }
 
 GLuint setup_texture_n_scale_matrix(
-    unsigned int flags,
+    uint_fast32_t flags,
     GLuint texture_width,
     GLuint texture_height,
     const char * texture_filename,
@@ -1305,11 +1289,11 @@ GLuint setup_texture_n_scale_matrix(
     PatternScale * pattern_scale
 ) {
     GLuint texture_id = 0;
-    unsigned char * texture_data = 0;
-    int alpha = flags & DSTUDIO_FLAG_USE_ALPHA;
-    int enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
-    int text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
-    int texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
+    uint_fast8_t * texture_data = 0;
+    uint_fast32_t alpha = flags & DSTUDIO_FLAG_USE_ALPHA;
+    uint_fast32_t enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
+    uint_fast32_t text_setting = flags & DSTUDIO_FLAG_USE_TEXT_SETTING;
+    uint_fast32_t texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
     if (texture_is_pattern) {
         pattern_scale->width = texture_width; 
         pattern_scale->height = texture_height; 
@@ -1387,12 +1371,6 @@ void update_gpu_buffer(UIElements * ui_element_p) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void update_ui_elements() {
-    for (unsigned int i = 0; i < s_updater_register_index; i++) {
-        s_updater_register[i].updater();
-    }
-}
-
 void update_ui_element_motion(
     UIElements * ui_elements_p,
     float motion
@@ -1402,7 +1380,7 @@ void update_ui_element_motion(
 
 }
 
-void update_viewport(WindowScale window_scale) {
+void update_viewport(DStudioWindowScale window_scale) {
     GLfloat offset_x = 0.0;
     GLfloat offset_y = 0.0;
 

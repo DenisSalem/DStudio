@@ -144,8 +144,8 @@ int load_extensions() {
          * void* equal size of long int. Since we can't dereference
          * void *, we're tricking the compiler to store function pointer.
          */
-        *(long unsigned int*)(binder[i].function_pointer) = (long unsigned int) dlsym(libGL, binder[i].name);
-        if (*(long unsigned int*) binder[i].function_pointer == 0) {
+        *(uint_fast64_t*)(binder[i].function_pointer) = (uint_fast64_t) dlsym(libGL, binder[i].name);
+        if (*(uint_fast64_t*) binder[i].function_pointer == 0) {
             printf("%s couldn't be loaded from libGL.so\n", binder[i].name);
             return -1;
         }
