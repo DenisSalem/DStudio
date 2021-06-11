@@ -72,7 +72,7 @@ DSTUDIO_DEF_GL_FUN(void,            GetShaderInfoLog,           GLuint shader, G
 DSTUDIO_DEF_GL_FUN(const GLubyte *, GetStringi,                 GLenum name, GLuint index)
 #endif
 
-int is_extension_supported(const char * list, const char * extension);
-int load_extensions();
+int_fast32_t is_extension_supported(const char * list, const char * extension);
+int_fast32_t load_extensions();
 
 #endif

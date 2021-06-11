@@ -219,7 +219,7 @@ void new_instance(
     DIR * dr = 0;
     struct dirent *de;
 
-    int processes_count = count_process((char*)process_name);
+    uint_fast32_t processes_count = count_process((char*)process_name);
     dstudio_expand_user(&s_instances_directory, (char*)given_directory);
     char * instance_filename_buffer = dstudio_alloc(
         sizeof(char) * 128,

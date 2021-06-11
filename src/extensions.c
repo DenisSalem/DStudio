@@ -59,7 +59,7 @@ DSTUDIO_DECLARE_GL_FUN(GetStringi)
 #endif
 
 // https://www.khronos.org/opengl/wiki/Tutorial:_OpenGL_3.0_Context_Creation_(GLX)
-int is_extension_supported(const char * list, const char * extension) {
+int_fast32_t is_extension_supported(const char * list, const char * extension) {
     const char *start;
     const char *where, *terminator;
   
@@ -92,7 +92,7 @@ int is_extension_supported(const char * list, const char * extension) {
   return 0;
 }
 
-int load_extensions() {
+int_fast32_t load_extensions() {
     void* libGL = dlopen("libGL.so", RTLD_LAZY);
     if (!libGL) {
         printf("ERROR: libGL.so couldn't be loaded\n");
@@ -137,7 +137,7 @@ int load_extensions() {
         {0} // Sentinel
     };
         
-    int i = 0;
+    int_fast32_t i = 0;
     while (binder[i].function_pointer != 0) {
         /* 
          * Dirty trick to save binary size: We assume that size of

@@ -21,7 +21,7 @@
 
 #include "samples.h"
 
-int load_flac(
+int_fast32_t load_flac(
     FILE * file,
     void (*client_error_callback)(const char * message),
     SharedSample * shared_sample

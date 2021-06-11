@@ -36,8 +36,8 @@
 
 uint_fast32_t g_dstudio_mouse_state = 0;
 long g_x11_input_mask = 0;
-int g_scissor_offset_x = 0;
-int g_scissor_offset_y = 0;
+int_fast32_t g_scissor_offset_x = 0;
+int_fast32_t g_scissor_offset_y = 0;
 static int s_focus_type;
 
 UIInteractiveList * g_active_interactive_list = 0;
@@ -55,8 +55,8 @@ void (*close_sub_menu_callback)() = NULL;
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
 static int ctx_error_occurred = 0;
-static int window_alive = 1;
-static int refresh_all = 1;
+static uint_fast32_t window_alive = 1;
+static uint_fast32_t refresh_all = 1;
 static Display              *display = NULL;
 static Window               window;
 static XVisualInfo          * visual_info;
@@ -95,7 +95,7 @@ static char * s_atom_name = 0;
 // Is periodically updated with is_window_visible method
 static XWindowAttributes s_xwa;
 static double s_wa_update_timestamp=0;
-static int s_is_visible = 1;
+static int_fast32_t s_is_visible = 1;
 
 static int ctx_error_handler( Display *dpy, XErrorEvent *ev ) {
     (void) dpy;
@@ -130,7 +130,7 @@ void destroy_context() {
     XCloseDisplay(display);
 }
 
-int do_no_exit_loop() {
+uint_fast32_t do_no_exit_loop() {
     return window_alive;
 }
 
@@ -292,13 +292,13 @@ void init_context(const char * window_name, int width, int height) {
     s_wmState = XInternAtom(display, "_NET_WM_STATE", True);
 }
 
-int is_window_focus() {
+uint_fast32_t is_window_focus() {
     return s_focus_type == FocusIn? 1 : 0; 
 }
 
 // Based on this
 // discussion https://www.linuxquestions.org/questions/programming-9/how-to-read-the-state-by-using-_net_wm_state-in-xlib-836879/
-int is_window_visible() {
+uint_fast32_t is_window_visible() {
     double timestamp = dstudio_get_timestamp();
 
     if ( (timestamp - s_wa_update_timestamp) * 1000000 > DSTUDIO_WINDOW_IDLING_TIMEOUT) {
@@ -444,7 +444,7 @@ void listen_events() {
     }
 }
 
-int need_to_redraw_all() {
+uint_fast32_t need_to_redraw_all() {
     if (refresh_all) {
         refresh_all = 0;
         if (g_menu_background_enabled) {

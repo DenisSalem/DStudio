@@ -767,7 +767,7 @@ static void init_dsandgrains_ui_elements() {
         &g_ui_elements_struct.open_file_menu_prompts_box
     );
     bind_callbacks();
-    for (unsigned int i = 4; i < g_menu_background_index; i++) {
+    for (uint_fast32_t i = 4; i < g_menu_background_index; i++) {
         g_ui_elements_array[i].enabled = 1;
     }
 

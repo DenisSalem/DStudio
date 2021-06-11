@@ -279,7 +279,7 @@ void gen_gl_buffer(
     uint_fast32_t data_size
 );
 
-int get_png_pixel(
+uint_fast32_t get_png_pixel(
     const char * filename,
     png_bytep * buffer,
     png_uint_32 format // png_bytep is basically unsigned char

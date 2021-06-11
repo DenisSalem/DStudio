@@ -29,7 +29,7 @@
 typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
-    long int processed_index;
+    uint_fast64_t processed_index;
     KnobValue start;
     KnobValue end;
     KnobValue amount;
@@ -63,10 +63,9 @@ uint_fast32_t select_sample_from_list(
 UIElements * set_samples_ui_context_from_parent_voice_list();
 
 void update_current_sample(
-    unsigned int index
+    uint_fast32_t index
 );
 
 void update_samples_ui_list();
-
 
 #endif

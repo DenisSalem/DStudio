@@ -19,8 +19,9 @@
 
 /*
  * TODO :
+ *      - Make the damn naming convention consistent.  
+ * WIP :
  *      - Make type size explicit and not platform dependant.
- *      - Make the damn naming convention consistent.   
  */
 
 #include <pthread.h>

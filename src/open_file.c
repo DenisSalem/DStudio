@@ -56,7 +56,7 @@ static uint_fast32_t s_max_prompt_char = 0;
 static char * s_prompt_value = 0;
 static char * s_prompt_cwd_value = 0;
 
-static void close_open_file_menu(int has_cancel) {
+static void close_open_file_menu(uint_fast32_t has_cancel) {
     g_active_interactive_list = 0;
     configure_input(0);
     set_prime_interface(1);
@@ -313,7 +313,7 @@ void init_open_menu(
     
     s_max_characters_for_error_prompt = ((g_dstudio_viewport_width - DSTUDIO_OPEN_FILE_ERROR_PROMPT_PADDING_RIGHT) / 8)-1;
     #ifdef DSTUDIO_DEBUG
-        printf("Open file menu should have %u characters for error prompt.\n", s_max_characters_for_error_prompt);
+        printf("Open file menu should have %" PRIuFAST32 " characters for error prompt.\n", s_max_characters_for_error_prompt);
     #endif
     init_ui_elements(
         s_error_message,
@@ -427,7 +427,7 @@ void init_open_menu(
 
     s_list_lines_number = (DSTUDIO_OPEN_FILE_LIST_BOX_HEIGHT / 18) - 2;
     #ifdef DSTUDIO_DEBUG
-        printf("Open file menu should have %u lines.\n", s_list_lines_number);
+        printf("Open file menu should have %" PRIuFAST32 " lines.\n", s_list_lines_number);
     #endif
 
     s_slider_background_scale_matrix[0].x = (GLfloat) DSTUDIO_SLIDER_BACKGROUND_WIDTH / (GLfloat) g_dstudio_viewport_width;

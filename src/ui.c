@@ -120,7 +120,7 @@ static inline GLfloat compute_knob_rotation(int xpos, int ypos) {
     return rotation;
 }
 
-static int is_background_ui_element(UIElements * ui_element) {
+static uint_fast32_t is_background_ui_element(UIElements * ui_element) {
     if (ui_element->type & DSTUDIO_ANY_BACKGROUND_TYPE) {
         return 1;
     }
@@ -281,7 +281,7 @@ void create_shader_program(
     glDeleteShader(fragment_shader);
 
     #ifdef DSTUDIO_DEBUG
-    int info_log_length = 2048;
+    GLint info_log_length = 2048;
     char program_error_message[2048] = {0};
 
     glGetProgramiv(*shader_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
@@ -307,7 +307,7 @@ void gen_gl_buffer(
     glBindBuffer(type, 0);
 }
 
-int get_png_pixel(
+uint_fast32_t get_png_pixel(
     const char * filename,
     png_bytep * buffer,
     png_uint_32 format
@@ -504,9 +504,7 @@ void init_ui() {
     }
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    //DEFINE_SCALE_MATRIX(s_framebuffer_matrix, g_dstudio_viewport_width, (int) -g_dstudio_viewport_height)
-    
+        
     #ifdef DSTUDIO_DEBUG
     glBindFramebuffer(GL_FRAMEBUFFER, s_framebuffer_objects[0]);
         check_frame_buffer_status();
@@ -975,8 +973,8 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         __attribute__ ((fallthrough));
                                                                    
                     case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-                        g_ui_element_center_x = (int)( g_scissor_offset_x*2 + ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
-                        g_ui_element_center_y = (int)( g_scissor_offset_y*2 + ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
+                        g_ui_element_center_x = (int_fast32_t)( g_scissor_offset_x*2 + ui_elements_p->areas.min_area_x + ui_elements_p->areas.max_area_x) >> 1;
+                        g_ui_element_center_y = (int_fast32_t)( g_scissor_offset_y*2 + ui_elements_p->areas.min_area_y + ui_elements_p->areas.max_area_y) >> 1;
                         break;
                         
                     default:
@@ -1035,8 +1033,7 @@ inline void render_loop() {
             dstudio_events_monitor();
         }
         
-        usleep((unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0));
-        //DSTUDIO_TRACE_ARGS("FPS: %lf FPS limiter: %u", 1/(get_timestamp() - framerate_limiter_timestamp), (unsigned int) (framerate_limiter > 0 ? framerate_limiter : 0))
+        usleep((uint_fast32_t) (framerate_limiter > 0 ? framerate_limiter : 0));
     }
 };
 
@@ -1104,9 +1101,6 @@ uint_fast32_t render_viewport(uint_fast32_t render_all) {
     uint_fast32_t background_rendering_start_index = render_all ? 0 : 1;
     uint_fast32_t background_rendering_end_index;
     int_fast32_t layer_1_index_limit = -1;
-
-    //~ int scissor_offset_x = g_menu_background_enabled ? 0 : g_scissor_offset_x;
-    //~ int scissor_offset_y = g_menu_background_enabled ? 0 : g_scissor_offset_y;
 
     /* First of all, we get once every ui elements we want to render
      * in a single list, so we don't have to iterate many times 

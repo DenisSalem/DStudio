@@ -19,21 +19,21 @@
 
 #include "dsandgrains.h"
 
-static long int s_start = 0;
-static long int s_end = 0;
-static int s_direction = 1;
-static long int s_range = 0;
+static uint_fast64_t s_start = 0;
+static uint_fast64_t s_end = 0;
+static int_fast32_t s_direction = 1;
+static uint_fast64_t s_range = 0;
 
-static void process_channel(SampleContext * sample, float * channel_in, float * channel_out, unsigned int frame_size) {
+static void process_channel(SampleContext * sample, float * channel_in, float * channel_out, uint_fast32_t frame_size) {
     float sample_amount = sample->amount.computed <= 1.0 ? sample->amount.computed : 1 + (sample->amount.computed-1) * 10; 
     float sample_stretch = sample->stretch.computed <= 1.0 ? 0.5 + 0.5*sample->stretch.computed : sample->stretch.computed; 
     
     (void) sample_stretch;
     
-    long int processed_index = sample->processed_index;
-    long int index = 0;
+    uint_fast64_t processed_index = sample->processed_index;
+    uint_fast64_t index = 0;
     
-    for (int i = 0; i < (int) frame_size; i++) {
+    for (uint_fast32_t i = 0; i < frame_size; i++) {
         // TODO : Could be optimized and cleaned
         
         if (s_direction > 0) {
@@ -57,7 +57,7 @@ void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * o
     Samples * samples = voice->sub_contexts;
     SampleContext * sample = 0;
 
-    for (unsigned int sample_index = 0; sample_index < samples->count; sample_index++) {
+    for (uint_fast32_t sample_index = 0; sample_index < samples->count; sample_index++) {
         sample = &samples->contexts[sample_index];
         
         s_start =  sample->start.computed * sample->shared_sample.size;

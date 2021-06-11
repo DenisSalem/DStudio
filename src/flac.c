@@ -98,7 +98,7 @@ void metadata_callback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMet
         }
 
         #ifdef DSTUDIO_DEBUG
-		fprintf(stderr, "sample rate    : %u Hz\n", shared_sample->rate);
+		fprintf(stderr, "sample rate    : %" PRIuFAST32 " Hz\n", shared_sample->rate);
 		fprintf(stderr, "channels       : %u\n", shared_sample->channels);
 		fprintf(stderr, "bits per sample: %u\n", shared_sample->bps);
 		fprintf(stderr, "total samples  : %lu\n", shared_sample->size);
@@ -115,7 +115,7 @@ void error_callback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderError
 }
 
 
-int load_flac(
+int_fast32_t load_flac(
     FILE * file,
     void (*client_error_callback)(const char * message),
     SharedSample * shared_sample

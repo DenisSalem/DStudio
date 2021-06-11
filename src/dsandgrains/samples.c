@@ -178,7 +178,7 @@ uint_fast32_t select_sample_from_list(
 // TODO : Smell like shit
 UIElements * set_samples_ui_context_from_parent_voice_list() {
     UIElements * line;
-    unsigned int sample_index;
+    uint_fast32_t sample_index;
     Samples * samples = g_current_active_voice->sub_contexts;
     sample_index = samples->index;
 
@@ -209,7 +209,7 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
 }
 
 // TODO: the following could be generalized and not implemented by consumer.
-void update_current_sample(unsigned int index) {
+void update_current_sample(uint_fast32_t index) {
     Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
     samples->index = index;
     s_previous_active_sample = g_current_active_sample;

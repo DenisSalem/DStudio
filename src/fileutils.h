@@ -38,7 +38,7 @@ void dstudio_expand_user(
     const char * directory
 );
 
-int dstudio_is_directory(
+int_fast32_t dstudio_is_directory(
     char * path
 );
 
@@ -48,6 +48,4 @@ void recursive_mkdir(
     char * directory
 );
 
-int is_directory(const char *path);
-
-int set_physical_memory();
+int_fast32_t set_physical_memory();

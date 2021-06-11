@@ -28,7 +28,8 @@
 void update_ui_bouncing_buttons() {
     double timestamp = 0;
     double elapsed_time = 0;
-    int pointer_x, pointer_y, texture_index;
+    int pointer_x, pointer_y;
+    uint_fast32_t texture_index;
     
     // TODO: Instead of iterating through every UI element one should index very rebouncing buttons
     for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {

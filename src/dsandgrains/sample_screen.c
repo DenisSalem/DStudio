@@ -56,15 +56,15 @@ void update_sample_screen_range() {
     float ui_end = sample_start < sample_end ? sample_end : sample_start;
     GLfloat * alphas_buffer = g_ui_elements_struct.sample_screen.instance_alphas_buffer;
 
-    for (unsigned int i = 0; i < (unsigned int) (ui_start * g_ui_elements_struct.sample_screen.count); i++) {
+    for (uint_fast32_t i = 0; i < (uint_fast32_t) (ui_start * g_ui_elements_struct.sample_screen.count); i++) {
         alphas_buffer[i] = 0.5;
     }
 
-    for (unsigned int i = (unsigned int) (ui_start * g_ui_elements_struct.sample_screen.count); i < (unsigned int ) (ui_end * g_ui_elements_struct.sample_screen.count); i++) {
+    for (uint_fast32_t i = (uint_fast32_t) (ui_start * g_ui_elements_struct.sample_screen.count); i < (uint_fast32_t) (ui_end * g_ui_elements_struct.sample_screen.count); i++) {
         alphas_buffer[i] = 0.75;
     }
 
-    for (unsigned int i = (unsigned int ) (ui_end * g_ui_elements_struct.sample_screen.count); i < g_ui_elements_struct.sample_screen.count; i++) {
+    for (uint_fast32_t i = (uint_fast32_t) (ui_end * g_ui_elements_struct.sample_screen.count); i < g_ui_elements_struct.sample_screen.count; i++) {
         alphas_buffer[i] = 0.5;
     }
     

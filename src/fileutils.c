@@ -67,7 +67,7 @@ uint_fast32_t count_process(const char * process_name) {
     );
     size_t line_buffer_size = 64;
     explicit_bzero(processus_status_path, sizeof(char) * 128);
-    int count = 0;
+    uint_fast32_t count = 0;
     long long int process_id;
     dr = opendir("/proc");
     FILE * processus_status = 0;
@@ -94,7 +94,7 @@ uint_fast32_t count_process(const char * process_name) {
                     process_name_match = strncmp(process_name, line_buffer+6, strlen(process_name));
                 }
                 if (strncmp(line_buffer, "Uid:", 4) == 0 ) {
-                    process_uid_match = getuid() == (uint_fast32_t) atoi(line_buffer+5);
+                    process_uid_match = getuid() == (uid_t) atoi(line_buffer+5);
                     break;
                 }
             }
@@ -144,7 +144,7 @@ void dstudio_expand_user(char ** dest, const char * directory) {
     strcpy(&(*dest)[strlen(pw->pw_dir)], tild_ptr);
 }
 
-int dstudio_is_directory(char * path) {
+int_fast32_t dstudio_is_directory(char * path) {
     struct stat path_stat;
     if (stat(path, &path_stat) == -1) {
         return -1;
@@ -190,8 +190,8 @@ void recursive_mkdir(char * directory) {
         sizeof(char) * strlen(directory),
         DSTUDIO_FAILURE_IS_FATAL
     );
-    int index = 0;
-    int previous_index = 0;
+    int_fast32_t index = 0;
+    int_fast32_t previous_index = 0;
     while (1) {
         for(int i = 0; i < (int) strlen(directory); i++) {
             if (directory[i] == '/' && i > index) {
@@ -216,7 +216,7 @@ void recursive_mkdir(char * directory) {
     dstudio_free(tmp_str);
 }
 
-int set_physical_memory() {
+int_fast32_t set_physical_memory() {
     char * line_buffer = 0;
     size_t line_buffer_size = 0;
     FILE * meminfo_fd = 0;
