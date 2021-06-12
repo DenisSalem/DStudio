@@ -62,7 +62,7 @@ void init_samples_interactive_list(
         string_size,
         sizeof(SampleContext),
         &samples->count,
-        &samples->contexts->name[0],
+        (char*) samples->contexts,
         select_sample_from_list,
         DSTUDIO_NO_CALLBACK,
         1,

@@ -46,6 +46,11 @@ void update_knob_value(UIElements * knob) {
         case DSTUDIO_KNOB_SENSITIVITY_EXPONENTIAL:
             break;
     }
+    if(knob->application_callback) {
+        knob->application_callback(
+            knob
+        );
+    }
 }
 
 void update_ui_knob(UIElements * knob) {

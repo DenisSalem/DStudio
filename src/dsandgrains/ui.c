@@ -36,7 +36,7 @@
 #include "ui.h"
 
 UIElementsStruct g_ui_elements_struct = {0};
-UIElements * g_ui_elements_array = (UIElements *) &g_ui_elements_struct;
+UIElements * g_dstudio_ui_elements_array = (UIElements *) &g_ui_elements_struct;
 
 static Vec2 s_knob1_64_scale_matrix[2] = {0};
 static Vec2 s_knob1_48_scale_matrix[2] = {0};
@@ -768,14 +768,14 @@ static void init_dsandgrains_ui_elements() {
     );
     bind_callbacks();
     for (uint_fast32_t i = 4; i < g_menu_background_index; i++) {
-        g_ui_elements_array[i].enabled = 1;
+        g_dstudio_ui_elements_array[i].enabled = 1;
     }
 
 }
 
 void * ui_thread(void * arg) {
     (void) arg;
-    
+
     SET_UI_MENU_BACKGROUND_INDEX
     
     init_ui();
@@ -786,6 +786,7 @@ void * ui_thread(void * arg) {
         &g_ui_elements_struct.cpu_usage,
         &g_ui_elements_struct.mem_usage
     );
+    
     init_instance_management_backend();
 
     init_instances_interactive_list(
@@ -819,7 +820,7 @@ void * ui_thread(void * arg) {
     
     dstudio_register_events_monitor(text_pointer_blink);
     dstudio_register_events_monitor(dstudio_update_ui_ressource_usage);
-    dstudio_register_events_monitor(update_ui_bouncing_buttons);
+    dstudio_register_events_monitor(dstudio_update_ui_bouncing_buttons);
     dstudio_register_events_monitor(update_ui_instances_list);
     dstudio_register_events_monitor(update_voices_ui_list);
     dstudio_register_events_monitor(update_open_file_ui_list);

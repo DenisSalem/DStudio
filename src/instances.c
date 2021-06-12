@@ -90,7 +90,7 @@ void init_instances_interactive_list(
         string_size,
         sizeof(InstanceContext),
         &g_instances.count,
-        &g_instances.contexts->name[0],
+        (char*) g_instances.contexts,
         select_instance_from_list,
         _rename_active_context_audio_port,
         1,
@@ -130,8 +130,8 @@ void instances_management() {
     int poll_result = poll(&s_fds, 1, 0);
     
     if (poll_result <= 0) {
-        if (errno != EAGAIN) {
-            dstudio_update_info_text(strerror(errno));
+        if (errno != EAGAIN && errno != EINVAL) {
+            DSTUDIO_TRACE_ARGS("poll_result <=0 : %s", strerror(errno));
         }
         return;
     }

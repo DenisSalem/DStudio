@@ -25,8 +25,13 @@
 
 #include "ui.h"
 
-void update_ui_bouncing_buttons();
+extern uint_fast32_t g_dstudio_buttons_count;
+extern UIElements ** g_dstudio_buttons_register;
+
+void dstudio_register_buttons();
+
+void dstudio_update_ui_bouncing_buttons();
     
-void update_button(UIElements * button_p);
+void dstudio_update_button(UIElements * button_p);
 
 #endif

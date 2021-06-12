@@ -76,7 +76,7 @@ void init_voices_interactive_list(
         s_string_size,
         sizeof(VoiceContext),
         &g_current_active_instance->voices.count,
-        g_current_active_instance->voices.contexts->name,
+        (char *) g_current_active_instance->voices.contexts,
         select_voice_from_list,
         _rename_active_context_audio_port,
         1,
@@ -120,22 +120,21 @@ UIElements * new_voice() {
     #endif
 
     if (g_current_active_instance->voices.count > g_ui_voices.lines_number) {
-        g_ui_voices.window_offset = g_current_active_instance->voices.count - g_ui_voices.lines_number;
         g_ui_voices.update_index = -1;
+        g_ui_voices.window_offset = g_current_active_instance->voices.count - g_ui_voices.lines_number;
     }
     else {
         g_ui_voices.update_index = g_current_active_instance->voices.index;
         g_ui_voices.window_offset = 0;
     }
 
-    line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
     if (s_ui_elements) {
+        line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
         bind_voices_interactive_list(line);
         bind_sub_context_interactive_list(
             setup_sub_context_interactive_list(),
             DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK
         );
-
     }
     
     strcpy((char *) &s_audio_port_name_left_buffer, g_current_active_instance->name);

@@ -19,9 +19,7 @@
 
 /*
  * TODO :
- *      - Make the damn naming convention consistent.  
- * WIP :
- *      - Make type size explicit and not platform dependant.
+ *      - Make the damn naming convention consistent.
  */
 
 #include <pthread.h>
@@ -41,7 +39,7 @@
 
 const uint_fast32_t g_dstudio_viewport_width = 940;
 const uint_fast32_t g_dstudio_viewport_height = 560;
-const char   g_application_name[] = "DSANDGRAINS";
+const char          g_application_name[] = "DSANDGRAINS";
 
 /* Allow generic DStudio UI features (like render loop) to deal with an 
  * array of UIElements. The size of this array is specific to the client
@@ -62,7 +60,7 @@ int main(int argc, char ** argv) {
     );
 
     dstudio_init_audio_api_client(dsandgrains_audio_process);
-
+    
     // TODO: PASS CALLBACK TO INIT SOME AUDIO API, NSM or LADISH
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
 

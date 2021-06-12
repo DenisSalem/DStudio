@@ -33,7 +33,7 @@
 
 #define SET_UI_MENU_BACKGROUND_INDEX \
     for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) { \
-        if (&g_ui_elements_array[i] == &g_ui_elements_struct.menu_background) { \
+        if (&g_dstudio_ui_elements_array[i] == &g_ui_elements_struct.menu_background) { \
             g_menu_background_index = i; \
             break; \
         }\
@@ -347,7 +347,7 @@ void update_viewport(DStudioWindowScale window_scale);
 // Must be defined by consumer
 typedef struct UIElementsStruct_t UIElementsStruct;
 extern UIElementsStruct g_ui_elements_struct;
-extern UIElements * g_ui_elements_array;
+extern UIElements *     g_dstudio_ui_elements_array;
 
 extern int_fast32_t         g_active_slider_range_max;
 extern int_fast32_t         g_active_slider_range_min;

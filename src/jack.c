@@ -86,9 +86,8 @@ static int process(jack_nframes_t nframes, void *arg) {
                             else if (voice->midi_binds[in_event.buffer[1]]) {
                                 ui_element_p = voice->midi_binds[in_event.buffer[1]];
                                 float value = (float) in_event.buffer[2] / 127.0;
+                                update_knob_value(ui_element_p);
                                 if (g_current_active_voice == voice) {
-                                    // UPDATE UI
-                                    DSTUDIO_TRACE
                                     if (ui_element_p->type == DSTUDIO_UI_ELEMENT_TYPE_KNOB) {
                                         *ui_element_p->instance_motions_buffer = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * value;
                                         ui_element_p->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;

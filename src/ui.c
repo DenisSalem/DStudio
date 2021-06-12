@@ -757,7 +757,9 @@ void init_ui_elements(
     );
         
     for (uint_fast32_t i = 0; i < count; i++) {
-        
+        if (ui_element_type & (DSTUDIO_UI_ELEMENT_TYPE_BUTTON | DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE)) {
+            g_dstudio_buttons_count++;
+        }
         ui_elements_array[i].flags = flags;
 
         x = (i % columns);
@@ -834,22 +836,17 @@ void manage_cursor_position(int xpos, int ypos) {
     if (s_ui_element_index < 0) {
         return;
     }
-    switch(g_ui_elements_array[s_ui_element_index].type) {
+    switch(g_dstudio_ui_elements_array[s_ui_element_index].type) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-            ui_element =  &g_ui_elements_array[s_ui_element_index];
+            ui_element =  &g_dstudio_ui_elements_array[s_ui_element_index];
             motion = compute_knob_rotation(xpos, ypos);
             update_ui_element_motion( ui_element, motion);
             update_knob_value( ui_element);
-            if(ui_element->application_callback) {
-                ui_element->application_callback(
-                    ui_element
-                );
-            }
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-            if (g_ui_elements_array[s_ui_element_index].enabled) {
-                ui_element = &g_ui_elements_array[s_ui_element_index];
+            if (g_dstudio_ui_elements_array[s_ui_element_index].enabled) {
+                ui_element = &g_dstudio_ui_elements_array[s_ui_element_index];
                 motion = compute_slider_translation(ypos);
                 update_ui_element_motion(ui_element, motion);
                 compute_slider_in_motion_scissor_y(ui_element);
@@ -857,9 +854,9 @@ void manage_cursor_position(int xpos, int ypos) {
                 float slider_value = compute_slider_percentage_value(ypos);
                 ui_element->application_callback_args = &slider_value;
                 
-                if (g_ui_elements_array[s_ui_element_index].application_callback) {
-                    g_ui_elements_array[s_ui_element_index].application_callback(
-                        &g_ui_elements_array[s_ui_element_index]
+                if (g_dstudio_ui_elements_array[s_ui_element_index].application_callback) {
+                    g_dstudio_ui_elements_array[s_ui_element_index].application_callback(
+                        &g_dstudio_ui_elements_array[s_ui_element_index]
                     );
                 }
             }
@@ -878,7 +875,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
     if (button == DSTUDIO_MOUSE_BUTTON_LEFT && action == DSTUDIO_MOUSE_BUTTON_PRESS) {
         clear_text_pointer();
         for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {
-            ui_elements_p = &g_ui_elements_array[i];
+            ui_elements_p = &g_dstudio_ui_elements_array[i];
             if (
                 xpos > (g_scissor_offset_x + ui_elements_p->areas.min_area_x) &&
                 xpos < (g_scissor_offset_x + ui_elements_p->areas.max_area_x) &&
@@ -925,7 +922,7 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                         
                     case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
                         ui_elements_p->application_callback(ui_elements_p);
-                        update_button(ui_elements_p);
+                        dstudio_update_button(ui_elements_p);
                         break;
                     
                     case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
@@ -999,7 +996,9 @@ inline void render_loop() {
     double framerate_limiter = 0;
     double framerate_limiter_timestamp = 0;
     DStudioWindowScale current_window_scale = {0};
-
+    
+    dstudio_register_buttons();
+        
     while (do_no_exit_loop()) {
         if (is_window_visible()) {
             framerate_limiter_timestamp = dstudio_get_timestamp();
@@ -1109,12 +1108,12 @@ uint_fast32_t render_viewport(uint_fast32_t render_all) {
      
      // We set the first requested element as the main background.
      s_ui_elements_requests_index = 0;
-     s_ui_elements_requests[0] = &g_ui_elements_array[0];
+     s_ui_elements_requests[0] = &g_dstudio_ui_elements_array[0];
      
      // Then we're gathering required ui_elements and defining layer 1 index limit
      for (uint_fast32_t i = 1; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].render_state || (render_all && g_ui_elements_array[i].visible)) {
-            s_ui_elements_requests[++s_ui_elements_requests_index] = &g_ui_elements_array[i];
+        if (g_dstudio_ui_elements_array[i].render_state || (render_all && g_dstudio_ui_elements_array[i].visible)) {
+            s_ui_elements_requests[++s_ui_elements_requests_index] = &g_dstudio_ui_elements_array[i];
             if (layer_1_index_limit < 0 && g_menu_background_enabled && s_ui_elements_requests[s_ui_elements_requests_index] >= g_menu_background_enabled) {
                 layer_1_index_limit = s_ui_elements_requests_index;
             }
@@ -1231,12 +1230,12 @@ void set_prime_interface(uint_fast32_t state) {
     UIInteractiveList * interactive_list;
     for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {
         if (i < g_menu_background_index) {
-            switch (g_ui_elements_array[i].type) {
+            switch (g_dstudio_ui_elements_array[i].type) {
                 case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
                 case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
-                    if (g_ui_elements_array[i].interactive_list && state) {
-                        interactive_list = g_ui_elements_array[i].interactive_list;
-                        g_ui_elements_array[i].enabled = *interactive_list->source_data_count <= interactive_list->lines_number ? 0 : 1;
+                    if (g_dstudio_ui_elements_array[i].interactive_list && state) {
+                        interactive_list = g_dstudio_ui_elements_array[i].interactive_list;
+                        g_dstudio_ui_elements_array[i].enabled = *interactive_list->source_data_count <= interactive_list->lines_number ? 0 : 1;
                         break;
                     }
                     __attribute__ ((fallthrough));
@@ -1244,7 +1243,7 @@ void set_prime_interface(uint_fast32_t state) {
                 case DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE:
                 case DSTUDIO_UI_ELEMENT_TYPE_EDITABLE_LIST_ITEM:
                 case DSTUDIO_UI_ELEMENT_TYPE_LIST_ITEM:
-                    g_ui_elements_array[i].enabled = state;
+                    g_dstudio_ui_elements_array[i].enabled = state;
                     
                 default:
                     break;

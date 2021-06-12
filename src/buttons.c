@@ -25,54 +25,66 @@
 #include "extensions.h"
 #include "window_management.h"
 
-void update_ui_bouncing_buttons() {
+uint_fast32_t   g_dstudio_buttons_count = 0;
+UIElements **   g_dstudio_buttons_register = NULL;
+
+void dstudio_register_buttons() {
+    uint_fast32_t mask  = DSTUDIO_UI_ELEMENT_TYPE_BUTTON | DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE;
+    uint_fast32_t index = 0;
+    g_dstudio_buttons_register = dstudio_alloc(sizeof(UIElements *)*g_dstudio_buttons_count, DSTUDIO_FAILURE_IS_FATAL);
+    
+    for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {
+        if (g_dstudio_ui_elements_array[i].type & mask) {
+            g_dstudio_buttons_register[index++] = &g_dstudio_ui_elements_array[i];
+        }
+    }
+};
+
+void dstudio_update_ui_bouncing_buttons() {
     double timestamp = 0;
     double elapsed_time = 0;
     int pointer_x, pointer_y;
     uint_fast32_t texture_index;
     
-    // TODO: Instead of iterating through every UI element one should index very rebouncing buttons
-    for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) {
-        if (g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
-            timestamp = g_ui_elements_array[i].timestamp;
+    for (uint_fast32_t i = 0; i < g_dstudio_buttons_count; i++) {
+        if (g_dstudio_buttons_register[i]->type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
+            timestamp = g_dstudio_buttons_register[i]->timestamp;
             if (timestamp == 0) {
                 continue;
             }
             elapsed_time = dstudio_get_timestamp() - timestamp;
     
             if (elapsed_time > 0.05) {
-                if (g_ui_elements_array[i].texture_index == 0 && g_dstudio_mouse_state == 0) {
-                    g_ui_elements_array[i].timestamp = 0;
+                if (g_dstudio_buttons_register[i]->texture_index == 0 && g_dstudio_mouse_state == 0) {
+                    g_dstudio_buttons_register[i]->timestamp = 0;
                     continue;
                 }
-                if (g_ui_elements_array[i].texture_index == 1 && g_dstudio_mouse_state == 0 && g_ui_elements_array[i].render_state == DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED) {
-                    update_button(&g_ui_elements_array[i]);
+                if (g_dstudio_buttons_register[i]->texture_index == 1 && g_dstudio_mouse_state == 0 && g_dstudio_buttons_register[i]->render_state == DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED) {
+                    dstudio_update_button(g_dstudio_buttons_register[i]);
                 }
             }
         }
         else if (
-            g_ui_elements_array[i].enabled && 
-            g_ui_elements_array[i].type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON &&
-            g_x11_input_mask & PointerMotionMask
+            g_dstudio_buttons_register[i]->enabled && 
+            (g_x11_input_mask & PointerMotionMask)
         ) {
             get_pointer_coordinates(&pointer_x, &pointer_y);
-            if (pointer_x >= (g_scissor_offset_x + g_ui_elements_array[i].areas.min_area_x) && pointer_x <= (g_scissor_offset_x + g_ui_elements_array[i].areas.max_area_x) &&
-                pointer_y >= (g_scissor_offset_y + g_ui_elements_array[i].areas.min_area_y) && pointer_y <= (g_scissor_offset_y + g_ui_elements_array[i].areas.max_area_y)) {
+            if (pointer_x >= (g_scissor_offset_x + g_dstudio_buttons_register[i]->areas.min_area_x) && pointer_x <= (g_scissor_offset_x + g_dstudio_buttons_register[i]->areas.max_area_x) &&
+                pointer_y >= (g_scissor_offset_y + g_dstudio_buttons_register[i]->areas.min_area_y) && pointer_y <= (g_scissor_offset_y + g_dstudio_buttons_register[i]->areas.max_area_y)) {
                 texture_index = 1;
             }
             else {
                 texture_index = 0;
             }
     
-            if (texture_index != g_ui_elements_array[i].texture_index) {
-                update_button(&g_ui_elements_array[i]);
+            if (texture_index != g_dstudio_buttons_register[i]->texture_index) {
+                dstudio_update_button(g_dstudio_buttons_register[i]);
             }
         }
     }
 }
  
-void update_button(UIElements * buttons_p) {
-    buttons_p->timestamp = dstudio_get_timestamp();
+void dstudio_update_button(UIElements * buttons_p) {
     if (buttons_p->texture_index == 1) {
         buttons_p->texture_index = 0;
     }
