@@ -23,12 +23,17 @@
 #include "audio_api.h"
 #include "interactive_list.h"
 
+typedef struct DStudioVoiceMidiBind_t {
+    ControllerValue * controller_value;
+    UIElements * ui_element;
+} DStudioVoiceMidiBind;
+
 typedef struct VoiceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     void * sub_contexts;
     void * midi_data_buffer;
     AudioPort ports;
-    UIElements * midi_binds[256];
+    DStudioVoiceMidiBind midi_binds[256];
 } VoiceContext;
 
 typedef struct Voices_t {

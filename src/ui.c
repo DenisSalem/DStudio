@@ -97,9 +97,9 @@ static void check_frame_buffer_status() {
 #endif
 
 static inline GLfloat compute_knob_rotation(int xpos, int ypos) {
-    GLfloat rotation = 0;
-    GLfloat y = - ypos + g_ui_element_center_y;
-    GLfloat x = xpos - g_ui_element_center_x;
+    double rotation = 0;
+    double y = - ypos + g_ui_element_center_y;
+    double x = xpos - g_ui_element_center_x;
     rotation = -atan(x / y);
 
     if (y < 0) {
@@ -840,8 +840,8 @@ void manage_cursor_position(int xpos, int ypos) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
             ui_element =  &g_dstudio_ui_elements_array[s_ui_element_index];
             motion = compute_knob_rotation(xpos, ypos);
-            update_ui_element_motion( ui_element, motion);
-            update_knob_value( ui_element);
+            update_ui_element_motion(ui_element, motion);
+            update_knob_value_from_ui_element(ui_element);
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
@@ -912,7 +912,6 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                             dstudio_update_info_text("Midi capture is aborted.");
                             break;
                     }
-                    break;
                 }
                 
                 switch (ui_elements_p->type) {
@@ -1070,10 +1069,13 @@ void render_ui_elements(UIElements * ui_elements) {
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     ui_elements->render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
+    
+    memcpy(&ui_elements->coordinates_settings.previous_scissor, &ui_elements->coordinates_settings.scissor, sizeof(Scissor));
+        
     /* After any slider movement, scissor must be reset accordingly to
      * the final motion value.
      */
-    
+
     if (ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
         compute_slider_scissor_y(ui_elements);
     }
@@ -1152,7 +1154,7 @@ uint_fast32_t render_viewport(uint_fast32_t render_all) {
     /* Render first layer background */
     background_rendering_end_index = render_all ? 1 : (uint_fast32_t) layer_1_index_limit;
     for (uint_fast32_t i = background_rendering_start_index; i < background_rendering_end_index; i++) {
-        if (s_ui_elements_requests[i]->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED && s_ui_elements_requests[i]->render_state == DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED) {
+        if (s_ui_elements_requests[i]->flags & DSTUDIO_FLAG_TEXT_IS_CENTERED && s_ui_elements_requests[i]->render_state != DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED) {
             scissor_n_matrix_setting(i, 0, DSTUDIO_FLAG_TEXT_IS_CENTERED);
         }
         else if (s_ui_elements_requests[i]->type == DSTUDIO_UI_ELEMENT_TYPE_HIGHLIGHT || s_ui_elements_requests[i] == g_text_pointer_context.text_pointer) {

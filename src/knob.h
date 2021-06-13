@@ -26,21 +26,9 @@
 #define KNOB_LOWEST_POSITION -2.356194490192345
 #define KNOB_HIGHEST_POSITION 2.356194490192345
 
-typedef enum KnobSensitivity_t {
-    DSTUDIO_KNOB_SENSITIVITY_LINEAR,
-    DSTUDIO_KNOB_SENSITIVITY_LOGARITHMIC,
-    DSTUDIO_KNOB_SENSITIVITY_EXPONENTIAL
-} KnobSensitivity;
-
-typedef struct KnobValue_t {
-    float multiplier;
-    float offset;
-    float computed;
-    KnobSensitivity sensitivity;
-} KnobValue;
-
 void bind_and_update_ui_knob(UIElements * knob, void * callback_args);
-void update_knob_value(UIElements * knob);
+void update_knob_value_from_motion(ControllerValue * knob_value, GLfloat motion);
+void update_knob_value_from_ui_element(UIElements * knob);
 void update_ui_knob(UIElements * knob);
 
 #endif

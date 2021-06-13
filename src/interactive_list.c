@@ -169,7 +169,7 @@ void select_item(
     }
 }
 
-void update_insteractive_list(
+void update_interactive_list(
     UIInteractiveList * interactive_list
 ) {
     uint_fast32_t stride = interactive_list->stride;

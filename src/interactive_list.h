@@ -79,7 +79,7 @@ void init_interactive_list(
     GLfloat highlight_step
 );
 
-void update_insteractive_list(
+void update_interactive_list(
     UIInteractiveList * interactive_list
 );
 

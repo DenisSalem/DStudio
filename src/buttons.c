@@ -47,14 +47,17 @@ void dstudio_update_ui_bouncing_buttons() {
     uint_fast32_t texture_index;
     
     for (uint_fast32_t i = 0; i < g_dstudio_buttons_count; i++) {
+
         if (g_dstudio_buttons_register[i]->type == DSTUDIO_UI_ELEMENT_TYPE_BUTTON_REBOUNCE) {
             timestamp = g_dstudio_buttons_register[i]->timestamp;
             if (timestamp == 0) {
                 continue;
             }
             elapsed_time = dstudio_get_timestamp() - timestamp;
-    
+                                                  //  DSTUDIO_TRACE;
+
             if (elapsed_time > 0.05) {
+
                 if (g_dstudio_buttons_register[i]->texture_index == 0 && g_dstudio_mouse_state == 0) {
                     g_dstudio_buttons_register[i]->timestamp = 0;
                     continue;

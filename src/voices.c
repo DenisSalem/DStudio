@@ -204,7 +204,7 @@ void update_current_voice(uint_fast32_t index) {
 
 void update_voices_ui_list() {
     if (g_ui_voices.update_request) {
-        update_insteractive_list(&g_ui_voices);
+        update_interactive_list(&g_ui_voices);
         g_ui_voices.update_request = 0;
     }
 }

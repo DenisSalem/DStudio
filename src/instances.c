@@ -308,6 +308,6 @@ void update_ui_instances_list() {
     instances_management();
     if (g_ui_instances.update_request) {
         g_ui_instances.source_data = &g_instances.contexts->name[0];
-        update_insteractive_list(&g_ui_instances);
+        update_interactive_list(&g_ui_instances);
     }
 }

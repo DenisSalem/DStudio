@@ -98,35 +98,46 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     samples->index = samples->count++;
     samples->contexts = new_sample_context;
     g_current_active_sample = &samples->contexts[samples->index];
+    g_current_active_sample->identifier = dstudio_get_timestamp();
     
-    KnobValue * start = &g_current_active_sample->start;
+    g_current_active_sample->start = dstudio_alloc(sizeof(ControllerValue), DSTUDIO_FAILURE_IS_FATAL);
+    ControllerValue * start = g_current_active_sample->start;
     start->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
     start->computed = 0;
     start->multiplier = 1;
     start->offset = 0;
+    start->context_identifier = g_current_active_sample->identifier;
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, start);    
     g_ui_elements_struct.knob_sample_start.application_callback = request_sample_screen_range_update;
-    
-    KnobValue * end = &g_current_active_sample->end;
+
+    g_current_active_sample->end = dstudio_alloc(sizeof(ControllerValue), DSTUDIO_FAILURE_IS_FATAL);
+    ControllerValue * end = g_current_active_sample->end;
     end->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
     end->computed = 1;
     end->multiplier = 1;
     end->offset = 0;
+    end->context_identifier = g_current_active_sample->identifier;;
+
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, end); 
     g_ui_elements_struct.knob_sample_end.application_callback = request_sample_screen_range_update;
 
-    KnobValue * amount = &g_current_active_sample->amount;
+    g_current_active_sample->amount = dstudio_alloc(sizeof(ControllerValue), DSTUDIO_FAILURE_IS_FATAL);
+    ControllerValue * amount = g_current_active_sample->amount;
     amount->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
     amount->computed = 1;
     amount->multiplier = 2;
     amount->offset = 0;
+    amount->context_identifier = g_current_active_sample->identifier;
+
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, amount);
 
-    KnobValue * stretch = &g_current_active_sample->stretch;
+    g_current_active_sample->stretch = dstudio_alloc(sizeof(ControllerValue), DSTUDIO_FAILURE_IS_FATAL);
+    ControllerValue * stretch = g_current_active_sample->stretch;
     stretch->sensitivity = DSTUDIO_KNOB_SENSITIVITY_LINEAR;
     stretch->computed = 1;
     stretch->multiplier = 2;
     stretch->offset = 0;
+    stretch->context_identifier = g_current_active_sample->identifier;
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, stretch);
 
     strncpy(g_current_active_sample->name, filename, g_ui_samples.string_size-1);
@@ -164,10 +175,10 @@ uint_fast32_t select_sample_from_list(
 
     if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &g_current_active_sample->amount);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, &g_current_active_sample->stretch);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, &g_current_active_sample->start);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, &g_current_active_sample->end);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, g_current_active_sample->amount);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, g_current_active_sample->stretch);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, g_current_active_sample->start);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, g_current_active_sample->end);
         bind_new_data_to_sample_screen(samples->count ? &g_current_active_sample->shared_sample : 0);
         return 1;
     }
@@ -192,11 +203,12 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
     }
     if (samples->count) {
         s_previous_active_sample = 0;
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, &samples->contexts[samples->index].amount);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, &samples->contexts[samples->index].stretch);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, &samples->contexts[samples->index].start);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, &samples->contexts[samples->index].end);
-        bind_new_data_to_sample_screen(&samples->contexts[samples->index].shared_sample);
+        update_current_sample(sample_index);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, g_current_active_sample->amount);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, g_current_active_sample->stretch);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, g_current_active_sample->start);
+        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, g_current_active_sample->end);
+        bind_new_data_to_sample_screen(&g_current_active_sample->shared_sample);
     }
     else {
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, 0);
@@ -218,6 +230,6 @@ void update_current_sample(uint_fast32_t index) {
 
 void update_samples_ui_list() {
     if (g_ui_samples.update_request) {
-        update_insteractive_list(&g_ui_samples);
+        update_interactive_list(&g_ui_samples);
     }
 }

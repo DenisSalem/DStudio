@@ -19,33 +19,33 @@
 
 #include "dsandgrains.h"
 
-static uint_fast64_t s_start = 0;
-static uint_fast64_t s_end = 0;
+static int_fast64_t s_start = 0;
+static int_fast64_t s_end = 0;
 static int_fast32_t s_direction = 1;
-static uint_fast64_t s_range = 0;
+static int_fast64_t s_range = 0;
 
 static void process_channel(SampleContext * sample, float * channel_in, float * channel_out, uint_fast32_t frame_size) {
-    float sample_amount = sample->amount.computed <= 1.0 ? sample->amount.computed : 1 + (sample->amount.computed-1) * 10; 
-    float sample_stretch = sample->stretch.computed <= 1.0 ? 0.5 + 0.5*sample->stretch.computed : sample->stretch.computed; 
+    float sample_amount = sample->amount->computed <= 1.0 ? sample->amount->computed : 1 + (sample->amount->computed-1) * 10; 
+    float sample_stretch = sample->stretch->computed <= 1.0 ? 0.5 + 0.5*sample->stretch->computed : sample->stretch->computed; 
     
     (void) sample_stretch;
     
-    uint_fast64_t processed_index = sample->processed_index;
-    uint_fast64_t index = 0;
+    int_fast64_t processed_index = sample->processed_index;
+    int_fast64_t index = 0;
     
     for (uint_fast32_t i = 0; i < frame_size; i++) {
         // TODO : Could be optimized and cleaned
+        int_fast32_t offset = i % s_range;
+        index = processed_index + (s_direction > 0 ? offset : - offset);
         
         if (s_direction > 0) {
-            index = processed_index + i;
             if (index >= s_end) {
                 index -= s_range;
             }
         }
         else {
-            index = processed_index - i;
             if (index < s_end) {
-                index +=(s_range);
+                index += s_range;
             }
         }
         
@@ -60,8 +60,8 @@ void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * o
     for (uint_fast32_t sample_index = 0; sample_index < samples->count; sample_index++) {
         sample = &samples->contexts[sample_index];
         
-        s_start =  sample->start.computed * sample->shared_sample.size;
-        s_end =  sample->end.computed * sample->shared_sample.size;
+        s_start =  sample->start->computed * (sample->shared_sample.size-1);
+        s_end =  sample->end->computed * (sample->shared_sample.size-1);
 
         if (s_start < s_end) {
             s_direction = 1;

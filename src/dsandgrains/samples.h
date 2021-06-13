@@ -29,11 +29,12 @@
 typedef struct SampleContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
-    uint_fast64_t processed_index;
-    KnobValue start;
-    KnobValue end;
-    KnobValue amount;
-    KnobValue stretch;
+    int_fast64_t processed_index;
+    ControllerValue * start;
+    ControllerValue * end;
+    ControllerValue * amount;
+    ControllerValue * stretch;
+    double  identifier;
 } SampleContext;
 
 typedef struct Samples_t{

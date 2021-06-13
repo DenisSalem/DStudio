@@ -147,6 +147,20 @@ typedef struct Area_t {
     GLfloat offset_y;
 } Area;
 
+typedef enum ControllerSensitivity_t {
+    DSTUDIO_KNOB_SENSITIVITY_LINEAR,
+    DSTUDIO_KNOB_SENSITIVITY_LOGARITHMIC,
+    DSTUDIO_KNOB_SENSITIVITY_EXPONENTIAL
+} ControllerSensitivity;
+
+typedef struct ControllerValue_t {
+    float multiplier;
+    float offset;
+    float computed;
+    ControllerSensitivity sensitivity;
+    double context_identifier;
+} ControllerValue;
+
 typedef enum MotionType_t {
     DSTUDIO_MOTION_TYPE_NONE = 0U,
     DSTUDIO_MOTION_TYPE_ROTATION = 1U,

@@ -26,14 +26,13 @@ void bind_and_update_ui_knob(UIElements * knob, void * callback_args) {
     update_ui_knob(knob);
 }
 
-void update_knob_value(UIElements * knob) {
-    KnobValue * knob_value = knob->application_callback_args;
+
+void update_knob_value_from_motion(ControllerValue * knob_value, GLfloat motion) {
     float value = 0;
     if (knob_value == NULL) {
         return;
     }
-    
-    value = knob_value->offset + knob_value->multiplier * (1.0 - (*knob->instance_motions_buffer - KNOB_LOWEST_POSITION) / (2.0 * (GLfloat) KNOB_HIGHEST_POSITION));
+    value = knob_value->offset + knob_value->multiplier * (1.0 - (motion - KNOB_LOWEST_POSITION) / (2.0 * (GLfloat) KNOB_HIGHEST_POSITION));
 
     switch(knob_value->sensitivity) {
         case DSTUDIO_KNOB_SENSITIVITY_LINEAR:
@@ -46,6 +45,14 @@ void update_knob_value(UIElements * knob) {
         case DSTUDIO_KNOB_SENSITIVITY_EXPONENTIAL:
             break;
     }
+}
+
+void update_knob_value_from_ui_element(UIElements * knob) {   
+    update_knob_value_from_motion(
+        knob->application_callback_args,
+        *knob->instance_motions_buffer
+    );
+    
     if(knob->application_callback) {
         knob->application_callback(
             knob
@@ -56,9 +63,10 @@ void update_knob_value(UIElements * knob) {
 void update_ui_knob(UIElements * knob) {
     float rotation = 0;
     
-    KnobValue default_value = {1.0, 0, 0.5, DSTUDIO_KNOB_SENSITIVITY_LINEAR};
+    ControllerValue default_value = {1.0, 0, 0.5, DSTUDIO_KNOB_SENSITIVITY_LINEAR, 0};
+
+    ControllerValue * knob_value = knob->application_callback_args == 0 ? &default_value : knob->application_callback_args;
     
-    KnobValue * knob_value = knob->application_callback_args == 0 ? &default_value : knob->application_callback_args;
     float value = 0;
     switch(knob_value->sensitivity) {
         case DSTUDIO_KNOB_SENSITIVITY_LINEAR:
@@ -74,6 +82,7 @@ void update_ui_knob(UIElements * knob) {
     rotation = -KNOB_LOWEST_POSITION + (2.0 * KNOB_HIGHEST_POSITION) * value;
     
     knob->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+    
     if (knob->transition_animation) {
         animate_motions_transitions(&rotation, knob);
     }

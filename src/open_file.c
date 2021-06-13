@@ -611,6 +611,6 @@ void update_open_file_error(const char * message) {
 
 void update_open_file_ui_list() {
     if (s_interactive_list.update_request) {
-        update_insteractive_list(&s_interactive_list);
+        update_interactive_list(&s_interactive_list);
     }
 }

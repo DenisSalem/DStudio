@@ -44,7 +44,8 @@ static int process(jack_nframes_t nframes, void *arg) {
         InstanceContext * instance = 0;
         jack_default_audio_sample_t * out_left = 0;
         jack_default_audio_sample_t * out_right = 0;
-        UIElements * ui_element_p = NULL;
+        ControllerValue * controller_value_p = NULL;
+        UIElements * midi_ui_target = NULL;
         if (s_client_process == NULL) {
             return 0;
         }
@@ -78,19 +79,28 @@ static int process(jack_nframes_t nframes, void *arg) {
                         jack_midi_event_get(&in_event, midi_buffer, event_index);
                         if ( (uint_fast8_t) 0xB0 <= in_event.buffer[0] && in_event.buffer[0] <= (uint_fast8_t) 0xBF) {
                             if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT && g_current_active_voice == voice) {
-                                voice->midi_binds[in_event.buffer[1]] = g_midi_ui_element_target;
+                                voice->midi_binds[in_event.buffer[1]].ui_element = g_midi_ui_element_target;
+                                voice->midi_binds[in_event.buffer[1]].controller_value = g_midi_ui_element_target->application_callback_args;
                                 dstudio_update_info_text("Midi input has been binded!");
                                 g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
                                 g_midi_ui_element_target = NULL;
                             }
-                            else if (voice->midi_binds[in_event.buffer[1]]) {
-                                ui_element_p = voice->midi_binds[in_event.buffer[1]];
-                                float value = (float) in_event.buffer[2] / 127.0;
-                                update_knob_value(ui_element_p);
-                                if (g_current_active_voice == voice) {
-                                    if (ui_element_p->type == DSTUDIO_UI_ELEMENT_TYPE_KNOB) {
-                                        *ui_element_p->instance_motions_buffer = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * value;
-                                        ui_element_p->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+                            else if (voice->midi_binds[in_event.buffer[1]].ui_element) {
+                                controller_value_p = voice->midi_binds[in_event.buffer[1]].controller_value;
+                                midi_ui_target = voice->midi_binds[in_event.buffer[1]].ui_element;
+                                double value = 0;
+                                if (midi_ui_target->type == DSTUDIO_UI_ELEMENT_TYPE_KNOB) {
+                                    value = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * ((double) in_event.buffer[2] / 127.0);
+                                    if ( controller_value_p->context_identifier == ((ControllerValue*)midi_ui_target->application_callback_args)->context_identifier) {
+                                        *midi_ui_target->instance_motions_buffer = value;
+                                        update_knob_value_from_ui_element(midi_ui_target);
+                                        midi_ui_target->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+                                    }
+                                    else {
+                                        update_knob_value_from_motion(
+                                            controller_value_p,
+                                            value
+                                        );
                                     }
                                 }
                             }
