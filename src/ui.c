@@ -902,10 +902,13 @@ void manage_mouse_button(int xpos, int ypos, int button, int action) {
                     switch (ui_elements_p->type) {
                         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER:
                         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-                            g_midi_ui_element_target = ui_elements_p;
-                            g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT;
-                            dstudio_update_info_text("Waiting for midi signal from input...");
-                            break;
+                            if (ui_elements_p->application_callback_args) {
+                                g_midi_ui_element_target = ui_elements_p;
+                                g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT;
+                                dstudio_update_info_text("Waiting for midi signal from input...");
+                                break;
+                            }
+                            __attribute__ ((fallthrough));
                             
                         default:
                             g_midi_ui_element_target = NULL;

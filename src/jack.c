@@ -38,6 +38,7 @@ static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) 
 
 static int process(jack_nframes_t nframes, void *arg) {
         (void) arg;
+        // TODO : could be static
         int connection_left = 0;
         int connection_right = 0;
         VoiceContext * voice = 0;
@@ -45,7 +46,11 @@ static int process(jack_nframes_t nframes, void *arg) {
         jack_default_audio_sample_t * out_left = 0;
         jack_default_audio_sample_t * out_right = 0;
         ControllerValue * controller_value_p = NULL;
+        ControllerValue * midi_ui_target_controller_value;
         UIElements * midi_ui_target = NULL;
+        double value = 0;
+        int match = 0;
+        
         if (s_client_process == NULL) {
             return 0;
         }
@@ -88,20 +93,27 @@ static int process(jack_nframes_t nframes, void *arg) {
                             else if (voice->midi_binds[in_event.buffer[1]].ui_element) {
                                 controller_value_p = voice->midi_binds[in_event.buffer[1]].controller_value;
                                 midi_ui_target = voice->midi_binds[in_event.buffer[1]].ui_element;
-                                double value = 0;
-                                if (midi_ui_target->type == DSTUDIO_UI_ELEMENT_TYPE_KNOB) {
-                                    value = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * ((double) in_event.buffer[2] / 127.0);
-                                    if ( controller_value_p->context_identifier == ((ControllerValue*)midi_ui_target->application_callback_args)->context_identifier) {
-                                        *midi_ui_target->instance_motions_buffer = value;
-                                        update_knob_value_from_ui_element(midi_ui_target);
-                                        midi_ui_target->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-                                    }
-                                    else {
-                                        update_knob_value_from_motion(
-                                            controller_value_p,
-                                            value
-                                        );
-                                    }
+                                midi_ui_target_controller_value = midi_ui_target->application_callback_args;
+                                match =  midi_ui_target_controller_value ? controller_value_p->context_identifier == midi_ui_target_controller_value->context_identifier : 0;
+                                                                                                
+                                switch(midi_ui_target->type) {
+                                    case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
+                                        value = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * ((double) in_event.buffer[2] / 127.0);
+                                        if ( midi_ui_target_controller_value && match) {
+                                            *midi_ui_target->instance_motions_buffer = value;
+                                            update_knob_value_from_ui_element(midi_ui_target);
+                                            midi_ui_target->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+                                        }
+                                        else {
+                                            DSTUDIO_TRACE;
+                                            update_knob_value_from_motion(
+                                                controller_value_p,
+                                                value
+                                            );
+                                        }
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
                         }
