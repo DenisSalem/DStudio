@@ -208,10 +208,7 @@ typedef struct UIElements_t {
     uint_fast8_t                enabled;
     uint_fast8_t                texture_index;
     double                      timestamp;
-    union {
-        uint_fast32_t           text_buffer_size;
-        GLfloat                 previous_slider_motion;
-    };
+    uint_fast32_t               text_buffer_size;
     GLchar                      vertex_indexes[4];
     /* For any text type there is only one index used for texture because
      * it's not meant to be changed. The other index is used to store the

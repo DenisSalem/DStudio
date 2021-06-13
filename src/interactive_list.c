@@ -212,13 +212,22 @@ void update_interactive_list(
 
 void update_scroll_bar(UIInteractiveList * interactive_list) {
     UIElements * scroll_bar = interactive_list->scroll_bar;
-    uint_fast32_t multiplier;
-    GLfloat relative_position = (GLfloat) interactive_list->window_offset / (GLfloat) (*interactive_list->source_data_count - interactive_list->lines_number);
-    GLfloat height = (scroll_bar->areas.max_area_y - scroll_bar->areas.min_area_y) - scroll_bar->coordinates_settings.scale_matrix[1].y / (1.0 / (GLfloat) (g_dstudio_viewport_height));
-    height = ((int_fast32_t) height % 2 == 0) ? height : height + 0.5; 
+    
+    // Using ternary expression to prevent division by zero and screw up later scissors.
+    GLfloat ratio = *interactive_list->source_data_count - interactive_list->lines_number;
+    GLfloat relative_position = ratio ? (GLfloat) interactive_list->window_offset / ratio : 1.0;
+    
+    // Full height of the slider
+    GLfloat height = 
+        nearbyint((scroll_bar->areas.max_area_y - scroll_bar->areas.min_area_y) - \
+        scroll_bar->coordinates_settings.scale_matrix[1].y / \
+        (1.0 / (GLfloat) (g_dstudio_viewport_height)));
+    
     relative_position *= height / (GLfloat) (g_dstudio_viewport_height >> 1);
-    multiplier = relative_position / (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
-    relative_position = multiplier * (1.0/(GLfloat) (g_dstudio_viewport_height >> 1));
+    
+    // round slider position to avoid render artifact
+    relative_position = nearbyint(relative_position / (1.0/ (GLfloat) (g_dstudio_viewport_height >> 1))) * (1.0/ (GLfloat) (g_dstudio_viewport_height >> 1));
+    
     GLfloat motion = interactive_list->max_scroll_bar_offset - relative_position;
     update_ui_element_motion(scroll_bar, motion);
     compute_slider_in_motion_scissor_y(scroll_bar);

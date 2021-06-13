@@ -187,7 +187,10 @@ static void scissor_n_matrix_setting(int_fast32_t scissor_index, int_fast32_t ma
     int_fast32_t scissor_offset_y = DSTUDIO_FLAG_NO_SCISSOR_OFFSET & flags ? 0 : g_scissor_offset_y;
     
     UIElements * ui_element = s_ui_elements_requests[scissor_index];
-    Scissor * scissor = flags & DSTUDIO_FLAG_TEXT_IS_CENTERED ? &ui_element->coordinates_settings.previous_scissor : &ui_element->coordinates_settings.scissor;
+    Scissor * scissor = flags & (DSTUDIO_FLAG_TEXT_IS_CENTERED | DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS) ? \
+        &ui_element->coordinates_settings.previous_scissor : \
+        &ui_element->coordinates_settings.scissor;
+        
     UIElementType type = ui_element->type;
     int_fast32_t is_active_text_pointer_overing = \
         g_text_pointer_context.active && \
@@ -205,10 +208,7 @@ static void scissor_n_matrix_setting(int_fast32_t scissor_index, int_fast32_t ma
     if (scissor_index >=0) {
         glScissor(
             scissor_offset_x + scissor->x,
-            scissor_offset_y + (flags & DSTUDIO_FLAG_RESET_HIGHLIGHT_AREAS ? \
-                ui_element->coordinates_settings.previous_scissor.y : \
-                scissor->y)
-            ,
+            scissor_offset_y + scissor->y,
             is_active_text_pointer_overing ? 1 : scissor->width ,
             scissor->height
         );
@@ -696,6 +696,7 @@ inline static void inline_init_ui_elements_set_scissor(UIElements * ui_element_p
         ui_element_p->coordinates_settings.scissor.y = g_dstudio_viewport_height - ui_element_p->areas.max_area_y;
         ui_element_p->coordinates_settings.scissor.height = ui_element_p->areas.max_area_y - ui_element_p->areas.min_area_y;
     }
+    memcpy(&ui_element_p->coordinates_settings.previous_scissor, &ui_element_p->coordinates_settings.scissor, sizeof(Scissor));
 }
 
 
@@ -1069,9 +1070,7 @@ void render_ui_elements(UIElements * ui_elements) {
         glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     ui_elements->render_state = DSTUDIO_UI_ELEMENT_NO_RENDER_REQUESTED;
-    
-    memcpy(&ui_elements->coordinates_settings.previous_scissor, &ui_elements->coordinates_settings.scissor, sizeof(Scissor));
-        
+            
     /* After any slider movement, scissor must be reset accordingly to
      * the final motion value.
      */
@@ -1079,6 +1078,9 @@ void render_ui_elements(UIElements * ui_elements) {
     if (ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
         compute_slider_scissor_y(ui_elements);
     }
+    
+    
+    memcpy(&ui_elements->coordinates_settings.previous_scissor, &ui_elements->coordinates_settings.scissor, sizeof(Scissor));
 }
 
 uint_fast32_t render_viewport(uint_fast32_t render_all) {    

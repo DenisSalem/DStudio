@@ -66,7 +66,7 @@ FILE * add_instance_file_descriptor() {
     count_instances(s_instances_directory, &count, &last_id);
     strcat(instance_filename_buffer, s_instances_directory);
     strcat(instance_filename_buffer, "/");
-    sprintf(string_representation_of_integer,"%" PRIXFAST32, last_id+1);
+    sprintf(string_representation_of_integer,"%" PRIuFAST32, last_id+1);
     strcat(instance_filename_buffer, string_representation_of_integer);
     return fopen(instance_filename_buffer, "w+");
 }
