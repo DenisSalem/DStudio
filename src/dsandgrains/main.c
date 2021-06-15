@@ -23,7 +23,8 @@
  */
 
 #include <pthread.h>
-#include <semaphore.h>
+
+#include "unistd.h"
 
 #include "../buttons.h"
 #include "../common.h"
@@ -59,18 +60,20 @@ int main(int argc, char ** argv) {
         set_samples_ui_context_from_parent_voice_list
     );
 
-    dstudio_init_audio_api_client(dsandgrains_audio_process);
+    if (DSTUDIO_AUDIO_API_NO_ERROR != dstudio_init_audio_api_client(dsandgrains_audio_process)) {
+        goto terminate;
+    }
     
     // TODO: PASS CALLBACK TO INIT SOME AUDIO API, NSM or LADISH
     new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
-
+    
     pthread_t ui_thread_id;
 
     DSTUDIO_RETURN_IF_FAILURE(pthread_create( &ui_thread_id, NULL, ui_thread, NULL))
     DSTUDIO_RETURN_IF_FAILURE(pthread_join(ui_thread_id, NULL))
     
-    dstudio_stop_audio_api_client();
-    
-    dstudio_free(0);
-    return 0;
+    terminate:
+        dstudio_stop_audio_api_client();
+        dstudio_free(0);
+        return 0;
 }

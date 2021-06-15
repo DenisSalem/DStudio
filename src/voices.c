@@ -32,10 +32,6 @@ static VoiceContext * s_previous_active_voice = 0;
 void (*bind_sub_context_interactive_list)(UIElements * line, ListItemOpt flag) = 0;
 UIElements * (*setup_sub_context_interactive_list)() = 0;
 
-char s_audio_port_name_left_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
-char s_audio_port_name_right_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
-char s_midi_port_name_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
-
 static UIElements * s_ui_elements;
 static uint_fast32_t s_lines_number;
 static uint_fast32_t s_string_size;
@@ -137,28 +133,8 @@ UIElements * new_voice() {
         );
     }
     
-    strcpy((char *) &s_audio_port_name_left_buffer, g_current_active_instance->name);
-    strcpy((char *) &s_audio_port_name_right_buffer, g_current_active_instance->name);
-    strcpy((char *) &s_midi_port_name_buffer, g_current_active_instance->name);
-    strcat((char *) &s_audio_port_name_left_buffer, " > ");
-    strcat((char *) &s_audio_port_name_right_buffer, " > ");
-    strcat((char *) &s_midi_port_name_buffer, " > ");
-    strcat((char *) &s_audio_port_name_left_buffer, g_current_active_voice->name);
-    strcat((char *) &s_audio_port_name_right_buffer, g_current_active_voice->name);
-    strcat((char *) &s_midi_port_name_buffer, g_current_active_voice->name);
-    strcat((char *) &s_audio_port_name_left_buffer, " > L");
-    strcat((char *) &s_audio_port_name_right_buffer, " >  R");
-            
-    dstudio_register_stereo_output_port(
-        &g_current_active_voice->ports,
-        (const char *) &s_audio_port_name_left_buffer,
-        (const char *) &s_audio_port_name_right_buffer
-    );
-        
-    dstudio_register_midi_port(
-        &g_current_active_voice->ports,
-        (const char *) &s_midi_port_name_buffer
-    );
+    // Audio API port creation
+    dstudio_audio_api_high_level_port_registration(g_current_active_instance, g_current_active_voice);
     
     g_ui_voices.update_request = 1;
     

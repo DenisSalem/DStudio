@@ -213,9 +213,8 @@ void new_instance(
     const char * given_directory,
     const char * process_name
 ) {
-    
-    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
-    
+    dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
+
     DIR * dr = 0;
     struct dirent *de;
 
@@ -263,13 +262,11 @@ void new_instance(
         g_instances.contexts[0].identifier = 1;
         g_current_active_instance = &g_instances.contexts[0];
         strcpy((char*)g_current_active_instance->name, "Instance 1");
-
         new_voice();
         g_ui_instances.update_request = 1;
     }
     dstudio_free(instance_filename_buffer);
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
-
 }
 
 uint_fast32_t select_instance_from_list(

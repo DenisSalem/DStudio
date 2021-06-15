@@ -55,17 +55,24 @@ typedef struct AudioPort_t {
 typedef struct VoiceContext_t VoiceContext;
 
 void                 dstudio_audio_api_request(DStudioAudioAPIRequest request);
+void                 dstudio_trigger_midi_capture(UIElements * self);
 
 // Must be implemented for each kind of API
-uint_fast32_t         dstudio_audio_api_voice_has_midi_input();
+
+// TODO : Standardize naming
+typedef struct InstanceContext_t InstanceContext;
+typedef struct VoiceContext_t VoiceContext;
+DStudioAudioAPIError dstudio_audio_api_high_level_port_registration(InstanceContext * instance, VoiceContext * voice);
+uint_fast32_t        dstudio_audio_api_voice_has_midi_input();
+void                 dstudio_audi_api_states_monitor();
 DStudioAudioAPIError dstudio_init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size));
 DStudioAudioAPIError dstudio_register_midi_port(AudioPort * output_port, const char * port_name);
 DStudioAudioAPIError dstudio_register_stereo_output_port(AudioPort * output_port, const char * left_port_name, const char * right_port_name);
 DStudioAudioAPIError dstudio_rename_active_context_audio_port(); 
 DStudioAudioAPIError dstudio_stop_audio_api_client();
-void                 dstudio_trigger_midi_capture(UIElements * self);
 
 extern uint_fast32_t g_midi_capture_state;
 extern UIElements * g_midi_ui_element_target;
+extern uint_fast32_t g_dstudio_audi_api_request_restart;
 
 #endif

@@ -816,7 +816,7 @@ void * ui_thread(void * arg) {
     
     bind_samples_interactive_list(NULL, DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK);
     
-    dstudio_init_events_monitor_register(9);
+    dstudio_init_events_monitor_register(10);
     
     dstudio_register_events_monitor(text_pointer_blink);
     dstudio_register_events_monitor(dstudio_update_ui_ressource_usage);
@@ -827,6 +827,7 @@ void * ui_thread(void * arg) {
     dstudio_register_events_monitor(update_samples_ui_list);
     dstudio_register_events_monitor(update_sample_screen);
     dstudio_register_events_monitor(perform_transition_animation);
+    dstudio_register_events_monitor(dstudio_audi_api_states_monitor);
 
     dstudio_update_info_text("DSANDGRAINS v0.0.0 is a work in progress.");
 

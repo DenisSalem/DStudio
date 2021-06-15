@@ -27,7 +27,12 @@
 #include "knob.h"
 #include "voices.h"
 
-void * s_audio_api_client = 0;
+char s_audio_port_name_left_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
+char s_audio_port_name_right_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
+char s_midi_port_name_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
+void *          s_audio_api_client = 0;
+uint_fast32_t g_dstudio_audi_api_request_restart = 0;
+
 DStudioAudioAPIRequest s_audio_api_request_state = DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING;
 
 uint_fast32_t g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
@@ -39,6 +44,7 @@ void dstudio_audio_api_request(DStudioAudioAPIRequest request) {
         
     s_audio_api_request_state = request;
     DStudioAudioAPIRequest ack = request == DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING ? DSTUDIO_AUDIO_API_ACK_DATA_PROCESSING : DSTUDIO_AUDIO_API_ACK_NO_DATA_PROCESSING;
+
     while (s_audio_api_request_state != ack) {
         usleep(500); // 0.5ms
     }
