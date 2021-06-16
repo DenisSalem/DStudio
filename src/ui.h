@@ -201,15 +201,18 @@ typedef struct UIInteractiveList_t UIInteractiveList;
 typedef struct TransitionAnimation_t TransitionAnimation;
 
 typedef struct UIElements_t {
-    uint_fast32_t               count;
-    uint_fast32_t               flags;
-    uint_fast8_t                render_state;
-    uint_fast8_t                visible;
-    uint_fast8_t                enabled;
-    uint_fast8_t                texture_index;
-    double                      timestamp;
-    uint_fast32_t               text_buffer_size;
-    GLchar                      vertex_indexes[4];
+    uint_fast32_t                   count;
+    uint_fast32_t                   flags;
+    uint_fast8_t                    render_state;
+    uint_fast8_t                    visible;
+    uint_fast8_t                    enabled;
+    union {
+        uint_fast8_t                texture_index;
+        uint_fast8_t                buffer_upgrade_request_bit;
+    };
+    double                          timestamp;
+    uint_fast32_t                   text_buffer_size;
+    GLchar                          vertex_indexes[4];
     /* For any text type there is only one index used for texture because
      * it's not meant to be changed. The other index is used to store the
      * previous string size necessary to compute optimized text area.
@@ -217,32 +220,32 @@ typedef struct UIElements_t {
      * and the second one refer to the texture identifier. The previous 
      * implies that for textual type texture index is always set to 1.*/
     union {
-        GLuint                  texture_ids[2];
-        GLuint                  previous_text_size;
+        GLuint                      texture_ids[2];
+        GLuint                      previous_text_size;
         /* Similarly, highlight need to be rendered twice at two location
          different location. The previous one is stored there.*/
     };
-    GLuint                      vertex_array_object;
-    GLuint                      vertex_buffer_object;
-    GLuint                      index_buffer_object;
-    GLuint                      instance_alphas;
-    GLuint                      instance_motions;
-    GLuint                      instance_offsets;
-    GLfloat *                   instance_alphas_buffer; 
-    GLfloat *                   instance_motions_buffer;
-    Vec4                        vertex_attributes[4];
-    UIElementsCoordinatesSettings coordinates_settings;
-    Vec4                        areas;
     union {
-        PatternScale            pattern_scale;        
-        Vec4                    color;
+        PatternScale                pattern_scale;        
+        Vec4                        color;
     };
-    UIElements *                overlap_sub_menu_ui_elements;
-    UIElementType               type;
-    UIInteractiveList *         interactive_list;
-    void *                      application_callback_args;
-    void (*application_callback)(UIElements * self);
-    TransitionAnimation *       transition_animation;
+    GLuint                          vertex_array_object;
+    GLuint                          vertex_buffer_object;
+    GLuint                          index_buffer_object;
+    GLuint                          instance_alphas;
+    GLuint                          instance_motions;
+    GLuint                          instance_offsets;
+    GLfloat *                       instance_alphas_buffer; 
+    GLfloat *                       instance_motions_buffer;
+    Vec4                            vertex_attributes[4];
+    UIElementsCoordinatesSettings   coordinates_settings;
+    Vec4                            areas;
+    UIElements *                    overlap_sub_menu_ui_elements;
+    UIElementType                   type;
+    UIInteractiveList *             interactive_list;
+    void *                          application_callback_args;
+    void                          (*application_callback)(UIElements * self);
+    TransitionAnimation *           transition_animation;
 } UIElements;
 
 void compile_shader(

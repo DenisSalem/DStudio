@@ -20,6 +20,12 @@
 #include "samples.h"
 #include "ui.h"
 
+typedef enum DStudioBarPlotBufferUpdateRequest_t {
+    DSTUDIO_UPDATE_ALPHA_BUFFER = 1,
+    DSTUDIO_UPDATE_MOTION_BUFFER = 2,
+    DSTUDIO_UPDATE_OFFSET_BUFFER = 4
+} DStudioBarPlotBufferUpdateRequest;
+
 void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, uint_fast32_t animate);
 
 //update_as_spectrum(UIElements * bar_plot, Spectrum * spectrum);

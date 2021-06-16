@@ -45,6 +45,7 @@ With debug features :
 - BEGIN 08/05/2021n DONE 09/05/2021 : Implement audio range and signal Inversion.
 - BEGIN 04/06/2021, DONE 04/06/2021 : Low level Midi support through Jack.
 - BEGIN 06/06/2021, DONE 13/06/2021 : Multi contextual support of knob / midi binding.
+- BEGIN 13/06/2021, DONE 15/06/2021 : Get back audio and midi ports if Jack server close and restart.
 - Centered text.
 - Freezed ui element if context is not available.
 - CONTINUOUS WIP : Connect UI elements to backend context.

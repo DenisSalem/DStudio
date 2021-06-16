@@ -25,6 +25,7 @@
 #endif
 
 #include "buttons.h"
+#include "bar_plot.h"
 #include "extensions.h"
 #include "info_bar.h"
 #include "instances.h"
@@ -1329,13 +1330,20 @@ void update_gpu_buffer(UIElements * ui_element_p) {
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat), ui_element_p->instance_motions_buffer);
             break;
             
-        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT: // TODO : Implement flag to update only the required buffer
-            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
+        case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
+            if (ui_element_p->buffer_upgrade_request_bit & DSTUDIO_UPDATE_MOTION_BUFFER) {
+                glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_motions);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_motions_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);
+            }
+            if (ui_element_p->buffer_upgrade_request_bit & DSTUDIO_UPDATE_ALPHA_BUFFER) {
+                glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_alphas);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat)*ui_element_p->count, ui_element_p->instance_alphas_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
+            }
+            if (ui_element_p->buffer_upgrade_request_bit & DSTUDIO_UPDATE_OFFSET_BUFFER) {
+                glBindBuffer(GL_ARRAY_BUFFER, ui_element_p->instance_offsets);
                 glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4)*ui_element_p->count, ui_element_p->coordinates_settings.instance_offsets_buffer);
+            }
+            ui_element_p->buffer_upgrade_request_bit = 0;
             break;
             
         case DSTUDIO_UI_ELEMENT_TYPE_TEXT:
