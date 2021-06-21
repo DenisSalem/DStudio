@@ -36,11 +36,12 @@ typedef struct VoiceContext_t {
     DStudioVoiceMidiBind midi_binds[256];
 } VoiceContext;
 
-typedef struct Voices_t {
-    VoiceContext * contexts;
-    uint_fast32_t count;
-    uint_fast32_t index;
-} Voices;
+// TODO Deprecated
+//~ typedef struct Voices_t {
+    //~ VoiceContext * contexts;
+    //~ uint_fast32_t count;
+    //~ uint_fast32_t index;
+//~ } Voices;
 
 extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;

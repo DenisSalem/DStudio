@@ -98,19 +98,17 @@ double dstudio_get_timestamp() {
     return (double) (timestamp.tv_sec * 1000 + timestamp.tv_nsec / 1000000) / 1000.0;
 }
 
-/* DStudio has it's own memory manager. It's a simple wrapper build around stantard
- * function like malloc, realloc and free. It MUST be the first dstudio call.*/
-void dstudio_init_memory_management() {
-    s_allocation_register = malloc(sizeof(uint_fast64_t) * s_allocation_register_size);
-    DSTUDIO_EXIT_IF_NULL(s_allocation_register)
-    explicit_bzero(s_allocation_register, sizeof(uint_fast64_t) * s_allocation_register_size);
-}
-
 void dstudio_init_events_monitor_register(uint_fast32_t monitor_count) {
     s_monitors_register = dstudio_alloc(
         monitor_count * sizeof(DStudioMonitorRegister),
         DSTUDIO_FAILURE_IS_FATAL
     );
+}
+
+void dstudio_init_memory_management() {
+    s_allocation_register = malloc(sizeof(uint_fast64_t) * s_allocation_register_size);
+    DSTUDIO_EXIT_IF_NULL(s_allocation_register)
+    explicit_bzero(s_allocation_register, sizeof(uint_fast64_t) * s_allocation_register_size);
 }
 
 void * dstudio_realloc(void * buffer, uint_fast32_t new_size) {
@@ -134,3 +132,4 @@ void * dstudio_realloc(void * buffer, uint_fast32_t new_size) {
 void dstudio_register_events_monitor(void (*callback)()) {
     s_monitors_register[s_monitors_register_index++].callback = callback;
 }
+

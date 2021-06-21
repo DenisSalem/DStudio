@@ -53,7 +53,6 @@ int main(int argc, char ** argv) {
     (void) argv;
     
     dstudio_init_memory_management();
-    
     setup_voice_sub_context(
         sizeof(Samples),
         bind_samples_interactive_list,

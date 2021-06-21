@@ -26,16 +26,17 @@
 typedef struct InstanceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     int_fast32_t identifier;
-    Voices voices;
+    DStudioContexts voices;
 } InstanceContext;
 
-typedef struct Instances_t {
-    InstanceContext * contexts;
-    uint_fast32_t count;
-    uint_fast32_t index;
-} Instances;
+// TODO DEPRECATED
+//~ typedef struct Instances_t {
+    //~ InstanceContext * contexts;
+    //~ uint_fast32_t count;
+    //~ uint_fast32_t index;
+//~ } Instances;
 
-extern Instances g_instances;
+extern DStudioContexts g_instances;
 extern InstanceContext * g_current_active_instance;
 extern UIInteractiveList g_ui_instances;
 

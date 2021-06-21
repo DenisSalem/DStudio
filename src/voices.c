@@ -45,8 +45,8 @@ void bind_voices_interactive_list(UIElements * line) {
         g_ui_voices.window_offset = 0;
         update_current_voice(0);
     }
-    g_current_active_voice = &g_current_active_instance->voices.contexts[g_current_active_instance->voices.index];
-    g_ui_voices.source_data = (char*) &g_current_active_instance->voices.contexts->name;
+    g_current_active_voice = &((VoiceContext*)g_current_active_instance->voices.data)[g_current_active_instance->voices.index];
+    g_ui_voices.source_data = (char*) &((VoiceContext*)g_current_active_instance->voices.data)->name;
     g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
     select_item(
         line,
@@ -72,7 +72,7 @@ void init_voices_interactive_list(
         s_string_size,
         sizeof(VoiceContext),
         &g_current_active_instance->voices.count,
-        (char *) g_current_active_instance->voices.contexts,
+        (char *) g_current_active_instance->voices.data,
         select_voice_from_list,
         _rename_active_context_audio_port,
         1,
@@ -89,7 +89,7 @@ UIElements * new_voice() {
     UIElements * line = 0;
 
     VoiceContext * new_voice_context = dstudio_realloc(
-        g_current_active_instance->voices.contexts,
+        g_current_active_instance->voices.data,
         (g_current_active_instance->voices.count + 1) * sizeof(VoiceContext)
     );
     if (new_voice_context == NULL) {
@@ -103,8 +103,8 @@ UIElements * new_voice() {
 
     g_current_active_instance->voices.index = g_current_active_instance->voices.count++;
 
-    g_current_active_instance->voices.contexts = new_voice_context;
-    g_current_active_voice = &g_current_active_instance->voices.contexts[g_current_active_instance->voices.index];
+    g_current_active_instance->voices.data = new_voice_context;
+    g_current_active_voice = &((VoiceContext*)g_current_active_instance->voices.data)[g_current_active_instance->voices.index];
     g_current_active_voice->sub_contexts = dstudio_alloc(
         s_sub_context_size,
         DSTUDIO_FAILURE_IS_FATAL
@@ -171,7 +171,7 @@ void setup_voice_sub_context(
 void update_current_voice(uint_fast32_t index) {
     g_current_active_instance->voices.index = index;
     s_previous_active_voice = g_current_active_voice;
-    g_current_active_voice = &g_current_active_instance->voices.contexts[index];
+    g_current_active_voice = &((VoiceContext*)g_current_active_instance->voices.data)[index];
     g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
     
     dstudio_update_info_text("");

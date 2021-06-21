@@ -28,6 +28,13 @@
 #include "macros.h"
 #include "paths.h"
 
+typedef struct DStudioContexts_t {
+    void * data;
+    uint_fast32_t data_type_size;
+    uint_fast32_t count;
+    uint_fast32_t index;
+} DStudioContexts;
+
 typedef struct DStudioWindowScale_t {
     uint_fast32_t width;
     uint_fast32_t height;
@@ -53,8 +60,10 @@ void * dstudio_alloc(uint_fast32_t buffer_size, uint_fast32_t failure_is_fatal);
 void   dstudio_events_monitor();
 void   dstudio_free(void * buffer);
 double dstudio_get_timestamp();
-void   dstudio_init_memory_management();
 void   dstudio_init_events_monitor_register(uint_fast32_t monitor_count);
+/* DStudio has it's own memory manager. It's a simple wrapper build around stantard
+ * function like malloc, realloc and free. It MUST be the first dstudio call.*/
+void   dstudio_init_memory_management();
 void * dstudio_realloc(void * buffer, uint_fast32_t new_size);
 void   dstudio_register_events_monitor(void (*callback)());
 #endif
