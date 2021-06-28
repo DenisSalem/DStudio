@@ -477,7 +477,7 @@ void init_ui() {
     g_previous_window_scale.height = g_dstudio_viewport_height;
     
     init_context(
-        g_application_name,
+        g_dstudio_application_name,
         g_dstudio_viewport_width,
         g_dstudio_viewport_height
     );

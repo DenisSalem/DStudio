@@ -84,7 +84,7 @@ static int process(jack_nframes_t nframes, void *arg) {
                     for (uint_fast32_t event_index = 0; event_index < jack_midi_get_event_count(midi_buffer); event_index++) {
                         jack_midi_event_get(&in_event, midi_buffer, event_index);
                         if ( (uint_fast8_t) 0xB0 <= in_event.buffer[0] && in_event.buffer[0] <= (uint_fast8_t) 0xBF) {
-                            if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT && g_current_active_voice == voice) {
+                            if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT && DSTUDIO_CURRENT_VOICE_CONTEXT == voice) {
                                 voice->midi_binds[in_event.buffer[1]].ui_element = g_midi_ui_element_target;
                                 voice->midi_binds[in_event.buffer[1]].controller_value = g_midi_ui_element_target->application_callback_args;
                                 dstudio_update_info_text("Midi input has been binded!");
@@ -181,7 +181,7 @@ DStudioAudioAPIError dstudio_audio_api_high_level_port_registration(InstanceCont
     strcat((char *) &s_audio_port_name_right_buffer, " >  R");
     
     DStudioAudioAPIError ret = dstudio_register_stereo_output_port(
-        &g_current_active_voice->ports,
+        &DSTUDIO_CURRENT_VOICE_CONTEXT->ports,
         (const char *) &s_audio_port_name_left_buffer,
         (const char *) &s_audio_port_name_right_buffer
     );
@@ -190,13 +190,13 @@ DStudioAudioAPIError dstudio_audio_api_high_level_port_registration(InstanceCont
     }
         
     return dstudio_register_midi_port(
-        &g_current_active_voice->ports,
+        &DSTUDIO_CURRENT_VOICE_CONTEXT->ports,
         (const char *) &s_midi_port_name_buffer
     );
 }
 
 DStudioAudioAPIError dstudio_init_audio_api_client(void (*client_process_callback)(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size)) {
-        s_client = jack_client_open((char*)g_application_name, JackNoStartServer, &s_jack_status, NULL);
+        s_client = jack_client_open((char*)g_dstudio_application_name, JackNoStartServer, &s_jack_status, NULL);
         s_client_process = client_process_callback;
 
         if(s_jack_status & JackFailure ){
@@ -265,7 +265,7 @@ void dstudio_audi_api_states_monitor() {
 }
 
 uint_fast32_t dstudio_audio_api_voice_has_midi_input() {
-    return jack_port_connected(g_current_active_voice->ports.midi);
+    return jack_port_connected(DSTUDIO_CURRENT_VOICE_CONTEXT->ports.midi);
 }
 
 
@@ -301,19 +301,19 @@ DStudioAudioAPIError dstudio_register_stereo_output_port(AudioPort * output_port
 DStudioAudioAPIError dstudio_rename_active_context_audio_port() {
     char audio_port_name_left_buffer[64] = {0};
     char audio_port_name_right_buffer[64] = {0};
-    strcpy((char *) &audio_port_name_left_buffer, (char*) g_current_active_instance->name);
-    strcpy((char *) &audio_port_name_right_buffer, (char*) g_current_active_instance->name);
+    strcpy((char *) &audio_port_name_left_buffer, (char*) DSTUDIO_CURRENT_INSTANCE_CONTEXT->name);
+    strcpy((char *) &audio_port_name_right_buffer, (char*) DSTUDIO_CURRENT_INSTANCE_CONTEXT->name);
     strcat((char *) &audio_port_name_left_buffer, " > ");
     strcat((char *) &audio_port_name_right_buffer, " > ");
-    strcat((char *) &audio_port_name_left_buffer, (char*) g_current_active_voice->name);
-    strcat((char *) &audio_port_name_right_buffer, (char*) g_current_active_voice->name);
+    strcat((char *) &audio_port_name_left_buffer, (char*) DSTUDIO_CURRENT_VOICE_CONTEXT->name);
+    strcat((char *) &audio_port_name_right_buffer, (char*) DSTUDIO_CURRENT_VOICE_CONTEXT->name);
     strcat((char *) &audio_port_name_left_buffer, " > L");
     strcat((char *) &audio_port_name_right_buffer, " > R");
     
     if (s_client && !g_dstudio_audi_api_request_restart) {
         if (
-            jack_port_rename(s_client, g_current_active_voice->ports.left, (const char *) &audio_port_name_left_buffer) ||
-            jack_port_rename(s_client, g_current_active_voice->ports.right, (const char *) &audio_port_name_right_buffer)
+            jack_port_rename(s_client, DSTUDIO_CURRENT_VOICE_CONTEXT->ports.left, (const char *) &audio_port_name_left_buffer) ||
+            jack_port_rename(s_client, DSTUDIO_CURRENT_VOICE_CONTEXT->ports.right, (const char *) &audio_port_name_right_buffer)
         ) {
             return DSTUDIO_AUDIO_API_AUDIO_PORT_RENAMING_FAILED;
         }

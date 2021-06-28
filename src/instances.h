@@ -29,15 +29,7 @@ typedef struct InstanceContext_t {
     DStudioContexts voices;
 } InstanceContext;
 
-// TODO DEPRECATED
-//~ typedef struct Instances_t {
-    //~ InstanceContext * contexts;
-    //~ uint_fast32_t count;
-    //~ uint_fast32_t index;
-//~ } Instances;
-
 extern DStudioContexts g_instances;
-extern InstanceContext * g_current_active_instance;
 extern UIInteractiveList g_ui_instances;
 
 FILE * add_instance_file_descriptor();
@@ -55,7 +47,7 @@ void init_instance_management_backend();
 
 void instances_management();
 
-void new_instance(
+void dstudio_new_client_instance(
     const char * given_directory,
     const char * process_name
 );

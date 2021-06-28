@@ -55,4 +55,7 @@
 #define DSTUDIO_TRACE_ARGS(string, ...) \
     printf("%s %d: " #string "\n", __FILE__, __LINE__, __VA_ARGS__);
 
+#define DSTUDIO_CURRENT_INSTANCE_CONTEXT ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)
+#define DSTUDIO_CURRENT_VOICE_CONTEXT    ((VoiceContext*)    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_INDEX].current)
+
 #endif

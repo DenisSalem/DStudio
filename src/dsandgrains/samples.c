@@ -38,7 +38,7 @@ void bind_samples_interactive_list(UIElements * line, ListItemOpt flag) {
         g_ui_samples.window_offset = 0;
         update_current_sample(0);
     }
-    Samples * samples = g_current_active_voice->sub_contexts;
+    Samples * samples = DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;
     g_ui_samples.source_data = (char*) samples->contexts;
     g_ui_samples.source_data_count = &samples->count;
     select_item(
@@ -53,7 +53,7 @@ void init_samples_interactive_list(
     uint_fast32_t string_size,
     GLfloat item_offset_y
 ) {
-    Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
+    Samples * samples = (Samples * ) DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;
 
     init_interactive_list(
         &g_ui_samples,
@@ -77,7 +77,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
 
     UIElements * line = 0;
-    Samples * samples = g_current_active_voice->sub_contexts;
+    Samples * samples = DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;
     SampleContext * new_sample_context = dstudio_realloc(
         samples->contexts,
         (samples->count + 1) * sizeof(SampleContext)
@@ -171,7 +171,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
 uint_fast32_t select_sample_from_list(
     uint_fast32_t index
 ) {
-    Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;   
+    Samples * samples = (Samples * ) DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;   
 
     if ((index != samples->index || g_current_active_sample != s_previous_active_sample) && index < samples->count) {
         update_current_sample(index);
@@ -190,7 +190,7 @@ uint_fast32_t select_sample_from_list(
 UIElements * set_samples_ui_context_from_parent_voice_list() {
     UIElements * line;
     uint_fast32_t sample_index;
-    Samples * samples = g_current_active_voice->sub_contexts;
+    Samples * samples = DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;
     sample_index = samples->index;
 
     if (sample_index < g_ui_samples.lines_number) {
@@ -222,7 +222,7 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
 
 // TODO: the following could be generalized and not implemented by consumer.
 void update_current_sample(uint_fast32_t index) {
-    Samples * samples = (Samples * ) g_current_active_voice->sub_contexts;
+    Samples * samples = (Samples * ) DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;
     samples->index = index;
     s_previous_active_sample = g_current_active_sample;
     g_current_active_sample = &samples->contexts[index];

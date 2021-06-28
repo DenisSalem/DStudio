@@ -23,7 +23,8 @@
 #include "text_pointer.h"
 #include "voices.h" 
 
-VoiceContext * g_current_active_voice = 0; 
+// TODO : TO REMOVE
+//VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
 
@@ -45,9 +46,9 @@ void bind_voices_interactive_list(UIElements * line) {
         g_ui_voices.window_offset = 0;
         update_current_voice(0);
     }
-    g_current_active_voice = &((VoiceContext*)g_current_active_instance->voices.data)[g_current_active_instance->voices.index];
-    g_ui_voices.source_data = (char*) &((VoiceContext*)g_current_active_instance->voices.data)->name;
-    g_ui_voices.source_data_count = &g_current_active_instance->voices.count;
+    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_INDEX].current = &((VoiceContext*) DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.data)[DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.index];
+    g_ui_voices.source_data = (char*) &((VoiceContext*) DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.data)->name;
+    g_ui_voices.source_data_count = &DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count;
     select_item(
         line,
         DSTUDIO_SELECT_ITEM_WITH_CALLBACK
@@ -64,15 +65,15 @@ void init_voices_interactive_list(
     s_lines_number = lines_number;
     s_string_size = string_size;
     s_item_offset_y = item_offset_y;
-    
+
     init_interactive_list(
         &g_ui_voices,
         s_ui_elements,
         s_lines_number,
         s_string_size,
         sizeof(VoiceContext),
-        &g_current_active_instance->voices.count,
-        (char *) g_current_active_instance->voices.data,
+        &DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count,
+        (char *) DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.data,
         select_voice_from_list,
         _rename_active_context_audio_port,
         1,
@@ -85,47 +86,45 @@ void init_voices_interactive_list(
 
 UIElements * new_voice() {
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
-    
     UIElements * line = 0;
 
     VoiceContext * new_voice_context = dstudio_realloc(
-        g_current_active_instance->voices.data,
-        (g_current_active_instance->voices.count + 1) * sizeof(VoiceContext)
+        DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.data,
+        (DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count + 1) * sizeof(VoiceContext)
     );
     if (new_voice_context == NULL) {
         dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
         return 0;
     }
     explicit_bzero(
-        &new_voice_context[g_current_active_instance->voices.count],
+        &new_voice_context[DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count],
         sizeof(VoiceContext)
     );
 
-    g_current_active_instance->voices.index = g_current_active_instance->voices.count++;
-
-    g_current_active_instance->voices.data = new_voice_context;
-    g_current_active_voice = &((VoiceContext*)g_current_active_instance->voices.data)[g_current_active_instance->voices.index];
-    g_current_active_voice->sub_contexts = dstudio_alloc(
+    DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.index = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count++;
+    DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.data = new_voice_context;
+    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_INDEX].current = &((VoiceContext*)DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.data)[DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.index];
+    DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts = dstudio_alloc(
         s_sub_context_size,
         DSTUDIO_FAILURE_IS_FATAL
     );
     
-    sprintf(g_current_active_voice->name, "Voice %" PRIuFAST32, g_current_active_instance->voices.count);
+    sprintf(DSTUDIO_CURRENT_VOICE_CONTEXT->name, "Voice %" PRIuFAST32, DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count);
     #ifdef DSTUDIO_DEBUG
-    printf("%s %s\n", g_current_active_instance->name, g_current_active_voice->name);
+    printf("%s %s\n", g_current_active_instance->name, DSTUDIO_CURRENT_VOICE_CONTEXT->name);
     #endif
 
-    if (g_current_active_instance->voices.count > g_ui_voices.lines_number) {
+    if (DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count > g_ui_voices.lines_number) {
         g_ui_voices.update_index = -1;
-        g_ui_voices.window_offset = g_current_active_instance->voices.count - g_ui_voices.lines_number;
+        g_ui_voices.window_offset = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count - g_ui_voices.lines_number;
     }
     else {
-        g_ui_voices.update_index = g_current_active_instance->voices.index;
+        g_ui_voices.update_index = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.index;
         g_ui_voices.window_offset = 0;
     }
 
     if (s_ui_elements) {
-        line = &g_ui_voices.lines[g_current_active_instance->voices.index-g_ui_voices.window_offset];
+        line = &g_ui_voices.lines[DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.index-g_ui_voices.window_offset];
         bind_voices_interactive_list(line);
         bind_sub_context_interactive_list(
             setup_sub_context_interactive_list(),
@@ -134,7 +133,8 @@ UIElements * new_voice() {
     }
     
     // Audio API port creation
-    dstudio_audio_api_high_level_port_registration(g_current_active_instance, g_current_active_voice);
+    // TODO : It doesn't need argument anymore
+    dstudio_audio_api_high_level_port_registration(DSTUDIO_CURRENT_INSTANCE_CONTEXT, DSTUDIO_CURRENT_VOICE_CONTEXT);
     
     g_ui_voices.update_request = 1;
     
@@ -146,7 +146,7 @@ UIElements * new_voice() {
 uint_fast32_t select_voice_from_list(
     uint_fast32_t index
 ) {
-    if ((index != g_current_active_instance->voices.index || g_current_active_voice != s_previous_active_voice) && index < g_current_active_instance->voices.count) {
+    if ((index != DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.index || DSTUDIO_CURRENT_VOICE_CONTEXT != s_previous_active_voice) && index < DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.count) {
         update_current_voice(index);
         bind_sub_context_interactive_list(
             setup_sub_context_interactive_list(),
@@ -169,9 +169,10 @@ void setup_voice_sub_context(
 }
 
 void update_current_voice(uint_fast32_t index) {
-    g_current_active_instance->voices.index = index;
-    s_previous_active_voice = g_current_active_voice;
-    g_current_active_voice = &((VoiceContext*)g_current_active_instance->voices.data)[index];
+
+    DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.index = index;
+    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_INDEX].previous = g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_INDEX].current;
+    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_INDEX].current = &((VoiceContext*)DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices.data)[index];
     g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
     
     dstudio_update_info_text("");

@@ -28,6 +28,11 @@
 #include "macros.h"
 #include "paths.h"
 
+typedef struct DStudioActiveContext_t {
+    void * previous;
+    void * current;
+} DStudioActiveContext;
+
 typedef struct DStudioContexts_t {
     void * data;
     uint_fast32_t data_type_size;
@@ -44,7 +49,8 @@ typedef struct DStudioMonitorRegister_t {
     void (*callback)();
 } DStudioMonitorRegister;
 
-extern const char g_application_name[];
+extern const char g_dstudio_application_name[];
+extern DStudioActiveContext g_dstudio_active_contexts[3];
 
 /*
  * dstudio_alloc

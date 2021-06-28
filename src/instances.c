@@ -41,8 +41,6 @@
 
 static struct stat st = {0};
 
-InstanceContext * g_current_active_instance = 0; 
-
 DStudioContexts g_instances = {0};
 
 UIInteractiveList g_ui_instances = {0};
@@ -153,11 +151,11 @@ void instances_management() {
         }
         
         explicit_bzero( &((InstanceContext *)g_instances.data)[g_instances.count-1] , sizeof(InstanceContext));
-        g_current_active_instance =  &((InstanceContext *)g_instances.data)[g_instances.count-1];
+        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current =  &((InstanceContext *)g_instances.data)[g_instances.count-1];
         g_instances.index = g_instances.count - 1;
-        g_current_active_instance->identifier = 1;
-        strcat((char*) g_current_active_instance->name, "Instance ");
-        strcat((char*) g_current_active_instance->name, s_event->name);
+        ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->identifier = 1;
+        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name, "Instance ");
+        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name, s_event->name);
         if (g_instances.count > g_ui_instances.lines_number) {
             g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
             g_ui_instances.update_index = -1;
@@ -178,7 +176,7 @@ void instances_management() {
         printf("Create instance with id=%s. Allocated memory is now %ld.\n", s_event->name, sizeof(InstanceContext) * g_instances.count);
         printf("Currents instances:\n");
         for(uint_fast32_t i = 0; i < g_instances.count; i++) {
-            printf("\t%s\n", g_instances.contexts[i].name);
+            printf("\t%s\n", ((InstanceContext*)g_instances.data)[0].name);
         }
         #endif
     }
@@ -204,12 +202,17 @@ void instances_management() {
     strcat(fd_path, "/");
     strcat(fd_path, s_event->name);
     s_instance_fd = fopen(fd_path, "w");
-    fwrite((char*) g_current_active_instance->name, strlen((char*) g_current_active_instance->name), 1, s_instance_fd);
+    fwrite(
+        (char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name,
+        strlen((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name),
+        1,
+        s_instance_fd
+    );
     fclose(s_instance_fd);
     dstudio_free(fd_path);
 }
 
-void new_instance(
+void dstudio_new_client_instance(
     const char * given_directory,
     const char * process_name
 ) {
@@ -258,10 +261,10 @@ void new_instance(
             sizeof(InstanceContext),
             DSTUDIO_FAILURE_IS_FATAL
         );
-        g_instances.count +=1;
+        g_instances.count += 1;
         ((InstanceContext*)g_instances.data)[0].identifier = 1;
-        g_current_active_instance = g_instances.data;
-        strcpy((char*)g_current_active_instance->name, "Instance 1");
+        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current = g_instances.data;
+        strcpy( ((InstanceContext*)g_instances.data)[0].name, "Instance 1");
         new_voice();
         g_ui_instances.update_request = 1;
     }
@@ -298,7 +301,8 @@ uint_fast32_t select_instance_from_list(
 
 void update_current_instance(uint_fast32_t index) {
     g_instances.index = index;
-    g_current_active_instance =  &((InstanceContext *)g_instances.data)[index];
+    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].previous = g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current;
+    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current = &((InstanceContext *)g_instances.data)[index];
 }
 
 void update_ui_instances_list() {

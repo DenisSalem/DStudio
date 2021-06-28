@@ -24,8 +24,7 @@
 
 #include "common.h"
 
-GLint scissor_x, scissor_y = 0;
-GLsizei scissor_width, scissor_height = 0;
+DStudioActiveContext g_dstudio_active_contexts[3] = {0};
 
 static uint_fast64_t * s_allocation_register = 0;
 static uint_fast32_t s_allocation_register_index = 0;
@@ -132,4 +131,3 @@ void * dstudio_realloc(void * buffer, uint_fast32_t new_size) {
 void dstudio_register_events_monitor(void (*callback)()) {
     s_monitors_register[s_monitors_register_index++].callback = callback;
 }
-

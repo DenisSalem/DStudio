@@ -40,7 +40,7 @@
 
 const uint_fast32_t g_dstudio_viewport_width = 940;
 const uint_fast32_t g_dstudio_viewport_height = 560;
-const char          g_application_name[] = "DSANDGRAINS";
+const char          g_dstudio_application_name[] = "DSANDGRAINS"; // Must be defined here
 
 /* Allow generic DStudio UI features (like render loop) to deal with an 
  * array of UIElements. The size of this array is specific to the client
@@ -64,7 +64,7 @@ int main(int argc, char ** argv) {
     }
     
     // TODO: PASS CALLBACK TO INIT SOME AUDIO API, NSM or LADISH
-    new_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
+    dstudio_new_client_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     
     pthread_t ui_thread_id;
 
