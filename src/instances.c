@@ -291,7 +291,7 @@ uint_fast32_t select_instance_from_list(
     UIElements * line = NULL;
     
     if (index != g_instances.index && index < g_instances.count) {
-        update_current_instance(index);
+        dstudio_update_current_context(index, DSTUDIO_INSTANCE_CONTEXT_LEVEL);
         voice_index = ((InstanceContext *)g_instances.data)[index].voices->index;
         if (voice_index < g_ui_voices.lines_number) {
             line = &g_ui_voices.lines[voice_index];

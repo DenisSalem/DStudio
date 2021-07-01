@@ -43,8 +43,10 @@ void bind_voices_interactive_list(UIElements * line) {
     g_ui_voices.update_index = -1;
     if (line == NULL) {
         line = g_ui_voices.lines;
+        dstudio_update_current_context(0, DSTUDIO_VOICE_CONTEXT_LEVEL);
         g_ui_voices.window_offset = 0;
-        update_current_voice(0);
+        dstudio_update_info_text("");
+        setup_sub_context_interactive_list();
     }
     voices = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices;
     g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].current = &((VoiceContext*) voices->data)[voices->index];
@@ -154,7 +156,9 @@ uint_fast32_t select_voice_from_list(
 ) {
     DStudioContexts * voices = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices;
     if ((index != voices->index || DSTUDIO_CURRENT_VOICE_CONTEXT != s_previous_active_voice) && index < voices->count) {
-        update_current_voice(index);
+        dstudio_update_current_context(index, DSTUDIO_VOICE_CONTEXT_LEVEL);
+        dstudio_update_info_text("");
+        setup_sub_context_interactive_list();
         bind_sub_context_interactive_list(
             setup_sub_context_interactive_list(),
             DSTUDIO_SELECT_ITEM_WITH_CALLBACK
@@ -173,17 +177,6 @@ void setup_voice_sub_context(
     g_dstudio_client_context_size = size;
     bind_sub_context_interactive_list = sub_context_interactive_list_binder;
     setup_sub_context_interactive_list = sub_context_interactive_list_setter;
-}
-
-void update_current_voice(uint_fast32_t index) {
-    DStudioContexts * voices = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices;
-    voices->index = index;
-    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].previous = g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].current;
-    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].current = &((VoiceContext*)voices->data)[index];
-    g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
-    
-    dstudio_update_info_text("");
-    setup_sub_context_interactive_list();
 }
 
 void update_voices_ui_list() {

@@ -37,15 +37,6 @@ typedef struct VoiceContext_t {
     DStudioVoiceMidiBind midi_binds[256];
 } VoiceContext;
 
-// TODO Deprecated
-//~ typedef struct Voices_t {
-    //~ VoiceContext * contexts;
-    //~ uint_fast32_t count;
-    //~ uint_fast32_t index;
-//~ } Voices;
-
-// TODO : TO REMOVE
-// extern VoiceContext * g_current_active_voice;
 extern UIInteractiveList g_ui_voices;
 void bind_voices_interactive_list(UIElements * line);
 extern void (*bind_sub_context_interactive_list)(UIElements * line, ListItemOpt flag);
@@ -70,6 +61,5 @@ void setup_voice_sub_context(
     UIElements * (*sub_context_interactive_list_setter)()
 );
 
-void update_current_voice(uint_fast32_t index);
 void update_voices_ui_list();
 #endif
