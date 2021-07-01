@@ -132,9 +132,8 @@ void perform_transition_animation() {
             if (s_transition_animations[index].flags & DSTUDIO_MOTION_TRANSITION) {
                 motions_buffer = s_transition_animations[index].ui_element->instance_motions_buffer;
                 motions_steps = s_transition_animations[index].instances_motions_steps_buffer;
-                for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++) {
+                for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++)
                     motions_buffer[i] += motions_steps[i];
-                    DSTUDIO_TRACE_ARGS("%lf", motions_steps[i]);}
             }
             
             if (s_transition_animations[index].flags & DSTUDIO_ALPHA_TRANSITION) {
@@ -146,7 +145,6 @@ void perform_transition_animation() {
 
             s_transition_animations[index].ui_element->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
             s_transition_animations[index].iterations--;  
-            DSTUDIO_TRACE;  
         }
         else {
             s_transition_animations[index].flags = DSTUDIO_NONE_TRANSITION;

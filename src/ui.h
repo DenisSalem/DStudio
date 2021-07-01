@@ -212,10 +212,8 @@ typedef struct UIElements_t {
     uint_fast8_t                    render_state;
     uint_fast8_t                    visible;
     uint_fast8_t                    enabled;
-    union {
-        uint_fast8_t                texture_index;
-        uint_fast8_t                buffer_upgrade_request_bit;
-    };
+    uint_fast8_t                    texture_index;
+    uint_fast8_t                    buffer_upgrade_request_bit;
     double                          timestamp;
     uint_fast32_t                   text_buffer_size;
     GLchar                          vertex_indexes[4];
