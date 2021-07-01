@@ -23,8 +23,6 @@
 #include "text_pointer.h"
 #include "voices.h" 
 
-// TODO : TO REMOVE
-//VoiceContext * g_current_active_voice = 0; 
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
 
@@ -109,8 +107,7 @@ UIElements * new_voice() {
     voices->index = voices->count++;
     voices->data = new_voice_context;
     g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].current = &((VoiceContext*)voices->data)[voices->index];
-    // TODO: at every reallocation, every contexts parent pointer must be refreshed.
-    // OR DStudioContexts become a manually allocated memory object.
+
     DSTUDIO_CURRENT_VOICE_CONTEXT->parent = voices;
     DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts = dstudio_alloc(
         g_dstudio_client_context_size,
@@ -140,8 +137,6 @@ UIElements * new_voice() {
         );
     }
     
-    // Audio API port creation
-    // TODO : It doesn't need argument anymore
     dstudio_audio_api_high_level_port_registration(DSTUDIO_CURRENT_INSTANCE_CONTEXT, DSTUDIO_CURRENT_VOICE_CONTEXT);
     
     g_ui_voices.update_request = 1;
