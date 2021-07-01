@@ -1082,8 +1082,7 @@ void render_ui_elements(UIElements * ui_elements) {
     if (ui_elements->type == DSTUDIO_UI_ELEMENT_TYPE_SLIDER) {
         compute_slider_scissor_y(ui_elements);
     }
-    
-    
+
     memcpy(&ui_elements->coordinates_settings.previous_scissor, &ui_elements->coordinates_settings.scissor, sizeof(Scissor));
 }
 

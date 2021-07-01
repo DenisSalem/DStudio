@@ -161,6 +161,12 @@ typedef struct ControllerValue_t {
     double context_identifier;
 } ControllerValue;
 
+typedef enum DStudioBufferUpdateRequest_t {
+    DSTUDIO_UPDATE_ALPHA_BUFFER = 1,
+    DSTUDIO_UPDATE_MOTION_BUFFER = 2,
+    DSTUDIO_UPDATE_OFFSET_BUFFER = 4
+} DStudioBufferUpdateRequest;
+
 typedef enum MotionType_t {
     DSTUDIO_MOTION_TYPE_NONE = 0U,
     DSTUDIO_MOTION_TYPE_ROTATION = 1U,

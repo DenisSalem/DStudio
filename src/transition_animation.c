@@ -67,6 +67,8 @@ void animate_motions_transitions(GLfloat * target_values, UIElements * ui_elemen
 
     ui_element_p->transition_animation->flags |= DSTUDIO_MOTION_TRANSITION;
     ui_element_p->transition_animation->iterations = DSTUDIO_TRANSITION_STEPS;
+    ui_element_p->buffer_upgrade_request_bit |= DSTUDIO_UPDATE_MOTION_BUFFER;
+
 }
 
 void animate_offsets_transitions(Vec4 * target_values, UIElements * ui_element_p, uint_fast32_t member_flag) {
@@ -88,6 +90,7 @@ void animate_offsets_transitions(Vec4 * target_values, UIElements * ui_element_p
     }
     ui_element_p->transition_animation->flags |= (member_flag & 0xF);
     ui_element_p->transition_animation->iterations = DSTUDIO_TRANSITION_STEPS;
+    ui_element_p->buffer_upgrade_request_bit |= DSTUDIO_UPDATE_OFFSET_BUFFER;
 }
 
 
@@ -129,8 +132,9 @@ void perform_transition_animation() {
             if (s_transition_animations[index].flags & DSTUDIO_MOTION_TRANSITION) {
                 motions_buffer = s_transition_animations[index].ui_element->instance_motions_buffer;
                 motions_steps = s_transition_animations[index].instances_motions_steps_buffer;
-                for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++) 
+                for (uint_fast32_t i = 0; i < s_transition_animations[index].ui_element->count; i++) {
                     motions_buffer[i] += motions_steps[i];
+                    DSTUDIO_TRACE_ARGS("%lf", motions_steps[i]);}
             }
             
             if (s_transition_animations[index].flags & DSTUDIO_ALPHA_TRANSITION) {
@@ -141,10 +145,13 @@ void perform_transition_animation() {
             }
 
             s_transition_animations[index].ui_element->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-            s_transition_animations[index].iterations--;    
+            s_transition_animations[index].iterations--;  
+            DSTUDIO_TRACE;  
         }
         else {
             s_transition_animations[index].flags = DSTUDIO_NONE_TRANSITION;
+            s_transition_animations[index].ui_element->buffer_upgrade_request_bit = 0;
+
         }
     }
 }

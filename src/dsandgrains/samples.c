@@ -161,7 +161,6 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
 
     line = &g_ui_samples.lines[samples->index-g_ui_samples.window_offset];
     bind_samples_interactive_list(line, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
-    
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
     
     return line;

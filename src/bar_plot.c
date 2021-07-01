@@ -105,6 +105,5 @@ void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sa
         dstudio_free(offsets_buffer_in);
 
         bar_plot->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
-        bar_plot->buffer_upgrade_request_bit |= DSTUDIO_UPDATE_MOTION_BUFFER | DSTUDIO_UPDATE_OFFSET_BUFFER;
     }
 }
