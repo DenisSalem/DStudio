@@ -25,8 +25,8 @@
 
 typedef struct InstanceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
-    int_fast32_t identifier;
-    DStudioContexts voices;
+    DStudioContexts * voices;
+    DStudioContexts * parent;
 } InstanceContext;
 
 extern DStudioContexts g_instances;

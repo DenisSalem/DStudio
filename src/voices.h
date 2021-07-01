@@ -31,6 +31,7 @@ typedef struct DStudioVoiceMidiBind_t {
 typedef struct VoiceContext_t {
     char name[DSTUDIO_INSTANCE_NAME_LENGTH];
     void * sub_contexts;
+    DStudioContexts * parent;
     void * midi_data_buffer;
     AudioPort ports;
     DStudioVoiceMidiBind midi_binds[256];

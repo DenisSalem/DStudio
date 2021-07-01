@@ -73,9 +73,9 @@ static int process(jack_nframes_t nframes, void *arg) {
         }
         
         for (uint_fast32_t instance_index = 0; instance_index < g_instances.count; instance_index++) {
-            instance = g_instances.data + (instance_index*sizeof(VoiceContext)) ;
-            for (uint_fast32_t voice_index = 0; voice_index < instance->voices.count; voice_index++) {
-                voice = instance->voices.data + (voice_index*sizeof(VoiceContext));
+            instance = g_instances.data + (instance_index*sizeof(InstanceContext)) ;
+            for (uint_fast32_t voice_index = 0; voice_index < instance->voices->count; voice_index++) {
+                voice = instance->voices->data + (voice_index*sizeof(VoiceContext));
                 
                 // Midi Block : get binded sliders and / or knobs event
                 if (jack_port_connected(voice->ports.midi)) {
@@ -158,8 +158,8 @@ static void * dstudio_thread_restart(void *args) {
     InstanceContext * instance = 0;
     for (uint_fast32_t instance_index = 0; instance_index < g_instances.count; instance_index++) {
         instance = g_instances.data + (instance_index * sizeof(InstanceContext));
-        for (uint_fast32_t voice_index = 0; voice_index < instance->voices.count; voice_index++) {
-            voice = instance->voices.data + (voice_index*sizeof(VoiceContext));
+        for (uint_fast32_t voice_index = 0; voice_index < instance->voices->count; voice_index++) {
+            voice = instance->voices->data + (voice_index*sizeof(VoiceContext));
             dstudio_audio_api_high_level_port_registration(instance, voice);
         }
     }

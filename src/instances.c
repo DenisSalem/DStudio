@@ -143,19 +143,27 @@ void instances_management() {
         g_instances.count++;
         s_saved_contexts = g_instances.data;
         g_instances.data = dstudio_realloc(g_instances.data, sizeof(InstanceContext) * g_instances.count);
-        if (g_instances.data == NULL) {
+        if (g_instances.data) {
+            explicit_bzero( &((InstanceContext *)g_instances.data)[g_instances.count-1] , sizeof(InstanceContext));
+        }
+        ((InstanceContext *)g_instances.data)[g_instances.count-1].voices = dstudio_alloc(
+            sizeof(DStudioContexts),
+            DSTUDIO_FAILURE_IS_NOT_FATAL
+        );
+        DSTUDIO_TRACE_ARGS("%lu", (unsigned long) ((InstanceContext *)g_instances.data)[g_instances.count-1].voices);
+        if (g_instances.data == NULL || ((InstanceContext *)g_instances.data)[g_instances.count-1].voices == NULL) {
             g_instances.data = s_saved_contexts;
             g_instances.count--;
             dstudio_update_info_text("New instance creation has failed.");
             return;
         }
         
-        explicit_bzero( &((InstanceContext *)g_instances.data)[g_instances.count-1] , sizeof(InstanceContext));
-        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current =  &((InstanceContext *)g_instances.data)[g_instances.count-1];
+        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current =  &((InstanceContext *)g_instances.data)[g_instances.count-1];
+        DSTUDIO_CURRENT_INSTANCE_CONTEXT->parent = &g_instances;
         g_instances.index = g_instances.count - 1;
-        ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->identifier = 1;
-        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name, "Instance ");
-        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name, s_event->name);
+        
+        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name, "Instance ");
+        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name, s_event->name);
         if (g_instances.count > g_ui_instances.lines_number) {
             g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
             g_ui_instances.update_index = -1;
@@ -176,7 +184,7 @@ void instances_management() {
         printf("Create instance with id=%s. Allocated memory is now %ld.\n", s_event->name, sizeof(InstanceContext) * g_instances.count);
         printf("Currents instances:\n");
         for(uint_fast32_t i = 0; i < g_instances.count; i++) {
-            printf("\t%s\n", ((InstanceContext*)g_instances.data)[0].name);
+            printf("\t%s\n", ((InstanceContext*)g_instances.data)[i].name);
         }
         #endif
     }
@@ -203,8 +211,8 @@ void instances_management() {
     strcat(fd_path, s_event->name);
     s_instance_fd = fopen(fd_path, "w");
     fwrite(
-        (char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name,
-        strlen((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current)->name),
+        (char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name,
+        strlen((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name),
         1,
         s_instance_fd
     );
@@ -262,8 +270,12 @@ void dstudio_new_client_instance(
             DSTUDIO_FAILURE_IS_FATAL
         );
         g_instances.count += 1;
-        ((InstanceContext*)g_instances.data)[0].identifier = 1;
-        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current = g_instances.data;
+        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current = g_instances.data;
+        DSTUDIO_CURRENT_INSTANCE_CONTEXT->parent = &g_instances;
+        DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices = dstudio_alloc(
+            sizeof(DStudioContexts),
+            DSTUDIO_FAILURE_IS_FATAL
+        );
         strcpy( ((InstanceContext*)g_instances.data)[0].name, "Instance 1");
         new_voice();
         g_ui_instances.update_request = 1;
@@ -280,7 +292,7 @@ uint_fast32_t select_instance_from_list(
     
     if (index != g_instances.index && index < g_instances.count) {
         update_current_instance(index);
-        voice_index = ((InstanceContext *)g_instances.data)[index].voices.index;
+        voice_index = ((InstanceContext *)g_instances.data)[index].voices->index;
         if (voice_index < g_ui_voices.lines_number) {
             line = &g_ui_voices.lines[voice_index];
             g_ui_voices.window_offset = 0;
@@ -301,8 +313,8 @@ uint_fast32_t select_instance_from_list(
 
 void update_current_instance(uint_fast32_t index) {
     g_instances.index = index;
-    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].previous = g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current;
-    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_INDEX].current = &((InstanceContext *)g_instances.data)[index];
+    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].previous = g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current;
+    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current = &((InstanceContext *)g_instances.data)[index];
 }
 
 void update_ui_instances_list() {

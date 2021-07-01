@@ -33,9 +33,9 @@ typedef struct DStudioActiveContext_t {
     void * current;
 } DStudioActiveContext;
 
+typedef struct DStudioContexts_t DStudioContexts;
 typedef struct DStudioContexts_t {
     void * data;
-    uint_fast32_t data_type_size;
     uint_fast32_t count;
     uint_fast32_t index;
 } DStudioContexts;
@@ -49,8 +49,9 @@ typedef struct DStudioMonitorRegister_t {
     void (*callback)();
 } DStudioMonitorRegister;
 
-extern const char g_dstudio_application_name[];
+extern const char           g_dstudio_application_name[];
 extern DStudioActiveContext g_dstudio_active_contexts[3];
+extern uint_fast32_t        g_dstudio_client_context_size;
 
 /*
  * dstudio_alloc
@@ -72,4 +73,5 @@ void   dstudio_init_events_monitor_register(uint_fast32_t monitor_count);
 void   dstudio_init_memory_management();
 void * dstudio_realloc(void * buffer, uint_fast32_t new_size);
 void   dstudio_register_events_monitor(void (*callback)());
+void dstudio_update_current_context(uint_fast32_t context_index, uint_fast32_t context_level);
 #endif

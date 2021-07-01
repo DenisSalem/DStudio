@@ -144,8 +144,8 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     #ifdef DSTUDIO_DEBUG
     printf(
         "%s %s %s\n",
-        g_current_active_instance->name,
-        g_current_active_voice->name,
+        DSTUDIO_CURRENT_INSTANCE_CONTEXT->name,
+        DSTUDIO_CURRENT_VOICE_CONTEXT->name,
         g_current_active_sample->name
     );
     #endif
