@@ -54,7 +54,7 @@ int main(int argc, char ** argv) {
     
     dstudio_init_memory_management();
     setup_voice_sub_context(
-        sizeof(Samples),
+        sizeof(SampleContext),
         bind_samples_interactive_list,
         set_samples_ui_context_from_parent_voice_list
     );

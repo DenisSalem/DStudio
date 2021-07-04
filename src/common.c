@@ -136,6 +136,7 @@ void dstudio_register_events_monitor(void (*callback)()) {
 
 void dstudio_update_current_context(uint_fast32_t index, uint_fast32_t context_level) { 
         DStudioContexts * parent = 0;
+        DStudioGenericContext * generic_context = 0;
         uint_fast32_t data_type_size = 0;
         switch (context_level) {
             case DSTUDIO_INSTANCE_CONTEXT_LEVEL:
@@ -148,8 +149,13 @@ void dstudio_update_current_context(uint_fast32_t index, uint_fast32_t context_l
                 break;
                 
             case DSTUDIO_CLIENT_CONTEXT_LEVEL:
-                parent = ((VoiceContext*)g_dstudio_active_contexts[context_level].current)->parent;
+                generic_context = ((DStudioGenericContext *)g_dstudio_active_contexts[context_level].current);
+                if (generic_context == NULL) {
+                    return;
+                }
+                parent = generic_context->parent;
                 data_type_size = g_dstudio_client_context_size;
+                
                 break;
                 
             default:

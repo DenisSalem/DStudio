@@ -26,8 +26,6 @@
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
 
-static VoiceContext * s_previous_active_voice = 0; 
-
 void (*bind_sub_context_interactive_list)(UIElements * line, ListItemOpt flag) = 0;
 UIElements * (*setup_sub_context_interactive_list)() = 0;
 
@@ -150,7 +148,7 @@ uint_fast32_t select_voice_from_list(
     uint_fast32_t index
 ) {
     DStudioContexts * voices = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices;
-    if ((index != voices->index || DSTUDIO_CURRENT_VOICE_CONTEXT != s_previous_active_voice) && index < voices->count) {
+    if ((index != voices->index || DSTUDIO_CURRENT_VOICE_CONTEXT != DSTUDIO_PREVIOUS_VOICE_CONTEXT) && index < voices->count) {
         dstudio_update_current_context(index, DSTUDIO_VOICE_CONTEXT_LEVEL);
         dstudio_update_info_text("");
         setup_sub_context_interactive_list();

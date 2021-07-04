@@ -27,8 +27,7 @@
 #include "../voices.h"
 
 typedef struct SampleContext_t {
-    char name[DSTUDIO_INSTANCE_NAME_LENGTH];
-    DStudioContexts * parent;
+    DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
     int_fast64_t processed_index;
     ControllerValue * start;
@@ -38,13 +37,6 @@ typedef struct SampleContext_t {
     double  identifier;
 } SampleContext;
 
-typedef struct Samples_t{
-    SampleContext * contexts;
-    uint_fast32_t count;
-    uint_fast32_t index;
-} Samples;
-
-extern SampleContext * g_current_active_sample; 
 extern UIInteractiveList g_ui_samples;
 
 void bind_samples_interactive_list(UIElements * line, ListItemOpt flag);
@@ -64,10 +56,10 @@ uint_fast32_t select_sample_from_list(
 
 UIElements * set_samples_ui_context_from_parent_voice_list();
 
-void update_current_sample(
-    uint_fast32_t index
-);
-
 void update_samples_ui_list();
+
+#define DSTUDIO_CURRENT_SAMPLE_CONTEXT    ((SampleContext*) g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXT_LEVEL].current)
+#define DSTUDIO_PREVIOUS_SAMPLE_CONTEXT    ((SampleContext*) g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXT_LEVEL].previous)
+
 
 #endif

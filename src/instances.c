@@ -311,12 +311,6 @@ uint_fast32_t select_instance_from_list(
     return 0;
 }
 
-void update_current_instance(uint_fast32_t index) {
-    g_instances.index = index;
-    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].previous = g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current;
-    g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current = &((InstanceContext *)g_instances.data)[index];
-}
-
 void update_ui_instances_list() {
     instances_management();
     if (g_ui_instances.update_request) {

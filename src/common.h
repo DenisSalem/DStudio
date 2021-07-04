@@ -40,14 +40,18 @@ typedef struct DStudioContexts_t {
     uint_fast32_t index;
 } DStudioContexts;
 
-typedef struct DStudioWindowScale_t {
-    uint_fast32_t width;
-    uint_fast32_t height;
-} DStudioWindowScale;
+typedef struct DStudioGenericContext_t {
+    DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES
+} DStudioGenericContext;
 
 typedef struct DStudioMonitorRegister_t {
     void (*callback)();
 } DStudioMonitorRegister;
+
+typedef struct DStudioWindowScale_t {
+    uint_fast32_t width;
+    uint_fast32_t height;
+} DStudioWindowScale;
 
 extern const char           g_dstudio_application_name[];
 extern DStudioActiveContext g_dstudio_active_contexts[3];

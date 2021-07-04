@@ -56,5 +56,4 @@ uint_fast32_t select_instance_from_list(uint_fast32_t index);
 
 void update_ui_instances_list();
 
-void update_current_instance(uint_fast32_t index);
 #endif

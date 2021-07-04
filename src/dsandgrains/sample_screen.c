@@ -43,17 +43,17 @@ void update_sample_screen() {
 void request_sample_screen_range_update(UIElements * ui_element) {
     (void) ui_element;
     ControllerValue * value = ui_element->application_callback_args;
-    if (value->context_identifier == g_current_active_sample->identifier) {
+    if (value->context_identifier == DSTUDIO_CURRENT_SAMPLE_CONTEXT->identifier) {
         s_update_request |= DSANDGRAINS_SAMPLE_SCREEN_RENDER_REQUEST_NEW_RANGE;
     }
 }
 
 void update_sample_screen_range() {
-    if (g_current_active_sample == NULL) {
+    if (DSTUDIO_CURRENT_SAMPLE_CONTEXT == NULL) {
         return;
     }
-    float sample_start = g_current_active_sample->start->computed;
-    float sample_end = g_current_active_sample->end->computed; 
+    float sample_start = DSTUDIO_CURRENT_SAMPLE_CONTEXT->start->computed;
+    float sample_end = DSTUDIO_CURRENT_SAMPLE_CONTEXT->end->computed; 
     
     float ui_start = sample_start < sample_end ? sample_start : sample_end;
     float ui_end = sample_start < sample_end ? sample_end : sample_start;

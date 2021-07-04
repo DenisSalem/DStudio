@@ -57,5 +57,10 @@
 
 #define DSTUDIO_CURRENT_INSTANCE_CONTEXT ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)
 #define DSTUDIO_CURRENT_VOICE_CONTEXT    ((VoiceContext*)    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].current)
+#define DSTUDIO_PREVIOUS_VOICE_CONTEXT    ((VoiceContext*)    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].previous)
 
+#define DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES \
+    char name[DSTUDIO_INSTANCE_NAME_LENGTH]; \
+    DStudioContexts * parent;
+    
 #endif

@@ -54,11 +54,11 @@ static void process_channel(SampleContext * sample, float * channel_in, float * 
 }
 
 void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size) {
-    Samples * samples = voice->sub_contexts;
+    DStudioContexts * samples = voice->sub_contexts;
     SampleContext * sample = 0;
 
     for (uint_fast32_t sample_index = 0; sample_index < samples->count; sample_index++) {
-        sample = &samples->contexts[sample_index];
+        sample = &((SampleContext*)samples->data)[sample_index];
         
         s_start =  sample->start->computed * (sample->shared_sample.size-1);
         s_end =  sample->end->computed * (sample->shared_sample.size-1);
