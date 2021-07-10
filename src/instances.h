@@ -20,13 +20,9 @@
 #ifndef DSTUDIO_INSTANCES_H_INCLUDED
 #define DSTUDIO_INSTANCES_H_INCLUDED
 
-#include "interactive_list.h"
-#include "voices.h"
-
 typedef struct InstanceContext_t {
-    char name[DSTUDIO_INSTANCE_NAME_LENGTH];
+    DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES
     DStudioContexts * voices;
-    DStudioContexts * parent;
 } InstanceContext;
 
 extern DStudioContexts g_instances;
@@ -52,8 +48,7 @@ void dstudio_new_client_instance(
     const char * process_name
 );
 
-uint_fast32_t select_instance_from_list(uint_fast32_t index);
-
+void dstudio_setup_instance_from_list();
 void update_ui_instances_list();
 
 #endif

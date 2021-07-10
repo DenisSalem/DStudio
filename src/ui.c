@@ -17,24 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <errno.h>
-#include <unistd.h>
-       
-#ifdef DSTUDIO_DEBUG
-    #include <stdio.h>
-#endif
-
-#include "buttons.h"
-#include "bar_plot.h"
-#include "extensions.h"
-#include "info_bar.h"
-#include "instances.h"
-#include "knob.h"
-#include "text_pointer.h"
-#include "sliders.h"
-#include "transition_animation.h"
-#include "ui.h"
-#include "window_management.h"
+#include "dstudio.h"
 
 int_fast32_t    g_active_slider_range_max = 0;
 int_fast32_t    g_active_slider_range_min = 0;

@@ -20,8 +20,6 @@
 #ifndef DSTUDIO_SLIDERS_H_INCLUDED
 #define DSTUDIO_SLIDERS_H_INCLUDED
 
-#include "ui.h"
-
 float compute_slider_percentage_value(int ypos);
 
 float compute_slider_translation(int ypos);

@@ -17,22 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <poll.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
-#include <X11/XKBlib.h>
-
-#include "audio_api.h"
-#include "common.h"
-#include "extensions.h"
-#include "info_bar.h"
-#include "text_pointer.h"
-#include "window_management.h"
+#include "dstudio.h"
 
 uint_fast32_t g_dstudio_mouse_state = 0;
 long g_x11_input_mask = 0;

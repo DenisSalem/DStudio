@@ -17,7 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "bar_plot.h"
+#include "dstudio.h"
 
 void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, uint_fast32_t animate) {
     uint_fast32_t sub_sample_size = 0;

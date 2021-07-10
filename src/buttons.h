@@ -20,11 +20,6 @@
 #ifndef DSTUDIO_BUTTONS_H_INCLUDED
 #define DSTUDIO_BUTTONS_H_INCLUDED
 
-#include <pthread.h>
-#include <semaphore.h>
-
-#include "ui.h"
-
 extern uint_fast32_t g_dstudio_buttons_count;
 extern UIElements ** g_dstudio_buttons_register;
 

@@ -20,42 +20,11 @@
 #ifndef DSTUDIO_COMMON_H_INCLUDED
 #define DSTUDIO_COMMON_H_INCLUDED
 
-#include <semaphore.h>
-#include <stdint.h>
-
-#include "constants.h"
-#include "extensions.h"
-#include "macros.h"
-#include "paths.h"
-
-typedef struct DStudioActiveContext_t {
-    void * previous;
-    void * current;
-} DStudioActiveContext;
-
-typedef struct DStudioContexts_t DStudioContexts;
-typedef struct DStudioContexts_t {
-    void * data;
-    uint_fast32_t count;
-    uint_fast32_t index;
-} DStudioContexts;
-
-typedef struct DStudioGenericContext_t {
-    DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES
-} DStudioGenericContext;
-
 typedef struct DStudioMonitorRegister_t {
     void (*callback)();
 } DStudioMonitorRegister;
 
-typedef struct DStudioWindowScale_t {
-    uint_fast32_t width;
-    uint_fast32_t height;
-} DStudioWindowScale;
-
-extern const char           g_dstudio_application_name[];
-extern DStudioActiveContext g_dstudio_active_contexts[3];
-extern uint_fast32_t        g_dstudio_client_context_size;
+extern const char   g_dstudio_application_name[];
 
 /*
  * dstudio_alloc
@@ -77,5 +46,5 @@ void   dstudio_init_events_monitor_register(uint_fast32_t monitor_count);
 void   dstudio_init_memory_management();
 void * dstudio_realloc(void * buffer, uint_fast32_t new_size);
 void   dstudio_register_events_monitor(void (*callback)());
-void dstudio_update_current_context(uint_fast32_t context_index, uint_fast32_t context_level);
+
 #endif

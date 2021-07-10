@@ -16,10 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "math.h"
 
-#include "knob.h"
-
+#include "dstudio.h"
 
 void bind_and_update_ui_knob(UIElements * knob, void * callback_args) {
     knob->application_callback_args = callback_args;

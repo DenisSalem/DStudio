@@ -20,9 +20,6 @@
 #ifndef DSTUDIO_AUDIO_API_H_INCLUDED
 #define DSTUDIO_AUDIO_API_H_INCLUDED
 
-#include "common.h"
-#include "ui.h"
-
 typedef enum DStudioAudioAPIRequest_t {
     DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING,
     DSTUDIO_AUDIO_API_ACK_NO_DATA_PROCESSING,

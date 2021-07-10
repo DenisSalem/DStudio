@@ -61,6 +61,7 @@ add_executable(
     bar_plot.c
     buttons.c
     common.c
+    contexts.c
     extensions.c
     fileutils.c
     flac.c

@@ -17,7 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "sliders.h"
+#include "dstudio.h"
 
 inline float compute_slider_percentage_value(int ypos) {
     if (ypos > g_active_slider_range_max) {

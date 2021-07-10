@@ -17,10 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <string.h>
-
-#include "extensions.h"
+#include "dstudio.h"
 
 DSTUDIO_DECLARE_GL_FUN(AttachShader)
 DSTUDIO_DECLARE_GL_FUN(BindBuffer)

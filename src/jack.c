@@ -17,13 +17,8 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <pthread.h>
-#include <unistd.h>
+#include "dstudio.h"
 
-#include <jack/jack.h>
-#include <jack/midiport.h>
-
-#include "info_bar.h"
 static jack_client_t * s_client;
 static jack_status_t s_jack_status;
 static pthread_t s_restart_thread_id;

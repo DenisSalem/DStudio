@@ -20,10 +20,6 @@
 #ifndef DSTUDIO_EXTENSIONS_H_INCLUDED
 #define DSTUDIO_EXTENSIONS_H_INCLUDED
 
-#include <dlfcn.h>
-#include <GL/gl.h>
-#include <GL/glx.h>
-
 typedef struct Binder_t {
     void * function_pointer;
     const char name[32];

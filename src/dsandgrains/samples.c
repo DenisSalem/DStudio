@@ -17,13 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../bar_plot.h"
-#include "../info_bar.h"
-#include "../instances.h"
-#include "../knob.h"
-#include "samples.h"
-#include "sample_screen.h"
-#include "ui.h"
+#include "dsandgrains.h"
 
 UIInteractiveList g_ui_samples = {0};
 
@@ -32,7 +26,7 @@ void bind_samples_interactive_list(UIElements * line, ListItemOpt flag) {
     if (line == NULL) {
         line = g_ui_samples.lines;
         g_ui_samples.window_offset = 0;
-        dstudio_update_current_context(0, DSTUDIO_CLIENT_CONTEXT_LEVEL);
+        dstudio_update_current_context(0, DSTUDIO_CLIENT_CONTEXTS_LEVEL);
     }
     DStudioContexts * samples = DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;
     g_ui_samples.source_data = (char*) samples->data;
@@ -59,7 +53,8 @@ void init_samples_interactive_list(
         sizeof(SampleContext),
         &samples->count,
         (char*) samples->data,
-        select_sample_from_list,
+        DSTUDIO_CLIENT_CONTEXTS_LEVEL,
+        dstudio_select_context_from_list,
         DSTUDIO_NO_CALLBACK,
         1,
         item_offset_y
@@ -91,7 +86,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
 
     samples->index = samples->count++;
     samples->data = new_sample_context;
-    g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXT_LEVEL].current = &((SampleContext*)samples->data)[samples->index];
+    g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXTS_LEVEL].current = (DStudioGenericContext *) &((SampleContext*)samples->data)[samples->index];
     DSTUDIO_CURRENT_SAMPLE_CONTEXT->identifier = dstudio_get_timestamp();
     DSTUDIO_CURRENT_SAMPLE_CONTEXT->parent = samples;
     
@@ -162,22 +157,13 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
 }
 
 // TODO: the following could be generalized and not implemented by consumer.
-uint_fast32_t select_sample_from_list(
-    uint_fast32_t index
-) {
+void select_sample_from_list() {
     DStudioContexts * samples = DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;   
-
-    if ((index != samples->index || DSTUDIO_CURRENT_SAMPLE_CONTEXT != DSTUDIO_PREVIOUS_SAMPLE_CONTEXT) && index < samples->count) {
-        dstudio_update_current_context(index, DSTUDIO_CLIENT_CONTEXT_LEVEL);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, DSTUDIO_CURRENT_SAMPLE_CONTEXT->amount);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, DSTUDIO_CURRENT_SAMPLE_CONTEXT->stretch);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, DSTUDIO_CURRENT_SAMPLE_CONTEXT->start);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, DSTUDIO_CURRENT_SAMPLE_CONTEXT->end);
-        bind_new_data_to_sample_screen(samples->count ? &DSTUDIO_CURRENT_SAMPLE_CONTEXT->shared_sample : 0);
-        return 1;
-    }
-    
-    return 0;
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, DSTUDIO_CURRENT_SAMPLE_CONTEXT->amount);
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, DSTUDIO_CURRENT_SAMPLE_CONTEXT->stretch);
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, DSTUDIO_CURRENT_SAMPLE_CONTEXT->start);
+    bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, DSTUDIO_CURRENT_SAMPLE_CONTEXT->end);
+    bind_new_data_to_sample_screen(samples->count ? &DSTUDIO_CURRENT_SAMPLE_CONTEXT->shared_sample : 0);
 }
 
 // TODO : Smell like shit
@@ -195,9 +181,10 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
         line = &g_ui_samples.lines[g_ui_voices.lines_number-1];
         g_ui_samples.window_offset = sample_index - g_ui_samples.lines_number + 1;
     }
+    (void) line;
     if (samples->count) {
-        g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXT_LEVEL].previous = 0;
-        dstudio_update_current_context(sample_index, DSTUDIO_CLIENT_CONTEXT_LEVEL);
+        g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXTS_LEVEL].previous = 0;
+        dstudio_update_current_context(sample_index, DSTUDIO_CLIENT_CONTEXTS_LEVEL);
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, DSTUDIO_CURRENT_SAMPLE_CONTEXT->amount);
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, DSTUDIO_CURRENT_SAMPLE_CONTEXT->stretch);
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, DSTUDIO_CURRENT_SAMPLE_CONTEXT->start);

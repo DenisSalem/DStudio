@@ -20,8 +20,6 @@
 #ifndef DSTUDIO_TEXT_H_INCLUDED
 #define DSTUDIO_TEXT_H_INCLUDED
 
-#include "ui.h"
-
 void update_text(UIElements * text, char * string_value, uint_fast32_t buffer_size);
 
 #endif

@@ -17,23 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdlib.h>
-#include <time.h>
-
-#include "../buttons.h"
-#include "../common.h"
-#include "../extensions.h"
-#include "../info_bar.h"
-#include "../instances.h"
-#include "../interactive_list.h"
-#include "../open_file.h"
-#include "../text_pointer.h"
-#include "../window_management.h"
-
-#include "add.h"
-#include "samples.h"
-#include "sample_screen.h"
-#include "ui.h"
+#include "dsandgrains.h"
 
 UIElementsStruct g_ui_elements_struct = {0};
 UIElements * g_dstudio_ui_elements_array = (UIElements *) &g_ui_elements_struct;

@@ -17,12 +17,13 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-
-#include "samples.h"
+#ifndef DSTUDIO_FLAC_H_INCLUDED
+#define DSTUDIO_FLAC_H_INCLUDED
 
 int_fast32_t load_flac(
     FILE * file,
     void (*client_error_callback)(const char * message),
     SharedSample * shared_sample
 );
+
+#endif

@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "samples.h"
-#include "ui.h"
+#ifndef DSTUDIO_BAR_PLOT_H_INCLUDED
+#define DSTUDIO_BAR_PLOT_H_INCLUDED
 
 void update_bar_plot_as_waveform(UIElements * bar_plot, SharedSample * shared_sample, uint_fast32_t animate);
 
 //update_as_spectrum(UIElements * bar_plot, Spectrum * spectrum);
+
+#endif

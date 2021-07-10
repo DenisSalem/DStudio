@@ -20,8 +20,6 @@
 #ifndef DSTUDIO_SAMPLES_H_INCLUDED
 #define DSTUDIO_SAMPLES_H_INCLUDED
 
-#include <stdint.h>
-
 typedef enum SharedSampleError_t {
     DSTUDIO_SHARED_SAMPLE_NO_ERROR = 0,
     DSTUDIO_SHARED_SAMPLE_ALLOCATION_FAILED = 1,

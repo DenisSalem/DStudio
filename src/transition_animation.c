@@ -17,7 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "transition_animation.h"
+#include "dstudio.h"
 
 static uint_fast32_t         s_transition_animations_count = 0;
 static TransitionAnimation * s_transition_animations = 0;

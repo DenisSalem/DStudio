@@ -20,18 +20,14 @@
 #ifndef DSTUDIO_VOICES_H_INCLUDED
 #define DSTUDIO_VOICES_H_INCLUDED
 
-#include "audio_api.h"
-#include "interactive_list.h"
-
 typedef struct DStudioVoiceMidiBind_t {
     ControllerValue * controller_value;
     UIElements * ui_element;
 } DStudioVoiceMidiBind;
 
 typedef struct VoiceContext_t {
-    char name[DSTUDIO_INSTANCE_NAME_LENGTH];
+    DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES
     void * sub_contexts;
-    DStudioContexts * parent;
     void * midi_data_buffer;
     AudioPort ports;
     DStudioVoiceMidiBind midi_binds[256];
@@ -51,15 +47,7 @@ void init_voices_interactive_list(
 
 UIElements * new_voice();
 
-uint_fast32_t select_voice_from_list(
-    uint_fast32_t index
-);
-
-void setup_voice_sub_context(
-    uint_fast32_t size,
-    void (*sub_context_interactive_list_binder)(UIElements * lines, ListItemOpt flag),
-    UIElements * (*sub_context_interactive_list_setter)()
-);
+void dstudio_setup_voice_from_list();
 
 void update_voices_ui_list();
 #endif

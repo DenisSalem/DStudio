@@ -17,13 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "common.h"
-#include "extensions.h"
-#include "interactive_list.h"
-#include "instances.h"
-#include "sliders.h"
-#include "text.h"
-#include "text_pointer.h"
+#include "dstudio.h"
 
 inline void bind_scroll_bar(UIInteractiveList * interactive_list, UIElements * scroll_bar) {
     scroll_bar->interactive_list = interactive_list;
@@ -43,11 +37,13 @@ void init_interactive_list(
     uint_fast32_t stride,
     uint_fast32_t * source_data_count,
     char * source_data,
-    uint_fast32_t (*select_callback)(uint_fast32_t index),
+    DStudioContextsLevel contexts_level,
+    uint_fast32_t (*select_callback)(uint_fast32_t index, DStudioContextsLevel contexts_level),
     uint_fast32_t (*edit_item_callback)(uint_fast32_t index),
     uint_fast32_t editable,
     GLfloat highlight_step
 ) {
+    interactive_list->contexts_level = contexts_level;
     interactive_list->lines_number = lines_number;
     interactive_list->string_size = string_size;
     interactive_list->highlight = ui_elements;
@@ -147,11 +143,11 @@ void select_item(
     for(uint_fast32_t i = 0; i < lines_number; i++) {
         if (&interactive_list->lines[i] == self) {
             if(flag & DSTUDIO_SELECT_ITEM_WITH_CALLBACK) {
-                interactive_list->select_callback(i+interactive_list->window_offset);
+                interactive_list->select_callback(i+interactive_list->window_offset, interactive_list->contexts_level);
             }
             if(
                 (flag & (DSTUDIO_SELECT_ITEM_WITH_CALLBACK | DSTUDIO_SELECT_ITEM_WITHOUT_CALLBACK)) ||
-                interactive_list->select_callback(i+interactive_list->window_offset)
+                interactive_list->select_callback(i+interactive_list->window_offset, interactive_list->contexts_level)
             ) {
                 interactive_list->lines[i].render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                 interactive_list->update_request = 1;
@@ -162,7 +158,6 @@ void select_item(
                 interactive_list->lines[interactive_list->previous_item_index].render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                 interactive_list->previous_item_index = i;
                 interactive_list->index = i;
-    
             }
             break;
         }

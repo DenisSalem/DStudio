@@ -20,12 +20,6 @@
 #ifndef DSANDGRAINS_SAMPLES_H_INCLUDED
 #define DSANDGRAINS_SAMPLES_H_INCLUDED
 
-#include "../common.h"
-#include "../interactive_list.h"
-#include "../knob.h"
-#include "../samples.h"
-#include "../voices.h"
-
 typedef struct SampleContext_t {
     DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES
     SharedSample shared_sample; // TODO MUST BE A POINTER !!!
@@ -50,16 +44,13 @@ void init_samples_interactive_list(
 
 UIElements * new_sample(char * filename, SharedSample shared_sample);
 
-uint_fast32_t select_sample_from_list(
-    uint_fast32_t index
-);
+void select_sample_from_list();
 
 UIElements * set_samples_ui_context_from_parent_voice_list();
 
 void update_samples_ui_list();
 
-#define DSTUDIO_CURRENT_SAMPLE_CONTEXT    ((SampleContext*) g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXT_LEVEL].current)
-#define DSTUDIO_PREVIOUS_SAMPLE_CONTEXT    ((SampleContext*) g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXT_LEVEL].previous)
-
+#define DSTUDIO_CURRENT_SAMPLE_CONTEXT    ((SampleContext*) g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXTS_LEVEL].current)
+#define DSTUDIO_PREVIOUS_SAMPLE_CONTEXT    ((SampleContext*) g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXTS_LEVEL].previous)
 
 #endif

@@ -17,7 +17,9 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../samples.h"
+
+#ifndef DSANDGRAINS_SAMPLE_SCREEN_H_INCLUDED
+#define DSANDGRAINS__SAMPLE_SCREEN_H_INCLUDED
 
 typedef enum SampleScreenRenderRequest_t {
     DSANDGRAINS_SAMPLE_SCREEN_NO_RENDER_REQUEST = 0,
@@ -33,4 +35,5 @@ void update_sample_screen_range();
 
 void request_sample_screen_range_update();
 
+#endif
 

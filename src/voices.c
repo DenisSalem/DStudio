@@ -17,11 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "common.h"
-#include "info_bar.h"
-#include "instances.h"
-#include "text_pointer.h"
-#include "voices.h" 
+#include "dstudio.h"
 
 UIInteractiveList g_ui_voices = {0};
 UIElements * g_ui_elements = {0};
@@ -39,13 +35,13 @@ void bind_voices_interactive_list(UIElements * line) {
     g_ui_voices.update_index = -1;
     if (line == NULL) {
         line = g_ui_voices.lines;
-        dstudio_update_current_context(0, DSTUDIO_VOICE_CONTEXT_LEVEL);
+        dstudio_update_current_context(0, DSTUDIO_VOICE_CONTEXTS_LEVEL);
         g_ui_voices.window_offset = 0;
         dstudio_update_info_text("");
         setup_sub_context_interactive_list();
     }
     voices = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices;
-    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].current = &((VoiceContext*) voices->data)[voices->index];
+    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXTS_LEVEL].current = (DStudioGenericContext*) &((VoiceContext*) voices->data)[voices->index];
     g_ui_voices.source_data = (char*) &((VoiceContext*) voices->data)->name;
     g_ui_voices.source_data_count = &voices->count;
     select_item(
@@ -74,7 +70,8 @@ void init_voices_interactive_list(
         sizeof(VoiceContext),
         &voices->count,
         (char *) voices->data,
-        select_voice_from_list,
+        DSTUDIO_VOICE_CONTEXTS_LEVEL,
+        dstudio_select_context_from_list,
         _rename_active_context_audio_port,
         1,
         s_item_offset_y
@@ -104,11 +101,11 @@ UIElements * new_voice() {
 
     voices->index = voices->count++;
     voices->data = new_voice_context;
-    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXT_LEVEL].current = &((VoiceContext*)voices->data)[voices->index];
+    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXTS_LEVEL].current = (DStudioGenericContext*) &((VoiceContext*)voices->data)[voices->index];
 
     DSTUDIO_CURRENT_VOICE_CONTEXT->parent = voices;
     DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts = dstudio_alloc(
-        g_dstudio_client_context_size,
+        g_dstudio_contexts_size[DSTUDIO_CLIENT_CONTEXTS_LEVEL],
         DSTUDIO_FAILURE_IS_FATAL
     );
     
@@ -144,32 +141,12 @@ UIElements * new_voice() {
     return line;
 }
 
-uint_fast32_t select_voice_from_list(
-    uint_fast32_t index
-) {
-    DStudioContexts * voices = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices;
-    if ((index != voices->index || DSTUDIO_CURRENT_VOICE_CONTEXT != DSTUDIO_PREVIOUS_VOICE_CONTEXT) && index < voices->count) {
-        dstudio_update_current_context(index, DSTUDIO_VOICE_CONTEXT_LEVEL);
-        dstudio_update_info_text("");
-        setup_sub_context_interactive_list();
-        bind_sub_context_interactive_list(
-            setup_sub_context_interactive_list(),
-            DSTUDIO_SELECT_ITEM_WITH_CALLBACK
-        );
-        return 1;
-    }
-    return 0;
-}
-
-// TODO : Callback only handles interactive list. It lake of other contextual UI management.
-void setup_voice_sub_context(
-    uint_fast32_t size,
-    void (*sub_context_interactive_list_binder)(UIElements * lines, ListItemOpt flag),
-    UIElements * (*sub_context_interactive_list_setter)()
-) {
-    g_dstudio_client_context_size = size;
-    bind_sub_context_interactive_list = sub_context_interactive_list_binder;
-    setup_sub_context_interactive_list = sub_context_interactive_list_setter;
+void dstudio_setup_voice_from_list() {
+    setup_sub_context_interactive_list();
+    bind_sub_context_interactive_list(
+        setup_sub_context_interactive_list(),
+        DSTUDIO_SELECT_ITEM_WITH_CALLBACK
+    );
 }
 
 void update_voices_ui_list() {

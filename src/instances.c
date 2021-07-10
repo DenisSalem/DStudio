@@ -17,27 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dirent.h>
-#include <errno.h>
-#include <poll.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/inotify.h>
-
-#include <sys/stat.h>
-#include <unistd.h>
-
-#include "audio_api.h"
-#include "common.h"
-#include "fileutils.h"
-#include "info_bar.h"
-#include "instances.h"
-#include "ui.h"
-#include "buttons.h"
-#include "text_pointer.h"
-#include "window_management.h"
+#include "dstudio.h"
 
 static struct stat st = {0};
 
@@ -89,7 +69,8 @@ void init_instances_interactive_list(
         sizeof(InstanceContext),
         &g_instances.count,
         (char*) g_instances.data,
-        select_instance_from_list,
+        DSTUDIO_INSTANCE_CONTEXTS_LEVEL,
+        dstudio_select_context_from_list,
         _rename_active_context_audio_port,
         1,
         item_offset_y
@@ -158,12 +139,12 @@ void instances_management() {
             return;
         }
         
-        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current =  &((InstanceContext *)g_instances.data)[g_instances.count-1];
+        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current = (DStudioGenericContext*) &((InstanceContext *)g_instances.data)[g_instances.count-1];
         DSTUDIO_CURRENT_INSTANCE_CONTEXT->parent = &g_instances;
         g_instances.index = g_instances.count - 1;
         
-        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name, "Instance ");
-        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name, s_event->name);
+        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current)->name, "Instance ");
+        strcat((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current)->name, s_event->name);
         if (g_instances.count > g_ui_instances.lines_number) {
             g_ui_instances.window_offset = g_instances.count - g_ui_instances.lines_number;
             g_ui_instances.update_index = -1;
@@ -211,8 +192,8 @@ void instances_management() {
     strcat(fd_path, s_event->name);
     s_instance_fd = fopen(fd_path, "w");
     fwrite(
-        (char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name,
-        strlen((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current)->name),
+        (char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current)->name,
+        strlen((char*) ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current)->name),
         1,
         s_instance_fd
     );
@@ -270,7 +251,7 @@ void dstudio_new_client_instance(
             DSTUDIO_FAILURE_IS_FATAL
         );
         g_instances.count += 1;
-        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXT_LEVEL].current = g_instances.data;
+        g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current = g_instances.data;
         DSTUDIO_CURRENT_INSTANCE_CONTEXT->parent = &g_instances;
         DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices = dstudio_alloc(
             sizeof(DStudioContexts),
@@ -284,31 +265,23 @@ void dstudio_new_client_instance(
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
 }
 
-uint_fast32_t select_instance_from_list(
-    uint_fast32_t index
-) {
+void dstudio_setup_instance_from_list() {
     uint_fast32_t voice_index = 0;
     UIElements * line = NULL;
-    
-    if (index != g_instances.index && index < g_instances.count) {
-        dstudio_update_current_context(index, DSTUDIO_INSTANCE_CONTEXT_LEVEL);
-        voice_index = ((InstanceContext *)g_instances.data)[index].voices->index;
-        if (voice_index < g_ui_voices.lines_number) {
-            line = &g_ui_voices.lines[voice_index];
-            g_ui_voices.window_offset = 0;
-        }
-        else {
-            line = &g_ui_voices.lines[g_ui_voices.lines_number-1];
-            g_ui_voices.window_offset = voice_index - g_ui_voices.lines_number + 1;
-        }
-        bind_voices_interactive_list(line);
-        bind_sub_context_interactive_list(
-            setup_sub_context_interactive_list(),
-            DSTUDIO_SELECT_ITEM_WITH_CALLBACK
-        );
-        return 1;
+    voice_index = DSTUDIO_CURRENT_INSTANCE_CONTEXT->voices->index;
+    if (voice_index < g_ui_voices.lines_number) {
+        line = &g_ui_voices.lines[voice_index];
+        g_ui_voices.window_offset = 0;
     }
-    return 0;
+    else {
+        line = &g_ui_voices.lines[g_ui_voices.lines_number-1];
+        g_ui_voices.window_offset = voice_index - g_ui_voices.lines_number + 1;
+    }
+    bind_voices_interactive_list(line);
+    bind_sub_context_interactive_list(
+        setup_sub_context_interactive_list(),
+        DSTUDIO_SELECT_ITEM_WITH_CALLBACK
+    );
 }
 
 void update_ui_instances_list() {

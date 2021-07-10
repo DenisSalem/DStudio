@@ -20,17 +20,6 @@
 #ifndef DSTUDIO_UI_H_INCLUDED
 #define DSTUDIO_UI_H_INCLUDED
 
-#include <math.h>
-#include <png.h>
-#include <semaphore.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "common.h"
-#include "interactive_list.h"
-
-#include "transition_animation.h"
-
 #define SET_UI_MENU_BACKGROUND_INDEX \
     for (uint_fast32_t i = 0; i < g_dstudio_ui_element_count; i++) { \
         if (&g_dstudio_ui_elements_array[i] == &g_ui_elements_struct.menu_background) { \

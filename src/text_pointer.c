@@ -17,15 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <pthread.h>
-#include <signal.h>
-#include <unistd.h>
-
-#include "common.h"
-#include "extensions.h"
-#include "text.h"
-#include "text_pointer.h"
-#include "window_management.h"
+#include "dstudio.h"
 
 static Vec2 s_text_pointer_4x9_scale_matrix[2] = {0};
 static Vec2 s_text_pointer_8x18_scale_matrix[2] = {0};

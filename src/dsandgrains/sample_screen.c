@@ -17,10 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../bar_plot.h"
-#include "sample_screen.h"
-#include "samples.h"
-#include "ui.h"
+#include "dsandgrains.h"
 
 static unsigned char s_update_request = 0;
 static SharedSample * s_shared_sample = 0;

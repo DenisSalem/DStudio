@@ -22,21 +22,7 @@
  *      - Make the damn naming convention consistent.
  */
 
-#include <pthread.h>
-
-#include "unistd.h"
-
-#include "../buttons.h"
-#include "../common.h"
-#include "../info_bar.h"
-#include "../instances.h"
-#include "../audio_api.h"
-#include "../text_pointer.h"
-#include "../voices.h"
 #include "dsandgrains.h"
-#include "instances.h"
-#include "samples.h"
-#include "ui.h"
 
 const uint_fast32_t g_dstudio_viewport_width = 940;
 const uint_fast32_t g_dstudio_viewport_height = 560;
@@ -53,17 +39,17 @@ int main(int argc, char ** argv) {
     (void) argv;
     
     dstudio_init_memory_management();
-    setup_voice_sub_context(
+    dstudio_setup_client_context(
         sizeof(SampleContext),
         bind_samples_interactive_list,
-        set_samples_ui_context_from_parent_voice_list
+        set_samples_ui_context_from_parent_voice_list,
+        select_sample_from_list
     );
 
     if (DSTUDIO_AUDIO_API_NO_ERROR != dstudio_init_audio_api_client(dsandgrains_audio_process)) {
         goto terminate;
     }
     
-    // TODO: PASS CALLBACK TO INIT SOME AUDIO API, NSM or LADISH
     dstudio_new_client_instance(DSANDGRAINS_INSTANCES_DIRECTORY, "dsandgrains");
     
     pthread_t ui_thread_id;

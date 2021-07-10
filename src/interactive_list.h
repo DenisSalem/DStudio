@@ -20,10 +20,6 @@
 #ifndef DSTUDIO_INTERACTIVE_LIST_H_INCLUDED
 #define DSTUDIO_INTERACTIVE_LIST_H_INCLUDED
 
-#include <semaphore.h>
-
-#include "ui.h"
-
 typedef enum ListItemOpt_t {
     DSTUDIO_SELECT_ITEM_WITH_CALLBACK_TEST = 0,
     DSTUDIO_SELECT_ITEM_WITH_CALLBACK = 1,
@@ -42,7 +38,8 @@ typedef struct UIInteractiveList_t {
     uint_fast32_t stride;
     uint_fast32_t * source_data_count;
     int_fast32_t update_index;
-    uint_fast32_t (*select_callback)(uint_fast32_t index);
+    DStudioContextsLevel contexts_level;
+    uint_fast32_t (*select_callback)(uint_fast32_t index, DStudioContextsLevel contexts_level);
     // Will be called when writting the item name.
     uint_fast32_t (*edit_item_callback)(uint_fast32_t index);
     uint_fast8_t  editable;
@@ -73,7 +70,8 @@ void init_interactive_list(
     uint_fast32_t stride,
     uint_fast32_t * source_data_count,
     char * source_data,
-    uint_fast32_t (*select_callback)(uint_fast32_t index),
+    DStudioContextsLevel contexts_level,
+    uint_fast32_t (*select_callback)(uint_fast32_t index, DStudioContextsLevel contexts_level),
     uint_fast32_t (*edit_item_callback)(uint_fast32_t index),
     uint_fast32_t editable,
     GLfloat highlight_step

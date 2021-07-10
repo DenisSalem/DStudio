@@ -20,11 +20,6 @@
 #ifndef DSTUDIO_TEXT_POINTER_H_INCLUDED
 #define DSTUDIO_TEXT_POINTER_H_INCLUDED
 
-#include <semaphore.h>
-
-#include "ui.h"
-#include "interactive_list.h"
-
 typedef struct UITextPointerContext_t {
     UIElements *    text_pointer;
     UIElements *    ui_text;
@@ -57,4 +52,5 @@ void update_text_pointer_context(UIElements * ui_elements);
 extern UITextPointerContext g_text_pointer_context;
 extern uint_fast32_t g_text_pointer_height;
 extern uint_fast32_t g_text_pointer_char_width;
+
 #endif

@@ -17,9 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <string.h>
-#include "extensions.h"
-#include "text.h"
+#include "dstudio.h"
 
 void update_text(UIElements * text, char* string_value, uint_fast32_t buffer_size) {
     Vec4 * offset_buffer = text->coordinates_settings.instance_offsets_buffer;

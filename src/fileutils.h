@@ -17,7 +17,8 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdint.h>
+#ifndef DSTUDIO_FILEUTILS_H_INCLUDED
+#define DSTUDIO_FILEUTILS_H_INCLUDED
 
 void count_instances(
     const char * directory,
@@ -49,3 +50,5 @@ void recursive_mkdir(
 );
 
 int_fast32_t set_physical_memory();
+
+#endif

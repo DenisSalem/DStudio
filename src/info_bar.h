@@ -20,10 +20,6 @@
 #ifndef DSTUDIO_INFO_BAR_H_INCLUDED
 #define DSTUDIO_INFO_BAR_H_INCLUDED
 
-#include "common.h"
-#include "ui.h"
-#include "text.h"
-
 typedef struct RessourceUsage_t {
     uint_fast32_t   string_size;
     char            cpu_string_buffer[7];

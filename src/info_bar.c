@@ -17,15 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <time.h>
-#include <unistd.h>
-
-#include "common.h"
-#include "extensions.h"
-#include "info_bar.h"
-#include "fileutils.h"
-#include "text.h"
-#include "window_management.h"
+#include "dstudio.h"
 
 double s_previous_timestamp = 0;
 clock_t s_previous_cpu_time = 0;

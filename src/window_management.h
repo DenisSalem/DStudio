@@ -17,12 +17,6 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <GL/gl.h>
-#include <GL/glx.h>
-
-#include "common.h"
-#include "interactive_list.h"
-
 #ifndef WINDOW_MANAGEMENT_INCLUDED
 #define WINDOW_MANAGEMENT_INCLUDED
 
@@ -52,6 +46,11 @@
 
 #define DSTUDIO_WINDOW_IDLING_TIMEOUT 200000.0
 
+typedef struct DStudioWindowScale_t {
+    uint_fast32_t width;
+    uint_fast32_t height;
+} DStudioWindowScale;
+
 void configure_input(long mask);
 void destroy_context();
 uint_fast32_t do_no_exit_loop();
@@ -75,4 +74,5 @@ extern long g_x11_input_mask;
 
 extern int_fast32_t g_scissor_offset_x;
 extern int_fast32_t g_scissor_offset_y;
+
 #endif

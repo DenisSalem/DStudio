@@ -17,19 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <errno.h>
-#include <dirent.h>
-#include <semaphore.h>
-#include <stdlib.h>
-#include <sys/types.h>
-
-#include "fileutils.h"
-#include "open_file.h"
-#include "text.h"
-#include "text_pointer.h"
-#include "ui.h"
-#include "window_management.h"
-#include "sliders.h"
+#include "dstudio.h"
 
 static void (*s_cancel_callback)(UIElements * ui_elements) = 0;
 static uint_fast32_t (*s_select_callback)(char * path, char * filename, FILE * file_fd) = 0;
@@ -539,6 +527,7 @@ void init_open_menu(
         DSTUDIO_OPEN_FILE_CHAR_PER_LINE+1, //stride
         &s_files_count,
         NULL, /* At this point has not been allocated yet. */
+        DSTUDIO_NONE_CONTEXTS_LEVEL,
         select_file_from_list,
         DSTUDIO_NO_CALLBACK,
         0,
@@ -577,10 +566,12 @@ void open_file_menu(
 }
 
 uint_fast32_t select_file_from_list(
-    uint_fast32_t index
+    uint_fast32_t index,
+    DStudioContextsLevel contexts_level
 ) {
     uint_fast32_t char_offset = 0;
     char * path = 0;
+    (void) contexts_level;
     if (index != s_file_index && index < s_files_count) {
         path = dstudio_alloc(
             strlen(s_current_directory) +

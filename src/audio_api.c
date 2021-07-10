@@ -16,16 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdio.h> 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
-#include "audio_api.h"
-#include "info_bar.h"
-#include "instances.h"
-#include "knob.h"
-#include "voices.h"
+#include "dstudio.h"
 
 char s_audio_port_name_left_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};
 char s_audio_port_name_right_buffer[DSTUDIO_PORT_NAME_LENGHT] = {0};

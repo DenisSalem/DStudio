@@ -17,17 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <dirent.h>
-#include <errno.h>
-#include <pwd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-#include "common.h"
-#include "fileutils.h"
+#include "dstudio.h"
 
 static struct stat st = {0};
 static double s_physical_memory_kib = 0;

@@ -20,17 +20,7 @@
 #include <ctype.h>
 #include <unistd.h>
 
-#include "../fileutils.h"
-#include "../flac.h"
-#include "../instances.h"
-#include "../open_file.h"
-#include "../ui.h"
-#include "../voices.h"
-#include "../window_management.h"
-
-#include "add.h"
-#include "samples.h"
-#include "ui.h"
+#include "dsandgrains.h"
 
 static uint_fast32_t load_sample(char * path, char * filename, FILE * file_fd) {
     SharedSample shared_sample = {};

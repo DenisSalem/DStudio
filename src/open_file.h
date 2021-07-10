@@ -20,12 +20,6 @@
 #ifndef DSTUDIO_OPEN_FILE_H_INCLUDED
 #define DSTUDIO_OPEN_FILE_H_INCLUDED
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include "ui.h"
-
 void init_open_menu(UIElements * menu_background, UIElements * ui_elements);
 
 void open_file_menu(
@@ -35,7 +29,8 @@ void open_file_menu(
 );
 
 uint_fast32_t select_file_from_list(
-    uint_fast32_t index
+    uint_fast32_t index,
+    DStudioContextsLevel contexts_level
 );
 
 void update_open_file_error(const char * message);

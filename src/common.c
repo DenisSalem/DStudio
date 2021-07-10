@@ -17,16 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#include "common.h"
-#include "instances.h"
-
-DStudioActiveContext    g_dstudio_active_contexts[3] = {0};
-uint_fast32_t           g_dstudio_client_context_size = 0;
+#include "dstudio.h"
 
 static uint_fast64_t * s_allocation_register = 0;
 static uint_fast32_t s_allocation_register_index = 0;
@@ -132,37 +123,4 @@ void * dstudio_realloc(void * buffer, uint_fast32_t new_size) {
 
 void dstudio_register_events_monitor(void (*callback)()) {
     s_monitors_register[s_monitors_register_index++].callback = callback;
-}
-
-void dstudio_update_current_context(uint_fast32_t index, uint_fast32_t context_level) { 
-        DStudioContexts * parent = 0;
-        DStudioGenericContext * generic_context = 0;
-        uint_fast32_t data_type_size = 0;
-        switch (context_level) {
-            case DSTUDIO_INSTANCE_CONTEXT_LEVEL:
-                parent = ((InstanceContext*)g_dstudio_active_contexts[context_level].current)->parent;
-                data_type_size = sizeof(InstanceContext);
-                break;
-            case DSTUDIO_VOICE_CONTEXT_LEVEL:
-                parent = ((VoiceContext*)g_dstudio_active_contexts[context_level].current)->parent;
-                data_type_size = sizeof(VoiceContext);
-                break;
-                
-            case DSTUDIO_CLIENT_CONTEXT_LEVEL:
-                generic_context = ((DStudioGenericContext *)g_dstudio_active_contexts[context_level].current);
-                if (generic_context == NULL) {
-                    return;
-                }
-                parent = generic_context->parent;
-                data_type_size = g_dstudio_client_context_size;
-                
-                break;
-                
-            default:
-                DSTUDIO_TRACE_STR("Invalid context level.");
-                exit(-1);
-        }
-        parent->index = index;
-        g_dstudio_active_contexts[context_level].previous = g_dstudio_active_contexts[context_level].current;
-        g_dstudio_active_contexts[context_level].current  = parent->data + (index*data_type_size);
 }

@@ -17,12 +17,19 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../voices.h"
 
-#include "samples.h"
 
 #ifndef DSANDGRAINS_DSANDGRAINS_H_INCLUDED
 #define DSANDGRAINS_DSANDGRAINS_H_INCLUDED
+
+#include "../dstudio.h"
+
+#include "add.h"
+#include "samples.h"
+#include "instances.h"
+#include "samples.h"
+#include "sample_screen.h"
+#include "ui.h"
 
 void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size);
 

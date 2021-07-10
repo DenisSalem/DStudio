@@ -17,13 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <unistd.h>
-
-#include "common.h"
-#include "buttons.h"
-#include "extensions.h"
-#include "window_management.h"
+#include "dstudio.h"
 
 uint_fast32_t   g_dstudio_buttons_count = 0;
 UIElements **   g_dstudio_buttons_register = NULL;

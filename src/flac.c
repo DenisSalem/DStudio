@@ -17,10 +17,7 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <FLAC/stream_decoder.h>
-
-#include "common.h"
-#include "flac.h"
+#include "dstudio.h"
 
 void (*s_client_error_callback)(const char * message) = 0;
 uint_fast32_t s_decode_flac_goes_wrong = 1;
