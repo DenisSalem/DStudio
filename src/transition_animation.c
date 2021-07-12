@@ -146,10 +146,10 @@ void perform_transition_animation() {
             s_transition_animations[index].ui_element->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
             s_transition_animations[index].iterations--;  
         }
-        else {
+        else if (s_transition_animations[index].iterations == 0){
             s_transition_animations[index].flags = DSTUDIO_NONE_TRANSITION;
             s_transition_animations[index].ui_element->buffer_upgrade_request_bit = 0;
-
+            s_transition_animations[index].iterations = -1;
         }
     }
 }

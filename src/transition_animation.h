@@ -36,7 +36,7 @@ typedef struct TransitionAnimation_t {
     float * instances_motions_steps_buffer;
     float * instances_alphas_steps_buffer;
     Vec4 * instances_offsets_steps_buffer;
-    uint_fast32_t iterations;
+    int_fast32_t iterations;
     uint_fast32_t flags;
 } TransitionAnimation;
 

@@ -67,7 +67,6 @@ void update_sample_screen_range() {
     for (uint_fast32_t i = (uint_fast32_t) (ui_end * g_ui_elements_struct.sample_screen.count); i < g_ui_elements_struct.sample_screen.count; i++) {
         alphas_buffer[i] = 0.5;
     }
-    
     g_ui_elements_struct.sample_screen.buffer_upgrade_request_bit |= DSTUDIO_UPDATE_ALPHA_BUFFER;
     g_ui_elements_struct.sample_screen.render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
 }
