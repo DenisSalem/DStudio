@@ -208,9 +208,9 @@ void init_open_menu(
     s_open_file_prompt_box_scale_matrix[0].x = 1;
     s_open_file_prompt_box_scale_matrix[1].y = ((GLfloat) DSTUDIO_OPEN_FILE_PROMPT_BOX_AREA_HEIGHT / (GLfloat) g_dstudio_viewport_height);
     
-    prompt_box->color.r = 0;
-    prompt_box->color.g = 0;
-    prompt_box->color.b = 0;
+    prompt_box->color.r = 0.0;
+    prompt_box->color.g = 0.0;
+    prompt_box->color.b = 0.0;
     prompt_box->color.a = 0.5;
     
     init_ui_elements(

@@ -28,7 +28,9 @@ out vec4 color;
 
 void main (void) {
     if (no_texture == 1U) {
-        color = ui_element_color;
+        //color = ui_element_color;
+        color.r = 1.0;
+        color.a = 0.06125;
     }
     else {
         color = texture(input_texture, fragment_texture_coordinates);

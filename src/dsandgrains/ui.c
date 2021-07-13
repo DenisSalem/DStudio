@@ -462,7 +462,7 @@ inline static void init_info_bar() {
     dstudio_init_info_text(&g_ui_elements_struct.info_text);
 
     // TODO Finish Implement this.
-    g_ui_elements_struct.cpu_usage.overlap_sub_menu_ui_elements = &g_ui_elements_struct.open_file_menu_prompts;
+    //g_ui_elements_struct.cpu_usage.overlap_sub_menu_ui_elements = &g_ui_elements_struct.open_file_menu_prompts;
 }
 
 inline static void init_sample_screen() {    
