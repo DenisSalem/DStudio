@@ -624,7 +624,7 @@ inline static void inline_init_ui_elements_set_offsets_buffer(
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BAR_PLOT:
             type_offset_x = (index * ui_element_p->coordinates_settings.scale_matrix[0].x*2.0);
             break;
-        
+            
         case DSTUDIO_UI_ELEMENT_TYPE_SLIDER_BACKGROUND:
             if (index == ui_element_p->count-1) {
                 ui_element_p->coordinates_settings.instance_offsets_buffer[index].w = 2.0/3.0;
@@ -1023,9 +1023,6 @@ inline void render_loop() {
 };
 
 void render_ui_elements(UIElements * ui_elements) {
-    Vec4 color = {0};
-    color.a = 0.5;
-    color.g = 1.0;
     switch(ui_elements->type) {
         case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
             glUniform1ui(g_motion_type_location, DSTUDIO_MOTION_TYPE_ROTATION);
@@ -1042,8 +1039,7 @@ void render_ui_elements(UIElements * ui_elements) {
             
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE:
         case DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND:
-            DSTUDIO_TRACE_ARGS("%lu", (long unsigned) ui_elements);
-            glUniform4fv(g_ui_element_color_location, 1, &color.r);
+            glUniform4fv(g_ui_element_color_location, 1, &ui_elements->color.r);
             __attribute__ ((fallthrough));
 
         default:
@@ -1180,8 +1176,6 @@ uint_fast32_t render_viewport(uint_fast32_t render_all) {
         for (uint_fast32_t i = layer_1_index_limit; i <= s_ui_elements_requests_index; i++) {
             if (is_background_ui_element(s_ui_elements_requests[i])) {
                 scissor_n_matrix_setting(i, i, DSTUDIO_FLAG_NO_SCISSOR_OFFSET);
-                if (s_ui_elements_requests[i]->type & (DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE | DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND))
-                    DSTUDIO_TRACE_ARGS("%lu", (long unsigned) s_ui_elements_requests[i]);
                 render_ui_elements(s_ui_elements_requests[i]);
             }
         }

@@ -225,7 +225,7 @@ void init_open_menu(
         0,
         1,
         1,
-        10,
+        1,
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
@@ -273,7 +273,7 @@ void init_open_menu(
         0,
         1,
         1,
-        10,
+        1,
         DSTUDIO_UI_ELEMENT_TYPE_NO_TEXTURE_BACKGROUND,
         DSTUDIO_FLAG_NONE
     );
