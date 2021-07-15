@@ -156,7 +156,6 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     return line;
 }
 
-// TODO: the following could be generalized and not implemented by consumer.
 void select_sample_from_list() {
     DStudioContexts * samples = DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;   
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, DSTUDIO_CURRENT_SAMPLE_CONTEXT->amount);
@@ -166,7 +165,6 @@ void select_sample_from_list() {
     bind_new_data_to_sample_screen(samples->count ? &DSTUDIO_CURRENT_SAMPLE_CONTEXT->shared_sample : 0);
 }
 
-// TODO : Smell like shit
 UIElements * set_samples_ui_context_from_parent_voice_list() {
     UIElements * line;
     uint_fast32_t sample_index;
@@ -181,15 +179,9 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
         line = &g_ui_samples.lines[g_ui_voices.lines_number-1];
         g_ui_samples.window_offset = sample_index - g_ui_samples.lines_number + 1;
     }
-    (void) line;
     if (samples->count) {
         g_dstudio_active_contexts[DSTUDIO_CLIENT_CONTEXTS_LEVEL].previous = 0;
-        dstudio_update_current_context(sample_index, DSTUDIO_CLIENT_CONTEXTS_LEVEL);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, DSTUDIO_CURRENT_SAMPLE_CONTEXT->amount);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, DSTUDIO_CURRENT_SAMPLE_CONTEXT->stretch);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, DSTUDIO_CURRENT_SAMPLE_CONTEXT->start);
-        bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, DSTUDIO_CURRENT_SAMPLE_CONTEXT->end);
-        bind_new_data_to_sample_screen(&DSTUDIO_CURRENT_SAMPLE_CONTEXT->shared_sample);
+        select_sample_from_list();
     }
     else {
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_amount, 0);

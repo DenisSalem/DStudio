@@ -56,7 +56,6 @@ void                 dstudio_trigger_midi_capture(UIElements * self);
 
 // Must be implemented for each kind of API
 
-// TODO : Standardize naming
 typedef struct InstanceContext_t InstanceContext;
 typedef struct VoiceContext_t VoiceContext;
 DStudioAudioAPIError dstudio_audio_api_high_level_port_registration(InstanceContext * instance, VoiceContext * voice);
