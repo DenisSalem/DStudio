@@ -72,11 +72,7 @@ int (*default_error_handler)(Display*, XErrorEvent*);
 
 // Window states monitoring
 static Atom s_wmState;
-static Atom s_ret_type;
-static int s_ret_format;
-static unsigned long s_atom_iItem, s_atom_nItem, s_atom_bytesAfter;
-static unsigned char *s_atom_properties = NULL;
-static char * s_atom_name = 0;
+
 // Is periodically updated with is_window_visible method
 static XWindowAttributes s_xwa;
 static double s_wa_update_timestamp=0;
@@ -208,7 +204,6 @@ void init_context(const char * window_name, int width, int height) {
     root_window = RootWindow(display, visual_info->screen);
     creating_color_map(visual_info, &root_window, &swa);
 
-    // TODO: Investigate necessity to set CW* flags
     window = XCreateWindow(display, root_window, 0, 0, width, height, 0, visual_info->depth, InputOutput, visual_info->visual, CWBorderPixel|CWColormap|CWEventMask, &swa);
     
     DSTUDIO_EXIT_IF_NULL(window)
@@ -281,8 +276,6 @@ uint_fast32_t is_window_focus() {
     return s_focus_type == FocusIn? 1 : 0; 
 }
 
-// Based on this
-// discussion https://www.linuxquestions.org/questions/programming-9/how-to-read-the-state-by-using-_net_wm_state-in-xlib-836879/
 uint_fast32_t is_window_visible() {
     double timestamp = dstudio_get_timestamp();
 
@@ -293,32 +286,6 @@ uint_fast32_t is_window_visible() {
         if (s_xwa.map_state != IsViewable) {
             s_is_visible = 0;
         }
-    
-        // TODO: Is it redundant?
-        XGetWindowProperty(
-            display,
-            window,
-            s_wmState,
-            0,
-            (~0L),
-            False,
-            AnyPropertyType,
-            &s_ret_type,
-            &s_ret_format,
-            &s_atom_nItem,
-            &s_atom_bytesAfter,
-            &s_atom_properties
-        );
-        
-        for (s_atom_iItem = 0; s_atom_iItem < s_atom_nItem; ++s_atom_iItem) {
-            s_atom_name = XGetAtomName(display,((Atom*)(s_atom_properties))[s_atom_iItem]);
-            if (strcmp("_NET_WM_STATE_SHADED", s_atom_name) == 0 || strcmp("_NET_WM_STATE_HIDDEN", s_atom_name) == 0) {
-                s_is_visible = 0;
-                break;
-            }
-            XFree(s_atom_name);
-        }
-        XFree(s_atom_properties);
     }
     return s_is_visible;
 }

@@ -41,11 +41,11 @@ With debug features :
 - BEGIN 22/04/2021, DONE 23/04/2021 : Implement UI animation transition while switching context.
 - BEGIN 24/04/2021, DONE 24/04/2021 : Implement filter in file browser to only match supported format. Do not display hidden file.
 - BEGIN 25/04/2021, DONE 25/04/2021 : SAMPLE Group : Amount (context switch, animation, applied effect).
-- BEGIN 25/04/2021                  : SAMPLE Group : Stretch (context switch, animation, applied effect).
 - BEGIN 08/05/2021n DONE 09/05/2021 : Implement audio range and signal Inversion.
 - BEGIN 04/06/2021, DONE 04/06/2021 : Low level Midi support through Jack.
 - BEGIN 06/06/2021, DONE 13/06/2021 : Multi contextual support of knob / midi binding.
 - BEGIN 13/06/2021, DONE 15/06/2021 : Get back audio and midi ports if Jack server close and restart.
+- BEGIN 25/04/2021                  : SAMPLE Group : Stretch (context switch, animation, applied effect).
 - Centered text.
 - Freezed ui element if context is not available.
 - CONTINUOUS WIP : Connect UI elements to backend context.
@@ -77,7 +77,7 @@ With debug features :
 - Fully translatable user interface.
 - Support for NSM and Ladish.
 - LV2 support.
-- Allow multiple window./
+- Allow multiple window.
 - Python live coding support.
 - Export voice as audio file loop.
 - Support of additional audio file format.
