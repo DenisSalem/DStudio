@@ -23,6 +23,18 @@ static jack_client_t * s_client;
 static jack_status_t s_jack_status;
 static pthread_t s_restart_thread_id;
 
+static int s_process_connection_left = 0;
+static int s_process_connection_right = 0;
+static VoiceContext * s_process_voice = 0;
+static InstanceContext * s_process_instance = 0;
+static jack_default_audio_sample_t * s_process_out_left = 0;
+static jack_default_audio_sample_t * s_process_out_right = 0;
+static ControllerValue * s_process_controller_value_p = NULL;
+static ControllerValue * s_process_midi_ui_target_controller_value;
+static UIElements * s_process_midi_ui_target = NULL;
+static double s_process_value = 0;
+static int s_process_match = 0;
+
 static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) {
     (void) arg;
     (void) code;
@@ -34,18 +46,6 @@ static void on_info_shutdown(jack_status_t code, const char *reason, void *arg) 
 
 static int process(jack_nframes_t nframes, void *arg) {
         (void) arg;
-        // TODO : could be static
-        int connection_left = 0;
-        int connection_right = 0;
-        VoiceContext * voice = 0;
-        InstanceContext * instance = 0;
-        jack_default_audio_sample_t * out_left = 0;
-        jack_default_audio_sample_t * out_right = 0;
-        ControllerValue * controller_value_p = NULL;
-        ControllerValue * midi_ui_target_controller_value;
-        UIElements * midi_ui_target = NULL;
-        double value = 0;
-        int match = 0;
         
         if (s_client_process == NULL || g_dstudio_audi_api_request_restart) {
             return 0;
@@ -68,43 +68,43 @@ static int process(jack_nframes_t nframes, void *arg) {
         }
         
         for (uint_fast32_t instance_index = 0; instance_index < g_instances.count; instance_index++) {
-            instance = g_instances.data + (instance_index*sizeof(InstanceContext)) ;
-            for (uint_fast32_t voice_index = 0; voice_index < instance->voices->count; voice_index++) {
-                voice = instance->voices->data + (voice_index*sizeof(VoiceContext));
+            s_process_instance = g_instances.data + (instance_index*sizeof(InstanceContext)) ;
+            for (uint_fast32_t voice_index = 0; voice_index < s_process_instance->voices->count; voice_index++) {
+                s_process_voice = s_process_instance->voices->data + (voice_index*sizeof(VoiceContext));
                 
                 // Midi Block : get binded sliders and / or knobs event
-                if (jack_port_connected(voice->ports.midi)) {
-                    void * midi_buffer = jack_port_get_buffer(voice->ports.midi, nframes);
+                if (jack_port_connected(s_process_voice->ports.midi)) {
+                    void * midi_buffer = jack_port_get_buffer(s_process_voice->ports.midi, nframes);
                     jack_midi_event_t in_event;
                     for (uint_fast32_t event_index = 0; event_index < jack_midi_get_event_count(midi_buffer); event_index++) {
                         jack_midi_event_get(&in_event, midi_buffer, event_index);
                         if ( (uint_fast8_t) 0xB0 <= in_event.buffer[0] && in_event.buffer[0] <= (uint_fast8_t) 0xBF) {
-                            if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT && DSTUDIO_CURRENT_VOICE_CONTEXT == voice) {
-                                voice->midi_binds[in_event.buffer[1]].ui_element = g_midi_ui_element_target;
-                                voice->midi_binds[in_event.buffer[1]].controller_value = g_midi_ui_element_target->application_callback_args;
+                            if (g_midi_capture_state == DSTUDIO_AUDIO_API_MIDI_CAPTURE_WAIT_FOR_INPUT && DSTUDIO_CURRENT_VOICE_CONTEXT == s_process_voice) {
+                                s_process_voice->midi_binds[in_event.buffer[1]].ui_element = g_midi_ui_element_target;
+                                s_process_voice->midi_binds[in_event.buffer[1]].controller_value = g_midi_ui_element_target->application_callback_args;
                                 dstudio_update_info_text("Midi input has been binded!");
                                 g_midi_capture_state = DSTUDIO_AUDIO_API_MIDI_CAPTURE_NONE;
                                 g_midi_ui_element_target = NULL;
                             }
-                            else if (voice->midi_binds[in_event.buffer[1]].ui_element) {
-                                controller_value_p = voice->midi_binds[in_event.buffer[1]].controller_value;
-                                midi_ui_target = voice->midi_binds[in_event.buffer[1]].ui_element;
-                                midi_ui_target_controller_value = midi_ui_target->application_callback_args;
-                                match =  midi_ui_target_controller_value ? controller_value_p->context_identifier == midi_ui_target_controller_value->context_identifier : 0;
+                            else if (s_process_voice->midi_binds[in_event.buffer[1]].ui_element) {
+                                s_process_controller_value_p = s_process_voice->midi_binds[in_event.buffer[1]].controller_value;
+                                s_process_midi_ui_target = s_process_voice->midi_binds[in_event.buffer[1]].ui_element;
+                                s_process_midi_ui_target_controller_value = s_process_midi_ui_target->application_callback_args;
+                                s_process_match =  s_process_midi_ui_target_controller_value ? s_process_controller_value_p->context_identifier == s_process_midi_ui_target_controller_value->context_identifier : 0;
                                                                                                 
-                                switch(midi_ui_target->type) {
+                                switch(s_process_midi_ui_target->type) {
                                     case DSTUDIO_UI_ELEMENT_TYPE_KNOB:
-                                        value = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * ((double) in_event.buffer[2] / 127.0);
-                                        if ( midi_ui_target_controller_value && match) {
-                                            *midi_ui_target->instance_motions_buffer = value;
-                                            update_knob_value_from_ui_element(midi_ui_target);
-                                            midi_ui_target->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
+                                        s_process_value = -KNOB_LOWEST_POSITION - (2.0 * KNOB_HIGHEST_POSITION) * ((double) in_event.buffer[2] / 127.0);
+                                        if ( s_process_midi_ui_target_controller_value && s_process_match) {
+                                            *s_process_midi_ui_target->instance_motions_buffer = s_process_value;
+                                            update_knob_value_from_ui_element(s_process_midi_ui_target);
+                                            s_process_midi_ui_target->render_state = DSTUDIO_UI_ELEMENT_UPDATE_AND_RENDER_REQUESTED;
                                         }
                                         else {
                                             DSTUDIO_TRACE;
                                             update_knob_value_from_motion(
-                                                controller_value_p,
-                                                value
+                                                s_process_controller_value_p,
+                                                s_process_value
                                             );
                                         }
                                         break;
@@ -117,22 +117,22 @@ static int process(jack_nframes_t nframes, void *arg) {
                 }
                 
                 { // Audio Block 
-                    connection_left = jack_port_connected(voice->ports.left);
-                    connection_right = jack_port_connected(voice->ports.right);
+                    s_process_connection_left = jack_port_connected(s_process_voice->ports.left);
+                    s_process_connection_right = jack_port_connected(s_process_voice->ports.right);
                     
-                    if (connection_left + connection_right) {
-                        if (connection_left) {
-                            out_left  = jack_port_get_buffer(voice->ports.left, nframes);
-                            explicit_bzero(out_left, nframes*sizeof(float));
+                    if (s_process_connection_left + s_process_connection_right) {
+                        if (s_process_connection_left) {
+                            s_process_out_left  = jack_port_get_buffer(s_process_voice->ports.left, nframes);
+                            explicit_bzero(s_process_out_left, nframes*sizeof(float));
                         }
-                        if (connection_right) {
-                            out_right = jack_port_get_buffer(voice->ports.right, nframes);
-                            explicit_bzero(out_right, nframes*sizeof(float));
+                        if (s_process_connection_right) {
+                            s_process_out_right = jack_port_get_buffer(s_process_voice->ports.right, nframes);
+                            explicit_bzero(s_process_out_right, nframes*sizeof(float));
                         }
                         s_client_process(
-                            voice,
-                            connection_left ? out_left : NULL,
-                            connection_right ? out_right : NULL,
+                            s_process_voice,
+                            s_process_connection_left ? s_process_out_left : NULL,
+                            s_process_connection_right ? s_process_out_right : NULL,
                             nframes
                         );
                     }
