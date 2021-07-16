@@ -19,6 +19,7 @@
 
 #include "dsandgrains.h"
 
+static SharedSample ** s_shared_samples = 0;
 UIInteractiveList g_ui_samples = {0};
 
 void bind_samples_interactive_list(UIElements * line, ListItemOpt flag) {
@@ -64,7 +65,42 @@ void init_samples_interactive_list(
     #endif
 }
 
-UIElements * new_sample(char * filename, SharedSample shared_sample) {
+SharedSample * lookup_shared_sample(char * identifier) {
+    uint_fast32_t shared_sample_index = 0;
+    if (s_shared_samples) {
+        while (s_shared_samples[shared_sample_index]) {
+            if (strcmp(identifier, s_shared_samples[shared_sample_index]->identifier) == 0) {
+
+                return s_shared_samples[shared_sample_index];
+            }
+            shared_sample_index++;
+        }
+        s_shared_samples = dstudio_realloc(
+            s_shared_samples,
+            sizeof(SharedSample*)*(shared_sample_index+2)
+        );
+        DSTUDIO_EXIT_IF_NULL(s_shared_samples);
+    }
+    else {
+        s_shared_samples = dstudio_alloc(
+            sizeof(SharedSample*)*2,
+            DSTUDIO_FAILURE_IS_FATAL
+        );
+
+    }
+    s_shared_samples[shared_sample_index] = dstudio_alloc(
+        sizeof(SharedSample),
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+    s_shared_samples[shared_sample_index]->identifier = dstudio_alloc(
+        strlen(identifier)+1,
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+    strcpy(s_shared_samples[shared_sample_index]->identifier, identifier);
+    return s_shared_samples[shared_sample_index];
+}
+
+UIElements * new_sample(char * filename, SharedSample * shared_sample) {
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_NO_DATA_PROCESSING);
     UIElements * line = 0;
     DStudioContexts * samples = DSTUDIO_CURRENT_VOICE_CONTEXT->sub_contexts;
@@ -82,7 +118,7 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
         &new_sample_context[samples->count],
         sizeof(SampleContext)
     );
-    memcpy(&new_sample_context[samples->count].shared_sample, &shared_sample, sizeof(SharedSample));
+    new_sample_context[samples->count].shared_sample = shared_sample;
 
     samples->index = samples->count++;
     samples->data = new_sample_context;
@@ -152,7 +188,6 @@ UIElements * new_sample(char * filename, SharedSample shared_sample) {
     line = &g_ui_samples.lines[samples->index-g_ui_samples.window_offset];
     bind_samples_interactive_list(line, DSTUDIO_SELECT_ITEM_WITH_CALLBACK);
     dstudio_audio_api_request(DSTUDIO_AUDIO_API_REQUEST_DATA_PROCESSING);
-    
     return line;
 }
 
@@ -162,7 +197,7 @@ void select_sample_from_list() {
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_stretch, DSTUDIO_CURRENT_SAMPLE_CONTEXT->stretch);
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_start, DSTUDIO_CURRENT_SAMPLE_CONTEXT->start);
     bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, DSTUDIO_CURRENT_SAMPLE_CONTEXT->end);
-    bind_new_data_to_sample_screen(samples->count ? &DSTUDIO_CURRENT_SAMPLE_CONTEXT->shared_sample : 0);
+    bind_new_data_to_sample_screen(samples->count ? DSTUDIO_CURRENT_SAMPLE_CONTEXT->shared_sample : 0);
 }
 
 UIElements * set_samples_ui_context_from_parent_voice_list() {
@@ -190,6 +225,7 @@ UIElements * set_samples_ui_context_from_parent_voice_list() {
         bind_and_update_ui_knob(&g_ui_elements_struct.knob_sample_end, 0);
         bind_new_data_to_sample_screen(NULL);
     }
+    
     return line;
 }
 

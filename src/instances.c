@@ -110,6 +110,7 @@ void instances_management() {
     
     if (poll_result <= 0) {
         if (errno != EAGAIN && errno != EINVAL ) {
+            // TODO: WEIRD SHIT HAPPEN HERE : /home/http/dev/github/DStudio/src/instances.c 113: "poll_result <=0 : No such file or directory"
             DSTUDIO_TRACE_ARGS("poll_result <=0 : %s", strerror(errno));
         }
         return;

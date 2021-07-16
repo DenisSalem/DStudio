@@ -23,17 +23,22 @@
 #include "dsandgrains.h"
 
 static uint_fast32_t load_sample(char * path, char * filename, FILE * file_fd) {
-    SharedSample shared_sample = {};
-    if (load_flac(file_fd, update_open_file_error, &shared_sample)) {
-        shared_sample.identifier = dstudio_alloc(
-            strlen(path)+strlen(filename)+1, // nullbyte
-            DSTUDIO_FAILURE_IS_FATAL
-        );
-        strcat(shared_sample.identifier, path);
-        strcat(shared_sample.identifier, filename);
-        new_sample(filename, shared_sample);
+    SharedSample * shared_sample_p = 0;
+    
+    char * identifier = dstudio_alloc(
+        strlen(path)+strlen(filename)+1, // nullbyte
+        DSTUDIO_FAILURE_IS_FATAL
+    );
+    strcat(identifier, path);
+    strcat(identifier, filename);
+    
+    shared_sample_p = lookup_shared_sample(identifier);
+    dstudio_free(identifier);
+    if (shared_sample_p->count++ || load_flac(file_fd, update_open_file_error, shared_sample_p)) {
+        new_sample(filename, shared_sample_p);
         return 1;
     }
+
     return 0;
 }
 

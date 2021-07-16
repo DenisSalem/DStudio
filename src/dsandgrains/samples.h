@@ -22,7 +22,7 @@
 
 typedef struct SampleContext_t {
     DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES
-    SharedSample shared_sample; // TODO MUST BE A POINTER !!!
+    SharedSample * shared_sample;
     int_fast64_t processed_index;
     ControllerValue * start;
     ControllerValue * end;
@@ -35,6 +35,7 @@ extern UIInteractiveList g_ui_samples;
 
 void bind_samples_interactive_list(UIElements * line, ListItemOpt flag);
 
+
 void init_samples_interactive_list(
     UIElements * ui_elements,
     uint_fast32_t lines_number,
@@ -42,7 +43,9 @@ void init_samples_interactive_list(
     GLfloat item_offset_y
 );
 
-UIElements * new_sample(char * filename, SharedSample shared_sample);
+SharedSample * lookup_shared_sample(char * identifier);
+
+UIElements * new_sample(char * filename, SharedSample * shared_sample);
 
 void select_sample_from_list();
 

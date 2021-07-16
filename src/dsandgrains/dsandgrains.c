@@ -34,7 +34,6 @@ static void process_channel(SampleContext * sample, float * channel_in, float * 
     int_fast64_t index = 0;
     
     for (uint_fast32_t i = 0; i < frame_size; i++) {
-        // TODO : Could be optimized and cleaned
         int_fast32_t offset = i % s_range;
         index = processed_index + (s_direction > 0 ? offset : - offset);
         
@@ -56,12 +55,12 @@ static void process_channel(SampleContext * sample, float * channel_in, float * 
 void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * out_right, uint_fast32_t frame_size) {
     DStudioContexts * samples = voice->sub_contexts;
     SampleContext * sample = 0;
-
+    SharedSample * shared_sample = 0;
     for (uint_fast32_t sample_index = 0; sample_index < samples->count; sample_index++) {
         sample = &((SampleContext*)samples->data)[sample_index];
-        
-        s_start =  sample->start->computed * (sample->shared_sample.size-1);
-        s_end =  sample->end->computed * (sample->shared_sample.size-1);
+        shared_sample = sample->shared_sample;
+        s_start =  sample->start->computed * (shared_sample->size-1);
+        s_end =  sample->end->computed * (shared_sample->size-1);
 
         if (s_start < s_end) {
             s_direction = 1;
@@ -83,10 +82,10 @@ void dsandgrains_audio_process(VoiceContext * voice, float * out_left, float * o
         }
 
         if (out_left) {
-            process_channel(sample, sample->shared_sample.left, out_left, frame_size);
+            process_channel(sample, shared_sample->left, out_left, frame_size);
         }
         if (out_right) {
-            process_channel(sample, sample->shared_sample.right, out_right, frame_size);
+            process_channel(sample, shared_sample->right, out_right, frame_size);
         }
 
         if (s_direction > 0) {
