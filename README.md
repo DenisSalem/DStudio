@@ -46,6 +46,8 @@ With debug features :
 - BEGIN 06/06/2021, DONE 13/06/2021 : Multi contextual support of knob / midi binding.
 - BEGIN 13/06/2021, DONE 15/06/2021 : Get back audio and midi ports if Jack server close and restart.
 - BEGIN 25/04/2021                  : SAMPLE Group : Stretch (context switch, animation, applied effect).
+- BEGIN 27/07/2021,                 : Replace charmap usage with freetype, render area is then auto computed.
+
 - Centered text.
 - Freezed ui element if context is not available.
 - CONTINUOUS WIP : Connect UI elements to backend context.
@@ -73,7 +75,6 @@ With debug features :
 - Allow to change the color of auto generated UI element (Sample screen, EQ, etc).
 - Experimental support of the following plateform : ReactOS, Haiku.
 - UI and window Rescale.
-- Replace charmap usage with freetype, render area is then auto computed.
 - Fully translatable user interface.
 - Support for NSM and Ladish.
 - LV2 support.
