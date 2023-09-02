@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2021 Denis Salem
+ * Copyright 2019, 2023 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -17,16 +17,19 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dstudio.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#include "common.h"
+#include "macros.h"
 
 static uint_fast64_t * s_allocation_register = 0;
 static uint_fast32_t s_allocation_register_index = 0;
 static uint_fast32_t s_allocation_register_size = DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE;
 
-static DStudioMonitorRegister *    s_monitors_register = 0;
-static uint_fast32_t         s_monitors_register_index = 0;
-
-void * dstudio_alloc(uint_fast32_t buffer_size, uint_fast32_t failure_is_fatal) {
+void * dstudio_alloc(uint_fast32_t buffer_size, DStudioFailureMode failure_is_fatal) {
     if (s_allocation_register_index >= s_allocation_register_size) {
         s_allocation_register = realloc(s_allocation_register, sizeof(uint_fast64_t) * (s_allocation_register_size + DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE));
         DSTUDIO_EXIT_IF_NULL(s_allocation_register)
@@ -45,12 +48,6 @@ void * dstudio_alloc(uint_fast32_t buffer_size, uint_fast32_t failure_is_fatal) 
     }
     explicit_bzero((void *) s_allocation_register[s_allocation_register_index], buffer_size);
     return (void *) s_allocation_register[s_allocation_register_index++];
-}
-
-void dstudio_events_monitor() {
-    for (uint_fast32_t i = 0; i < s_monitors_register_index; i++) {
-        s_monitors_register[i].callback();
-    }
 }
 
 void dstudio_free(void * buffer) {    
@@ -90,13 +87,6 @@ double dstudio_get_timestamp() {
     return (double) (timestamp.tv_sec * 1000 + timestamp.tv_nsec / 1000000) / 1000.0;
 }
 
-void dstudio_init_events_monitor_register(uint_fast32_t monitor_count) {
-    s_monitors_register = dstudio_alloc(
-        monitor_count * sizeof(DStudioMonitorRegister),
-        DSTUDIO_FAILURE_IS_FATAL
-    );
-}
-
 void dstudio_init_memory_management() {
     s_allocation_register = malloc(sizeof(uint_fast64_t) * s_allocation_register_size);
     DSTUDIO_EXIT_IF_NULL(s_allocation_register)
@@ -119,8 +109,4 @@ void * dstudio_realloc(void * buffer, uint_fast32_t new_size) {
         }
     }
     return new_buffer;
-}
-
-void dstudio_register_events_monitor(void (*callback)()) {
-    s_monitors_register[s_monitors_register_index++].callback = callback;
 }

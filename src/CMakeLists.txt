@@ -47,32 +47,10 @@ if(DEFINED DSTUDIO_RELY_ON_X11)
 endif()
 
 add_executable(
-	dsandgrains
-    dsandgrains/add.c
-    dsandgrains/dsandgrains.c
-	dsandgrains/main.c
-    dsandgrains/samples.c
-    dsandgrains/sample_screen.c
-    dsandgrains/ui.c
-    audio_api.c
-    bar_plot.c
-    buttons.c
+	  dsandgrains
+    main.c
     common.c
-    contexts.c
     extensions.c
-    fileutils.c
-    flac.c
-    info_bar.c
-    instances.c
-    interactive_list.c
-    knob.c
-    open_file.c
-    sliders.c
-    text.c
-    text_pointer.c
-    transition_animation.c
-    ui.c
-    voices.c
     window_management.c
 )
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2021 Denis Salem
+ * Copyright 2019, 2023 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -16,6 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <stdint.h>
+#include <string.h>
+
+#include <GL/gl.h>
+#include <GL/glx.h>
+
 
 #ifndef DSTUDIO_EXTENSIONS_H_INCLUDED
 #define DSTUDIO_EXTENSIONS_H_INCLUDED
@@ -60,6 +67,7 @@ DSTUDIO_DEF_GL_FUN(void,            Uniform4fv,                 GLint location, 
 DSTUDIO_DEF_GL_FUN(void,            UseProgram,                 GLuint program)
 DSTUDIO_DEF_GL_FUN(void,            VertexAttribDivisor,        GLuint index, GLuint divisor)
 DSTUDIO_DEF_GL_FUN(void,            VertexAttribPointer,        GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer)
+
 #ifdef DSTUDIO_DEBUG
 DSTUDIO_DEF_GL_FUN(GLenum,          CheckFramebufferStatus,     GLenum target)
 DSTUDIO_DEF_GL_FUN(void,            GetProgramInfoLog,          GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog)

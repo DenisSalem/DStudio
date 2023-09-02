@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2021 Denis Salem
+ * Copyright 2019, 2023 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -17,7 +17,10 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dstudio.h"
+#include <dlfcn.h>
+#include <stdio.h>
+
+#include "extensions.h"
 
 DSTUDIO_DECLARE_GL_FUN(AttachShader)
 DSTUDIO_DECLARE_GL_FUN(BindBuffer)

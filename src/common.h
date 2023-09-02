@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2021 Denis Salem
+ * Copyright 2019, 2023 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -16,35 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
+#include <stdint.h>
 
 #ifndef DSTUDIO_COMMON_H_INCLUDED
 #define DSTUDIO_COMMON_H_INCLUDED
 
-typedef struct DStudioMonitorRegister_t {
-    void (*callback)();
-} DStudioMonitorRegister;
+#define DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE 8
+
+
+typedef enum DStudioFailureMode_t {
+    DSTUDIO_FAILURE_IS_FATAL = 1,
+    DSTUDIO_FAILURE_IS_NOT_FATAL = 0
+} DStudioFailureMode;
 
 extern const char   g_dstudio_application_name[];
-
-/*
- * dstudio_alloc
- * dstudio_free
- * dstudio_init_memory_management
- * dstudio_realloc
- * 
- * Allocate and initialize memory.
- * Not thread safe.
- */
  
-void * dstudio_alloc(uint_fast32_t buffer_size, uint_fast32_t failure_is_fatal);
-void   dstudio_events_monitor();
+void * dstudio_alloc(uint_fast32_t buffer_size, DStudioFailureMode failure_is_fatal);
 void   dstudio_free(void * buffer);
 double dstudio_get_timestamp();
-void   dstudio_init_events_monitor_register(uint_fast32_t monitor_count);
+
 /* DStudio has it's own memory manager. It's a simple wrapper build around stantard
  * function like malloc, realloc and free. It MUST be the first dstudio call.*/
 void   dstudio_init_memory_management();
 void * dstudio_realloc(void * buffer, uint_fast32_t new_size);
-void   dstudio_register_events_monitor(void (*callback)());
 
 #endif
