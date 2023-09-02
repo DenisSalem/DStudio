@@ -32,6 +32,7 @@
 
 void destroy_window_context();
 void init_window_context(const char * window_name, int width, int height);
+uint_fast32_t is_window_alive();
 void window_render_loop();
 
 #endif

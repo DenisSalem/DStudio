@@ -20,6 +20,7 @@
 #include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "extensions.h"
 #include "macros.h"
@@ -38,7 +39,9 @@
     FocusChangeMask | \
     KeyPressMask | \
     KeyReleaseMask)
-    
+
+#define DSTUDIO_FRAMERATE  33.3333 // Value in milliseconds 
+
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
 static int           s_ctx_error_occurred = 0;
@@ -265,9 +268,13 @@ void init_window_context(const char * window_name, int width, int height) {
     glXMakeCurrent(s_display, s_window, s_opengl_context);
 }
 
-static void window_listen_events() {    
+uint_fast32_t is_window_alive() {
+    return s_window_alive;
+}
+
+static void listen_window_events() {    
     struct pollfd fds = {0};
-    XEve nt x_event;
+    XEvent x_event;
     fds.fd = ConnectionNumber(s_display);
     fds.events = POLLIN;
     if (poll(&fds, 1, 20) > 0) {
@@ -285,11 +292,9 @@ void window_render_loop() {
     double framerate_limiter = 0;
     double framerate_limiter_timestamp = 0;
     
-        
-    while (do_no_exit_loop()) {
-            listen_events();
-        
-        usleep((uint_fast32_t) (framerate_limiter > 0 ? framerate_limiter : 0));
+    while (is_window_alive()) {
+        listen_window_events();
+        usleep((uint_fast32_t) DSTUDIO_FRAMERATE);
     }
 };
 
