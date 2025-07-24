@@ -39,6 +39,7 @@ DSTUDIO_DECLARE_GL_FUN(GenBuffers)
 DSTUDIO_DECLARE_GL_FUN(GenerateMipmap)
 DSTUDIO_DECLARE_GL_FUN(GenFramebuffers)
 DSTUDIO_DECLARE_GL_FUN(GenVertexArrays)
+DSTUDIO_DECLARE_GL_FUN(GetAttribLocation)
 DSTUDIO_DECLARE_GL_FUN(GetUniformLocation)
 DSTUDIO_DECLARE_GL_FUN(LinkProgram)
 DSTUDIO_DECLARE_GL_FUN(ShaderSource)     
@@ -84,6 +85,7 @@ int_fast32_t dstudio_load_gl_extensions() {
         DSTUDIO_SET_BINDER_ELEMENT(glGenerateMipmap),
         DSTUDIO_SET_BINDER_ELEMENT(glGenFramebuffers),
         DSTUDIO_SET_BINDER_ELEMENT(glGenVertexArrays),
+        DSTUDIO_SET_BINDER_ELEMENT(glGetAttribLocation),
         DSTUDIO_SET_BINDER_ELEMENT(glGetUniformLocation),
         DSTUDIO_SET_BINDER_ELEMENT(glLinkProgram),
         DSTUDIO_SET_BINDER_ELEMENT(glShaderSource),

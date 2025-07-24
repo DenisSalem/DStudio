@@ -17,7 +17,12 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dstudio.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "../macros.h"
+#include "dstudio_memory_management.h"
 
 static uint_fast64_t * s_allocation_register = 0;
 static uint_fast32_t s_allocation_register_index = 0;

@@ -17,10 +17,18 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DSTUDIO_UI_ENGINE_H_INCLUDED
-#define DSTUDIO_UI_ENGINE_H_INCLUDED
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
+#ifdef DSTUDIO_DEBUG 
+#include <string.h>
+#endif
+
+#include "../macros.h"
 #include "../memory_management/dstudio_memory_management.h"
+#include "../paths.h"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -30,18 +38,19 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#ifndef DSTUDIO_UI_ENGINE_H_INCLUDED
+#define DSTUDIO_UI_ENGINE_H_INCLUDED
+
+
 void dstudio_compile_shader(
     GLuint shader_id,
     GLchar ** source_pointer
 );
 
-void dstudio_create_shader_program(
-    GLuint * shader_program_id
-);
+GLuint dstudio_create_shader_program();
 
-void dstudio_gen_gl_buffer(
+GLuint dstudio_create_gl_buffer(
     GLenum type,
-    GLuint * vertex_buffer_object_p,
     void * vertex_attributes,
     GLenum mode,
     uint_fast32_t data_size

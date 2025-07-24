@@ -26,11 +26,11 @@ void dstudio_compile_shader(
 ) {
     glShaderSource(shader_id, 1, (const GLchar**) source_pointer , NULL);
     #ifdef DSTUDIO_DEBUG 
-    printf("glShaderSource : %d\n", glGetError()); 
+    printf("glShaderSource error: %d\n", glGetError()); 
     #endif
     glCompileShader(shader_id);
     #ifdef DSTUDIO_DEBUG
-        printf("glCompileShader : %d\n", glGetError());
+        printf("glCompileShader error: %d\n", glGetError());
     #endif
     #ifdef DSTUDIO_DEBUG
         GLsizei info_log_length = 2048;
@@ -52,19 +52,15 @@ static GLuint dstudio_create_shader(GLenum type) {
     return shader_id;
 }
 
-void dstudio_create_shader_program(
-    GLuint * shader_program_id
-) {
-    
-    GLuint vertex_shader = dstudio_ create_shader(GL_VERTEX_SHADER);
+GLuint dstudio_create_shader_program() {
+    GLuint shader_program_id = 0;
+    GLuint vertex_shader = dstudio_create_shader(GL_VERTEX_SHADER);
     GLuint fragment_shader =  dstudio_create_shader(GL_FRAGMENT_SHADER);
 
-    // Linking Shader
-
-    *shader_program_id = glCreateProgram();
-    glAttachShader(*shader_program_id, vertex_shader);
-    glAttachShader(*shader_program_id, fragment_shader);
-    glLinkProgram(*shader_program_id);
+    shader_program_id = glCreateProgram();
+    glAttachShader(shader_program_id, vertex_shader);
+    glAttachShader(shader_program_id, fragment_shader);
+    glLinkProgram(shader_program_id);
     
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
@@ -73,27 +69,28 @@ void dstudio_create_shader_program(
     GLint info_log_length = 2048;
     char program_error_message[2048] = {0};
 
-    glGetProgramiv(*shader_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-    glGetProgramInfoLog(*shader_program_id, info_log_length, NULL, program_error_message);
+    glGetProgramiv(shader_program_id, GL_INFO_LOG_LENGTH, &info_log_length);
+    glGetProgramInfoLog(shader_program_id, info_log_length, NULL, program_error_message);
 
     if (strlen(program_error_message) != 0) {
         printf("%s\n", program_error_message);
     }
     #endif
+    return shader_program_id;
 }
 
-void dstudio_gen_gl_buffer(
+GLuint dstudio_create_gl_buffer(
     GLenum type,
-    GLuint * buffer_object_p,
     void * data,
     GLenum mode,
     uint_fast32_t data_size
 ) {
-    *buffer_object_p = 0;
-    glGenBuffers(1, buffer_object_p);
-    glBindBuffer(type, *buffer_object_p);
+    GLuint buffer_object = 0;
+    glGenBuffers(1, &buffer_object);
+    glBindBuffer(type, buffer_object);
         glBufferData(type, data_size, data, mode);
     glBindBuffer(type, 0);
+    return buffer_object;
 }
 
 void dstudio_load_shader(

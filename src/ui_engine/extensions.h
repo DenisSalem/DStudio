@@ -51,6 +51,7 @@ DSTUDIO_DEF_GL_FUN(void,            GenBuffers,                 GLsizei n, GLuin
 DSTUDIO_DEF_GL_FUN(void,            GenerateMipmap,             GLenum target)
 DSTUDIO_DEF_GL_FUN(void,            GenFramebuffers,            GLsizei n, GLuint * ids)
 DSTUDIO_DEF_GL_FUN(void,            GenVertexArrays,            GLsizei n, GLuint *arrays)
+DSTUDIO_DEF_GL_FUN(GLint,           GetAttribLocation,          GLuint program​, const GLchar *name​);
 DSTUDIO_DEF_GL_FUN(GLint,           GetUniformLocation,         GLuint program, const GLchar *name)
 DSTUDIO_DEF_GL_FUN(void,            LinkProgram,                GLuint program)
 DSTUDIO_DEF_GL_FUN(void,            ShaderSource,               GLuint shader, GLsizei count, const GLchar **string, const GLint *length)     

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2021 Denis Salem
+ * Copyright 2019, 2025 Denis Salem
  *
  * This file is part of DStudio.
  *
