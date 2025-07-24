@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2021 Denis Salem
+ * Copyright 2019, 2025 Denis Salem
  *
  * This file is part of DStudio.
  *
@@ -20,13 +20,13 @@
 #ifndef DSTUDIO_MACROS_H_INCLUDED
 #define DSTUDIO_MACROS_H_INCLUDED
         
-#define ABSOLUTE_VALUE(v) ( v < 0 ? -v : v)
+//~ #define ABSOLUTE_VALUE(v) ( v < 0 ? -v : v)
 
-#define DEFINE_SCALE_MATRIX(scale_matrix, w, h) \
-        scale_matrix[0].x = (GLfloat) w / (GLfloat) g_dstudio_viewport_width;\
-        scale_matrix[0].y = 0; \
-        scale_matrix[1].x = 0; \
-        scale_matrix[1].y = (GLfloat) h / (GLfloat) g_dstudio_viewport_height;
+//~ #define DEFINE_SCALE_MATRIX(scale_matrix, w, h) \
+        //~ scale_matrix[0].x = (GLfloat) w / (GLfloat) g_dstudio_viewport_width;\
+        //~ scale_matrix[0].y = 0; \
+        //~ scale_matrix[1].x = 0; \
+        //~ scale_matrix[1].y = (GLfloat) h / (GLfloat) g_dstudio_viewport_height;
 
 #define DSTUDIO_EXIT_IF_FAILURE(value) \
     if ((value) != 0) { \
@@ -46,21 +46,21 @@
         return -1; \
     }
 
-#define DSTUDIO_TRACE \
-    printf("%s %d:\n", __FILE__, __LINE__);
+//~ #define DSTUDIO_TRACE \
+    //~ printf("%s %d:\n", __FILE__, __LINE__);
 
-#define DSTUDIO_TRACE_STR(string) \
-    printf("%s %d: " #string "\n", __FILE__, __LINE__);
+//~ #define DSTUDIO_TRACE_STR(string) \
+    //~ printf("%s %d: " #string "\n", __FILE__, __LINE__);
 
-#define DSTUDIO_TRACE_ARGS(string, ...) \
-    printf("%s %d: " #string "\n", __FILE__, __LINE__, __VA_ARGS__);
+//~ #define DSTUDIO_TRACE_ARGS(string, ...) \
+    //~ printf("%s %d: " #string "\n", __FILE__, __LINE__, __VA_ARGS__);
 
-#define DSTUDIO_CURRENT_INSTANCE_CONTEXT ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current)
-#define DSTUDIO_CURRENT_VOICE_CONTEXT    ((VoiceContext*)    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXTS_LEVEL].current)
-#define DSTUDIO_PREVIOUS_VOICE_CONTEXT    ((VoiceContext*)    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXTS_LEVEL].previous)
+//~ #define DSTUDIO_CURRENT_INSTANCE_CONTEXT ((InstanceContext*) g_dstudio_active_contexts[DSTUDIO_INSTANCE_CONTEXTS_LEVEL].current)
+//~ #define DSTUDIO_CURRENT_VOICE_CONTEXT    ((VoiceContext*)    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXTS_LEVEL].current)
+//~ #define DSTUDIO_PREVIOUS_VOICE_CONTEXT    ((VoiceContext*)    g_dstudio_active_contexts[DSTUDIO_VOICE_CONTEXTS_LEVEL].previous)
 
-#define DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES \
-    char name[DSTUDIO_INSTANCE_NAME_LENGTH]; \
+//~ #define DSTUDIO_MANDATORY_CLIENT_CONTEXT_FIRST_ATTRIBUTES \
+    //~ char name[DSTUDIO_INSTANCE_NAME_LENGTH]; \
     DStudioContexts * parent;
     
 #endif
