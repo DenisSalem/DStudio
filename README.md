@@ -2,7 +2,7 @@
 
 Your high performance and features rich set of virtual instruments.
 
-__THIS BRANCH IS A COMPLETE REWORK OF THE UI ENGINE_
+__THIS BRANCH IS A COMPLETE REWORK OF THE UI ENGINE__
 
 # DSANDGRAINS 
 
