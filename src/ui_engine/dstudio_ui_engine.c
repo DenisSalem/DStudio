@@ -17,7 +17,11 @@
  * along with DStudio. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+#include <string.h>
+ 
 #include <png.h>
+
 #include "dstudio_ui_engine.h"
 
 void dstudio_compile_shader(
@@ -93,48 +97,25 @@ GLuint dstudio_create_gl_buffer(
     return buffer_object;
 }
 
-//~ GLuint dstudio_create_texture(uint_fast32_t flags, const char * filename) {
-    //~ unsigned int texture;
-    //~ glGenTextures(1, &texture);
-    //~ glBindTexture(GL_TEXTURE_2D, texture);
-    //~ uint_fast32_t alpha = flags & DSTUDIO_FLAG_USE_ALPHA;
-    //~ uint_fast32_t enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
-    //~ uint_fast32_t texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
-    //~ uint_fast8_t * texture_data = 0;
+GLuint dstudio_create_texture(uint_fast32_t flags, const char * filename) {
+    DStudioImage image = dsudio_read_png(filename);
+    GLuint texture_id;
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    uint_fast32_t enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
+    uint_fast32_t texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
     
-    //~ glGenTextures(1, &texture_id);
-    //~ glBindTexture(GL_TEXTURE_2D, texture_id);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
-        //~ glTexImage2D(GL_TEXTURE_2D, 0, alpha ? GL_RGBA : GL_RGB, texture_width, texture_height, 0, alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, texture_data);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, enable_aa ? GL_LINEAR : GL_NEAREST);
-        //~ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, enable_aa ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST );
-        //~ glGenerateMipmap(GL_TEXTURE_2D);
-    //~ glBindTexture(GL_TEXTURE_2D, 0);
-    //~ dstudio_free(texture_data);
-//~ }
-
-DStudioImage dsudio_get_png_pixels(
-    const char * filename
-) {
-    DStudioImage output = {0};
-    png_image image = {0};
-    image.version = PNG_IMAGE_VERSION;
-    if (png_image_begin_read_from_file(&image, filename) != 0) {
-        uint_fast8_t * buffer = dstudio_alloc(
-            PNG_IMAGE_SIZE(image),
-            DSTUDIO_FAILURE_IS_FATAL
-        );
-        if (buffer != NULL && png_image_finish_read(&image, NULL, buffer, 0, NULL) != 0) {
-            return output;
-        }
-    }
-    else {
-        printf("Can't load asset \"%s\": %s.\n", filename, image.message);
-        exit(-1);
-    }
-    printf("Something went wrong while reading \"%s\".\n", filename);
-    exit(-1);
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, image.channels == 4 ? GL_RGBA : GL_RGB, image.width, image.height, 0, image.channels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, image.buffer);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, enable_aa ? GL_LINEAR : GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, enable_aa ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST );
+        glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    dstudio_free(image.buffer);
+    
+    return texture_id;
 }
 
 void dstudio_load_shader(
@@ -168,6 +149,7 @@ DStudioImage dsudio_read_png(const char * filename) {
    
     // TODO WITH DEBUG MODE INTRODUCE Custom error handling for end user
     if (!fp) {
+        printf("Can't open asset \"%s\".\n", filename);
         DSTUDIO_EXIT_IF_FAILURE(fp)
     }
 
@@ -181,21 +163,6 @@ DStudioImage dsudio_read_png(const char * filename) {
     if (!is_png) {
         DSTUDIO_EXIT_IF_FAILURE(is_png)
     }
-   
-    /* TODO
-    *     If you want to use your own memory allocation routines, use a
-    * libpng that was built with PNG_USER_MEM_SUPPORTED defined, and use
-    * png_create_read_struct_2() instead opng_create_read_struct():
-    *            png_structp png_ptr = png_create_read_struct_2(
-    *                  PNG_LIBPNG_VER_STRING,
-    *                  (png_voidp) user_error_ptr,
-    *                  user_error_fn,
-    *                  user_warning_fn,
-    *                  (png_voidp) user_mem_ptr,
-    *                  user_malloc_fn,
-    *                  user_free_fn
-    *            );
-    */
     
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (!png_ptr) {
@@ -207,7 +174,7 @@ DStudioImage dsudio_read_png(const char * filename) {
         png_destroy_read_struct(&png_ptr, NULL, NULL);
         DSTUDIO_EXIT_IF_FAILURE(info_ptr)
     }
-   
+    
     png_set_sig_bytes(png_ptr, 8);
     png_init_io(png_ptr, fp);
 
@@ -217,7 +184,16 @@ DStudioImage dsudio_read_png(const char * filename) {
     png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
 
     png_bytep * row_pointers = png_get_rows(png_ptr, info_ptr);
-    (void) row_pointers;
-    printf("DEBUG %d %d %d\n", png_get_image_width(png_ptr, info_ptr), png_get_image_height(png_ptr, info_ptr), png_get_channels(png_ptr, info_ptr));
+    image.channels  = png_get_channels(png_ptr, info_ptr);
+    image.width     = png_get_image_width(png_ptr, info_ptr);
+    image.height    = png_get_image_height(png_ptr, info_ptr);
+    image.buffer    = dstudio_alloc(sizeof(uint8_t)*image.channels*image.width*image.height, DSTUDIO_FAILURE_IS_FATAL);
+    
+    for (uint_fast32_t h = 0; h < image.height; h++) {
+        memcpy(&image.buffer[h*image.width*image.channels], row_pointers[h], image.width*image.channels);
+    }
+    
+    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+
     return image;
 }

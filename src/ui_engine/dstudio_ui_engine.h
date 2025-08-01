@@ -42,12 +42,8 @@
 #ifndef DSTUDIO_UI_ENGINE_H_INCLUDED
 #define DSTUDIO_UI_ENGINE_H_INCLUDED
 
-#define DSTUDIO_FLAG_USE_ALPHA                      1
-#define DSTUDIO_FLAG_USE_ANTI_ALIASING              2
-#define DSTUDIO_FLAG_TEXTURE_IS_PATTERN             4
-
 typedef struct DStudioImage_t {
-    uint_fast8_t * buffer;
+    uint8_t * buffer;
     uint_fast32_t  width;
     uint_fast32_t  height;
     uint_fast8_t   channels;
@@ -58,13 +54,18 @@ void dstudio_compile_shader(
     GLchar ** source_pointer
 );
 
-GLuint dstudio_create_shader_program();
-
 GLuint dstudio_create_gl_buffer(
     GLenum type,
     void * vertex_attributes,
     GLenum mode,
     uint_fast32_t data_size
+);
+
+GLuint dstudio_create_shader_program();
+
+GLuint dstudio_create_texture(
+    uint_fast32_t flags,
+    const char * filename
 );
 
 DStudioImage dsudio_get_png_pixels(

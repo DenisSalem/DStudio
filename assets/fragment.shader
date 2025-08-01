@@ -20,6 +20,10 @@
 #version 330
 out vec4 color;
 
+in vec2 TexCoord;
+
+uniform sampler2D in_texture;
+
 void main() {
-    color = vec4(1, 0, 0, 1);
+    color = texture(in_texture, TexCoord);
 }

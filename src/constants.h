@@ -20,6 +20,10 @@
 #ifndef DSTUDIO_CONSTANTS_H_INCLUDED
 #define DSTUDIO_CONSTANTS_H_INCLUDED
 
+#define DSTUDIO_FLAG_NONE                           0
+#define DSTUDIO_FLAG_USE_ALPHA                      1
+#define DSTUDIO_FLAG_USE_ANTI_ALIASING              2
+#define DSTUDIO_FLAG_TEXTURE_IS_PATTERN             4
 
 #define DSTUDIO_FAILURE_IS_FATAL 1
 #define DSTUDIO_FAILURE_IS_NOT_FATAL 0
