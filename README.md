@@ -15,7 +15,7 @@ An upcoming granular synthetizer for Linux.
 - OpenGL
 - libz
 - libpng
-- X11
+- GLFW
 
 ## How to Compile
 

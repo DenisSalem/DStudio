@@ -26,6 +26,7 @@
 #include <string.h>
 #endif
 
+#include "../constants.h"
 #include "../macros.h"
 #include "../memory_management/dstudio_memory_management.h"
 #include "../paths.h"
@@ -41,6 +42,16 @@
 #ifndef DSTUDIO_UI_ENGINE_H_INCLUDED
 #define DSTUDIO_UI_ENGINE_H_INCLUDED
 
+#define DSTUDIO_FLAG_USE_ALPHA                      1
+#define DSTUDIO_FLAG_USE_ANTI_ALIASING              2
+#define DSTUDIO_FLAG_TEXTURE_IS_PATTERN             4
+
+typedef struct DStudioImage_t {
+    uint_fast8_t * buffer;
+    uint_fast32_t  width;
+    uint_fast32_t  height;
+    uint_fast8_t   channels;
+} DStudioImage;
 
 void dstudio_compile_shader(
     GLuint shader_id,
@@ -56,9 +67,15 @@ GLuint dstudio_create_gl_buffer(
     uint_fast32_t data_size
 );
 
+DStudioImage dsudio_get_png_pixels(
+    const char * filename
+);
+
 void dstudio_load_shader(
     GLchar ** shader_buffer,
     const char * filename
 );
+
+DStudioImage dsudio_read_png(const char * filename);
 
 #endif

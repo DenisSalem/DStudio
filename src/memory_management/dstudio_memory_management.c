@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../constants.h"
 #include "../macros.h"
 #include "dstudio_memory_management.h"
 

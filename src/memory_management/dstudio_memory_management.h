@@ -22,8 +22,6 @@
 #ifndef DSTUDIO_MEMORY_MANAGEMENT_H_INCLUDED
 #define DSTUDIO_MEMORY_MANAGEMENT_H_INCLUDED
 
-#define DSTUDIO_FAILURE_IS_FATAL 1
-#define DSTUDIO_FAILURE_IS_NOT_FATAL 0
 #define DSTUDIO_ALLOCATION_REGISTER_CHUNK_SIZE 8
 
 void * dstudio_alloc(uint_fast32_t buffer_size, uint_fast32_t failure_is_fatal);

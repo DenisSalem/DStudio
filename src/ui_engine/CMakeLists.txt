@@ -43,7 +43,7 @@ add_executable(
 )
 
 target_include_directories(ui_poc PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-target_link_libraries(ui_poc ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} glfw)
+target_link_libraries(ui_poc ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} glfw png)
 
 if(CMAKE_BUILD_TYPE MATCHES Release)
     add_custom_command(

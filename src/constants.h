@@ -20,6 +20,10 @@
 #ifndef DSTUDIO_CONSTANTS_H_INCLUDED
 #define DSTUDIO_CONSTANTS_H_INCLUDED
 
+
+#define DSTUDIO_FAILURE_IS_FATAL 1
+#define DSTUDIO_FAILURE_IS_NOT_FATAL 0
+
 // MISCELLANEOUS CONSTANTS
 //~ #define DSTUDIO_DOUBLE_CLICK_DELAY   0.2
 //~ #define DSTUDIO_FRAMEBUFFER_COUNT 2
@@ -128,12 +132,8 @@
 //~ #define DSANDGRAINS_TINY_BUTTON_SCALE 32
 
 // UI ELEMENTS FLAGS
-//~ #define DSTUDIO_FLAG_NONE                           0
 //~ #define DSTUDIO_FLAG_FLIP_Y                         1
-//~ #define DSTUDIO_FLAG_USE_ALPHA                      2
-//~ #define DSTUDIO_FLAG_USE_ANTI_ALIASING              4
 //~ #define DSTUDIO_FLAG_USE_TEXT_SETTING               8
-//~ #define DSTUDIO_FLAG_TEXTURE_IS_PATTERN             16
 //~ #define DSTUDIO_FLAG_IS_VISIBLE                     32
 //~ #define DSTUDIO_FLAG_USE_SLIDER_BACKGROUND_SETTING  64
 //~ #define DSTUDIO_FLAG_SLIDER_TO_TOP                  128
@@ -145,12 +145,12 @@
 //~ #define DSTUDIO_FLAG_TEXT_IS_CENTERED               8192
 //~ #define DSTUDIO_FLAG_NO_SCISSOR_OFFSET              16384
 
-//~ #define DSTUDIO_FLAG_ANIMATE \
-            //~ (DSTUDIO_FLAG_ANIMATE_MOTION | \
-            //~ DSTUDIO_FLAG_ANIMATE_OFFSET | \
-            //~ DSTUDIO_FLAG_ANIMATE_ALPHA)
-            
-
+/*
+#define DSTUDIO_FLAG_ANIMATE \
+            (DSTUDIO_FLAG_ANIMATE_MOTION | \
+            DSTUDIO_FLAG_ANIMATE_OFFSET | \
+            DSTUDIO_FLAG_ANIMATE_ALPHA)
+*/
 
 //~ #define DSTUDIO_DO_ANIMATE 1
 //~ #define DSTUDIO_DO_NOT_ANIMATE 0

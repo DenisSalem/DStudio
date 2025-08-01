@@ -12,6 +12,7 @@ int main(void)
     window = glfwCreateWindow(1024, 640, "Hello World", NULL, NULL);
     if (!window)
     {
+        printf("DEBUG WINDOW %lu\n", (unsigned long) window);
         glfwTerminate();
         return -1;
     }
@@ -20,14 +21,14 @@ int main(void)
 
     glClearColor(0.5,0.5,0.5, 0);
     GLfloat vertices[] = {
-                           -0.7, -0.7, 0,
-                           0.7, -0.7, 0,
-                           0, 0.7, 0
+                           -0.5, -0.5, 0,
+                           -0.5, 0.5, 0,
+                           0.5, -0.5, 0,
+                           0.5, 0.5, 0
     };
     
     
     GLuint shader_program_id = dstudio_create_shader_program();
-    printf("SHADER PROGRAM ID: %d", shader_program_id);
     GLuint vbo_id =  dstudio_create_gl_buffer(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW, sizeof(vertices));
     // Get the 'pos' variable location inside this program
     GLuint pos_attribute_position = glGetAttribLocation(shader_program_id, "pos");
@@ -47,10 +48,12 @@ int main(void)
     glEnableVertexAttribArray(pos_attribute_position);
     glUseProgram(shader_program_id);
 
+    dsudio_read_png( "../../assets/knob1_64x64.png");
+
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
