@@ -21,6 +21,10 @@ int main(void)
     glfwMakeContextCurrent(window);
 
     glClearColor(0.5,0.5,0.5, 0);
+    
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    
     GLfloat vertices[] = {
         -1.0f,  1.0f, 0.0f,     0.0f, 0.0f,
         -1.0f, -1.0f, 0.0f,     0.0f, 1.0f,
