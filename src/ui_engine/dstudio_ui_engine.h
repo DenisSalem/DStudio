@@ -49,6 +49,25 @@ typedef struct DStudioImage_t {
     uint_fast8_t   channels;
 } DStudioImage;
 
+typedef struct DStudioWidget {
+    GLuint widget_texture;
+    GLuint background_texture;
+    Vec4 vertex_attributes;
+    Vec2 scale_matrix[2];
+}
+
+typedef struct vec2_t {
+    GLfloat x;
+    GLfloat y;
+} Vec2;
+
+typedef struct Vec4_t {
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+    GLfloat w;
+} Vec4;
+
 void dstudio_compile_shader(
     GLuint shader_id,
     GLchar ** source_pointer

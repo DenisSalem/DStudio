@@ -1,5 +1,16 @@
 #include "dstudio_ui_engine.h"
 
+GLuint g_scale_matrix_id = 0;
+
+static void update_scale_matrix(Vec2 * scale_matrix) {
+    glUniformMatrix2fv(
+        g_scale_matrix_id,
+        1,
+        GL_FALSE,
+        (float *) scale_matrix
+    );
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     (void) window;
@@ -51,6 +62,7 @@ int main(void)
     
     GLuint pos_attribute = glGetAttribLocation(shader_program_id, "in_position");
     GLuint tex_attribute = glGetAttribLocation(shader_program_id, "in_TexCoord");
+    g_scale_matrix_id = glGetUniformLocation(shader_program_id, "scale_matrix");
 
     GLuint vao_id;
     glGenVertexArrays(1, &vao_id); 
