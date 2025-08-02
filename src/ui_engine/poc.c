@@ -1,5 +1,14 @@
 #include "dstudio_ui_engine.h"
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    (void) window;
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
+    // Re-render the scene because the current frame was drawn for the old resolution
+}
+
 int main(void)
 {
     dstudio_init_memory_management();
@@ -11,6 +20,8 @@ int main(void)
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     window = glfwCreateWindow(1024, 640, "Hello World", NULL, NULL);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
     if (!window)
     {
         printf("DEBUG WINDOW %lu\n", (unsigned long) window);
