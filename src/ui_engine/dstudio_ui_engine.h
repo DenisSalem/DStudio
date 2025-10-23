@@ -42,21 +42,31 @@
 #ifndef DSTUDIO_UI_ENGINE_H_INCLUDED
 #define DSTUDIO_UI_ENGINE_H_INCLUDED
 
+typedef GLFWwindow* DStudioWindow ;
+#define dstudio_window_should_close glfwWindowShouldClose
+
+typedef struct DStudioGenericWidgetSharedObject_t {
+    GLfloat vertices[16];
+    GLuint  shader_program_id;
+    GLuint  pos_location;
+    GLuint  tex_location;
+} DStudioGenericWidgetSharedObject;
+
+typedef enum DStudioWidgetType_t {
+    DSTUDIO_WIDGET_TYPE_KNOB,
+    DSTUDIO_WIDGET_TYPE_SLIDER,
+    DSTUDIO_WIDGET_TYPE_BUTTON
+} DStudioWidgetType;
+
 typedef struct DStudioImage_t {
     uint8_t * buffer;
     uint_fast32_t  width;
     uint_fast32_t  height;
     uint_fast8_t   channels;
+    GLuint         texture_id;
 } DStudioImage;
 
-typedef struct DStudioWidget {
-    GLuint widget_texture;
-    GLuint background_texture;
-    Vec4 vertex_attributes;
-    Vec2 scale_matrix[2];
-}
-
-typedef struct vec2_t {
+typedef struct Vec2_t {
     GLfloat x;
     GLfloat y;
 } Vec2;
@@ -67,6 +77,24 @@ typedef struct Vec4_t {
     GLfloat z;
     GLfloat w;
 } Vec4;
+
+typedef struct DStudioBitmapWidget_t {
+    DStudioWidgetType type;
+    GLuint texture;
+    GLuint background_texture;
+    GLuint  vao_id;
+    GLuint  vbo_id;
+    uint_fast32_t  width;
+    uint_fast32_t  height;
+    uint_fast32_t  background_width;
+    uint_fast32_t  background_height;
+    Vec2 position;
+    Vec2 offset;
+    GLfloat rotation;
+    Vec4 vertex_attributes;
+    Vec2 widget_scale_matrix[2];
+    Vec2 background_scale_matrix[2];
+} DStudioBitmapWidget;
 
 void dstudio_compile_shader(
     GLuint shader_id,
@@ -82,9 +110,13 @@ GLuint dstudio_create_gl_buffer(
 
 GLuint dstudio_create_shader_program();
 
-GLuint dstudio_create_texture(
-    uint_fast32_t flags,
+DStudioImage dstudio_create_texture(
     const char * filename
+);
+
+DStudioBitmapWidget dstudio_create_widget(
+    const char * widget_filename,
+    const char * background_filename
 );
 
 DStudioImage dsudio_get_png_pixels(
@@ -98,4 +130,9 @@ void dstudio_load_shader(
 
 DStudioImage dsudio_read_png(const char * filename);
 
+DStudioWindow dstudio_init_gui(int width, int height, const char * title);
+
+extern uint32_t g_dstudio_viewport_width;
+extern uint32_t g_dstudio_viewport_height;
+extern DStudioGenericWidgetSharedObject generic_widget_shared_object;
 #endif

@@ -19,10 +19,20 @@
  */
 
 #include <string.h>
- 
 #include <png.h>
-
 #include "dstudio_ui_engine.h"
+
+/*static*/ DStudioGenericWidgetSharedObject generic_widget_shared_object = {
+    {
+        -1.0f, 1.0f,     0.0f, 0.0f,
+        -1.0f, -1.0f,     0.0f, 1.0f,
+        1.0f,  1.0f,     1.0f, 0.0f,
+        1.0f, -1.0f,     1.0f, 1.0f
+    },
+    0, 
+    0,
+    0
+};
 
 void dstudio_compile_shader(
     GLuint shader_id, 
@@ -97,25 +107,95 @@ GLuint dstudio_create_gl_buffer(
     return buffer_object;
 }
 
-GLuint dstudio_create_texture(uint_fast32_t flags, const char * filename) {
+DStudioImage dstudio_create_texture(const char * filename) {
     DStudioImage image = dsudio_read_png(filename);
-    GLuint texture_id;
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    uint_fast32_t enable_aa = flags & DSTUDIO_FLAG_USE_ANTI_ALIASING;
-    uint_fast32_t texture_is_pattern = flags & DSTUDIO_FLAG_TEXTURE_IS_PATTERN;
-    
-    glGenTextures(1, &texture_id);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
+    GLuint texture_is_pattern = 0;  //TODO not implemented yet
+    glGenTextures(1, &image.texture_id);
+    glBindTexture(GL_TEXTURE_2D, image.texture_id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture_is_pattern ? GL_REPEAT: GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, image.channels == 4 ? GL_RGBA : GL_RGB, image.width, image.height, 0, image.channels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, image.buffer);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, enable_aa ? GL_LINEAR : GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, enable_aa ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     dstudio_free(image.buffer);
     
-    return texture_id;
+    return image;
+}
+
+DStudioBitmapWidget dstudio_create_widget(const char * widget_filename, const char * background_filename) {
+    DStudioBitmapWidget widget = {0};
+    DStudioImage image = dstudio_create_texture(widget_filename);
+    
+    widget.height = image.height;
+    widget.width = image.width;
+    widget.texture = image.texture_id;
+    
+    if (background_filename != NULL) {
+        image = dstudio_create_texture(background_filename);
+        widget.background_height = image.height;
+        widget.background_width = image.width;
+        widget.background_texture = image.texture_id;
+    }
+    widget.vbo_id =  dstudio_create_gl_buffer(
+        GL_ARRAY_BUFFER,
+        generic_widget_shared_object.vertices,
+        GL_STATIC_DRAW,
+        sizeof(GLfloat) * 16
+    );
+    glGenVertexArrays(1, &widget.vao_id); 
+    return widget;
+}
+
+DStudioBitmapWidget dstudio_create_knob(const char * widget_filename, const char * background_filename) {
+    DStudioBitmapWidget widget = dstudio_create_widget(widget_filename, background_filename);
+    widget.type = DSTUDIO_WIDGET_TYPE_KNOB;
+    return widget;
+}
+
+static void dsudio_glfw_framebuffer_size_callback(GLFWwindow* window, int  g_dstudio_viewport_width, int  g_dstudio_viewport_height)
+{
+    (void) window;
+    glViewport(0, 0,  g_dstudio_viewport_width,  g_dstudio_viewport_height);
+}
+
+DStudioWindow dstudio_init_gui(int width, int height, const char * title){
+    GLFWwindow* window;
+
+    dstudio_load_gl_extensions();
+
+
+    if (!glfwInit()) {
+        printf("DSTUDIO: glfwInit() == GLFW_FALSE\n");
+        return NULL;
+    }
+    
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    window = glfwCreateWindow(width, height, title, NULL, NULL);
+
+    if (!window)
+    {
+        int code = glfwGetError(NULL);
+        printf("DSTUDIO: !window: %x\n", code);
+        glfwTerminate();
+        return NULL;
+    }
+    
+    glfwSetFramebufferSizeCallback(window, dsudio_glfw_framebuffer_size_callback);
+    glfwMakeContextCurrent(window);
+    
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glClearColor(0.0,0.0,0.0, 0);
+
+    generic_widget_shared_object.shader_program_id = dstudio_create_shader_program();
+    generic_widget_shared_object.pos_location = glGetAttribLocation(generic_widget_shared_object.shader_program_id, "in_position");
+    generic_widget_shared_object.tex_location = glGetAttribLocation(generic_widget_shared_object.shader_program_id, "in_TexCoord");
+    return window;
 }
 
 void dstudio_load_shader(
