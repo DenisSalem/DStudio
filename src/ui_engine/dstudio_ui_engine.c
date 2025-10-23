@@ -34,6 +34,20 @@
     0
 };
 
+//TODO is WIP. Should be static and managed by scene tree
+void render_bitmap_widget(DStudioBitmapWidget widget) {
+    glBindVertexArray(widget.vao_id);
+    glBindBuffer(GL_ARRAY_BUFFER, widget.vbo_id);
+    
+    glVertexAttribPointer(generic_widget_shared_object.pos_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    glVertexAttribPointer(generic_widget_shared_object.tex_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*) (2 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(generic_widget_shared_object.pos_location);
+    glEnableVertexAttribArray(generic_widget_shared_object.tex_location);
+    
+    glBindTexture(GL_TEXTURE_2D, widget.texture);
+    glUseProgram(generic_widget_shared_object.shader_program_id);
+} 
+    
 void dstudio_compile_shader(
     GLuint shader_id, 
     GLchar ** source_pointer

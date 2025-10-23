@@ -96,6 +96,13 @@ typedef struct DStudioBitmapWidget_t {
     Vec2 background_scale_matrix[2];
 } DStudioBitmapWidget;
 
+typedef struct DStudioSceneNode_t {
+    Vec2 coordinates;
+    Vec2 size;
+    uint_fast32_t enabled;
+    struct DStudioSceneNode_t * childs;
+} DStudioSceneNode;
+
 void dstudio_compile_shader(
     GLuint shader_id,
     GLchar ** source_pointer
@@ -131,6 +138,9 @@ void dstudio_load_shader(
 DStudioImage dsudio_read_png(const char * filename);
 
 DStudioWindow dstudio_init_gui(int width, int height, const char * title);
+
+// Will be removed to be hidden from API
+void render_bitmap_widget(DStudioBitmapWidget widget);
 
 extern uint32_t g_dstudio_viewport_width;
 extern uint32_t g_dstudio_viewport_height;
