@@ -48,5 +48,5 @@
 #define DSTUDIO_SLIDER_2_8x8_TEXTURE_PATH           "../../assets/slider3.png"
 #define DSTUDIO_SLIDER_BACKGROUND_ASSET_PATH        "../../assets/slider_background.png"
 #define DSTUDIO_VERTEX_SHADER_PATH                  "../../assets/vertex.shader"
-
+#define DSTUDIO_DEFAULT_FONT_PATH                   "../../../assets/DejaVuSansMono.ttf"
 #endif

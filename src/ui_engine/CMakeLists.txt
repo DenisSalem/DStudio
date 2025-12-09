@@ -34,17 +34,18 @@ endif()
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED OpenGL GLX) 
 find_package(glfw3 3.4 REQUIRED)
-
+find_package(Freetype REQUIRED)
 add_executable(
     ui_poc
     poc.c
     dstudio_ui_engine.c
     extensions.c
+    text.c
     ../memory_management/dstudio_memory_management.c
 )
 
-target_include_directories(ui_poc PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
-target_link_libraries(ui_poc ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} glfw png)
+target_include_directories(ui_poc PRIVATE ${PNG_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(ui_poc ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} glfw png ${FREETYPE_LIBRARIES})
 
 if(CMAKE_BUILD_TYPE MATCHES Release)
     add_custom_command(

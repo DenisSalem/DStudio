@@ -43,20 +43,24 @@
 #define DSTUDIO_UI_ENGINE_H_INCLUDED
 
 typedef GLFWwindow* DStudioWindow ;
-#define dstudio_window_should_close glfwWindowShouldClose
-
-typedef struct DStudioGenericWidgetSharedObject_t {
-    GLfloat vertices[16];
-    GLuint  shader_program_id;
-    GLuint  pos_location;
-    GLuint  tex_location;
-} DStudioGenericWidgetSharedObject;
 
 typedef enum DStudioWidgetType_t {
+    DSTUDIO_WIDGET_TYPE_NONE,
     DSTUDIO_WIDGET_TYPE_KNOB,
     DSTUDIO_WIDGET_TYPE_SLIDER,
     DSTUDIO_WIDGET_TYPE_BUTTON
 } DStudioWidgetType;
+
+typedef enum DStudioSceneNodeType_t {
+    DSTUDIO_SCENE_NODE_TYPE_ROOT,
+    DSTUDIO_SCENE_NODE_TYPE_STACK,
+    DSTUDIO_SCENE_NODE_TYPE_BITMAP_WIDGET,
+} DStudioSceneNodeType;
+
+typedef enum DStudioSceneNodeBitFlag_t {
+    DSTUDIO_SCENE_NODE_ENABLED = 1,
+    DSTUDIO_SCENE_NODE_STACK_VERTICAL = 2,
+} DStudioSceneNodeBitFlag;
 
 typedef struct DStudioImage_t {
     uint8_t * buffer;
@@ -78,6 +82,14 @@ typedef struct Vec4_t {
     GLfloat w;
 } Vec4;
 
+typedef struct DStudioGenericWidgetSharedObject_t {
+    Vec4 base_vertices[4];
+    Vec4 vertices[4];
+    GLuint  shader_program_id;
+    GLuint  pos_location;
+    GLuint  tex_location;
+} DStudioGenericWidgetSharedObject;
+
 typedef struct DStudioBitmapWidget_t {
     DStudioWidgetType type;
     GLuint texture;
@@ -88,61 +100,34 @@ typedef struct DStudioBitmapWidget_t {
     uint_fast32_t  height;
     uint_fast32_t  background_width;
     uint_fast32_t  background_height;
-    Vec2 position;
-    Vec2 offset;
     GLfloat rotation;
-    Vec4 vertex_attributes;
-    Vec2 widget_scale_matrix[2];
-    Vec2 background_scale_matrix[2];
 } DStudioBitmapWidget;
 
 typedef struct DStudioSceneNode_t {
+    uint_fast8_t type;
+    uint_fast8_t flag;
+    uint_fast32_t childs_count;
+    struct DStudioSceneNode_t * childs;
     Vec2 coordinates;
     Vec2 size;
-    uint_fast32_t enabled;
-    struct DStudioSceneNode_t * childs;
+    union {
+        DStudioBitmapWidget bitmap; 
+    } widget;
 } DStudioSceneNode;
 
-void dstudio_compile_shader(
-    GLuint shader_id,
-    GLchar ** source_pointer
-);
+DStudioSceneNode * dstudio_create_scene_tree();
 
-GLuint dstudio_create_gl_buffer(
-    GLenum type,
-    void * vertex_attributes,
-    GLenum mode,
-    uint_fast32_t data_size
-);
-
-GLuint dstudio_create_shader_program();
-
-DStudioImage dstudio_create_texture(
-    const char * filename
-);
-
-DStudioBitmapWidget dstudio_create_widget(
+DStudioBitmapWidget dstudio_create_knob(
     const char * widget_filename,
     const char * background_filename
 );
 
-DStudioImage dsudio_get_png_pixels(
-    const char * filename
-);
+void dstudio_event_manager();
 
-void dstudio_load_shader(
-    GLchar ** shader_buffer,
-    const char * filename
-);
+void dstudio_init_gui(int width, int height, const char * title);
 
-DStudioImage dsudio_read_png(const char * filename);
+void dstudio_render_scene_tree();
 
-DStudioWindow dstudio_init_gui(int width, int height, const char * title);
+int dstudio_window_should_close();
 
-// Will be removed to be hidden from API
-void render_bitmap_widget(DStudioBitmapWidget widget);
-
-extern uint32_t g_dstudio_viewport_width;
-extern uint32_t g_dstudio_viewport_height;
-extern DStudioGenericWidgetSharedObject generic_widget_shared_object;
 #endif

@@ -4,18 +4,21 @@ int main(void)
 {
     dstudio_init_memory_management();
 
-    DStudioWindow window = dstudio_init_gui(1024, 768, "HELLO WORLD");
-    
-    DStudioBitmapWidget widget = dstudio_create_widget(DSTUDIO_KNOB_1_64x64_TEXTURE_PATH, NULL);
+    dstudio_init_gui(1024, 768, "HELLO WORLD");
 
-    render_bitmap_widget(widget);
+    DStudioSceneNode * scene_tree = dstudio_create_scene_tree();
 
-    while (!dstudio_window_should_close(window))
+    scene_tree->widget.bitmap = dstudio_create_knob(
+        "../../../assets/knob_128x128.png",
+        "../../../assets/knob_background_128x128.png"
+    );
+    scene_tree->widget.bitmap.width = 64;
+    scene_tree->widget.bitmap.height = 64;
+
+    while (!dstudio_window_should_close())
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        dstudio_event_manager();
+        dstudio_render_scene_tree();
     }
 
     glfwTerminate();
